@@ -1,10 +1,26 @@
+use crate::proptest::*;
+use na::{DMatrix, DVector, Dim, Matrix, Matrix4x3, RawStorage, Vector4};
+use nl::LU;
+use num_traits::Zero;
+use proptest::{prop_assert, proptest};
 use std::cmp;
 
-use na::{DMatrix, DVector, Matrix4x3, Vector4};
-use nl::LU;
-
-use crate::proptest::*;
-use proptest::{prop_assert, proptest};
+fn has_vanishing_diagonal_entries<T, R, C, S>(mat: &Matrix<T, R, C, S>) -> bool
+where
+    T: Zero + PartialEq,
+    R: Dim,
+    C: Dim,
+    S: RawStorage<T, R, C>,
+{
+    let dim = mat.nrows().min(mat.ncols());
+    let zero = T::zero();
+    for j in 0..dim {
+        if mat[(j, j)] == zero {
+            return true;
+        }
+    }
+    return false;
+}
 
 proptest! {
     #[test]
@@ -45,33 +61,43 @@ proptest! {
         let b1 = DVector::new_random(n);
         let b2 = DMatrix::new_random(n, nb);
 
-        let sol1 = lup.solve(&b1).unwrap();
-        let sol2 = lup.solve(&b2).unwrap();
-
-        let tr_sol1 = lup.solve_transpose(&b1).unwrap();
-        let tr_sol2 = lup.solve_transpose(&b2).unwrap();
-
-        prop_assert!(relative_eq!(&m * sol1, b1, epsilon = 1.0e-5));
-        prop_assert!(relative_eq!(&m * sol2, b2, epsilon = 1.0e-5));
-        prop_assert!(relative_eq!(m.transpose() * tr_sol1, b1, epsilon = 1.0e-5));
-        prop_assert!(relative_eq!(m.transpose() * tr_sol2, b2, epsilon = 1.0e-5));
+        // this path is taken if the matrix is not detected as singular
+        // during the LU decomposition.
+        if let (Some(sol1), Some(sol2), Some(tr_sol1), Some(tr_sol2)) = (
+            lup.solve(&b1),
+            lup.solve(&b2),
+            lup.solve_transpose(&b1),
+            lup.solve_transpose(&b2)
+        ) {
+            prop_assert!(relative_eq!(&m * sol1, b1, epsilon = 1.0e-5));
+            prop_assert!(relative_eq!(&m * sol2, b2, epsilon = 1.0e-5));
+            prop_assert!(relative_eq!(m.transpose() * tr_sol1, b1, epsilon = 1.0e-5));
+            prop_assert!(relative_eq!(m.transpose() * tr_sol2, b2, epsilon = 1.0e-5));
+        } else {
+            // If any solve returns None, it should indicate that the matrix is
+            // singular, which we can verify by checking that one or more
+            // diagonal elemenst of U are singular.
+            prop_assert!(has_vanishing_diagonal_entries(&lup.u()))
+        }
     }
 
     #[test]
-    fn lu_solve_static(m in matrix4()) {
+    fn lu_solve_static(m in matrix4(), b1 in vector4(), b2 in matrix4x5()) {
         let lup = LU::new(m);
-        let b1 = Vector4::new_random();
-        let b2 = Matrix4x3::new_random();
 
-        let sol1 = lup.solve(&b1).unwrap();
-        let sol2 = lup.solve(&b2).unwrap();
-        let tr_sol1 = lup.solve_transpose(&b1).unwrap();
-        let tr_sol2 = lup.solve_transpose(&b2).unwrap();
-
-        prop_assert!(relative_eq!(m * sol1, b1, epsilon = 1.0e-5));
-        prop_assert!(relative_eq!(m * sol2, b2, epsilon = 1.0e-5));
-        prop_assert!(relative_eq!(m.transpose() * tr_sol1, b1, epsilon = 1.0e-5));
-        prop_assert!(relative_eq!(m.transpose() * tr_sol2, b2, epsilon = 1.0e-5));
+        if let (Some(sol1), Some(sol2), Some(tr_sol1), Some(tr_sol2)) = (
+            lup.solve(&b1),
+            lup.solve(&b2),
+            lup.solve_transpose(&b1),
+            lup.solve_transpose(&b2)
+        ) {
+            prop_assert!(relative_eq!(m * sol1, b1, epsilon = 1.0e-5));
+            prop_assert!(relative_eq!(m * sol2, b2, epsilon = 1.0e-5));
+            prop_assert!(relative_eq!(m.transpose() * tr_sol1, b1, epsilon = 1.0e-5));
+            prop_assert!(relative_eq!(m.transpose() * tr_sol2, b2, epsilon = 1.0e-5));
+        } else {
+            prop_assert!(has_vanishing_diagonal_entries(&lup.u()))
+        }
     }
 
     #[test]

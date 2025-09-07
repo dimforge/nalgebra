@@ -39,6 +39,9 @@ where
 {
     lu: OMatrix<T, R, C>,
     p: OVector<i32, DimMinimum<R, C>>,
+    /// the LU decomposition can be computed for singular matrices, but we
+    /// cannot solve linear systems for singular matrices.
+    singular: bool,
 }
 
 impl<T: Scalar + Copy, R: DimMin<C>, C: Dim> Copy for LU<T, R, C>
@@ -78,9 +81,30 @@ where
             ipiv.as_mut_slice(),
             &mut info,
         );
-        lapack_panic!(info);
 
-        Self { lu: m, p: ipiv }
+        // @note(geo-ant)
+        // the lapack documentation for xGETRF states:
+        //
+        // !>          INFO is INTEGER
+        // !>          = 0:  successful exit
+        // !>          < 0:  if INFO = -i, the i-th argument had an illegal value
+        // !>          > 0:  if INFO = i, U(i,i) is exactly zero. The factorization
+        // !>                has been completed, but the factor U is exactly
+        // !>                singular, and division by zero will occur if it is used
+        // !>                to solve a system of equations.
+        // !>
+        //
+        // This is a bit unusual for lapack routines, so we have to check whether it is
+        // negative before panicking.
+        if info < 0 {
+            lapack_panic!(info);
+        }
+
+        Self {
+            lu: m,
+            p: ipiv,
+            singular: info > 0,
+        }
     }
 
     /// Gets the lower-triangular matrix part of the decomposition.
@@ -155,6 +179,10 @@ where
     where
         DefaultAllocator: Allocator<R2, C2> + Allocator<R2>,
     {
+        if self.singular {
+            return false;
+        }
+
         let dim = self.lu.nrows();
 
         assert!(
@@ -195,7 +223,7 @@ where
         DefaultAllocator: Allocator<R2, C2> + Allocator<R2>,
     {
         let mut res = b.clone_owned();
-        if self.generic_solve_mut(b'T', &mut res) {
+        if self.generic_solve_mut(b'N', &mut res) {
             Some(res)
         } else {
             None
@@ -231,7 +259,7 @@ where
         DefaultAllocator: Allocator<R2, C2> + Allocator<R2>,
     {
         let mut res = b.clone_owned();
-        if self.generic_solve_mut(b'T', &mut res) {
+        if self.generic_solve_mut(b'C', &mut res) {
             Some(res)
         } else {
             None
@@ -245,7 +273,7 @@ where
     where
         DefaultAllocator: Allocator<R2, C2> + Allocator<R2>,
     {
-        self.generic_solve_mut(b'T', b)
+        self.generic_solve_mut(b'N', b)
     }
 
     /// Solves in-place the linear system `self.transpose() * x = b`, where `x` is the unknown to be
@@ -267,7 +295,7 @@ where
     where
         DefaultAllocator: Allocator<R2, C2> + Allocator<R2>,
     {
-        self.generic_solve_mut(b'T', b)
+        self.generic_solve_mut(b'C', b)
     }
 }
 
@@ -279,6 +307,10 @@ where
 {
     /// Computes the inverse of the decomposed matrix.
     pub fn inverse(mut self) -> Option<OMatrix<T, D, D>> {
+        if self.singular {
+            return None;
+        }
+
         let dim = self.lu.nrows() as i32;
         let mut info = 0;
         let lwork = T::xgetri_work_size(
