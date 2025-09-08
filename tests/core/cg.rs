@@ -73,6 +73,17 @@ fn test_perspective_transform_vector() {
 }
 
 #[test]
+fn test_perspective_simd_transform_vector() {
+    let vector = Vector3::new(1.0, 2.0, 3.0);
+    let perspective = Perspective3::new(2.0, 45.0, 1.0, 1000.0);
+
+    assert_relative_eq!(
+        perspective.as_matrix().simd_transform_vector(&vector),
+        perspective.as_matrix().transform_vector(&vector)
+    );
+}
+
+#[test]
 fn test_perspective_transform_point3() {
     let point = Point3::new(1.0, 2.0, 3.0);
     let perspective = Perspective3::new(2.0, 45.0, 1.0, 1000.0);
@@ -84,6 +95,17 @@ fn test_perspective_transform_point3() {
 
     assert_relative_eq!(transformed, perspective.project_point(&point));
     assert_relative_eq!(transformed.coords.push(1.0), multiplied);
+}
+
+#[test]
+fn test_perspective_simd_transform_point3() {
+    let point = Point3::new(1.0, 2.0, 3.0);
+    let perspective = Perspective3::new(2.0, 45.0, 1.0, 1000.0);
+
+    assert_relative_eq!(
+        perspective.as_matrix().simd_transform_point(&point),
+        perspective.as_matrix().transform_point(&point)
+    );
 }
 
 #[test]
@@ -100,6 +122,17 @@ fn test_orthographic_transform_vector() {
 }
 
 #[test]
+fn test_orthographic_simd_transform_vector() {
+    let vector = Vector3::new(1.0, 2.0, 3.0);
+    let orthographic = Orthographic3::from_fov(2.0, 45.0, 1.0, 1000.0);
+
+    assert_relative_eq!(
+        orthographic.as_matrix().simd_transform_vector(&vector),
+        orthographic.as_matrix().transform_vector(&vector)
+    );
+}
+
+#[test]
 fn test_orthographic_transform_point3() {
     let point = Point3::new(1.0, 2.0, 3.0);
     let orthographic = Orthographic3::from_fov(2.0, 45.0, 1.0, 1000.0);
@@ -111,4 +144,15 @@ fn test_orthographic_transform_point3() {
 
     assert_relative_eq!(transformed, orthographic.project_point(&point));
     assert_relative_eq!(transformed.coords.push(1.0), multiplied);
+}
+
+#[test]
+fn test_orthographic_simd_transform_point3() {
+    let point = Point3::new(1.0, 2.0, 3.0);
+    let orthographic = Orthographic3::from_fov(2.0, 45.0, 1.0, 1000.0);
+
+    assert_relative_eq!(
+        orthographic.as_matrix().simd_transform_point(&point),
+        orthographic.as_matrix().transform_point(&point)
+    );
 }
