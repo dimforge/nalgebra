@@ -177,6 +177,7 @@ required-features = ["rand"]
 
 [profile.bench]
 lto = true
+codegen-units = 1
 
 [package.metadata.docs.rs]
 # Enable all the features when building the docs on docs.rs
