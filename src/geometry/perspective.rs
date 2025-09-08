@@ -271,7 +271,7 @@ impl<T: RealField> Perspective3<T> {
         Vector3::new(
             self.matrix[(0, 0)].clone() * p[0].clone() * inverse_denom.clone(),
             self.matrix[(1, 1)].clone() * p[1].clone() * inverse_denom,
-            self.matrix[(2, 2)].clone(),
+            -self.matrix[(2, 2)].clone(),
         )
     }
 
