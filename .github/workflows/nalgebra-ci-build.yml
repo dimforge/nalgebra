@@ -109,7 +109,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: test nalgebra-glm
+      - name: test nalgebra-lapack
         run: cargo test -p nalgebra-lapack --features proptest-support;
   build-wasm:
     runs-on: ubuntu-latest
