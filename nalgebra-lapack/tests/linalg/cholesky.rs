@@ -76,27 +76,20 @@ proptest! {
     }
 
     #[test]
-    fn cholesky_inverse(n in PROPTEST_MATRIX_DIM) {
-        let n = cmp::min(n, 15); // To avoid slowing down the test too much.
-        let m = DMatrix::<f64>::new_random(n, n);
-        let m = &m * m.transpose();
+    fn cholesky_inverse(a in positive_definite_dmatrix()) {
+        let minv = Cholesky::new(a.clone()).unwrap().inverse().unwrap();
+        let id1 = &a  * &minv;
+        let id2 = &minv * &a;
 
-        if let Some(m1) = Cholesky::new(m.clone()).unwrap().inverse() {
-            let id1 = &m  * &m1;
-            let id2 = &m1 * &m;
-
-            prop_assert!(id1.is_identity(1.0e-6) && id2.is_identity(1.0e-6));
-        }
+        prop_assert!(id1.is_identity(1.0e-6) && id2.is_identity(1.0e-6));
     }
 
     #[test]
-    fn cholesky_inverse_static(m in matrix4()) {
-        let m = m * m.transpose();
-        if let Some(m1) = Cholesky::new(m.clone()).unwrap().inverse() {
-            let id1 = &m  * &m1;
-            let id2 = &m1 * &m;
+    fn cholesky_inverse_static(a in positive_definite_matrix4()) {
+        let minv = Cholesky::new(a.clone()).unwrap().inverse().unwrap();
+        let id1 = &a  * &minv;
+        let id2 = &minv * &a;
 
-            prop_assert!(id1.is_identity(1.0e-4) && id2.is_identity(1.0e-4))
-        }
+        prop_assert!(id1.is_identity(1.0e-6) && id2.is_identity(1.0e-6));
     }
 }
