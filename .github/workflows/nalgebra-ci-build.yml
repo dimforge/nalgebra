@@ -105,6 +105,12 @@ jobs:
       - uses: actions/checkout@v4
       - name: test nalgebra-macros
         run: cargo test -p nalgebra-macros
+  test-nalgebra-lapack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: test nalgebra-glm
+        run: cargo test -p nalgebra-lapack --features proptest-support;
   build-wasm:
     runs-on: ubuntu-latest
     #    env:
