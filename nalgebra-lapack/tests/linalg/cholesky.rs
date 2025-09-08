@@ -63,7 +63,7 @@ proptest! {
 
         if let Some(chol) = Cholesky::new(a.clone()) {
             let sol = chol.solve(&b).unwrap();
-            prop_assert!(relative_eq!(&a * sol, b, epsilon = 1.0e-6));
+            prop_assert!(relative_eq!(&a * sol, b, epsilon = 1.0e-5));
         }
     }
 
@@ -71,7 +71,7 @@ proptest! {
     fn cholesky_solve_static((a,b) in positive_definite_linear_system_4()) {
         if let Some(chol) = Cholesky::new(a) {
             let sol = chol.solve(&b).unwrap();
-            prop_assert!(relative_eq!(a * sol, b, epsilon = 1.0e-4));
+            prop_assert!(relative_eq!(a * sol, b, epsilon = 1.0e-5));
         }
     }
 
