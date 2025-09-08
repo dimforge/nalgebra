@@ -300,7 +300,7 @@ fn solve_full_rank_overdetermined_system_with_single_rhs() {
     let qr =
         ColPivQR::with_rank_algo(a, Default::default()).expect("qr decomposition must not fail");
     assert_eq!(qr.rank(), 3);
-    let x_calc = qr.solve(&b).unwrap();
+    let x_calc = qr.solve(b).unwrap();
     assert_abs_diff_eq!(x_calc, x, epsilon = 1e-6);
 }
 
@@ -318,7 +318,7 @@ fn solve_rank_deficient_overdetermined_system_with_single_rhs() {
     let qr =
         ColPivQR::with_rank_algo(a, Default::default()).expect("qr decomposition must not fail");
     assert_eq!(qr.rank(), 2);
-    let x_calc = qr.solve(&b).unwrap();
+    let x_calc = qr.solve(b).unwrap();
     //@note(geo-ant) for rank deficient problems we cannot expect the
     // original vector x to be reproduced, since the solution is not unique.
     // That's why we don't compare x and x_calc for equality, but we check

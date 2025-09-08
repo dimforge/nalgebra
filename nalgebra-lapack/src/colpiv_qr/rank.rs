@@ -6,19 +6,34 @@ use num::{Float, float::TotalOrder};
 mod test;
 
 /// describes different algorithms of estimating a matrix rank from the upper
-/// diagonal R matrix of a column-pivoted QR decomposition.
+/// diagonal `R` matrix of a column-pivoted QR decomposition.
 pub enum RankDeterminationAlgorithm<T: RealField> {
-    /// this simplest (and cheapest) strategy is to estimate the rank of the
+    /// This simplest (and cheapest) strategy is to estimate the rank of the
     /// matrix $$AP = QR$$ as the number of diagonal elements $$R_{ii}$$ greater
     /// than this fixed lower bound.
     ///
     /// **Note**: this is the fastest method, but
-    /// should be used with extreme care, because it can easily produce bad
-    /// results even in trivial cases.
+    /// should be used with extreme caution, because it can easily produce
+    /// erroneous results even in trivial cases.
     FixedLowerBound(T::RealField),
-    //@todo
+    /// Calculate the rank of the matrix as the number of diagonal elements
+    /// of `R` greater than `R_max * EPSILON * max(nrows,ncols)`, where `R_max`
+    /// is the largest diagonal entry of `R` and `EPSILON` is the floating
+    /// point accuracy.
+    ///
+    /// This is inspired by the logic of the GNU octave [`rank`](https://octave.sourceforge.io/octave/function/rank.html)
+    /// function. However, that function uses the singular values rather than
+    /// the diagonal elements of `R`.
     ScaledEps1,
-    //@todo
+    /// Calculate the rank of the matrix as the number of diagonal elements
+    /// of `R` greater than `eps(R_max)*max(nrows,ncols)`, where `R_max`
+    /// is the largest diagonal entry of `R` and `eps(R_max)` is the same
+    /// as the matlab function [`eps`](https://www.mathworks.com/help/matlab/ref/double.eps.html)
+    /// for floating point relative accuracy.
+    ///
+    /// This is inspired by the logic of the MatLAB [`rank`](https://de.mathworks.com/help/matlab/ref/rank.html)
+    /// function. However, that function uses the singular values rather than
+    /// the diagonal elements of `R`.
     ScaledEps2,
 }
 

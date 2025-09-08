@@ -84,7 +84,7 @@ proptest! {
     fn colpiv_qr_solve_static(a in matrix5x3(), b in matrix5x2()) {
         let rank = a.rank(f64::EPSILON.sqrt());
         let qr = ColPivQR::new(a.clone()).unwrap();
-        let result = qr.solve(&b);
+        let result = qr.solve(b.clone());
         match result {
             Ok(x) => {
                 //@note(geo-ant) We can't just test A*x = b, since that is
@@ -104,7 +104,7 @@ proptest! {
     fn colpiv_qr_solve((a,b) in linear_system_dynamic()) {
         let rank = a.rank(f64::EPSILON.sqrt());
         let qr = ColPivQR::new(a.clone()).unwrap();
-        let result = qr.solve(&b);
+        let result = qr.solve(b.clone());
         match result {
             Ok(x) => {
                 //@note(geo-ant) We can't just test A*x = b, since that is

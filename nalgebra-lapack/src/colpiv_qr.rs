@@ -57,7 +57,12 @@ pub enum DiagonalKind {
     NonUnit,
 }
 
-/// todo
+/// The column-pivoted QR-decomposition of a rectangular matrix `A ∈ R^(m ⨯ n)`
+/// with `m >= n`.
+///
+/// The columns of the matrix `A` are permuted such that `A P = Q R`, meaning
+/// the column-permuted `A` is the product of `Q` and `R`, where `Q` is an orthonormal
+/// matrix `Q^T Q = I` and `R` is upper triangular.
 pub struct ColPivQR<T, R, C>
 where
     DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>> + Allocator<C>,
@@ -83,14 +88,15 @@ where
     R: DimMin<C>,
     C: Dim,
 {
-    ///
-    //@todo(geo) comment
+    /// Try to create a new decomposition from the given matrix using the default
+    /// strategy for rank determination of a matrix from its QR decomposition.
     pub fn new(m: OMatrix<T, R, C>) -> Result<Self, Error> {
         Self::with_rank_algo(m, Default::default())
     }
 
-    ///@todo(geo-ant) maybe add another constructor that allows giving a workspace array,
-    // so we don't have to allocate in here
+    /// Try to create a new decomposition from the given matrix and specify the
+    /// strategy for rank determination. When in doubt, use the default strategy
+    /// via the [ColPivQR::new]  constructor.
     pub fn with_rank_algo(
         mut m: OMatrix<T, R, C>,
         rank_algo: RankDeterminationAlgorithm<T>,
@@ -147,27 +153,28 @@ where
     R: DimMin<C>,
     C: Dim,
 {
-    /// get the effective rank of the matrix
+    /// get the effective rank of the matrix computed using the stratey
+    /// chosen at construction.
     #[inline]
     pub fn rank(&self) -> u16 {
         self.rank as u16
     }
 
     #[inline]
-    /// the number of rows of the original matrix
+    /// the number of rows of the original matrix `A`
     pub fn nrows(&self) -> usize {
         self.qr.nrows()
     }
 
     #[inline]
-    /// the number of columns of the original matrix
+    /// the number of columns of the original matrix `A`
     pub fn ncols(&self) -> usize {
         self.qr.ncols()
     }
 
-    /// obtain the permutation matrix $\boldsymbol{P}$,
-    /// such that $\boldsymbol{A P}= \boldsymbol{Q R}$. This function
-    /// allocates a copy of the stored permutation vector.
+    /// obtain the permutation `P` such that the `A P = Q R` ,
+    /// meaning the column-permuted original matrix `A` is identical to
+    /// `Q R`. This function performs a small allocation.
     pub fn p(&self) -> Permutation<C> {
         Permutation::new(self.jpvt.clone())
     }
@@ -180,8 +187,10 @@ where
     R: DimMin<C>,
     C: Dim,
 {
-    ///
-    //@todo(geo-ant): this is Q*B
+    /// Efficiently calculate the matrix product `Q B` of the factor `Q` with a
+    /// given matrix `B`. `Q` acts as if it is a matrix of dimension `m ⨯ m`, so
+    /// we require `B ∈ R^(m ⨯ k)`. The product is calculated in place and
+    /// must only be considered valid when the function returns without error.
     pub fn q_mul_mut<C2, S>(&self, b: &mut Matrix<T, R, C2, S>) -> Result<(), Error>
     where
         C2: Dim,
@@ -194,8 +203,10 @@ where
         unsafe { self.multiply_q_mut(b, Side::Left, Transposition::No) }
     }
 
-    ///
-    //@todo(geo-ant): this is Q^T*B
+    /// Efficiently calculate the matrix product `Q^T B` of the factor `Q` with a
+    /// given matrix `B`. `Q` acts as if it is a matrix of dimension `m ⨯ m`, so
+    /// we require `B ∈ R^(m ⨯ k)`. The product is calculated in place and
+    /// must only be considered valid when the function returns without error.
     pub fn q_tr_mul_mut<C2, S>(&self, b: &mut Matrix<T, R, C2, S>) -> Result<(), Error>
     where
         C2: Dim,
@@ -204,12 +215,14 @@ where
         if b.nrows() != self.nrows() {
             return Err(Error::Dimensions);
         }
-        // SAFETY: matrix has the correct dimensions for operation Q*B
+        // SAFETY: matrix has the correct dimensions for operation Q^T*B
         unsafe { self.multiply_q_mut(b, Side::Left, Transposition::Transpose) }
     }
 
-    ///
-    //@todo(geo-ant): this is Q*B
+    /// Efficiently calculate the matrix product `B Q` of the factor `Q` with a
+    /// given matrix `B`. `Q` acts as if it is a matrix of dimension `m ⨯ m`, so
+    /// we require `B ∈ R^(k ⨯ m)`. The product is calculated in place and
+    /// must only be considered valid when the function returns without error.
     pub fn mul_q_mut<R2, S>(&self, b: &mut Matrix<T, R2, R, S>) -> Result<(), Error>
     where
         R2: Dim,
@@ -222,8 +235,10 @@ where
         unsafe { self.multiply_q_mut(b, Side::Right, Transposition::No) }
     }
 
-    ///
-    //@todo(geo-ant): this is B*Q^T
+    /// Efficiently calculate the matrix product `B Q^T` of the factor `Q` with a
+    /// given matrix `B`. `Q` acts as if it is a matrix of dimension `m ⨯ m`, so
+    /// we require `B ∈ R^(k ⨯ m)`. The product is calculated in place and
+    /// must only be considered valid when the function returns without error.
     pub fn mul_q_tr_mut<R2, S>(&self, b: &mut Matrix<T, R2, R, S>) -> Result<(), Error>
     where
         R2: Dim,
@@ -232,7 +247,7 @@ where
         if b.ncols() != self.nrows() {
             return Err(Error::Dimensions);
         }
-        // SAFETY: matrix has the correct dimensions for operation Q*B
+        // SAFETY: matrix has the correct dimensions for operation B Q^T
         unsafe { self.multiply_q_mut(b, Side::Right, Transposition::Transpose) }
     }
 
@@ -291,9 +306,9 @@ where
         Ok(())
     }
 
-    ///
-    //@todo
-    pub fn solve<C2: Dim, S>(&self, rhs: &Matrix<T, R, C2, S>) -> Result<OMatrix<T, C, C2>, Error>
+    /// Solve the overdetermined linear system with the given right hand side
+    /// in a least squares sense, see the comments on [ColPivQR::solve_mut].
+    pub fn solve<C2: Dim, S>(&self, rhs: Matrix<T, R, C2, S>) -> Result<OMatrix<T, C, C2>, Error>
     where
         S: RawStorageMut<T, R, C2> + IsContiguous + Storage<T, R, C2>,
         T: Zero,
@@ -301,38 +316,42 @@ where
     {
         let (_, c2) = rhs.shape_generic();
         let (_, c) = self.qr.shape_generic();
-        let mut rhs = rhs.clone_owned();
         let mut x = OMatrix::zeros_generic(c, c2);
-        self.solve_mut(&mut rhs, &mut x)?;
+        self.solve_mut(&mut x, rhs)?;
         Ok(x)
     }
 
+    /// Solve the square or overdetermined system in `A X = B`, where `X ∈ R^(n ⨯ k)`,
+    /// `B ∈ R^(m ⨯ k)`in a least-squares sense, such that `|| A X -B||^2`
+    /// is minimized. The solution is placed into the matrix `X ∈ R^(m ⨯ k)`.
     ///
-    //@todo(geo-ant) document!
+    /// Note that QR decomposition _does not_ give the minimum norm solution
+    /// for `X`, only the residual is minimized which is typically what we want.
+    ///
+    /// This function performs a small allocation.
     pub fn solve_mut<C2: Dim, S, S2>(
         &self,
-        rhs: &mut Matrix<T, R, C2, S>,
         x: &mut Matrix<T, C, C2, S2>,
+        mut b: Matrix<T, R, C2, S>,
     ) -> Result<(), Error>
     where
         S: RawStorageMut<T, R, C2> + IsContiguous,
         S2: RawStorageMut<T, C, C2> + IsContiguous,
         T: Zero,
     {
-        //@todo(geo-ant) validate matrix dimensions!! Must be overdetermined (or square) here
-        if rhs.nrows() != self.nrows() {
+        if b.nrows() != self.nrows() {
             return Err(Error::Dimensions);
         }
 
         if self.nrows() < self.ncols() || self.nrows() == 0 || self.ncols() == 0 {
+            return Err(Error::Underdetermined);
+        }
+
+        if x.ncols() != b.ncols() || x.nrows() != self.ncols() {
             return Err(Error::Dimensions);
         }
 
-        if x.ncols() != rhs.ncols() || x.nrows() != self.ncols() {
-            return Err(Error::Dimensions);
-        }
-
-        self.q_tr_mul_mut(rhs)?;
+        self.q_tr_mul_mut(&mut b)?;
 
         let rank = self.rank();
 
@@ -348,7 +367,7 @@ where
 
         let x_cols = x.ncols();
         x.view_mut((0, 0), (rank as usize, x_cols))
-            .copy_from(&rhs.view((0, 0), (rank as usize, x_cols)));
+            .copy_from(&b.view((0, 0), (rank as usize, x_cols)));
 
         let ldb: i32 = x
             .nrows()
@@ -386,8 +405,14 @@ where
     R: DimMin<C>,
     C: Dim,
 {
-    /// Computes the orthonormal matrix $Q \in \mathbb{R}^{m \times n}$
-    /// of this decomposition.
+    /// Computes the orthonormal matrix `Q ∈ R^(m ⨯ n)` of this decomposition.
+    /// Note that this matrix has _economy_ dimensions, which means it is not
+    /// square unless `A` is square. It satisfies `Q^T Q = I`. Note further
+    /// that is is typically not necessary to compute `Q` explicitly. Rather,
+    /// check if some of the provided multiplication functions can help to
+    /// calculate the matrix products `Q B`, `B Q`, `Q^T B`, `B Q^T` more efficiently.
+    ///
+    /// This function allocates.
     #[inline]
     #[must_use]
     pub fn q(&self) -> OMatrix<T, R, DimMinimum<R, C>>
@@ -442,6 +467,8 @@ where
     }
 
     /// Retrieves the upper trapezoidal submatrix `R` of this decomposition.
+    ///
+    /// This function allocates.
     #[inline]
     #[must_use]
     pub fn r(&self) -> OMatrix<T, DimMinimum<R, C>, DimMinimum<R, C>>
