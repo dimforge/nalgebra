@@ -98,6 +98,7 @@ arbitrary = ["quickcheck"]
 proptest-support = ["proptest"]
 slow-tests = []
 rkyv-safe-deser = ["rkyv-serialize", "rkyv/validation"]
+wide-tests = ["simba/wide", "simba/rand"]
 
 [dependencies]
 nalgebra-macros = { version = "0.3.0", path = "nalgebra-macros", optional = true }
@@ -168,7 +169,7 @@ required-features = ["compare"]
 name = "nalgebra_bench"
 harness = false
 path = "benches/lib.rs"
-required-features = ["rand"]
+required-features = ["rand", "wide-tests"]
 
 #[profile.bench]
 #opt-level = 0

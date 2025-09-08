@@ -1,6 +1,7 @@
 use na::{Matrix3, Matrix4, Orthographic3, Point2, Point3, Vector2, Vector3};
 use rand::{Rng, SeedableRng};
 use rand_isaac::IsaacRng;
+use simba::simd::WideF32x4;
 
 #[path = "../common/macros.rs"]
 mod macros;
@@ -30,6 +31,31 @@ bench_binop_ref!(
     transform_point
 );
 
+bench_binop_ref!(
+    mat3_transform_vector2_x4wide,
+    Matrix3<WideF32x4>,
+    Vector2<WideF32x4>,
+    simd_transform_vector
+);
+bench_binop_ref!(
+    mat4_transform_vector3_x4wide,
+    Matrix4<WideF32x4>,
+    Vector3<WideF32x4>,
+    simd_transform_vector
+);
+bench_binop_ref!(
+    mat3_transform_point2_x4wide,
+    Matrix3<WideF32x4>,
+    Point2<WideF32x4>,
+    simd_transform_point
+);
+bench_binop_ref!(
+    mat4_transform_point3_x4wide,
+    Matrix4<WideF32x4>,
+    Point3<WideF32x4>,
+    simd_transform_point
+);
+
 fn mat4_transform_vector3_no_division(bench: &mut criterion::Criterion) {
     let mut rng = IsaacRng::seed_from_u64(0);
     let orthographic = Orthographic3::from_fov(
@@ -51,5 +77,9 @@ criterion_group!(
     mat4_transform_vector3,
     mat3_transform_point2,
     mat4_transform_point3,
+    mat3_transform_vector2_x4wide,
+    mat4_transform_vector3_x4wide,
+    mat3_transform_point2_x4wide,
+    mat4_transform_point3_x4wide,
     mat4_transform_vector3_no_division,
 );
