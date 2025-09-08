@@ -272,7 +272,6 @@ where
         R2: Dim,
         C2: Dim,
     {
-        //@todo test matrix dimensions
         let a = self.qr.as_slice();
         let lda = self
             .qr
@@ -300,9 +299,9 @@ where
         let trans = transpose;
         let tau = self.tau.as_slice();
 
-        let lwork = T::xormqr_work_size(side, transpose, m, n, k, a, lda, tau, c, ldc).unwrap();
+        let lwork = T::xormqr_work_size(side, transpose, m, n, k, a, lda, tau, c, ldc)?;
         let mut work = vec![T::zero(); lwork as usize];
-        T::xormqr(side, trans, m, n, k, a, lda, tau, c, ldc, &mut work, lwork).unwrap();
+        T::xormqr(side, trans, m, n, k, a, lda, tau, c, ldc, &mut work, lwork)?;
         Ok(())
     }
 
@@ -389,9 +388,7 @@ where
                 .expect("integer dimensions out of bounds"),
             x.as_mut_slice(),
             ldb,
-        )
-            //@todo
-        .unwrap();
+        )?;
 
         self.p().permute_rows_mut(x)?;
         Ok(())

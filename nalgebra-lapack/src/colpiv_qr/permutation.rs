@@ -7,10 +7,13 @@ use na::{
 mod test;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-/// describes an orthogonal permutation matrix that can be used to permute
+/// describes an orthogonal permutation matrix `P` that can be used to permute
 /// the rows or columns of an appropriately shaped matrix. Due to LAPACK
 /// internals, an instance must be mutably borrowed when applying the
 /// permutation, but the permutation itself will remain unchanged on success.
+///
+/// **Note**: the associated functions take `Self` by mutable reference due
+/// to the LAPACK internal implementation of the permutation logic.
 pub struct Permutation<D>
 where
     D: Dim,
@@ -24,8 +27,7 @@ where
     D: Dim,
     DefaultAllocator: Allocator<D>,
 {
-    ///
-    //@todo(geo-ant) comment
+    /// Apply the column permutation to a matrix `A`, equivalent to `P A`.
     #[inline]
     pub fn permute_cols_mut<T, R, S>(&mut self, mat: &mut Matrix<T, R, D, S>) -> Result<(), Error>
     where
@@ -33,13 +35,12 @@ where
         S: RawStorageMut<T, R, D> + IsContiguous,
         T: ColPivQrScalar,
     {
-        //@note(geo-ant) due to the logic in the jpvt vector, we have
+        //@note(geo-ant) due to the LAPACK internal logic in the jpvt vector, we have
         // to invert the forward/backward argument here
         self.apply_cols_mut(false, mat)
     }
 
-    ///
-    //@todo(geo-ant) comment
+    /// Apply the inverse column permutation to a matrix `A`, equivalent to `P^T A`.
     #[inline]
     pub fn inv_permute_cols_mut<T, R, S>(
         &mut self,
@@ -52,8 +53,8 @@ where
     {
         self.apply_cols_mut(true, mat)
     }
-    ///
-    //@todo(geo-ant) comment
+
+    /// Apply the row permutation to a matrix `A`, equivalent to `P A`.
     #[inline]
     pub fn permute_rows_mut<T, C, S>(&mut self, mat: &mut Matrix<T, D, C, S>) -> Result<(), Error>
     where
@@ -64,8 +65,7 @@ where
         self.apply_rows_mut(false, mat)
     }
 
-    ///
-    //@todo(geo-ant) comment
+    /// Apply the inverse row permutation to a matrix `A`, equivalent to `P^T A`.
     #[inline]
     pub fn inv_permute_rows_mut<T, C, S>(
         &mut self,
