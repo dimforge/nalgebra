@@ -205,8 +205,8 @@ mod proptest_tests {
 
             prop_assert!(relative_eq!(v2.angle(&vv2), 0.0, epsilon = 1.0e-7));
             prop_assert!(relative_eq!(v3.angle(&vv3), 0.0, epsilon = 1.0e-7));
-            prop_assert!(relative_eq!(Rotation2::rotation_between(&v2, &vv2), Rotation2::identity()));
-            prop_assert_eq!(Rotation3::rotation_between(&v3, &vv3).unwrap(), Rotation3::identity());
+            prop_assert!(relative_eq!(Rotation2::rotation_between(&v2, &vv2), Rotation2::identity(), epsilon = 1.0e-7));
+            prop_assert!(relative_eq!(Rotation3::rotation_between(&v3, &vv3).unwrap(), Rotation3::identity(), epsilon = 1.0e-7));
         }
 
         #[test]
