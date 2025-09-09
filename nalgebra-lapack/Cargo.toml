@@ -20,6 +20,7 @@ maintenance = { status = "actively-developed" }
 serde-serialize = ["serde", "nalgebra/serde-serialize"]
 proptest-support = ["nalgebra/proptest-support"]
 arbitrary = ["nalgebra/arbitrary"]
+slow-tests = []
 
 # For BLAS/LAPACK
 default = ["netlib"]
