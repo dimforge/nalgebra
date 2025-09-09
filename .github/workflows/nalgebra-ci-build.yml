@@ -36,8 +36,8 @@ jobs:
         run: cargo build;
       - name: Build --features serde-serialize
         run: cargo build --features serde-serialize
-      - name: Build nalgebra-lapack
-        run: cd nalgebra-lapack; cargo build;
+      - name: Check nalgebra-lapack
+        run: cd nalgebra-lapack; cargo check --features serde-serialize;
       - name: Build nalgebra-sparse --no-default-features
         run: cd nalgebra-sparse; cargo build --no-default-features;
       - name: Build nalgebra-sparse (default features)
