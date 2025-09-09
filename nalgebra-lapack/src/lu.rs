@@ -1,3 +1,6 @@
+#[cfg(feature = "serde-serialize")]
+use serde::{Deserialize, Serialize};
+
 use num::{One, Zero};
 use num_complex::Complex;
 
@@ -23,14 +26,14 @@ use lapack;
     serde(bound(serialize = "DefaultAllocator: Allocator<R, C> +
                            Allocator<DimMinimum<R, C>>,
          OMatrix<T, R, C>: Serialize,
-         PermutationSequence<DimMinimum<R, C>>: Serialize"))
+         OVector<i32, DimMinimum<R, C>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
     serde(bound(deserialize = "DefaultAllocator: Allocator<R, C> +
                            Allocator<DimMinimum<R, C>>,
          OMatrix<T, R, C>: Deserialize<'de>,
-         PermutationSequence<DimMinimum<R, C>>: Deserialize<'de>"))
+         OVector<i32, DimMinimum<R, C>>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
 pub struct LU<T: Scalar, R: DimMin<C>, C: Dim>
