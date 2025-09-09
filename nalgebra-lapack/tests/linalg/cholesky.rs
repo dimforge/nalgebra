@@ -3,7 +3,6 @@ use core::f64;
 use na::{Const, DMatrix, Matrix4, Matrix4xX};
 use nl::Cholesky;
 use proptest::prelude::*;
-use std::cmp;
 
 fn positive_definite_dmatrix() -> impl Strategy<Value = DMatrix<f64>> {
     // @note(geo-ant) to get positive definite matrices we use M*M^T + alpha*I,

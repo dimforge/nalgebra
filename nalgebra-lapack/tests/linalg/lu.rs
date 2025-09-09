@@ -1,5 +1,5 @@
 use crate::proptest::*;
-use na::{DMatrix, DVector, Dim, Matrix, Matrix4x3, RawStorage, Vector4};
+use na::{DMatrix, DVector, Dim, Matrix, RawStorage};
 use nl::LU;
 use num_traits::Zero;
 use proptest::{prop_assert, proptest};
