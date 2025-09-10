@@ -70,7 +70,8 @@ fn qr_solve_10x10(bh: &mut criterion::Criterion) {
     bh.bench_function("qr_solve_10x10", move |bh| {
         bh.iter(|| {
             let mut b = DVector::<f64>::from_element(10, 1.0);
-            qr.solve(&mut b);
+            qr.solve_mut(&mut b);
+            b
         })
     });
 }
@@ -82,7 +83,8 @@ fn qr_solve_100x100(bh: &mut criterion::Criterion) {
     bh.bench_function("qr_solve_100x100", move |bh| {
         bh.iter(|| {
             let mut b = DVector::<f64>::from_element(100, 1.0);
-            qr.solve(&mut b);
+            qr.solve_mut(&mut b);
+            b
         })
     });
 }

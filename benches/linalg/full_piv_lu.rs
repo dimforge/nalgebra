@@ -22,7 +22,8 @@ fn full_piv_lu_solve_10x10(bh: &mut criterion::Criterion) {
     bh.bench_function("full_piv_lu_solve_10x10", move |bh| {
         bh.iter(|| {
             let mut b = DVector::<f64>::from_element(10, 1.0);
-            lu.solve(&mut b);
+            lu.solve_mut(&mut b);
+            b
         })
     });
 }
@@ -34,7 +35,8 @@ fn full_piv_lu_solve_100x100(bh: &mut criterion::Criterion) {
     bh.bench_function("full_piv_lu_solve_100x100", move |bh| {
         bh.iter(|| {
             let mut b = DVector::<f64>::from_element(100, 1.0);
-            lu.solve(&mut b);
+            lu.solve_mut(&mut b);
+            b
         })
     });
 }
