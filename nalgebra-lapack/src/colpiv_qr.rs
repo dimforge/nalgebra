@@ -9,7 +9,9 @@ use num::float::TotalOrder;
 use num::{Float, Zero};
 use rank::{RankDeterminationAlgorithm, calculate_rank};
 
+/// error type for the column pivoting QR decomposition
 pub mod error;
+
 mod permutation;
 #[cfg(test)]
 mod test;
@@ -63,6 +65,7 @@ pub enum DiagonalKind {
 /// The columns of the matrix `A` are permuted such that `A P = Q R`, meaning
 /// the column-permuted `A` is the product of `Q` and `R`, where `Q` is an orthonormal
 /// matrix `Q^T Q = I` and `R` is upper triangular.
+#[derive(Debug, Clone)]
 pub struct ColPivQR<T, R, C>
 where
     DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>> + Allocator<C>,
@@ -479,6 +482,9 @@ where
     }
 }
 
+/// Utility trait to add a thin abstraction layer over lapack functionality for
+/// column pivoted QR decomposition.
+#[allow(missing_docs)]
 pub trait ColPivQrScalar: ComplexField + QRScalar {
     /// routine for column pivoting QR decomposition using level 3 BLAS,
     /// see https://www.netlib.org/lapack/lug/node42.html
@@ -663,6 +669,7 @@ colpiv_qr_scalar_impl!(
 // @note(geo-ant) This mirrors the behavior in the existing QR implementation
 // without pivoting. I'm not 100% sure that we can't abstract over real and
 // complex behavior in the scalar trait, but I'll keep it like this for now.
+#[allow(missing_docs)]
 pub trait ColPivQrReal: ColPivQrScalar + QRReal {
     fn xormqr(
         side: Side,

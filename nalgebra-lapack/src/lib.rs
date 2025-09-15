@@ -83,7 +83,7 @@ mod lapack_check;
 
 mod cholesky;
 /// column-pivoted QR decomposition of a rectangular (or square) matrix
-mod colpiv_qr;
+pub mod colpiv_qr;
 mod eigen;
 mod generalized_eigenvalues;
 mod hessenberg;

@@ -1,6 +1,6 @@
 [package]
 name = "nalgebra-lapack"
-version = "0.27.0"
+version = "0.26.1"
 authors = ["Sébastien Crozet <developer@crozet.re>", "Andrew Straw <strawman@astraw.com>"]
 
 description = "Matrix decompositions using nalgebra matrices and Lapack bindings."
