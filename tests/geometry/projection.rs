@@ -35,7 +35,7 @@ fn perspective_matrix_point_transformation() {
 
 #[cfg(feature = "proptest-support")]
 mod proptest_tests {
-    use na::{Orthographic3, Perspective3};
+    use na::{Orthographic3, Perspective3, Point3};
 
     use crate::proptest::*;
     use proptest::{prop_assert, proptest};
@@ -59,6 +59,32 @@ mod proptest_tests {
             let unprojected = proj.unproject_point(&projected);
 
             prop_assert!(relative_eq!(pt, unprojected, epsilon = 1.0e-7))
+        }
+
+        #[test]
+        fn perspective_project_vector(pt in point3(), vec in vector2()) {
+            let proj = Perspective3::new(800.0 / 600.0, 3.14 / 2.0, 1.0, 1000.0);
+
+            let proj_pt = proj.project_point(&pt);
+            let proj_vec = proj.project_vector(&vec.push(pt.z));
+            let proj_pt2 = proj.project_point(&(pt + vec.push(0.0)));
+
+            let proj_pt_plus_proj_vec = Point3::from((proj_pt.xy() + proj_vec.xy()).coords.push(proj_pt.z));
+
+            prop_assert!(relative_eq!(proj_pt_plus_proj_vec, proj_pt2, epsilon = 1.0e-7))
+        }
+
+        #[test]
+        fn orthographic_project_vector(pt in point3(), vec in vector3()) {
+            let proj = Orthographic3::new(1.0, 2.0, -3.0, -2.5, 10.0, 900.0);
+
+            let proj_pt = proj.project_point(&pt);
+            let proj_vec = proj.project_vector(&vec);
+            let proj_pt2 = proj.project_point(&(pt + vec));
+
+            let proj_pt_plus_proj_vec = proj_pt + proj_vec;
+
+            prop_assert!(relative_eq!(proj_pt_plus_proj_vec, proj_pt2, epsilon = 1.0e-7))
         }
     }
 }

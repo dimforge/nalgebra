@@ -233,6 +233,8 @@ impl<T: RealField> Perspective3<T> {
 
     // TODO: when we get specialization, specialize the Mul impl instead.
     /// Projects a point. Faster than matrix multiplication.
+    ///
+    /// Each component of the resulting point will be NaN or Inf if `p.z` is zero.
     #[inline]
     #[must_use]
     pub fn project_point(&self, p: &Point3<T>) -> Point3<T> {
@@ -261,6 +263,13 @@ impl<T: RealField> Perspective3<T> {
 
     // TODO: when we get specialization, specialize the Mul impl instead.
     /// Projects a vector. Faster than matrix multiplication.
+    ///
+    /// `x` and `y` components of the result is a projection as a 2D vector.
+    ///
+    /// Components `x` and `y` of the resulting vector will be NaN or Inf if `p.z` is zero.
+    ///
+    /// `z` component of the resulting vector always equals to `-self.m33` and does
+    /// not depend on the components of `p`.
     #[inline]
     #[must_use]
     pub fn project_vector<SB>(&self, p: &Vector<T, U3, SB>) -> Vector3<T>
@@ -271,7 +280,7 @@ impl<T: RealField> Perspective3<T> {
         Vector3::new(
             self.matrix[(0, 0)].clone() * p[0].clone() * inverse_denom.clone(),
             self.matrix[(1, 1)].clone() * p[1].clone() * inverse_denom,
-            self.matrix[(2, 2)].clone(),
+            -self.matrix[(2, 2)].clone(),
         )
     }
 

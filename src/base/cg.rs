@@ -20,6 +20,7 @@ use crate::geometry::{
 };
 
 use simba::scalar::{ClosedAddAssign, ClosedMulAssign, RealField};
+use simba::simd::SimdRealField;
 
 /// # Translation and scaling in any dimension
 impl<T, D: DimName> OMatrix<T, D, D>
@@ -402,6 +403,9 @@ where
         + Allocator<DimNameDiff<D, U1>, DimNameDiff<D, U1>>,
 {
     /// Transforms the given vector, assuming the matrix `self` uses homogeneous coordinates.
+    ///
+    /// Each component of the resulting vector is divided by the last component of the homogeneous
+    /// coordinates if it is not zero or returned unchanged otherwise.
     #[inline]
     pub fn transform_vector(
         &self,
@@ -423,8 +427,40 @@ where
     }
 }
 
+/// # Transformation of vectors and points
+impl<T: SimdRealField, D: DimNameSub<U1>, S: Storage<T, D, D>> SquareMatrix<T, D, S>
+where
+    DefaultAllocator: Allocator<D, D>
+        + Allocator<DimNameDiff<D, U1>>
+        + Allocator<DimNameDiff<D, U1>, DimNameDiff<D, U1>>,
+{
+    /// Transforms the given vector, assuming the matrix `self` uses homogeneous coordinates.
+    ///
+    /// Each component of the resulting vector is divided by the last component of the homogeneous
+    /// coordinates if it is not zero or returned unchanged otherwise.
+    #[inline]
+    pub fn simd_transform_vector(
+        &self,
+        v: &OVector<T, DimNameDiff<D, U1>>,
+    ) -> OVector<T, DimNameDiff<D, U1>> {
+        let transform = self.generic_view(
+            (0, 0),
+            (DimNameDiff::<D, U1>::name(), DimNameDiff::<D, U1>::name()),
+        );
+        let normalizer =
+            self.generic_view((D::DIM - 1, 0), (Const::<1>, DimNameDiff::<D, U1>::name()));
+        let n = normalizer.tr_dot(v);
+
+        let n = n.clone().select(n.simd_ne(T::zero()), T::one());
+        transform * (v / n)
+    }
+}
+
 impl<T: RealField, S: Storage<T, Const<3>, Const<3>>> SquareMatrix<T, Const<3>, S> {
     /// Transforms the given point, assuming the matrix `self` uses homogeneous coordinates.
+    ///
+    /// Each component of the resulting point is divided by the `z` component if it is not zero
+    /// or returned unchanged otherwise.
     #[inline]
     pub fn transform_point(&self, pt: &Point<T, 2>) -> Point<T, 2> {
         let transform = self.fixed_view::<2, 2>(0, 0);
@@ -440,8 +476,28 @@ impl<T: RealField, S: Storage<T, Const<3>, Const<3>>> SquareMatrix<T, Const<3>, 
     }
 }
 
+impl<T: SimdRealField, S: Storage<T, Const<3>, Const<3>>> SquareMatrix<T, Const<3>, S> {
+    /// Transforms the given point, assuming the matrix `self` uses homogeneous coordinates.
+    ///
+    /// Each component of the resulting point is divided by the `z` component if it is not zero
+    /// or returned unchanged otherwise.
+    #[inline]
+    pub fn simd_transform_point(&self, pt: &Point<T, 2>) -> Point<T, 2> {
+        let transform = self.fixed_view::<2, 2>(0, 0);
+        let translation = self.fixed_view::<2, 1>(0, 2);
+        let normalizer = self.fixed_view::<1, 2>(2, 0);
+        let n = normalizer.tr_dot(&pt.coords) + unsafe { self.get_unchecked((2, 2)).clone() };
+
+        let n = n.clone().select(n.simd_ne(T::zero()), T::one());
+        (transform * pt + translation) / n
+    }
+}
+
 impl<T: RealField, S: Storage<T, Const<4>, Const<4>>> SquareMatrix<T, Const<4>, S> {
     /// Transforms the given point, assuming the matrix `self` uses homogeneous coordinates.
+    ///
+    /// Each component of the resulting vector is divided by the `w` component if it is not zero
+    /// or returned unchanged otherwise.
     #[inline]
     pub fn transform_point(&self, pt: &Point<T, 3>) -> Point<T, 3> {
         let transform = self.fixed_view::<3, 3>(0, 0);
@@ -454,5 +510,22 @@ impl<T: RealField, S: Storage<T, Const<4>, Const<4>>> SquareMatrix<T, Const<4>, 
         } else {
             transform * pt + translation
         }
+    }
+}
+
+impl<T: SimdRealField, S: Storage<T, Const<4>, Const<4>>> SquareMatrix<T, Const<4>, S> {
+    /// Transforms the given point, assuming the matrix `self` uses homogeneous coordinates.
+    ///
+    /// Each component of the resulting vector is divided by the `w` component if it is not zero
+    /// or returned unchanged otherwise.
+    #[inline]
+    pub fn simd_transform_point(&self, pt: &Point<T, 3>) -> Point<T, 3> {
+        let transform = self.fixed_view::<3, 3>(0, 0);
+        let translation = self.fixed_view::<3, 1>(0, 3);
+        let normalizer = self.fixed_view::<1, 3>(3, 0);
+        let n = normalizer.tr_dot(&pt.coords) + unsafe { self.get_unchecked((3, 3)).clone() };
+
+        let n = n.clone().select(n.simd_ne(T::zero()), T::one());
+        (transform * pt + translation) / n
     }
 }

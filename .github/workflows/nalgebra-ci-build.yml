@@ -64,7 +64,7 @@ jobs:
           override: true
       - uses: actions/checkout@v4
       - name: check
-        run: cargo check --features arbitrary,rand,serde-serialize,sparse,debug,io,compare,libm,proptest-support,slow-tests,rkyv-safe-deser,rayon;
+        run: cargo check --features arbitrary,rand,serde-serialize,sparse,debug,io,compare,libm,proptest-support,slow-tests,wide-tests,rkyv-safe-deser,rayon;
   test-nalgebra:
     runs-on: ubuntu-latest
     #    env:
@@ -81,7 +81,7 @@ jobs:
           override: true
       - uses: actions/checkout@v4
       - name: test
-        run: cargo test --features arbitrary,rand,serde-serialize,sparse,debug,io,compare,libm,proptest-support,slow-tests,rkyv-safe-deser,rayon;
+        run: cargo test --features arbitrary,rand,serde-serialize,sparse,debug,io,compare,libm,proptest-support,slow-tests,wide-tests,rkyv-safe-deser,rayon;
   test-nalgebra-glm:
     runs-on: ubuntu-latest
     steps:
