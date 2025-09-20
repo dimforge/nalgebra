@@ -5,6 +5,13 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Added
+
+- Add the `encase` feature for enabling implementation of `enacse::ShaderType` for 2D, 3D, 4D, nalgebra vectors,
+  matrices, and points.
+
 ## [0.34.0] (31 July 2025)
 
 ### Added
