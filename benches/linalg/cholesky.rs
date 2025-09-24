@@ -1,119 +1,150 @@
 use na::{Cholesky, DMatrix, DVector};
 
 fn cholesky_100x100(bh: &mut criterion::Criterion) {
-    let m = DMatrix::<f64>::new_random(100, 100);
-    let m = &m * m.transpose();
-
-    bh.bench_function("cholesky_100x100", move |bh| {
-        bh.iter(|| std::hint::black_box(Cholesky::new(m.clone())))
+    bh.bench_function("cholesky_100x100", |bh| {
+        bh.iter_batched(
+            || {
+                let m = DMatrix::<f64>::new_random(100, 100);
+                &m * m.transpose()
+            },
+            |m| Cholesky::new(m),
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 fn cholesky_500x500(bh: &mut criterion::Criterion) {
-    let m = DMatrix::<f64>::new_random(500, 500);
-    let m = &m * m.transpose();
-
-    bh.bench_function("cholesky_500x500", move |bh| {
-        bh.iter(|| std::hint::black_box(Cholesky::new(m.clone())))
+    bh.bench_function("cholesky_500x500", |bh| {
+        bh.iter_batched(
+            || {
+                let m = DMatrix::<f64>::new_random(500, 500);
+                &m * m.transpose()
+            },
+            |m| Cholesky::new(m),
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 // With unpack.
 fn cholesky_decompose_unpack_100x100(bh: &mut criterion::Criterion) {
-    let m = DMatrix::<f64>::new_random(100, 100);
-    let m = &m * m.transpose();
-
-    bh.bench_function("cholesky_decompose_unpack_100x100", move |bh| {
-        bh.iter(|| {
-            let chol = Cholesky::new(m.clone()).unwrap();
-            let _ = chol.unpack();
-        })
+    bh.bench_function("cholesky_decompose_unpack_100x100", |bh| {
+        bh.iter_batched(
+            || {
+                let m = DMatrix::<f64>::new_random(100, 100);
+                &m * m.transpose()
+            },
+            |m| {
+                let chol = Cholesky::new(m).unwrap();
+                chol.unpack()
+            },
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 fn cholesky_decompose_unpack_500x500(bh: &mut criterion::Criterion) {
-    let m = DMatrix::<f64>::new_random(500, 500);
-    let m = &m * m.transpose();
-
-    bh.bench_function("cholesky_decompose_unpack_500x500", move |bh| {
-        bh.iter(|| {
-            let chol = Cholesky::new(m.clone()).unwrap();
-            let _ = chol.unpack();
-        })
+    bh.bench_function("cholesky_decompose_unpack_500x500", |bh| {
+        bh.iter_batched(
+            || {
+                let m = DMatrix::<f64>::new_random(500, 500);
+                &m * m.transpose()
+            },
+            |m| {
+                let chol = Cholesky::new(m).unwrap();
+                chol.unpack()
+            },
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 fn cholesky_solve_10x10(bh: &mut criterion::Criterion) {
-    let m = DMatrix::<f64>::new_random(10, 10);
-    let m = &m * m.transpose();
-    let v = DVector::<f64>::new_random(10);
-    let chol = Cholesky::new(m.clone()).unwrap();
-
-    bh.bench_function("cholesky_solve_10x10", move |bh| {
-        bh.iter(|| {
-            let _ = chol.solve(&v);
-        })
+    bh.bench_function("cholesky_solve_10x10", |bh| {
+        bh.iter_batched_ref(
+            || {
+                let m = DMatrix::<f64>::new_random(10, 10);
+                let m = &m * m.transpose();
+                let v = DVector::<f64>::new_random(10);
+                let chol = Cholesky::new(m).unwrap();
+                (chol, v)
+            },
+            |(chol, v)| chol.solve(v),
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 fn cholesky_solve_100x100(bh: &mut criterion::Criterion) {
-    let m = DMatrix::<f64>::new_random(100, 100);
-    let m = &m * m.transpose();
-    let v = DVector::<f64>::new_random(100);
-    let chol = Cholesky::new(m.clone()).unwrap();
-
-    bh.bench_function("cholesky_solve_100x100", move |bh| {
-        bh.iter(|| {
-            let _ = chol.solve(&v);
-        })
+    bh.bench_function("cholesky_solve_100x100", |bh| {
+        bh.iter_batched_ref(
+            || {
+                let m = DMatrix::<f64>::new_random(100, 100);
+                let m = &m * m.transpose();
+                let v = DVector::<f64>::new_random(100);
+                let chol = Cholesky::new(m).unwrap();
+                (chol, v)
+            },
+            |(chol, v)| chol.solve(v),
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 fn cholesky_solve_500x500(bh: &mut criterion::Criterion) {
-    let m = DMatrix::<f64>::new_random(500, 500);
-    let m = &m * m.transpose();
-    let v = DVector::<f64>::new_random(500);
-    let chol = Cholesky::new(m.clone()).unwrap();
-
-    bh.bench_function("cholesky_solve_500x500", move |bh| {
-        bh.iter(|| {
-            let _ = chol.solve(&v);
-        })
+    bh.bench_function("cholesky_solve_500x500", |bh| {
+        bh.iter_batched_ref(
+            || {
+                let m = DMatrix::<f64>::new_random(500, 500);
+                let m = &m * m.transpose();
+                let v = DVector::<f64>::new_random(500);
+                let chol = Cholesky::new(m).unwrap();
+                (chol, v)
+            },
+            |(chol, v)| chol.solve(v),
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 fn cholesky_inverse_10x10(bh: &mut criterion::Criterion) {
-    let m = DMatrix::<f64>::new_random(10, 10);
-    let m = &m * m.transpose();
-    let chol = Cholesky::new(m.clone()).unwrap();
-
-    bh.bench_function("cholesky_inverse_10x10", move |bh| {
-        bh.iter(|| {
-            let _ = chol.inverse();
-        })
+    bh.bench_function("cholesky_inverse_10x10", |bh| {
+        bh.iter_batched_ref(
+            || {
+                let m = DMatrix::<f64>::new_random(10, 10);
+                let m = &m * m.transpose();
+                Cholesky::new(m).unwrap()
+            },
+            |chol| chol.inverse(),
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 fn cholesky_inverse_100x100(bh: &mut criterion::Criterion) {
-    let m = DMatrix::<f64>::new_random(100, 100);
-    let m = &m * m.transpose();
-    let chol = Cholesky::new(m.clone()).unwrap();
-
-    bh.bench_function("cholesky_inverse_100x100", move |bh| {
-        bh.iter(|| {
-            let _ = chol.inverse();
-        })
+    bh.bench_function("cholesky_inverse_100x100", |bh| {
+        bh.iter_batched_ref(
+            || {
+                let m = DMatrix::<f64>::new_random(100, 100);
+                let m = &m * m.transpose();
+                Cholesky::new(m).unwrap()
+            },
+            |chol| chol.inverse(),
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 fn cholesky_inverse_500x500(bh: &mut criterion::Criterion) {
-    let m = DMatrix::<f64>::new_random(500, 500);
-    let m = &m * m.transpose();
-    let chol = Cholesky::new(m.clone()).unwrap();
-
-    bh.bench_function("cholesky_inverse_500x500", move |bh| {
-        bh.iter(|| {
-            let _ = chol.inverse();
-        })
+    bh.bench_function("cholesky_inverse_500x500", |bh| {
+        bh.iter_batched_ref(
+            || {
+                let m = DMatrix::<f64>::new_random(500, 500);
+                let m = &m * m.transpose();
+                Cholesky::new(m).unwrap()
+            },
+            |chol| chol.inverse(),
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 

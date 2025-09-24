@@ -1,58 +1,82 @@
 use na::{Matrix4, Schur};
 
 fn schur_decompose_4x4(bh: &mut criterion::Criterion) {
-    let m = Matrix4::<f64>::new_random();
-    bh.bench_function("schur_decompose_4x4", move |bh| {
-        bh.iter(|| std::hint::black_box(Schur::new(m.clone())))
+    bh.bench_function("schur_decompose_4x4", |bh| {
+        bh.iter_batched(
+            || Matrix4::<f64>::new_random(),
+            |m| Schur::new(m),
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 fn schur_decompose_10x10(bh: &mut criterion::Criterion) {
-    let m = crate::reproducible_dmatrix(10, 10);
-    bh.bench_function("schur_decompose_10x10", move |bh| {
-        bh.iter(|| std::hint::black_box(Schur::new(m.clone())))
+    bh.bench_function("schur_decompose_10x10", |bh| {
+        bh.iter_batched(
+            || crate::reproducible_dmatrix(10, 10),
+            |m| Schur::new(m),
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 fn schur_decompose_100x100(bh: &mut criterion::Criterion) {
-    let m = crate::reproducible_dmatrix(100, 100);
-    bh.bench_function("schur_decompose_100x100", move |bh| {
-        bh.iter(|| std::hint::black_box(Schur::new(m.clone())))
+    bh.bench_function("schur_decompose_100x100", |bh| {
+        bh.iter_batched(
+            || crate::reproducible_dmatrix(100, 100),
+            |m| Schur::new(m),
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 fn schur_decompose_200x200(bh: &mut criterion::Criterion) {
-    let m = crate::reproducible_dmatrix(200, 200);
-    bh.bench_function("schur_decompose_200x200", move |bh| {
-        bh.iter(|| std::hint::black_box(Schur::new(m.clone())))
+    bh.bench_function("schur_decompose_200x200", |bh| {
+        bh.iter_batched(
+            || crate::reproducible_dmatrix(200, 200),
+            |m| Schur::new(m),
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 fn eigenvalues_4x4(bh: &mut criterion::Criterion) {
-    let m = Matrix4::<f64>::new_random();
-    bh.bench_function("eigenvalues_4x4", move |bh| {
-        bh.iter(|| std::hint::black_box(m.complex_eigenvalues()))
+    bh.bench_function("eigenvalues_4x4", |bh| {
+        bh.iter_batched_ref(
+            || Matrix4::<f64>::new_random(),
+            |m| m.complex_eigenvalues(),
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 fn eigenvalues_10x10(bh: &mut criterion::Criterion) {
-    let m = crate::reproducible_dmatrix(10, 10);
-    bh.bench_function("eigenvalues_10x10", move |bh| {
-        bh.iter(|| std::hint::black_box(m.complex_eigenvalues()))
+    bh.bench_function("eigenvalues_10x10", |bh| {
+        bh.iter_batched_ref(
+            || crate::reproducible_dmatrix(10, 10),
+            |m| m.complex_eigenvalues(),
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 fn eigenvalues_100x100(bh: &mut criterion::Criterion) {
-    let m = crate::reproducible_dmatrix(100, 100);
-    bh.bench_function("eigenvalues_100x100", move |bh| {
-        bh.iter(|| std::hint::black_box(m.complex_eigenvalues()))
+    bh.bench_function("eigenvalues_100x100", |bh| {
+        bh.iter_batched_ref(
+            || crate::reproducible_dmatrix(100, 100),
+            |m| m.complex_eigenvalues(),
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 fn eigenvalues_200x200(bh: &mut criterion::Criterion) {
-    let m = crate::reproducible_dmatrix(200, 200);
-    bh.bench_function("eigenvalues_200x200", move |bh| {
-        bh.iter(|| std::hint::black_box(m.complex_eigenvalues()))
+    bh.bench_function("eigenvalues_200x200", |bh| {
+        bh.iter_batched_ref(
+            || crate::reproducible_dmatrix(200, 200),
+            |m| m.complex_eigenvalues(),
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 

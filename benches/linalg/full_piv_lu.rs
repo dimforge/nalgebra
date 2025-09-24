@@ -2,78 +2,106 @@ use na::{DMatrix, DVector, FullPivLU};
 
 // Without unpack.
 fn full_piv_lu_decompose_10x10(bh: &mut criterion::Criterion) {
-    let m = DMatrix::<f64>::new_random(10, 10);
-    bh.bench_function("full_piv_lu_decompose_10x10", move |bh| {
-        bh.iter(|| std::hint::black_box(FullPivLU::new(m.clone())))
+    bh.bench_function("full_piv_lu_decompose_10x10", |bh| {
+        bh.iter_batched(
+            || DMatrix::<f64>::new_random(10, 10),
+            |m| FullPivLU::new(m),
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 fn full_piv_lu_decompose_100x100(bh: &mut criterion::Criterion) {
-    let m = DMatrix::<f64>::new_random(100, 100);
-    bh.bench_function("full_piv_lu_decompose_100x100", move |bh| {
-        bh.iter(|| std::hint::black_box(FullPivLU::new(m.clone())))
+    bh.bench_function("full_piv_lu_decompose_100x100", |bh| {
+        bh.iter_batched(
+            || DMatrix::<f64>::new_random(100, 100),
+            |m| FullPivLU::new(m),
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 fn full_piv_lu_solve_10x10(bh: &mut criterion::Criterion) {
-    let m = DMatrix::<f64>::new_random(10, 10);
-    let lu = FullPivLU::new(m.clone());
-
-    bh.bench_function("full_piv_lu_solve_10x10", move |bh| {
-        bh.iter(|| {
-            let mut b = DVector::<f64>::from_element(10, 1.0);
-            lu.solve_mut(&mut b);
-            b
-        })
+    bh.bench_function("full_piv_lu_solve_10x10", |bh| {
+        bh.iter_batched(
+            || {
+                let m = DMatrix::<f64>::new_random(10, 10);
+                (FullPivLU::new(m), DVector::<f64>::from_element(10, 1.0))
+            },
+            |(lu, mut b)| {
+                lu.solve_mut(&mut b);
+                (lu, b)
+            },
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 fn full_piv_lu_solve_100x100(bh: &mut criterion::Criterion) {
-    let m = DMatrix::<f64>::new_random(100, 100);
-    let lu = FullPivLU::new(m.clone());
-
-    bh.bench_function("full_piv_lu_solve_100x100", move |bh| {
-        bh.iter(|| {
-            let mut b = DVector::<f64>::from_element(100, 1.0);
-            lu.solve_mut(&mut b);
-            b
-        })
+    bh.bench_function("full_piv_lu_solve_100x100", |bh| {
+        bh.iter_batched(
+            || {
+                let m = DMatrix::<f64>::new_random(100, 100);
+                (FullPivLU::new(m), DVector::<f64>::from_element(100, 1.0))
+            },
+            |(lu, mut b)| {
+                lu.solve_mut(&mut b);
+                (lu, b)
+            },
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 fn full_piv_lu_inverse_10x10(bh: &mut criterion::Criterion) {
-    let m = DMatrix::<f64>::new_random(10, 10);
-    let lu = FullPivLU::new(m.clone());
-
-    bh.bench_function("full_piv_lu_inverse_10x10", move |bh| {
-        bh.iter(|| std::hint::black_box(lu.try_inverse()))
+    bh.bench_function("full_piv_lu_inverse_10x10", |bh| {
+        bh.iter_batched_ref(
+            || {
+                let m = DMatrix::<f64>::new_random(10, 10);
+                FullPivLU::new(m)
+            },
+            |lu| lu.try_inverse(),
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 fn full_piv_lu_inverse_100x100(bh: &mut criterion::Criterion) {
-    let m = DMatrix::<f64>::new_random(100, 100);
-    let lu = FullPivLU::new(m.clone());
-
-    bh.bench_function("full_piv_lu_inverse_100x100", move |bh| {
-        bh.iter(|| std::hint::black_box(lu.try_inverse()))
+    bh.bench_function("full_piv_lu_inverse_100x100", |bh| {
+        bh.iter_batched_ref(
+            || {
+                let m = DMatrix::<f64>::new_random(100, 100);
+                FullPivLU::new(m)
+            },
+            |lu| lu.try_inverse(),
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 fn full_piv_lu_determinant_10x10(bh: &mut criterion::Criterion) {
-    let m = DMatrix::<f64>::new_random(10, 10);
-    let lu = FullPivLU::new(m.clone());
-
-    bh.bench_function("full_piv_lu_determinant_10x10", move |bh| {
-        bh.iter(|| std::hint::black_box(lu.determinant()))
+    bh.bench_function("full_piv_lu_determinant_10x10", |bh| {
+        bh.iter_batched_ref(
+            || {
+                let m = DMatrix::<f64>::new_random(10, 10);
+                FullPivLU::new(m)
+            },
+            |lu| lu.determinant(),
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 fn full_piv_lu_determinant_100x100(bh: &mut criterion::Criterion) {
-    let m = DMatrix::<f64>::new_random(100, 100);
-    let lu = FullPivLU::new(m.clone());
-
-    bh.bench_function("full_piv_lu_determinant_100x100", move |bh| {
-        bh.iter(|| std::hint::black_box(lu.determinant()))
+    bh.bench_function("full_piv_lu_determinant_100x100", |bh| {
+        bh.iter_batched_ref(
+            || {
+                let m = DMatrix::<f64>::new_random(100, 100);
+                FullPivLU::new(m)
+            },
+            |lu| lu.determinant(),
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
