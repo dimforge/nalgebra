@@ -1,4 +1,5 @@
 use na::{DMatrix, DVector, Matrix4, QR};
+use std::hint::black_box;
 
 #[path = "../common/macros.rs"]
 mod macros;
@@ -7,28 +8,28 @@ mod macros;
 fn qr_decompose_100x100(bh: &mut criterion::Criterion) {
     let m = DMatrix::<f64>::new_random(100, 100);
     bh.bench_function("qr_decompose_100x100", move |bh| {
-        bh.iter(|| std::hint::black_box(QR::new(m.clone())))
+        bh.iter(|| QR::new(black_box(m.clone())))
     });
 }
 
 fn qr_decompose_100x500(bh: &mut criterion::Criterion) {
     let m = DMatrix::<f64>::new_random(100, 500);
     bh.bench_function("qr_decompose_100x500", move |bh| {
-        bh.iter(|| std::hint::black_box(QR::new(m.clone())))
+        bh.iter(|| QR::new(black_box(m.clone())))
     });
 }
 
 fn qr_decompose_4x4(bh: &mut criterion::Criterion) {
     let m = Matrix4::<f64>::new_random();
     bh.bench_function("qr_decompose_4x4", move |bh| {
-        bh.iter(|| std::hint::black_box(QR::new(m.clone())))
+        bh.iter(|| QR::new(black_box(m.clone())))
     });
 }
 
 fn qr_decompose_500x100(bh: &mut criterion::Criterion) {
     let m = DMatrix::<f64>::new_random(500, 100);
     bh.bench_function("qr_decompose_500x100", move |bh| {
-        bh.iter(|| std::hint::black_box(QR::new(m.clone())))
+        bh.iter(|| QR::new(black_box(m.clone())))
     });
 }
 
@@ -37,8 +38,8 @@ fn qr_decompose_unpack_100x100(bh: &mut criterion::Criterion) {
     let m = DMatrix::<f64>::new_random(100, 100);
     bh.bench_function("qr_decompose_unpack_100x100", move |bh| {
         bh.iter(|| {
-            let qr = QR::new(m.clone());
-            let _ = qr.unpack();
+            let qr = QR::new(black_box(m.clone()));
+            qr.unpack()
         })
     });
 }
@@ -47,8 +48,8 @@ fn qr_decompose_unpack_100x500(bh: &mut criterion::Criterion) {
     let m = DMatrix::<f64>::new_random(100, 500);
     bh.bench_function("qr_decompose_unpack_100x500", move |bh| {
         bh.iter(|| {
-            let qr = QR::new(m.clone());
-            let _ = qr.unpack();
+            let qr = QR::new(black_box(m.clone()));
+            qr.unpack()
         })
     });
 }
@@ -57,8 +58,8 @@ fn qr_decompose_unpack_500x100(bh: &mut criterion::Criterion) {
     let m = DMatrix::<f64>::new_random(500, 100);
     bh.bench_function("qr_decompose_unpack_500x100", move |bh| {
         bh.iter(|| {
-            let qr = QR::new(m.clone());
-            let _ = qr.unpack();
+            let qr = QR::new(black_box(m.clone()));
+            qr.unpack()
         })
     });
 }
@@ -70,7 +71,7 @@ fn qr_solve_10x10(bh: &mut criterion::Criterion) {
     bh.bench_function("qr_solve_10x10", move |bh| {
         bh.iter(|| {
             let mut b = DVector::<f64>::from_element(10, 1.0);
-            qr.solve_mut(&mut b);
+            black_box(&qr).solve_mut(&mut b);
             b
         })
     });
@@ -83,7 +84,7 @@ fn qr_solve_100x100(bh: &mut criterion::Criterion) {
     bh.bench_function("qr_solve_100x100", move |bh| {
         bh.iter(|| {
             let mut b = DVector::<f64>::from_element(100, 1.0);
-            qr.solve_mut(&mut b);
+            black_box(&qr).solve_mut(&mut b);
             b
         })
     });
@@ -94,7 +95,7 @@ fn qr_inverse_10x10(bh: &mut criterion::Criterion) {
     let qr = QR::new(m.clone());
 
     bh.bench_function("qr_inverse_10x10", move |bh| {
-        bh.iter(|| std::hint::black_box(qr.try_inverse()))
+        bh.iter(|| black_box(&qr).try_inverse())
     });
 }
 
@@ -103,7 +104,7 @@ fn qr_inverse_100x100(bh: &mut criterion::Criterion) {
     let qr = QR::new(m.clone());
 
     bh.bench_function("qr_inverse_100x100", move |bh| {
-        bh.iter(|| std::hint::black_box(qr.try_inverse()))
+        bh.iter(|| black_box(&qr).try_inverse())
     });
 }
 

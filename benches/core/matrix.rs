@@ -1,6 +1,7 @@
 use na::{DMatrix, DVector, Matrix2, Matrix3, Matrix4, OMatrix, U10, Vector2, Vector3, Vector4};
 use rand::Rng;
 use rand_isaac::IsaacRng;
+use std::hint::black_box;
 use std::ops::{Add, Div, Mul, Sub};
 
 #[path = "../common/macros.rs"]
@@ -52,7 +53,9 @@ fn mat_div_scalar(b: &mut criterion::Criterion) {
 
     b.bench_function("mat_div_scalar", move |bh| {
         bh.iter(|| {
-            let mut aa = a.clone();
+            let mut aa = black_box(a.clone());
+            let n = black_box(n);
+
             let mut b = aa.view_mut((0, 0), (1000, 1000));
             b /= n
         })
@@ -63,77 +66,99 @@ fn mat100_add_mat100(bench: &mut criterion::Criterion) {
     let a = DMatrix::<f64>::new_random(100, 100);
     let b = DMatrix::<f64>::new_random(100, 100);
 
-    bench.bench_function("mat100_add_mat100", move |bh| bh.iter(|| &a + &b));
+    bench.bench_function("mat100_add_mat100", move |bh| {
+        bh.iter(|| black_box(&a) + black_box(&b))
+    });
 }
 
 fn mat4_mul_mat4(bench: &mut criterion::Criterion) {
     let a = DMatrix::<f64>::new_random(4, 4);
     let b = DMatrix::<f64>::new_random(4, 4);
 
-    bench.bench_function("mat4_mul_mat4", move |bh| bh.iter(|| &a * &b));
+    bench.bench_function("mat4_mul_mat4", move |bh| {
+        bh.iter(|| black_box(&a) * black_box(&b))
+    });
 }
 
 fn mat5_mul_mat5(bench: &mut criterion::Criterion) {
     let a = DMatrix::<f64>::new_random(5, 5);
     let b = DMatrix::<f64>::new_random(5, 5);
 
-    bench.bench_function("mat5_mul_mat5", move |bh| bh.iter(|| &a * &b));
+    bench.bench_function("mat5_mul_mat5", move |bh| {
+        bh.iter(|| black_box(&a) * black_box(&b))
+    });
 }
 
 fn mat6_mul_mat6(bench: &mut criterion::Criterion) {
     let a = DMatrix::<f64>::new_random(6, 6);
     let b = DMatrix::<f64>::new_random(6, 6);
 
-    bench.bench_function("mat6_mul_mat6", move |bh| bh.iter(|| &a * &b));
+    bench.bench_function("mat6_mul_mat6", move |bh| {
+        bh.iter(|| black_box(&a) * black_box(&b))
+    });
 }
 
 fn mat7_mul_mat7(bench: &mut criterion::Criterion) {
     let a = DMatrix::<f64>::new_random(7, 7);
     let b = DMatrix::<f64>::new_random(7, 7);
 
-    bench.bench_function("mat7_mul_mat7", move |bh| bh.iter(|| &a * &b));
+    bench.bench_function("mat7_mul_mat7", move |bh| {
+        bh.iter(|| black_box(&a) * black_box(&b))
+    });
 }
 
 fn mat8_mul_mat8(bench: &mut criterion::Criterion) {
     let a = DMatrix::<f64>::new_random(8, 8);
     let b = DMatrix::<f64>::new_random(8, 8);
 
-    bench.bench_function("mat8_mul_mat8", move |bh| bh.iter(|| &a * &b));
+    bench.bench_function("mat8_mul_mat8", move |bh| {
+        bh.iter(|| black_box(&a) * black_box(&b))
+    });
 }
 
 fn mat9_mul_mat9(bench: &mut criterion::Criterion) {
     let a = DMatrix::<f64>::new_random(9, 9);
     let b = DMatrix::<f64>::new_random(9, 9);
 
-    bench.bench_function("mat9_mul_mat9", move |bh| bh.iter(|| &a * &b));
+    bench.bench_function("mat9_mul_mat9", move |bh| {
+        bh.iter(|| black_box(&a) * black_box(&b))
+    });
 }
 
 fn mat10_mul_mat10(bench: &mut criterion::Criterion) {
     let a = DMatrix::<f64>::new_random(10, 10);
     let b = DMatrix::<f64>::new_random(10, 10);
 
-    bench.bench_function("mat10_mul_mat10", move |bh| bh.iter(|| &a * &b));
+    bench.bench_function("mat10_mul_mat10", move |bh| {
+        bh.iter(|| black_box(&a) * black_box(&b))
+    });
 }
 
 fn mat10_mul_mat10_static(bench: &mut criterion::Criterion) {
     let a = OMatrix::<f64, U10, U10>::new_random();
     let b = OMatrix::<f64, U10, U10>::new_random();
 
-    bench.bench_function("mat10_mul_mat10_static", move |bh| bh.iter(|| &a * &b));
+    bench.bench_function("mat10_mul_mat10_static", move |bh| {
+        bh.iter(|| black_box(&a) * black_box(&b))
+    });
 }
 
 fn mat100_mul_mat100(bench: &mut criterion::Criterion) {
     let a = DMatrix::<f64>::new_random(100, 100);
     let b = DMatrix::<f64>::new_random(100, 100);
 
-    bench.bench_function("mat100_mul_mat100", move |bh| bh.iter(|| &a * &b));
+    bench.bench_function("mat100_mul_mat100", move |bh| {
+        bh.iter(|| black_box(&a) * black_box(&b))
+    });
 }
 
 fn mat500_mul_mat500(bench: &mut criterion::Criterion) {
     let a = DMatrix::<f64>::from_element(500, 500, 5f64);
     let b = DMatrix::<f64>::from_element(500, 500, 6f64);
 
-    bench.bench_function("mat500_mul_mat500", move |bh| bh.iter(|| &a * &b));
+    bench.bench_function("mat500_mul_mat500", move |bh| {
+        bh.iter(|| black_box(&a) * black_box(&b))
+    });
 }
 
 fn iter(bench: &mut criterion::Criterion) {
@@ -141,8 +166,8 @@ fn iter(bench: &mut criterion::Criterion) {
 
     bench.bench_function("iter", move |bh| {
         bh.iter(|| {
-            for value in a.iter() {
-                std::hint::black_box(value);
+            for value in black_box(&a).iter() {
+                black_box(value);
             }
         })
     });
@@ -153,8 +178,8 @@ fn iter_rev(bench: &mut criterion::Criterion) {
 
     bench.bench_function("iter_rev", move |bh| {
         bh.iter(|| {
-            for value in a.iter().rev() {
-                std::hint::black_box(value);
+            for value in black_box(&a).iter().rev() {
+                black_box(value);
             }
         })
     });
@@ -166,7 +191,7 @@ fn copy_from(bench: &mut criterion::Criterion) {
 
     bench.bench_function("copy_from", move |bh| {
         bh.iter(|| {
-            b.copy_from(&a);
+            black_box(&mut b).copy_from(black_box(&a));
         })
     });
 }
@@ -178,7 +203,7 @@ fn axpy(bench: &mut criterion::Criterion) {
 
     bench.bench_function("axpy", move |bh| {
         bh.iter(|| {
-            y.axpy(a, &x, 1.0);
+            black_box(&mut y).axpy(black_box(a), black_box(&x), 1.0);
         })
     });
 }
@@ -188,7 +213,9 @@ fn tr_mul_to(bench: &mut criterion::Criterion) {
     let b = DVector::<f64>::new_random(1000);
     let mut c = DVector::from_element(1000, 0.0);
 
-    bench.bench_function("tr_mul_to", move |bh| bh.iter(|| a.tr_mul_to(&b, &mut c)));
+    bench.bench_function("tr_mul_to", move |bh| {
+        bh.iter(|| black_box(&a).tr_mul_to(black_box(&b), black_box(&mut c)))
+    });
 }
 
 fn mat_mul_mat(bench: &mut criterion::Criterion) {
@@ -198,20 +225,28 @@ fn mat_mul_mat(bench: &mut criterion::Criterion) {
 
     bench.bench_function("mat_mul_mat", move |bh| {
         bh.iter(|| {
-            std::hint::black_box(a.mul_to(&b, &mut ab));
+            std::hint::black_box(black_box(&a).mul_to(black_box(&b), black_box(&mut ab)));
         })
     });
 }
 
 fn mat100_from_fn(bench: &mut criterion::Criterion) {
     bench.bench_function("mat100_from_fn", move |bh| {
-        bh.iter(|| DMatrix::from_fn(100, 100, |a, b| a + b))
+        bh.iter(|| {
+            DMatrix::from_fn(black_box(100), black_box(100), |a, b| {
+                black_box(a) + black_box(b)
+            })
+        })
     });
 }
 
 fn mat500_from_fn(bench: &mut criterion::Criterion) {
     bench.bench_function("mat500_from_fn", move |bh| {
-        bh.iter(|| DMatrix::from_fn(500, 500, |a, b| a + b))
+        bh.iter(|| {
+            DMatrix::from_fn(black_box(500), black_box(500), |a, b| {
+                black_box(a) + black_box(b)
+            })
+        })
     });
 }
 

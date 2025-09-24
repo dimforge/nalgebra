@@ -1,17 +1,18 @@
 use na::{DMatrix, DVector, FullPivLU};
+use std::hint::black_box;
 
 // Without unpack.
 fn full_piv_lu_decompose_10x10(bh: &mut criterion::Criterion) {
     let m = DMatrix::<f64>::new_random(10, 10);
     bh.bench_function("full_piv_lu_decompose_10x10", move |bh| {
-        bh.iter(|| std::hint::black_box(FullPivLU::new(m.clone())))
+        bh.iter(|| FullPivLU::new(black_box(m.clone())))
     });
 }
 
 fn full_piv_lu_decompose_100x100(bh: &mut criterion::Criterion) {
     let m = DMatrix::<f64>::new_random(100, 100);
     bh.bench_function("full_piv_lu_decompose_100x100", move |bh| {
-        bh.iter(|| std::hint::black_box(FullPivLU::new(m.clone())))
+        bh.iter(|| FullPivLU::new(black_box(m.clone())))
     });
 }
 
@@ -22,7 +23,7 @@ fn full_piv_lu_solve_10x10(bh: &mut criterion::Criterion) {
     bh.bench_function("full_piv_lu_solve_10x10", move |bh| {
         bh.iter(|| {
             let mut b = DVector::<f64>::from_element(10, 1.0);
-            lu.solve_mut(&mut b);
+            black_box(&lu).solve_mut(&mut b);
             b
         })
     });
@@ -35,7 +36,7 @@ fn full_piv_lu_solve_100x100(bh: &mut criterion::Criterion) {
     bh.bench_function("full_piv_lu_solve_100x100", move |bh| {
         bh.iter(|| {
             let mut b = DVector::<f64>::from_element(100, 1.0);
-            lu.solve_mut(&mut b);
+            black_box(&lu).solve_mut(&mut b);
             b
         })
     });
@@ -55,7 +56,7 @@ fn full_piv_lu_inverse_100x100(bh: &mut criterion::Criterion) {
     let lu = FullPivLU::new(m.clone());
 
     bh.bench_function("full_piv_lu_inverse_100x100", move |bh| {
-        bh.iter(|| std::hint::black_box(lu.try_inverse()))
+        bh.iter(|| std::hint::black_box(black_box(&lu).try_inverse()))
     });
 }
 
@@ -64,7 +65,7 @@ fn full_piv_lu_determinant_10x10(bh: &mut criterion::Criterion) {
     let lu = FullPivLU::new(m.clone());
 
     bh.bench_function("full_piv_lu_determinant_10x10", move |bh| {
-        bh.iter(|| std::hint::black_box(lu.determinant()))
+        bh.iter(|| std::hint::black_box(black_box(&lu).determinant()))
     });
 }
 
@@ -73,7 +74,7 @@ fn full_piv_lu_determinant_100x100(bh: &mut criterion::Criterion) {
     let lu = FullPivLU::new(m.clone());
 
     bh.bench_function("full_piv_lu_determinant_100x100", move |bh| {
-        bh.iter(|| std::hint::black_box(lu.determinant()))
+        bh.iter(|| std::hint::black_box(black_box(&lu).determinant()))
     });
 }
 

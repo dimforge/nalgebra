@@ -1,6 +1,7 @@
 use na::{DVector, SVector, Vector2, Vector3, Vector4};
 use rand::Rng;
 use rand_isaac::IsaacRng;
+use std::hint::black_box;
 use std::ops::{Add, Div, Mul, Sub};
 
 #[path = "../common/macros.rs"]
@@ -55,7 +56,7 @@ fn vec10000_axpy_f64(bh: &mut criterion::Criterion) {
     let n = rng.random::<f64>();
 
     bh.bench_function("vec10000_axpy_f64", move |bh| {
-        bh.iter(|| a.axpy(n, &b, 1.0))
+        bh.iter(|| black_box(&mut a).axpy(black_box(n), black_box(&b), 1.0))
     });
 }
 
@@ -68,7 +69,7 @@ fn vec10000_axpy_beta_f64(bh: &mut criterion::Criterion) {
     let beta = rng.random::<f64>();
 
     bh.bench_function("vec10000_axpy_beta_f64", move |bh| {
-        bh.iter(|| a.axpy(n, &b, beta))
+        bh.iter(|| black_box(&mut a).axpy(black_box(n), black_box(&b), black_box(beta)))
     });
 }
 
@@ -81,10 +82,10 @@ fn vec10000_axpy_f64_slice(bh: &mut criterion::Criterion) {
 
     bh.bench_function("vec10000_axpy_f64_slice", move |bh| {
         bh.iter(|| {
-            let mut a = a.fixed_rows_mut::<10000>(0);
-            let b = b.fixed_rows::<10000>(0);
+            let mut a = black_box(&mut a).fixed_rows_mut::<10000>(0);
+            let b = black_box(&b).fixed_rows::<10000>(0);
 
-            a.axpy(n, &b, 1.0)
+            a.axpy(black_box(n), &b, 1.0)
         })
     });
 }
@@ -98,7 +99,7 @@ fn vec10000_axpy_f64_static(bh: &mut criterion::Criterion) {
 
     // NOTE: for some reasons, it is much faster if the argument are boxed (Box::new(OVector...)).
     bh.bench_function("vec10000_axpy_f64_static", move |bh| {
-        bh.iter(|| a.axpy(n, &b, 1.0))
+        bh.iter(|| black_box(&mut a).axpy(black_box(n), black_box(&b), 1.0))
     });
 }
 
@@ -110,7 +111,7 @@ fn vec10000_axpy_f32(bh: &mut criterion::Criterion) {
     let n = rng.random::<f32>();
 
     bh.bench_function("vec10000_axpy_f32", move |bh| {
-        bh.iter(|| a.axpy(n, &b, 1.0))
+        bh.iter(|| black_box(&mut a).axpy(black_box(n), black_box(&b), 1.0))
     });
 }
 
@@ -123,7 +124,7 @@ fn vec10000_axpy_beta_f32(bh: &mut criterion::Criterion) {
     let beta = rng.random::<f32>();
 
     bh.bench_function("vec10000_axpy_beta_f32", move |bh| {
-        bh.iter(|| a.axpy(n, &b, beta))
+        bh.iter(|| black_box(&mut a).axpy(black_box(n), black_box(&b), black_box(beta)))
     });
 }
 
