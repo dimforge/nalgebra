@@ -4,7 +4,7 @@ use crate::base::allocator::Allocator;
 use crate::base::default_allocator::DefaultAllocator;
 use crate::base::dimension::{Const, Dim, DimAdd, DimDiff, DimSub, DimSum};
 use crate::storage::Storage;
-use crate::{zero, OVector, RealField, Vector, U1};
+use crate::{OVector, RealField, U1, Vector, zero};
 
 impl<T: RealField, D1: Dim, S1: Storage<T, D1>> Vector<T, D1, S1> {
     /// Returns the convolution of the target vector and a kernel.
@@ -31,7 +31,9 @@ impl<T: RealField, D1: Dim, S1: Storage<T, D1>> Vector<T, D1, S1> {
         let ker = kernel.len();
 
         if ker == 0 || ker > vec {
-            panic!("convolve_full expects `self.len() >= kernel.len() > 0`, received {} and {} respectively.", vec, ker);
+            panic!(
+                "convolve_full expects `self.len() >= kernel.len() > 0`, received {vec} and {ker} respectively."
+            );
         }
 
         let result_len = self
@@ -84,7 +86,9 @@ impl<T: RealField, D1: Dim, S1: Storage<T, D1>> Vector<T, D1, S1> {
         let ker = kernel.len();
 
         if ker == 0 || ker > vec {
-            panic!("convolve_valid expects `self.len() >= kernel.len() > 0`, received {} and {} respectively.",vec,ker);
+            panic!(
+                "convolve_valid expects `self.len() >= kernel.len() > 0`, received {vec} and {ker} respectively."
+            );
         }
 
         let result_len = self
@@ -123,7 +127,9 @@ impl<T: RealField, D1: Dim, S1: Storage<T, D1>> Vector<T, D1, S1> {
         let ker = kernel.len();
 
         if ker == 0 || ker > vec {
-            panic!("convolve_same expects `self.len() >= kernel.len() > 0`, received {} and {} respectively.",vec,ker);
+            panic!(
+                "convolve_same expects `self.len() >= kernel.len() > 0`, received {vec} and {ker} respectively."
+            );
         }
 
         let mut conv = OVector::zeros_generic(self.shape_generic().0, Const::<1>);

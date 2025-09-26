@@ -8,7 +8,7 @@ use simba::scalar::RealField;
 
 use crate::ComplexHelper;
 use na::dimension::{Const, Dim};
-use na::{allocator::Allocator, DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
+use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar, allocator::Allocator};
 
 use lapack;
 
@@ -23,7 +23,7 @@ use lapack;
 #[cfg_attr(
     feature = "serde-serialize",
     serde(bound(deserialize = "DefaultAllocator: Allocator<D, D> + Allocator<D>,
-         OVector<T, D>: Serialize,
+         OVector<T, D>: Deserialize<'de>,
          OMatrix<T, D, D>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
@@ -237,10 +237,10 @@ where
             false => {
                 let (number_of_elements, _) = self.eigenvalues_re.shape_generic();
                 let number_of_elements_value = number_of_elements.value();
-                let number_of_complex_entries =
-                    self.eigenvalues_im
-                        .iter()
-                        .fold(0, |acc, e| if !e.is_zero() { acc + 1 } else { acc });
+                let number_of_complex_entries = self
+                    .eigenvalues_im
+                    .iter()
+                    .fold(0, |acc, e| if !e.is_zero() { acc + 1 } else { acc });
                 let mut eigenvalues = Vec::<Complex<T>>::with_capacity(number_of_complex_entries);
                 let mut eigenvectors = match self.eigenvectors.is_some() {
                     true => Some(Vec::<OVector<Complex<T>, D>>::with_capacity(

@@ -33,7 +33,7 @@ where
 
     #[inline]
     unsafe fn extract_unchecked(&self, i: usize) -> Self::Element {
-        self.map(|e| e.extract_unchecked(i))
+        unsafe { self.map(|e| e.extract_unchecked(i)) }
     }
 
     #[inline]
@@ -45,9 +45,11 @@ where
 
     #[inline]
     unsafe fn replace_unchecked(&mut self, i: usize, val: Self::Element) {
-        self.zip_apply(&val, |a, b| {
-            a.replace_unchecked(i, b);
-        })
+        unsafe {
+            self.zip_apply(&val, |a, b| {
+                a.replace_unchecked(i, b);
+            })
+        }
     }
 
     fn select(self, cond: Self::SimdBool, other: Self) -> Self {

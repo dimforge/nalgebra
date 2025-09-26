@@ -25,7 +25,7 @@ where
 
     #[inline]
     unsafe fn extract_unchecked(&self, i: usize) -> Self::Element {
-        Rotation::from_matrix_unchecked(self.matrix().extract_unchecked(i))
+        unsafe { Rotation::from_matrix_unchecked(self.matrix().extract_unchecked(i)) }
     }
 
     #[inline]
@@ -35,8 +35,10 @@ where
 
     #[inline]
     unsafe fn replace_unchecked(&mut self, i: usize, val: Self::Element) {
-        self.matrix_mut_unchecked()
-            .replace_unchecked(i, val.into_inner())
+        unsafe {
+            self.matrix_mut_unchecked()
+                .replace_unchecked(i, val.into_inner())
+        }
     }
 
     #[inline]

@@ -180,8 +180,8 @@ fn is_literal_zero(expr: &Expr) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use crate::stack_impl::stack_impl;
     use crate::Matrix;
+    use crate::stack_impl::stack_impl;
     use quote::quote;
 
     #[test]

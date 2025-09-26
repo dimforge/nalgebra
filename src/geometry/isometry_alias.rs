@@ -31,8 +31,8 @@ pub type IsometryMatrix3<T> = Isometry<T, Rotation3<T>, 3>;
 // This tests that the types correctly implement `Copy`, without having to run tests
 // (when targeting no-std for example).
 #[allow(dead_code)]
-fn ensure_copy() {
-    fn is_copy<T: Copy>() {}
+const fn ensure_copy() {
+    const fn is_copy<T: Copy>() {}
 
     is_copy::<IsometryMatrix2<f32>>();
     is_copy::<IsometryMatrix3<f32>>();

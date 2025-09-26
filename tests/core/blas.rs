@@ -1,4 +1,4 @@
-use na::{geometry::Quaternion, Matrix2, Vector3};
+use na::{Matrix2, Vector3, geometry::Quaternion};
 use num_traits::{One, Zero};
 
 #[test]

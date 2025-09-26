@@ -1,7 +1,7 @@
 use na::{Rotation3, Unit, UnitQuaternion};
 
-use crate::aliases::{Qua, TMat3, TMat4, TVec3, TVec4};
 use crate::RealNumber;
+use crate::aliases::{Qua, TMat3, TMat4, TVec3, TVec4};
 
 /// Rotate the vector `v` by the quaternion `q` assumed to be normalized.
 pub fn quat_cross_vec<T: RealNumber>(q: &Qua<T>, v: &TVec3<T>) -> TVec3<T> {

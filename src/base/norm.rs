@@ -536,7 +536,7 @@ where
                 nbasis_elements += 1;
 
                 // All the other vectors will be dependent.
-                if nbasis_elements == D::dim() {
+                if nbasis_elements == D::DIM {
                     break;
                 }
             }
@@ -556,11 +556,11 @@ where
     {
         // TODO: is this necessary?
         assert!(
-            vs.len() <= D::dim(),
+            vs.len() <= D::DIM,
             "The given set of vectors has no chance of being a free family."
         );
 
-        match D::dim() {
+        match D::DIM {
             1 => {
                 if vs.is_empty() {
                     let _ = f(&Self::canonical_basis_element(0));
@@ -613,7 +613,7 @@ where
                         known_basis.push(v.normalize())
                     }
 
-                    for i in 0..D::dim() - vs.len() {
+                    for i in 0..D::DIM - vs.len() {
                         let mut elt = Self::canonical_basis_element(i);
 
                         for v in &known_basis {
@@ -631,8 +631,10 @@ where
                 }
                 #[cfg(all(not(feature = "std"), not(feature = "alloc")))]
                 {
-                    panic!("Cannot compute the orthogonal subspace basis of a vector with a dimension greater than 3 \
-                            if #![no_std] is enabled and the 'alloc' feature is not enabled.")
+                    panic!(
+                        "Cannot compute the orthogonal subspace basis of a vector with a dimension greater than 3 \
+                            if #![no_std] is enabled and the 'alloc' feature is not enabled."
+                    )
                 }
             }
         }

@@ -690,27 +690,29 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         C: DimAdd<D>,
         DefaultAllocator: Reallocator<T, R, C, R, DimSum<C, D>>,
     {
-        let m = self.into_owned();
-        let (nrows, ncols) = m.shape_generic();
-        let mut res = Matrix::from_data(DefaultAllocator::reallocate_copy(
-            nrows,
-            ncols.add(ninsert),
-            m.data,
-        ));
+        unsafe {
+            let m = self.into_owned();
+            let (nrows, ncols) = m.shape_generic();
+            let mut res = Matrix::from_data(DefaultAllocator::reallocate_copy(
+                nrows,
+                ncols.add(ninsert),
+                m.data,
+            ));
 
-        assert!(i <= ncols.value(), "Column insertion index out of range.");
+            assert!(i <= ncols.value(), "Column insertion index out of range.");
 
-        if ninsert.value() != 0 && i != ncols.value() {
-            let ptr_in = res.data.ptr().add(i * nrows.value());
-            let ptr_out = res
-                .data
-                .ptr_mut()
-                .add((i + ninsert.value()) * nrows.value());
+            if ninsert.value() != 0 && i != ncols.value() {
+                let ptr_in = res.data.ptr().add(i * nrows.value());
+                let ptr_out = res
+                    .data
+                    .ptr_mut()
+                    .add((i + ninsert.value()) * nrows.value());
 
-            ptr::copy(ptr_in, ptr_out, (ncols.value() - i) * nrows.value())
+                ptr::copy(ptr_in, ptr_out, (ncols.value() - i) * nrows.value())
+            }
+
+            res
         }
-
-        res
     }
 
     /*
@@ -784,27 +786,29 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         R: DimAdd<D>,
         DefaultAllocator: Reallocator<T, R, C, DimSum<R, D>, C>,
     {
-        let m = self.into_owned();
-        let (nrows, ncols) = m.shape_generic();
-        let mut res = Matrix::from_data(DefaultAllocator::reallocate_copy(
-            nrows.add(ninsert),
-            ncols,
-            m.data,
-        ));
+        unsafe {
+            let m = self.into_owned();
+            let (nrows, ncols) = m.shape_generic();
+            let mut res = Matrix::from_data(DefaultAllocator::reallocate_copy(
+                nrows.add(ninsert),
+                ncols,
+                m.data,
+            ));
 
-        assert!(i <= nrows.value(), "Row insertion index out of range.");
+            assert!(i <= nrows.value(), "Row insertion index out of range.");
 
-        if ninsert.value() != 0 {
-            extend_rows(
-                res.as_mut_slice(),
-                nrows.value(),
-                ncols.value(),
-                i,
-                ninsert.value(),
-            );
+            if ninsert.value() != 0 {
+                extend_rows(
+                    res.as_mut_slice(),
+                    nrows.value(),
+                    ncols.value(),
+                    i,
+                    ninsert.value(),
+                );
+            }
+
+            res
         }
-
-        res
     }
 }
 
@@ -1087,80 +1091,84 @@ unsafe fn compress_rows<T: Scalar>(
     i: usize,
     nremove: usize,
 ) {
-    let new_nrows = nrows - nremove;
+    unsafe {
+        let new_nrows = nrows - nremove;
 
-    if nremove == 0 {
-        return; // Nothing to remove or drop.
-    }
+        if nremove == 0 {
+            return; // Nothing to remove or drop.
+        }
 
-    if new_nrows == 0 || ncols == 0 {
-        // The output matrix is empty, drop everything.
-        ptr::drop_in_place(data);
-        return;
-    }
+        if new_nrows == 0 || ncols == 0 {
+            // The output matrix is empty, drop everything.
+            ptr::drop_in_place(data);
+            return;
+        }
 
-    // Safety: because `nremove != 0`, the pointers given to `ptr::copy`
-    //         won’t alias.
-    let ptr_in = data.as_ptr();
-    let ptr_out = data.as_mut_ptr();
+        // Safety: because `nremove != 0`, the pointers given to `ptr::copy`
+        //         won’t alias.
+        let ptr_in = data.as_ptr();
+        let ptr_out = data.as_mut_ptr();
 
-    let mut curr_i = i;
+        let mut curr_i = i;
 
-    for k in 0..ncols - 1 {
+        for k in 0..ncols - 1 {
+            // Safety: we drop the row elements in-place because we will overwrite these
+            //         entries later with the `ptr::copy`.
+            let s = ptr::slice_from_raw_parts_mut(ptr_out.add(curr_i), nremove);
+            ptr::drop_in_place(s);
+            ptr::copy(
+                ptr_in.add(curr_i + (k + 1) * nremove),
+                ptr_out.add(curr_i),
+                new_nrows,
+            );
+
+            curr_i += new_nrows;
+        }
+
+        /*
+         * Deal with the last column from which less values have to be copied.
+         */
         // Safety: we drop the row elements in-place because we will overwrite these
         //         entries later with the `ptr::copy`.
         let s = ptr::slice_from_raw_parts_mut(ptr_out.add(curr_i), nremove);
         ptr::drop_in_place(s);
+        let remaining_len = nrows - i - nremove;
         ptr::copy(
-            ptr_in.add(curr_i + (k + 1) * nremove),
+            ptr_in.add(nrows * ncols - remaining_len),
             ptr_out.add(curr_i),
-            new_nrows,
+            remaining_len,
         );
-
-        curr_i += new_nrows;
     }
-
-    /*
-     * Deal with the last column from which less values have to be copied.
-     */
-    // Safety: we drop the row elements in-place because we will overwrite these
-    //         entries later with the `ptr::copy`.
-    let s = ptr::slice_from_raw_parts_mut(ptr_out.add(curr_i), nremove);
-    ptr::drop_in_place(s);
-    let remaining_len = nrows - i - nremove;
-    ptr::copy(
-        ptr_in.add(nrows * ncols - remaining_len),
-        ptr_out.add(curr_i),
-        remaining_len,
-    );
 }
 
 // Moves entries of a matrix buffer to make place for `ninsert` empty rows starting at the `i-th` row index.
 // The `data` buffer is assumed to contained at least `(nrows + ninsert) * ncols` elements.
 unsafe fn extend_rows<T>(data: &mut [T], nrows: usize, ncols: usize, i: usize, ninsert: usize) {
-    let new_nrows = nrows + ninsert;
+    unsafe {
+        let new_nrows = nrows + ninsert;
 
-    if new_nrows == 0 || ncols == 0 {
-        return; // Nothing to do as the output matrix is empty.
-    }
+        if new_nrows == 0 || ncols == 0 {
+            return; // Nothing to do as the output matrix is empty.
+        }
 
-    let ptr_in = data.as_ptr();
-    let ptr_out = data.as_mut_ptr();
+        let ptr_in = data.as_ptr();
+        let ptr_out = data.as_mut_ptr();
 
-    let remaining_len = nrows - i;
-    let mut curr_i = new_nrows * ncols - remaining_len;
+        let remaining_len = nrows - i;
+        let mut curr_i = new_nrows * ncols - remaining_len;
 
-    // Deal with the last column from which less values have to be copied.
-    ptr::copy(
-        ptr_in.add(nrows * ncols - remaining_len),
-        ptr_out.add(curr_i),
-        remaining_len,
-    );
+        // Deal with the last column from which less values have to be copied.
+        ptr::copy(
+            ptr_in.add(nrows * ncols - remaining_len),
+            ptr_out.add(curr_i),
+            remaining_len,
+        );
 
-    for k in (0..ncols - 1).rev() {
-        curr_i -= new_nrows;
+        for k in (0..ncols - 1).rev() {
+            curr_i -= new_nrows;
 
-        ptr::copy(ptr_in.add(k * nrows + i), ptr_out.add(curr_i), nrows);
+            ptr::copy(ptr_in.add(k * nrows + i), ptr_out.add(curr_i), nrows);
+        }
     }
 }
 

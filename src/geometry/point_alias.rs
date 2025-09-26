@@ -1,5 +1,5 @@
-use crate::geometry::OPoint;
 use crate::Const;
+use crate::geometry::OPoint;
 
 /// A point with `D` elements.
 pub type Point<T, const D: usize> = OPoint<T, Const<D>>;

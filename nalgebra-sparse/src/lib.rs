@@ -1,4 +1,4 @@
-//! Sparse matrices and algorithms for [nalgebra](https://www.nalgebra.org).
+//! Sparse matrices and algorithms for [nalgebra](https://www.nalgebra.rs).
 //!
 //! This crate extends `nalgebra` with sparse matrix formats and operations on sparse matrices.
 //!
@@ -140,7 +140,7 @@
     unused,
     missing_docs,
     rust_2018_idioms,
-    rust_2018_compatibility,
+    rust_2024_compatibility,
     future_incompatible,
     missing_copy_implementations
 )]

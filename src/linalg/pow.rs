@@ -1,9 +1,9 @@
 //! This module provides the matrix exponential (pow) function to square matrices.
 
 use crate::{
+    DefaultAllocator, DimMin, Matrix, OMatrix, Scalar,
     allocator::Allocator,
     storage::{Storage, StorageMut},
-    DefaultAllocator, DimMin, Matrix, OMatrix, Scalar,
 };
 use num::{One, Zero};
 use simba::scalar::{ClosedAddAssign, ClosedMulAssign};

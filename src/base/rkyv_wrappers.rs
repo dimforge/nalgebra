@@ -1,14 +1,14 @@
-//! Wrapper that allows changing the generic type of a `PhantomData<T>`
+//! Wrapper that allows changing the generic type of a `PhantomData<NT>`
 //!
 //! Copied from <https://github.com/rkyv/rkyv_contrib> (MIT-Apache2 licences) which isn’t published yet.
 
 use rkyv::{
-    with::{ArchiveWith, DeserializeWith, SerializeWith},
     Fallible,
+    with::{ArchiveWith, DeserializeWith, SerializeWith},
 };
 use std::marker::PhantomData;
 
-/// A wrapper that allows for changing the generic type of a `PhantomData<T>`.
+/// A wrapper that allows for changing the generic type of a `PhantomData<NT>`.
 pub struct CustomPhantom<NT: ?Sized> {
     _data: PhantomData<*const NT>,
 }

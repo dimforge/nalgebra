@@ -1,6 +1,6 @@
+use crate::Const;
 use crate::base::ArrayStorage;
 use crate::geometry::Reflection;
-use crate::Const;
 
 /// A 1-dimensional reflection.
 pub type Reflection1<T> = Reflection<T, Const<1>, ArrayStorage<T, 1, 1>>;

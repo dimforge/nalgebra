@@ -9,22 +9,21 @@ use quickcheck::{Arbitrary, Gen};
 use num::{Bounded, One, Zero};
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distr::{Distribution, StandardUniform},
     Rng,
+    distr::{Distribution, StandardUniform},
 };
 
-use std::iter;
 use typenum::{self, Cmp, Greater};
 
 use simba::scalar::{ClosedAddAssign, ClosedMulAssign};
 
+use crate::UninitMatrix;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{Dim, DimName, Dyn, ToTypenum};
 use crate::base::storage::RawStorage;
 use crate::base::{
     ArrayStorage, Const, DefaultAllocator, Matrix, OMatrix, OVector, Scalar, Unit, Vector,
 };
-use crate::UninitMatrix;
 use std::mem::MaybeUninit;
 
 impl<T: Scalar, R: Dim, C: Dim> UninitMatrix<T, R, C>
@@ -56,7 +55,7 @@ where
     #[inline]
     pub fn from_element_generic(nrows: R, ncols: C, elem: T) -> Self {
         let len = nrows.value() * ncols.value();
-        Self::from_iterator_generic(nrows, ncols, iter::repeat(elem).take(len))
+        Self::from_iterator_generic(nrows, ncols, std::iter::repeat_n(elem, len))
     }
 
     /// Creates a matrix with all its elements set to `elem`.
@@ -65,7 +64,7 @@ where
     #[inline]
     pub fn repeat_generic(nrows: R, ncols: C, elem: T) -> Self {
         let len = nrows.value() * ncols.value();
-        Self::from_iterator_generic(nrows, ncols, iter::repeat(elem).take(len))
+        Self::from_iterator_generic(nrows, ncols, std::iter::repeat_n(elem, len))
     }
 
     /// Creates a matrix with all its elements set to 0.
@@ -382,7 +381,7 @@ where
  *
  */
 macro_rules! impl_constructors(
-    ($($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr),*; $($args: ident),*) => {
+    ($($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr_2021),*; $($args: ident),*) => {
         /// Creates a matrix or vector with all its elements set to `elem`.
         ///
         /// # Example
@@ -521,26 +520,49 @@ macro_rules! impl_constructors(
         }
 
         /// Creates a matrix or vector filled with the results of a function applied to each of its
-        /// component coordinates.
+        /// element's indices.
         ///
-        /// # Example
+        /// The `from_fn` syntax changes depending if the type's rows or columns are dynamically or statically sized.
+        /// The dimension must only be supplied iff it is dynamically sized, e.g.
+        /// - `from_fn(f)` when both dimensions are statically sized
+        /// - `from_fn(nrows, f)` when only row dimension is dynamically sized
+        /// - `from_fn(ncols, f)` when only column dimension is dynamically sized
+        /// - `from_fn(nrows, ncols, f)` when both dimensions are dynamically sized
+        ///
+        /// The function object `f` (i.e. the last argument to `from_fn`) receives the row and column indices as arguments (e.g. `f(row, col)`).
+        /// For vectors, the column index is always zero (e.g. `f(row, 0)`).
+        ///
+        /// # Arguments
+        ///
+        /// - `nrows`: The number of rows. Must only be supplied for types with dynamic number of rows.
+        ///
+        /// - `ncols`: The number of columns. Must only be supplied for types with dynamic number of columns.
+        ///
+        /// - `f`: A function accepting the zero-based indices `(row, col)`.
+        ///
+        /// # Examples
+        ///
         /// ```
-        /// # use nalgebra::{Matrix2x3, Vector3, DVector, DMatrix};
-        /// # use std::iter;
+        /// use nalgebra::{DMatrix, DVector, Matrix2x3, Matrix2xX, MatrixXx3, Vector3};
+        /// use nalgebra_macros::{matrix, vector};
         ///
-        /// let v = Vector3::from_fn(|i, _| i);
-        /// // The additional argument represents the vector dimension.
-        /// let dv = DVector::from_fn(3, |i, _| i);
-        /// let m = Matrix2x3::from_fn(|i, j| i * 3 + j);
-        /// // The two additional arguments represent the matrix dimensions.
-        /// let dm = DMatrix::from_fn(2, 3, |i, j| i * 3 + j);
+        /// // statically sized dimensions -> both inferred
+        /// let v_3 = Vector3::from_fn(|i, _| i);
+        /// let m_2_3 = Matrix2x3::from_fn(|i, j| i * 3 + j);
+        /// assert_eq!(v_3, vector![0, 1, 2]);
+        /// assert_eq!(m_2_3, matrix![0, 1, 2; 3, 4, 5]);
         ///
-        /// assert!(v.x == 0 && v.y == 1 && v.z == 2);
-        /// assert!(dv[0] == 0 && dv[1] == 1 && dv[2] == 2);
-        /// assert!(m.m11 == 0 && m.m12 == 1 && m.m13 == 2 &&
-        ///         m.m21 == 3 && m.m22 == 4 && m.m23 == 5);
-        /// assert!(dm[(0, 0)] == 0 && dm[(0, 1)] == 1 && dm[(0, 2)] == 2 &&
-        ///         dm[(1, 0)] == 3 && dm[(1, 1)] == 4 && dm[(1, 2)] == 5);
+        /// // mixed sized dimensions -> static dimensions inferred, dynamic dimension must be given explicitly
+        /// let m_2_d = Matrix2xX::from_fn(3, |i, j| i * 3 + j); // explicit: ncols=3
+        /// let m_d_3 = MatrixXx3::from_fn(2, |i, j| i * 3 + j); // explicit: nrows=2
+        /// assert_eq!(m_2_d, matrix![0, 1, 2; 3, 4, 5]);
+        /// assert_eq!(m_d_3, matrix![0, 1, 2; 3, 4, 5]);
+        ///
+        /// // dynamically sized dimensions -> both must be given explicitly
+        /// let v_d = DVector::from_fn(3, |i, _| i);
+        /// let m_d_d = DMatrix::from_fn(2, 3, |i, j| i * 3 + j); // explicit: nrows=2, ncols=3
+        /// assert_eq!(v_d, vector![0, 1, 2]);
+        /// assert_eq!(m_d_d, matrix![0, 1, 2; 3, 4, 5]);
         /// ```
         #[inline]
         pub fn from_fn<F>($($args: usize,)* f: F) -> Self
@@ -696,7 +718,7 @@ where
  *
  */
 macro_rules! impl_constructors_from_data(
-    ($data: ident; $($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr),*; $($args: ident),*) => {
+    ($data: ident; $($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr_2021),*; $($args: ident),*) => {
         impl<T: Scalar, $($DimIdent: $DimBound, )*> OMatrix<T $(, $Dims)*>
         where DefaultAllocator: Allocator<$($Dims),*> {
             /// Creates a matrix with its elements filled with the components provided by a slice
@@ -793,12 +815,12 @@ R::name(), C::name();         // Arguments for `_generic` constructors.
 
 impl_constructors_from_data!(data; R, Dyn;
 => R: DimName;
-R::name(), Dyn(data.len() / R::dim());
+R::name(), Dyn(data.len() / R::DIM);
 );
 
 impl_constructors_from_data!(data; Dyn, C;
 => C: DimName;
-Dyn(data.len() / C::dim()), C::name();
+Dyn(data.len() / C::DIM), C::name();
 );
 
 #[cfg(any(feature = "std", feature = "alloc"))]
@@ -939,7 +961,7 @@ macro_rules! transpose_array(
 );
 
 macro_rules! componentwise_constructors_impl(
-    ($($R: expr, $C: expr, [$($($args: ident),*);*] $(;)*)*) => {$(
+    ($($R: expr_2021, $C: expr_2021, [$($($args: ident),*);*] $(;)*)*) => {$(
         impl<T> Matrix<T, Const<$R>, Const<$C>, ArrayStorage<T, $R, $C>> {
             /// Initializes this matrix from its components.
             #[inline]

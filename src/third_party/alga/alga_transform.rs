@@ -36,7 +36,6 @@ where
     DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
     #[inline]
-    #[must_use = "Did you mean to use two_sided_inverse_mut()?"]
     fn two_sided_inverse(&self) -> Self {
         self.clone().inverse()
     }

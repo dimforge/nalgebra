@@ -69,8 +69,8 @@
 #![deny(unused_results)]
 #![deny(missing_docs)]
 #![doc(
-    html_favicon_url = "https://nalgebra.org/img/favicon.ico",
-    html_root_url = "https://nalgebra.org/rustdoc"
+    html_favicon_url = "https://nalgebra.rs/img/favicon.ico",
+    html_root_url = "https://nalgebra.rs/rustdoc"
 )]
 
 extern crate lapack;
@@ -98,7 +98,7 @@ pub use self::cholesky::{Cholesky, CholeskyScalar};
 pub use self::eigen::Eigen;
 pub use self::generalized_eigenvalues::GeneralizedEigen;
 pub use self::hessenberg::Hessenberg;
-pub use self::lu::{LUScalar, LU};
+pub use self::lu::{LU, LUScalar};
 pub use self::qr::QR;
 pub use self::qz::QZ;
 pub use self::schur::Schur;

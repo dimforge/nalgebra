@@ -1,11 +1,11 @@
 use crate::csc::CscMatrix;
 use crate::csr::CsrMatrix;
 
+use crate::ops::Op;
 use crate::ops::serial::{
     spadd_csc_prealloc, spadd_csr_prealloc, spadd_pattern, spmm_csc_dense, spmm_csc_pattern,
     spmm_csc_prealloc_unchecked, spmm_csr_dense, spmm_csr_pattern, spmm_csr_prealloc_unchecked,
 };
-use crate::ops::Op;
 use nalgebra::allocator::Allocator;
 use nalgebra::base::storage::RawStorage;
 use nalgebra::constraint::{DimEq, ShapeConstraint};

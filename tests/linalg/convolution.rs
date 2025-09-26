@@ -25,23 +25,29 @@ fn convolve_same_check() {
 
     // Panic Tests
     // These really only apply to dynamic sized vectors
-    assert!(panic::catch_unwind(|| {
-        let _ = DVector::from_vec(vec![1.0, 2.0])
-            .convolve_same(DVector::from_vec(vec![1.0, 2.0, 3.0, 4.0]));
-    })
-    .is_err());
+    assert!(
+        panic::catch_unwind(|| {
+            let _ = DVector::from_vec(vec![1.0, 2.0])
+                .convolve_same(DVector::from_vec(vec![1.0, 2.0, 3.0, 4.0]));
+        })
+        .is_err()
+    );
 
-    assert!(panic::catch_unwind(|| {
-        let _ = DVector::<f32>::from_vec(vec![])
-            .convolve_same(DVector::from_vec(vec![1.0, 2.0, 3.0, 4.0]));
-    })
-    .is_err());
+    assert!(
+        panic::catch_unwind(|| {
+            let _ = DVector::<f32>::from_vec(vec![])
+                .convolve_same(DVector::from_vec(vec![1.0, 2.0, 3.0, 4.0]));
+        })
+        .is_err()
+    );
 
-    assert!(panic::catch_unwind(|| {
-        let _ = DVector::from_vec(vec![1.0, 2.0, 3.0, 4.0])
-            .convolve_same(DVector::<f32>::from_vec(vec![]));
-    })
-    .is_err());
+    assert!(
+        panic::catch_unwind(|| {
+            let _ = DVector::from_vec(vec![1.0, 2.0, 3.0, 4.0])
+                .convolve_same(DVector::<f32>::from_vec(vec![]));
+        })
+        .is_err()
+    );
 }
 
 // >>> convolve([1,2,3,4],[1,2],"full")
@@ -63,21 +69,29 @@ fn convolve_full_check() {
 
     // Panic Tests
     // These really only apply to dynamic sized vectors
-    assert!(panic::catch_unwind(|| {
-        DVector::from_vec(vec![1.0, 2.0])
-            .convolve_full(DVector::from_vec(vec![1.0, 2.0, 3.0, 4.0]));
-    })
-    .is_err());
+    assert!(
+        panic::catch_unwind(|| {
+            DVector::from_vec(vec![1.0, 2.0])
+                .convolve_full(DVector::from_vec(vec![1.0, 2.0, 3.0, 4.0]));
+        })
+        .is_err()
+    );
 
-    assert!(panic::catch_unwind(|| {
-        DVector::<f32>::from_vec(vec![]).convolve_full(DVector::from_vec(vec![1.0, 2.0, 3.0, 4.0]));
-    })
-    .is_err());
+    assert!(
+        panic::catch_unwind(|| {
+            DVector::<f32>::from_vec(vec![])
+                .convolve_full(DVector::from_vec(vec![1.0, 2.0, 3.0, 4.0]));
+        })
+        .is_err()
+    );
 
-    assert!(panic::catch_unwind(|| {
-        DVector::from_vec(vec![1.0, 2.0, 3.0, 4.0]).convolve_full(DVector::<f32>::from_vec(vec![]));
-    })
-    .is_err());
+    assert!(
+        panic::catch_unwind(|| {
+            DVector::from_vec(vec![1.0, 2.0, 3.0, 4.0])
+                .convolve_full(DVector::<f32>::from_vec(vec![]));
+        })
+        .is_err()
+    );
 }
 
 // >>> convolve([1, 2, 3, 4],[1, 2],"valid")
@@ -99,21 +113,27 @@ fn convolve_valid_check() {
 
     // Panic Tests
     // These really only apply to dynamic sized vectors
-    assert!(panic::catch_unwind(|| {
-        DVector::from_vec(vec![1.0, 2.0])
-            .convolve_valid(DVector::from_vec(vec![1.0, 2.0, 3.0, 4.0]));
-    })
-    .is_err());
+    assert!(
+        panic::catch_unwind(|| {
+            DVector::from_vec(vec![1.0, 2.0])
+                .convolve_valid(DVector::from_vec(vec![1.0, 2.0, 3.0, 4.0]));
+        })
+        .is_err()
+    );
 
-    assert!(panic::catch_unwind(|| {
-        DVector::<f32>::from_vec(vec![])
-            .convolve_valid(DVector::from_vec(vec![1.0, 2.0, 3.0, 4.0]));
-    })
-    .is_err());
+    assert!(
+        panic::catch_unwind(|| {
+            DVector::<f32>::from_vec(vec![])
+                .convolve_valid(DVector::from_vec(vec![1.0, 2.0, 3.0, 4.0]));
+        })
+        .is_err()
+    );
 
-    assert!(panic::catch_unwind(|| {
-        DVector::from_vec(vec![1.0, 2.0, 3.0, 4.0])
-            .convolve_valid(DVector::<f32>::from_vec(vec![]));
-    })
-    .is_err());
+    assert!(
+        panic::catch_unwind(|| {
+            DVector::from_vec(vec![1.0, 2.0, 3.0, 4.0])
+                .convolve_valid(DVector::<f32>::from_vec(vec![]));
+        })
+        .is_err()
+    );
 }

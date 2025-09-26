@@ -1,17 +1,17 @@
 [package]
 name = "nalgebra-lapack"
-version = "0.25.0"
+version = "0.26.0"
 authors = ["Sébastien Crozet <developer@crozet.re>", "Andrew Straw <strawman@astraw.com>"]
 
 description = "Matrix decompositions using nalgebra matrices and Lapack bindings."
-documentation = "https://www.nalgebra.org/docs"
-homepage = "https://nalgebra.org"
+documentation = "https://www.nalgebra.rs/docs"
+homepage = "https://nalgebra.rs"
 repository = "https://github.com/dimforge/nalgebra"
 readme = "../README.md"
 categories = ["science", "mathematics"]
 keywords = ["linear", "algebra", "matrix", "vector", "lapack"]
 license = "MIT"
-edition = "2018"
+edition = "2024"
 
 [badges]
 maintenance = { status = "actively-developed" }
@@ -20,6 +20,7 @@ maintenance = { status = "actively-developed" }
 serde-serialize = ["serde", "nalgebra/serde-serialize"]
 proptest-support = ["nalgebra/proptest-support"]
 arbitrary = ["nalgebra/arbitrary"]
+slow-tests = []
 
 # For BLAS/LAPACK
 default = ["netlib"]
@@ -29,7 +30,7 @@ accelerate = ["lapack-src/accelerate"]
 intel-mkl = ["lapack-src/intel-mkl"]
 
 [dependencies]
-nalgebra = { version = "0.33", path = ".." }
+nalgebra = { version = "0.34", path = ".." }
 num-traits = "0.2"
 num-complex = { version = "0.4", default-features = false }
 simba = "0.9"
@@ -39,7 +40,7 @@ lapack-src = { version = "0.8", default-features = false }
 # clippy = "*"
 
 [dev-dependencies]
-nalgebra = { version = "0.33", features = ["arbitrary", "rand"], path = ".." }
+nalgebra = { version = "0.34", features = ["arbitrary", "rand"], path = ".." }
 proptest = { version = "1", default-features = false, features = ["std"] }
 quickcheck = "1"
 approx = "0.5"

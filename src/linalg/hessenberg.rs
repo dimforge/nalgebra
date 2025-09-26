@@ -6,8 +6,8 @@ use crate::base::{DefaultAllocator, OMatrix, OVector};
 use crate::dimension::{Const, DimDiff, DimSub, U1};
 use simba::scalar::ComplexField;
 
-use crate::linalg::householder;
 use crate::Matrix;
+use crate::linalg::householder;
 use std::mem::MaybeUninit;
 
 /// Hessenberg decomposition of a general matrix.
@@ -26,6 +26,7 @@ use std::mem::MaybeUninit;
          OMatrix<T, D, D>: Deserialize<'de>,
          OVector<T, DimDiff<D, U1>>: Deserialize<'de>"))
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Debug)]
 pub struct Hessenberg<T: ComplexField, D: DimSub<U1>>
 where
@@ -148,7 +149,7 @@ where
     }
 
     #[doc(hidden)]
-    pub fn hess_internal(&self) -> &OMatrix<T, D, D> {
+    pub const fn hess_internal(&self) -> &OMatrix<T, D, D> {
         &self.hess
     }
 }

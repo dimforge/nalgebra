@@ -529,7 +529,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     where
         I: MatrixIndex<'a, T, R, C, S>,
     {
-        index.get_unchecked(self)
+        unsafe { index.get_unchecked(self) }
     }
 
     /// Returns a mutable view of the data at the given index, without doing
@@ -544,7 +544,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         S: RawStorageMut<T, R, C>,
         I: MatrixIndexMut<'a, T, R, C, S>,
     {
-        index.get_unchecked_mut(self)
+        unsafe { index.get_unchecked_mut(self) }
     }
 }
 
@@ -568,10 +568,12 @@ where
     #[doc(hidden)]
     #[inline(always)]
     unsafe fn get_unchecked(self, matrix: &'a Matrix<T, R, C, S>) -> Self::Output {
-        let nrows = matrix.shape().0;
-        let row = self % nrows;
-        let col = self / nrows;
-        matrix.data.get_unchecked(row, col)
+        unsafe {
+            let nrows = matrix.shape().0;
+            let row = self % nrows;
+            let col = self / nrows;
+            matrix.data.get_unchecked(row, col)
+        }
     }
 }
 
@@ -590,10 +592,12 @@ where
     where
         S: RawStorageMut<T, R, C>,
     {
-        let nrows = matrix.shape().0;
-        let row = self % nrows;
-        let col = self / nrows;
-        matrix.data.get_unchecked_mut(row, col)
+        unsafe {
+            let nrows = matrix.shape().0;
+            let row = self % nrows;
+            let col = self / nrows;
+            matrix.data.get_unchecked_mut(row, col)
+        }
     }
 }
 
@@ -618,8 +622,10 @@ where
     #[doc(hidden)]
     #[inline(always)]
     unsafe fn get_unchecked(self, matrix: &'a Matrix<T, R, C, S>) -> Self::Output {
-        let (row, col) = self;
-        matrix.data.get_unchecked(row, col)
+        unsafe {
+            let (row, col) = self;
+            matrix.data.get_unchecked(row, col)
+        }
     }
 }
 
@@ -637,8 +643,10 @@ where
     where
         S: RawStorageMut<T, R, C>,
     {
-        let (row, col) = self;
-        matrix.data.get_unchecked_mut(row, col)
+        unsafe {
+            let (row, col) = self;
+            matrix.data.get_unchecked_mut(row, col)
+        }
     }
 }
 
@@ -682,7 +690,7 @@ macro_rules! impl_index_pair {
 
             #[doc(hidden)]
             #[inline(always)]
-            unsafe fn get_unchecked(self, matrix: &'a Matrix<T, $R, $C, S>) -> Self::Output {
+            unsafe fn get_unchecked(self, matrix: &'a Matrix<T, $R, $C, S>) -> Self::Output { unsafe {
                 use crate::base::ViewStorage;
 
                 let (rows, cols) = self;
@@ -694,7 +702,7 @@ macro_rules! impl_index_pair {
                         (rows.length(nrows), cols.length(ncols)));
 
                 Matrix::from_data_statically_unchecked(data)
-            }
+            }}
         }
 
         impl<'a, T, $R, $C, S, $($RTyP : $RTyPB,)* $($CTyP : $CTyPB),*> MatrixIndexMut<'a, T, $R, $C, S> for ($RIdx, $CIdx)
@@ -710,7 +718,7 @@ macro_rules! impl_index_pair {
 
             #[doc(hidden)]
             #[inline(always)]
-            unsafe fn get_unchecked_mut(self, matrix: &'a mut Matrix<T, $R, $C, S>) -> Self::OutputMut {
+            unsafe fn get_unchecked_mut(self, matrix: &'a mut Matrix<T, $R, $C, S>) -> Self::OutputMut { unsafe {
                 use crate::base::ViewStorageMut;
 
                 let (rows, cols) = self;
@@ -722,7 +730,7 @@ macro_rules! impl_index_pair {
                         (rows.length(nrows), cols.length(ncols)));
 
                 Matrix::from_data_statically_unchecked(data)
-            }
+            }}
         }
     }
 }

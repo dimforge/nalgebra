@@ -7,8 +7,8 @@ use std::ops::{Div, DivAssign, Mul, MulAssign};
 use simba::scalar::{ClosedAddAssign, ClosedMulAssign};
 use simba::simd::SimdRealField;
 
-use crate::base::{SVector, Unit};
 use crate::Scalar;
+use crate::base::{SVector, Unit};
 
 use crate::geometry::{
     AbstractRotation, Isometry, Point, Rotation, Translation, UnitComplex, UnitQuaternion,
@@ -68,7 +68,7 @@ use crate::geometry::{
 macro_rules! isometry_binop_impl(
     ($Op: ident, $op: ident;
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty, Output = $Output: ty;
-     $action: expr; $($lives: tt),*) => {
+     $action: expr_2021; $($lives: tt),*) => {
         impl<$($lives ,)* T: SimdRealField, R, const D: usize> $Op<$Rhs> for $Lhs
             where T::Element: SimdRealField,
                   R: AbstractRotation<T, D>, {
@@ -85,10 +85,10 @@ macro_rules! isometry_binop_impl(
 macro_rules! isometry_binop_impl_all(
     ($Op: ident, $op: ident;
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty, Output = $Output: ty;
-     [val val] => $action_val_val: expr;
-     [ref val] => $action_ref_val: expr;
-     [val ref] => $action_val_ref: expr;
-     [ref ref] => $action_ref_ref: expr;) => {
+     [val val] => $action_val_val: expr_2021;
+     [ref val] => $action_ref_val: expr_2021;
+     [val ref] => $action_val_ref: expr_2021;
+     [ref ref] => $action_ref_ref: expr_2021;) => {
         isometry_binop_impl!(
             $Op, $op;
             $lhs: $Lhs, $rhs: $Rhs, Output = $Output;
@@ -114,8 +114,8 @@ macro_rules! isometry_binop_impl_all(
 macro_rules! isometry_binop_assign_impl_all(
     ($OpAssign: ident, $op_assign: ident;
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty;
-     [val] => $action_val: expr;
-     [ref] => $action_ref: expr;) => {
+     [val] => $action_val: expr_2021;
+     [ref] => $action_ref: expr_2021;) => {
         impl<T: SimdRealField, R, const D: usize> $OpAssign<$Rhs> for $Lhs
             where T::Element: SimdRealField,
                   R: AbstractRotation<T, D> {
@@ -314,7 +314,7 @@ macro_rules! isometry_from_composition_impl(
     ($Op: ident, $op: ident;
      $($Dims: ident),*;
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty, Output = $Output: ty;
-     $action: expr; $($lives: tt),*) => {
+     $action: expr_2021; $($lives: tt),*) => {
         impl<$($lives ,)* T: SimdRealField $(, const $Dims: usize)*> $Op<$Rhs> for $Lhs
             where T::Element: SimdRealField {
             type Output = $Output;
@@ -331,10 +331,10 @@ macro_rules! isometry_from_composition_impl_all(
     ($Op: ident, $op: ident;
      $($Dims: ident),*;
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty, Output = $Output: ty;
-     [val val] => $action_val_val: expr;
-     [ref val] => $action_ref_val: expr;
-     [val ref] => $action_val_ref: expr;
-     [ref ref] => $action_ref_ref: expr;) => {
+     [val val] => $action_val_val: expr_2021;
+     [ref val] => $action_ref_val: expr_2021;
+     [val ref] => $action_val_ref: expr_2021;
+     [ref ref] => $action_ref_ref: expr_2021;) => {
 
         isometry_from_composition_impl!(
             $Op, $op;

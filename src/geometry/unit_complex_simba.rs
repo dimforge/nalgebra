@@ -2,9 +2,9 @@ use num_complex::Complex;
 use simba::simd::SimdValue;
 use std::ops::Deref;
 
+use crate::SimdRealField;
 use crate::base::Unit;
 use crate::geometry::UnitComplex;
-use crate::SimdRealField;
 
 impl<T: SimdRealField> SimdValue for UnitComplex<T>
 where
@@ -26,7 +26,7 @@ where
 
     #[inline]
     unsafe fn extract_unchecked(&self, i: usize) -> Self::Element {
-        Unit::new_unchecked(self.deref().extract_unchecked(i))
+        unsafe { Unit::new_unchecked(self.deref().extract_unchecked(i)) }
     }
 
     #[inline]
@@ -36,8 +36,10 @@ where
 
     #[inline]
     unsafe fn replace_unchecked(&mut self, i: usize, val: Self::Element) {
-        self.as_mut_unchecked()
-            .replace_unchecked(i, val.into_inner())
+        unsafe {
+            self.as_mut_unchecked()
+                .replace_unchecked(i, val.into_inner())
+        }
     }
 
     #[inline]

@@ -14,9 +14,9 @@ use crate::base::dimension::{Dim, DimName, U1};
 use crate::base::storage::Storage;
 use crate::base::{Const, Matrix, OVector, Scalar, Vector};
 
+use crate::DefaultAllocator;
 use crate::allocator::Allocator;
 use crate::geometry::{OPoint, Point};
-use crate::DefaultAllocator;
 
 /*
  *
@@ -62,7 +62,7 @@ where
     }
 }
 
-impl<'a, T: Scalar + ClosedNeg, D: DimName> Neg for &'a OPoint<T, D>
+impl<T: Scalar + ClosedNeg, D: DimName> Neg for &OPoint<T, D>
 where
     DefaultAllocator: Allocator<D>,
 {

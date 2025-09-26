@@ -17,17 +17,17 @@ use lapack;
     serde(bound(serialize = "DefaultAllocator: Allocator<DimMinimum<R, C>> +
                            Allocator<R, R> +
                            Allocator<C, C>,
-         OMatrix<T, R>: Serialize,
-         OMatrix<T, C>: Serialize,
+         OMatrix<T, R, R>: Serialize,
+         OMatrix<T, C, C>: Serialize,
          OVector<T, DimMinimum<R, C>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "DefaultAllocator: Allocator<DimMinimum<R, C>> +
-                           Allocator<R, R> +
-                           Allocator<C, C>,
-         OMatrix<T, R>: Deserialize<'de>,
-         OMatrix<T, C>: Deserialize<'de>,
+    serde(bound(deserialize = "DefaultAllocator: Allocator<DimMinimum<R, C>> +
+                             Allocator<R, R> +
+                             Allocator<C, C>,
+         OMatrix<T, R, R>: Deserialize<'de>,
+         OMatrix<T, C, C>: Deserialize<'de>,
          OVector<T, DimMinimum<R, C>>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]

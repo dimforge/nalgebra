@@ -1,5 +1,5 @@
-use crate::aliases::TVec;
 use crate::RealNumber;
+use crate::aliases::TVec;
 
 /// Component-wise exponential.
 ///

@@ -8,7 +8,7 @@ use nalgebra::proptest::{DimRange, MatrixStrategy};
 use nalgebra::{
     DMatrix, DVector, DefaultAllocator, Dim, DualQuaternion, Isometry2, Isometry3, Matrix3,
     OMatrix, Point2, Point3, Quaternion, Rotation2, Rotation3, Scalar, Similarity3, Translation2,
-    Translation3, UnitComplex, UnitDualQuaternion, UnitQuaternion, Vector3, U3, U4,
+    Translation3, U3, U4, UnitComplex, UnitDualQuaternion, UnitQuaternion, Vector3,
 };
 use num_complex::Complex;
 use proptest::prelude::*;

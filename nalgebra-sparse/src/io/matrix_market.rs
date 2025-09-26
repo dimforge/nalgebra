@@ -5,8 +5,8 @@ use crate::SparseFormatError;
 use crate::SparseFormatErrorKind;
 use crate::{CooMatrix, CscMatrix, CsrMatrix};
 use nalgebra::Complex;
-use pest::iterators::Pairs;
 use pest::Parser;
+use pest::iterators::Pairs;
 use std::cmp::PartialEq;
 use std::convert::Infallible;
 use std::convert::TryFrom;
@@ -1145,7 +1145,13 @@ fn parse_sparse_shape(
 
     // check for square matrix, when it's not a general matrix
     if *storagescheme != StorageScheme::General && r != c {
-        return Err(MatrixMarketError::from_kind_and_message(MatrixMarketErrorKind::NonSquare, format!("(Skew-)Symmetric or hermitian matrix should be square matrix, but it has dimension {} and {}", r, c)));
+        return Err(MatrixMarketError::from_kind_and_message(
+            MatrixMarketErrorKind::NonSquare,
+            format!(
+                "(Skew-)Symmetric or hermitian matrix should be square matrix, but it has dimension {} and {}",
+                r, c
+            ),
+        ));
     }
 
     Ok((r, c, nnz))
@@ -1170,7 +1176,13 @@ fn parse_dense_shape(
 
     // check for square matrix, when it's not a general matrix
     if *storagescheme != StorageScheme::General && r != c {
-        return Err(MatrixMarketError::from_kind_and_message(MatrixMarketErrorKind::NonSquare, format!("(Skew-)Symmetric or hermitian matrix should be square matrix, but it has dimension {} and {}", r, c)));
+        return Err(MatrixMarketError::from_kind_and_message(
+            MatrixMarketErrorKind::NonSquare,
+            format!(
+                "(Skew-)Symmetric or hermitian matrix should be square matrix, but it has dimension {} and {}",
+                r, c
+            ),
+        ));
     }
 
     let n: usize;

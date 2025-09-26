@@ -29,7 +29,7 @@ impl<T: ComplexField> GivensRotation<T> {
     ///
     /// The components are copies as-is. It is not checked whether they describe
     /// an actually valid Givens rotation.
-    pub fn new_unchecked(c: T::RealField, s: T) -> Self {
+    pub const fn new_unchecked(c: T::RealField, s: T) -> Self {
         Self { c, s }
     }
 

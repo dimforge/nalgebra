@@ -33,6 +33,7 @@ use std::mem::MaybeUninit;
          OVector<T, DimMinimum<R, C>>: Deserialize<'de>,
          OVector<T, DimDiff<DimMinimum<R, C>, U1>>: Deserialize<'de>"))
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Debug)]
 pub struct Bidiagonal<T: ComplexField, R: DimMin<C>, C: Dim>
 where
@@ -150,17 +151,13 @@ where
     /// Indicates whether this decomposition contains an upper-diagonal matrix.
     #[inline]
     #[must_use]
-    pub fn is_upper_diagonal(&self) -> bool {
+    pub const fn is_upper_diagonal(&self) -> bool {
         self.upper_diagonal
     }
 
     #[inline]
-    fn axis_shift(&self) -> (usize, usize) {
-        if self.upper_diagonal {
-            (0, 1)
-        } else {
-            (1, 0)
-        }
+    const fn axis_shift(&self) -> (usize, usize) {
+        if self.upper_diagonal { (0, 1) } else { (1, 0) }
     }
 
     /// Unpacks this decomposition into its three matrix factors `(U, D, V^t)`.
@@ -306,7 +303,7 @@ where
     }
 
     #[doc(hidden)]
-    pub fn uv_internal(&self) -> &OMatrix<T, R, C> {
+    pub const fn uv_internal(&self) -> &OMatrix<T, R, C> {
         &self.uv
     }
 }

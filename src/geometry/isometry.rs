@@ -1,3 +1,6 @@
+// Needed otherwise the rkyv macros generate code incompatible with rust-2024
+#![cfg_attr(feature = "rkyv-serialize", allow(unsafe_op_in_unsafe_fn))]
+
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use std::fmt;
 use std::hash;
@@ -85,6 +88,7 @@ use rkyv::bytecheck;
     ")
     )
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Isometry<T, R, const D: usize> {
     /// The pure rotational part of this isometry.
     pub rotation: R,
@@ -136,7 +140,7 @@ impl<T: Scalar, R: AbstractRotation<T, D>, const D: usize> Isometry<T, R, D> {
     /// assert_relative_eq!(iso * Point3::new(1.0, 2.0, 3.0), Point3::new(-1.0, 2.0, 0.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn from_parts(translation: Translation<T, D>, rotation: R) -> Self {
+    pub const fn from_parts(translation: Translation<T, D>, rotation: R) -> Self {
         Self {
             rotation,
             translation,

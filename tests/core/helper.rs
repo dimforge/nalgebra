@@ -4,8 +4,8 @@
 use na::RealField;
 use num_complex::Complex;
 use quickcheck::{Arbitrary, Gen};
-use rand::distr::{Distribution, StandardUniform};
 use rand::Rng;
+use rand::distr::{Distribution, StandardUniform};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub struct RandComplex<T>(pub Complex<T>);

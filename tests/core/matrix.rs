@@ -2,7 +2,7 @@ use na::iter::MatrixIter;
 use num::{One, Zero};
 use std::cmp::Ordering;
 
-use na::dimension::{U15, U8};
+use na::dimension::{U8, U15};
 use na::{
     self, Const, DMatrix, DVector, Matrix2, Matrix2x3, Matrix2x4, Matrix3, Matrix3x2, Matrix3x4,
     Matrix4, Matrix4x3, Matrix4x5, Matrix5, Matrix6, MatrixView2x3, MatrixViewMut2x3, OMatrix,
@@ -883,7 +883,7 @@ fn swizzle() {
 #[cfg(feature = "proptest-support")]
 mod transposition_tests {
     use super::*;
-    use crate::proptest::{dmatrix, matrix, vector4, PROPTEST_F64};
+    use crate::proptest::{PROPTEST_F64, dmatrix, matrix, vector4};
     use proptest::{prop_assert, prop_assert_eq, proptest};
 
     proptest! {

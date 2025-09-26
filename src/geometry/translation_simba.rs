@@ -1,7 +1,7 @@
 use simba::simd::SimdValue;
 
-use crate::base::OVector;
 use crate::Scalar;
+use crate::base::OVector;
 
 use crate::geometry::Translation;
 
@@ -25,7 +25,7 @@ where
 
     #[inline]
     unsafe fn extract_unchecked(&self, i: usize) -> Self::Element {
-        self.vector.extract_unchecked(i).into()
+        unsafe { self.vector.extract_unchecked(i).into() }
     }
 
     #[inline]
@@ -35,7 +35,7 @@ where
 
     #[inline]
     unsafe fn replace_unchecked(&mut self, i: usize, val: Self::Element) {
-        self.vector.replace_unchecked(i, val.vector)
+        unsafe { self.vector.replace_unchecked(i, val.vector) }
     }
 
     #[inline]

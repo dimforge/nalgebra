@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use approx::AbsDiffEq;
 use num_complex::Complex as NumComplex;
+use num_traits::identities::Zero;
 use simba::scalar::{ComplexField, RealField};
 use std::cmp;
 
@@ -13,9 +14,9 @@ use crate::base::storage::Storage;
 use crate::base::{DefaultAllocator, OMatrix, OVector, SquareMatrix, Unit, Vector2, Vector3};
 
 use crate::geometry::Reflection;
+use crate::linalg::Hessenberg;
 use crate::linalg::givens::GivensRotation;
 use crate::linalg::householder;
-use crate::linalg::Hessenberg;
 use crate::{Matrix, UninitVector};
 use std::mem::MaybeUninit;
 
@@ -33,6 +34,7 @@ use std::mem::MaybeUninit;
     serde(bound(deserialize = "DefaultAllocator: Allocator<D, D>,
          OMatrix<T, D, D>: Deserialize<'de>"))
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Debug)]
 pub struct Schur<T: ComplexField, D: Dim>
 where
@@ -109,7 +111,12 @@ where
         }
 
         let amax_m = m.camax();
-        m.unscale_mut(amax_m.clone());
+        // if amax_m == 0 (i.e. the matrix is the zero matrix),
+        // then the unscale_mut call will turn the entire matrix into NaNs
+        // see https://github.com/dimforge/nalgebra/issues/1291
+        if !amax_m.is_zero() {
+            m.unscale_mut(amax_m.clone());
+        }
 
         let hess = Hessenberg::new_with_workspace(m, work);
         let mut q;
@@ -486,20 +493,17 @@ fn compute_2x2_basis<T: ComplexField, S: Storage<T, U2, U2>>(
         return None;
     }
 
-    if let Some((eigval1, eigval2)) = compute_2x2_eigvals(m) {
-        let x1 = eigval1 - m[(1, 1)].clone();
-        let x2 = eigval2 - m[(1, 1)].clone();
+    let (eigval1, eigval2) = compute_2x2_eigvals(m)?;
+    let x1 = eigval1 - m[(1, 1)].clone();
+    let x2 = eigval2 - m[(1, 1)].clone();
 
-        // NOTE: Choose the one that yields a larger x component.
-        // This is necessary for numerical stability of the normalization of the complex
-        // number.
-        if x1.clone().norm1() > x2.clone().norm1() {
-            Some(GivensRotation::new(x1, h10).0)
-        } else {
-            Some(GivensRotation::new(x2, h10).0)
-        }
+    // NOTE: Choose the one that yields a larger x component.
+    // This is necessary for numerical stability of the normalization of the complex
+    // number.
+    if x1.clone().norm1() > x2.clone().norm1() {
+        Some(GivensRotation::new(x1, h10).0)
     } else {
-        None
+        Some(GivensRotation::new(x2, h10).0)
     }
 }
 

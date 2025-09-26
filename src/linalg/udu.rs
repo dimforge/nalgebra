@@ -18,6 +18,7 @@ use simba::scalar::RealField;
         deserialize = "OVector<T, D>: Deserialize<'de>, OMatrix<T, D, D>: Deserialize<'de>"
     ))
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Debug)]
 pub struct UDU<T: RealField, D: Dim>
 where

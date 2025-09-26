@@ -6,8 +6,8 @@ use quickcheck::{Arbitrary, Gen};
 use num::One;
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distr::{Distribution, StandardUniform},
     Rng,
+    distr::{Distribution, StandardUniform},
 };
 
 use simba::scalar::{ClosedMulAssign, SupersetOf};
@@ -92,7 +92,7 @@ where
  *
  */
 macro_rules! componentwise_constructors_impl(
-    ($($doc: expr; $D: expr, $($args: ident:$irow: expr),*);* $(;)*) => {$(
+    ($($doc: expr_2021; $D: expr_2021, $($args: ident:$irow: expr_2021),*);* $(;)*) => {$(
         impl<T> Scale<T, $D>
              {
             #[doc = "Initializes this Scale from its components."]

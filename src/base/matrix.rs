@@ -1,3 +1,6 @@
+// Needed otherwise the rkyv macros generate code incompatible with rust-2024
+#![cfg_attr(feature = "rkyv-serialize", allow(unsafe_op_in_unsafe_fn))]
+
 use num::{One, Zero};
 
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
@@ -16,7 +19,7 @@ use super::rkyv_wrappers::CustomPhantom;
 #[cfg(feature = "rkyv-serialize")]
 use rkyv::bytecheck;
 #[cfg(feature = "rkyv-serialize-no-std")]
-use rkyv::{with::With, Archive, Archived};
+use rkyv::{Archive, Archived, with::With};
 
 use simba::scalar::{ClosedAddAssign, ClosedMulAssign, ClosedSubAssign, Field, SupersetOf};
 use simba::simd::SimdPartialOrd;
@@ -171,6 +174,7 @@ pub type MatrixCross<T, R1, C1, R2, C2> =
     )
 )]
 #[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Matrix<T, R, C, S> {
     /// The data storage that contains all the matrix components. Disappointed?
     ///
@@ -394,16 +398,18 @@ where
     /// or Undefined Behavior will immediately occur.
     #[inline(always)]
     pub unsafe fn assume_init(self) -> OMatrix<T, R, C> {
-        OMatrix::from_data(<DefaultAllocator as Allocator<R, C>>::assume_init(
-            self.data,
-        ))
+        unsafe {
+            OMatrix::from_data(<DefaultAllocator as Allocator<R, C>>::assume_init(
+                self.data,
+            ))
+        }
     }
 }
 
 impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     /// Creates a new matrix with the given data.
     #[inline(always)]
-    pub fn from_data(data: S) -> Self {
+    pub const fn from_data(data: S) -> Self {
         unsafe { Self::from_data_statically_unchecked(data) }
     }
 
@@ -1110,7 +1116,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     /// }
     /// ```
     #[inline]
-    pub fn row_iter(&self) -> RowIter<'_, T, R, C, S> {
+    pub const fn row_iter(&self) -> RowIter<'_, T, R, C, S> {
         RowIter::new(self)
     }
 
@@ -1155,7 +1161,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_eq!(a, expected);
     /// ```
     #[inline]
-    pub fn row_iter_mut(&mut self) -> RowIterMut<'_, T, R, C, S>
+    pub const fn row_iter_mut(&mut self) -> RowIterMut<'_, T, R, C, S>
     where
         S: RawStorageMut<T, R, C>,
     {
@@ -1203,9 +1209,11 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
     /// Both `(r, c)` must have `r < nrows(), c < ncols()`.
     #[inline]
     pub unsafe fn swap_unchecked(&mut self, row_cols1: (usize, usize), row_cols2: (usize, usize)) {
-        debug_assert!(row_cols1.0 < self.nrows() && row_cols1.1 < self.ncols());
-        debug_assert!(row_cols2.0 < self.nrows() && row_cols2.1 < self.ncols());
-        self.data.swap_unchecked(row_cols1, row_cols2)
+        unsafe {
+            debug_assert!(row_cols1.0 < self.nrows() && row_cols1.1 < self.ncols());
+            debug_assert!(row_cols2.0 < self.nrows() && row_cols2.1 < self.ncols());
+            self.data.swap_unchecked(row_cols1, row_cols2)
+        }
     }
 
     /// Swaps two entries.
@@ -1312,9 +1320,11 @@ impl<T, D: Dim, S: RawStorage<T, D>> Vector<T, D, S> {
     #[inline]
     #[must_use]
     pub unsafe fn vget_unchecked(&self, i: usize) -> &T {
-        debug_assert!(i < self.nrows(), "Vector index out of bounds.");
-        let i = i * self.strides().0;
-        self.data.get_unchecked_linear(i)
+        unsafe {
+            debug_assert!(i < self.nrows(), "Vector index out of bounds.");
+            let i = i * self.strides().0;
+            self.data.get_unchecked_linear(i)
+        }
     }
 }
 
@@ -1325,9 +1335,11 @@ impl<T, D: Dim, S: RawStorageMut<T, D>> Vector<T, D, S> {
     #[inline]
     #[must_use]
     pub unsafe fn vget_unchecked_mut(&mut self, i: usize) -> &mut T {
-        debug_assert!(i < self.nrows(), "Vector index out of bounds.");
-        let i = i * self.strides().0;
-        self.data.get_unchecked_linear_mut(i)
+        unsafe {
+            debug_assert!(i < self.nrows(), "Vector index out of bounds.");
+            let i = i * self.strides().0;
+            self.data.get_unchecked_linear_mut(i)
+        }
     }
 }
 
@@ -1902,7 +1914,7 @@ where
 }
 
 macro_rules! impl_fmt {
-    ($trait: path, $fmt_str_without_precision: expr, $fmt_str_with_precision: expr) => {
+    ($trait: path, $fmt_str_without_precision: expr_2021, $fmt_str_with_precision: expr_2021) => {
         impl<T, R: Dim, C: Dim, S> $trait for Matrix<T, R, C, S>
         where
             T: Scalar + $trait,
@@ -2011,11 +2023,11 @@ mod tests {
 
 /// # Cross product
 impl<
-        T: Scalar + ClosedAddAssign + ClosedSubAssign + ClosedMulAssign,
-        R: Dim,
-        C: Dim,
-        S: RawStorage<T, R, C>,
-    > Matrix<T, R, C, S>
+    T: Scalar + ClosedAddAssign + ClosedSubAssign + ClosedMulAssign,
+    R: Dim,
+    C: Dim,
+    S: RawStorage<T, R, C>,
+> Matrix<T, R, C, S>
 {
     /// The perpendicular product between two 2D column vectors, i.e. `a.x * b.y - a.y * b.x`.
     #[inline]
@@ -2039,8 +2051,7 @@ impl<
         assert_eq!(
             shape,
             (2, 1),
-            "2D perpendicular product requires (2, 1) vectors {:?}",
-            shape
+            "2D perpendicular product requires (2, 1) vectors {shape:?}",
         );
 
         // SAFETY: assertion above ensures correct shape
@@ -2071,8 +2082,7 @@ impl<
         assert_eq!(shape, b.shape(), "Vector cross product dimension mismatch.");
         assert!(
             shape == (3, 1) || shape == (1, 3),
-            "Vector cross product dimension mismatch: must be (3, 1) or (1, 3) but found {:?}.",
-            shape
+            "Vector cross product dimension mismatch: must be (3, 1) or (1, 3) but found {shape:?}.",
         );
 
         if shape.0 == 3 {

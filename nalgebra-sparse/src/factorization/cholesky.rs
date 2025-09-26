@@ -1,6 +1,6 @@
 use crate::csc::CscMatrix;
-use crate::ops::serial::spsolve_csc_lower_triangular;
 use crate::ops::Op;
+use crate::ops::serial::spsolve_csc_lower_triangular;
 use crate::pattern::SparsityPattern;
 use core::{iter, mem};
 use nalgebra::{DMatrix, DMatrixView, DMatrixViewMut, RealField};
@@ -308,7 +308,7 @@ fn reach(
 
     for &irow in pattern.lane(j) {
         let mut curr = irow;
-        while curr != usize::max_value() && curr <= max_j && !marks[curr] {
+        while curr != usize::MAX && curr <= max_j && !marks[curr] {
             marks[curr] = true;
             tmp.push(curr);
             curr = tree[curr];
@@ -352,8 +352,8 @@ fn elimination_tree(pattern: &SparsityPattern) -> Vec<usize> {
     // Note: The pattern is assumed to of a CSC matrix, so the number of rows is
     // given by the minor dimension
     let nrows = pattern.minor_dim();
-    let mut forest: Vec<_> = iter::repeat(usize::max_value()).take(nrows).collect();
-    let mut ancestor: Vec<_> = iter::repeat(usize::max_value()).take(nrows).collect();
+    let mut forest: Vec<_> = iter::repeat(usize::MAX).take(nrows).collect();
+    let mut ancestor: Vec<_> = iter::repeat(usize::MAX).take(nrows).collect();
 
     for k in 0..nrows {
         for &irow in pattern.lane(k) {
@@ -363,7 +363,7 @@ fn elimination_tree(pattern: &SparsityPattern) -> Vec<usize> {
                 let i_ancestor = ancestor[i];
                 ancestor[i] = k;
 
-                if i_ancestor == usize::max_value() {
+                if i_ancestor == usize::MAX {
                     forest[i] = k;
                     break;
                 }
