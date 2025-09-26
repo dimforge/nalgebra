@@ -11,8 +11,8 @@ use std::cmp::{Eq, PartialEq};
 
 /// A 2D rotation represented as a complex number with magnitude 1.
 ///
-/// All the methods specific [`UnitComplex`](crate::UnitComplex) are listed here. You may also
-/// read the documentation of the [`Complex`](crate::Complex) type which
+/// All the methods specific [`UnitComplex`] are listed here. You may also
+/// read the documentation of the [`Complex`] type which
 /// is used internally and accessible with `unit_complex.complex()`.
 ///
 /// # Construction
