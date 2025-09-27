@@ -1,6 +1,6 @@
 [package]
 name = "nalgebra"
-version = "0.34.0"
+version = "0.34.1"
 authors = ["Sébastien Crozet <developer@crozet.re>"]
 
 description = "General-purpose linear algebra library with transformations and statically-sized or dynamically-sized matrices."
@@ -139,6 +139,7 @@ glam029 = { package = "glam", version = "0.29", optional = true, default-feature
 glam030 = { package = "glam", version = "0.30", optional = true, default-features = false }
 rayon = { version = "1.6", optional = true }
 defmt = { version = "1.0.1", optional = true }
+encase = { version = "0.12", optional = true }
 
 [dev-dependencies]
 serde_json = "1.0"

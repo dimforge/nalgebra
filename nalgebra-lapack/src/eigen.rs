@@ -23,7 +23,7 @@ use lapack;
 #[cfg_attr(
     feature = "serde-serialize",
     serde(bound(deserialize = "DefaultAllocator: Allocator<D, D> + Allocator<D>,
-         OVector<T, D>: Serialize,
+         OVector<T, D>: Deserialize<'de>,
          OMatrix<T, D, D>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]

@@ -5,6 +5,12 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.34.1] (20 Sept. 2025)
+
+### Added
+
+* Added `encase` feature, providing `encase` trait implementations for `nalgebra` types.
+
 ## [0.34.0] (31 July 2025)
 
 ### Added
