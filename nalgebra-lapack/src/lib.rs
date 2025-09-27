@@ -82,6 +82,8 @@ extern crate num_traits as num;
 mod lapack_check;
 
 mod cholesky;
+/// column-pivoted QR decomposition of a rectangular (or square) matrix
+pub mod colpiv_qr;
 mod eigen;
 mod generalized_eigenvalues;
 mod hessenberg;
@@ -95,6 +97,7 @@ mod symmetric_eigen;
 use num_complex::Complex;
 
 pub use self::cholesky::{Cholesky, CholeskyScalar};
+pub use self::colpiv_qr::{ColPivQR, Side, Transposition, error::Error as ColPivQrError};
 pub use self::eigen::Eigen;
 pub use self::generalized_eigenvalues::GeneralizedEigen;
 pub use self::hessenberg::Hessenberg;
