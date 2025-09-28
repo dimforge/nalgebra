@@ -114,27 +114,35 @@ where
             Vector::zeros_generic(nrows.min(ncols), Const::<1>);
         let mut jpvt: OVector<i32, C> = Vector::zeros_generic(ncols, Const::<1>);
 
-        let lwork = T::xgeqp3_work_size(
-            nrows.value().try_into().expect("matrix dims out of bounds"),
-            ncols.value().try_into().expect("matrix dims out of bounds"),
-            m.as_mut_slice(),
-            nrows.value().try_into().expect("matrix dims out of bounds"),
-            jpvt.as_mut_slice(),
-            tau.as_mut_slice(),
-        )?;
+        // SAFETY: matrix dimensions are slice dimensions, other inputs are according
+        // to spec, see https://www.netlib.org/lapack/explore-html/d0/dea/group__geqp3.html
+        let lwork = unsafe {
+            T::xgeqp3_work_size(
+                nrows.value().try_into().expect("matrix dims out of bounds"),
+                ncols.value().try_into().expect("matrix dims out of bounds"),
+                m.as_mut_slice(),
+                nrows.value().try_into().expect("matrix dims out of bounds"),
+                jpvt.as_mut_slice(),
+                tau.as_mut_slice(),
+            )?
+        };
 
         let mut work = vec![T::zero(); lwork as usize];
 
-        T::xgeqp3(
-            nrows.value() as i32,
-            ncols.value() as i32,
-            m.as_mut_slice(),
-            nrows.value() as i32,
-            jpvt.as_mut_slice(),
-            tau.as_mut_slice(),
-            &mut work,
-            lwork,
-        )?;
+        // SAFETY: matrix dimensions are slice dimensions, other inputs are according
+        // to spec, see https://www.netlib.org/lapack/explore-html/d0/dea/group__geqp3.html
+        unsafe {
+            T::xgeqp3(
+                nrows.value() as i32,
+                ncols.value() as i32,
+                m.as_mut_slice(),
+                nrows.value() as i32,
+                jpvt.as_mut_slice(),
+                tau.as_mut_slice(),
+                &mut work,
+                lwork,
+            )?;
+        }
 
         let rank: i32 = calculate_rank(&m, rank_algo)
             .try_into()
@@ -264,6 +272,7 @@ where
     ///
     /// The dimensions of the matrices must be correct such that the multiplication
     /// can be performed.
+    #[inline]
     unsafe fn multiply_q_mut<R2, C2, S2>(
         &self,
         mat: &mut Matrix<T, R2, C2, S2>,
@@ -302,9 +311,16 @@ where
         let trans = transpose;
         let tau = self.tau.as_slice();
 
-        let lwork = T::xormqr_work_size(side, transpose, m, n, k, a, lda, tau, c, ldc)?;
+        // SAFETY: the containing function is unsafe and requires the correct
+        // matrix dimensions as input
+        let lwork = unsafe { T::xormqr_work_size(side, transpose, m, n, k, a, lda, tau, c, ldc)? };
         let mut work = vec![T::zero(); lwork as usize];
-        T::xormqr(side, trans, m, n, k, a, lda, tau, c, ldc, &mut work, lwork)?;
+
+        // SAFETY: the containing function is unsafe and requires the correct
+        // matrix dimensions as input
+        unsafe {
+            T::xormqr(side, trans, m, n, k, a, lda, tau, c, ldc, &mut work, lwork)?;
+        }
         Ok(())
     }
 
@@ -376,22 +392,26 @@ where
             .try_into()
             .expect("integer dimensions out of bounds");
 
-        T::xtrtrs(
-            TriangularStructure::Upper,
-            Transposition::No,
-            DiagonalKind::NonUnit,
-            rank.try_into().expect("rank out of bounds"),
-            x.ncols()
-                .try_into()
-                .expect("integer dimensions out of bounds"),
-            self.qr.as_slice(),
-            self.qr
-                .nrows()
-                .try_into()
-                .expect("integer dimensions out of bounds"),
-            x.as_mut_slice(),
-            ldb,
-        )?;
+        // SAFETY: input and dimensions according to lapack spec, see
+        // https://www.netlib.org/lapack/explore-html/d4/dc1/group__trtrs_gab0b6a7438a7eb98fe2ab28e6c4d84b21.html#gab0b6a7438a7eb98fe2ab28e6c4d84b21
+        unsafe {
+            T::xtrtrs(
+                TriangularStructure::Upper,
+                Transposition::No,
+                DiagonalKind::NonUnit,
+                rank.try_into().expect("rank out of bounds"),
+                x.ncols()
+                    .try_into()
+                    .expect("integer dimensions out of bounds"),
+                self.qr.as_slice(),
+                self.qr
+                    .nrows()
+                    .try_into()
+                    .expect("integer dimensions out of bounds"),
+                x.as_mut_slice(),
+                ldb,
+            )?;
+        }
 
         self.p().permute_rows_mut(x)?;
         Ok(())
@@ -485,11 +505,11 @@ where
 /// Utility trait to add a thin abstraction layer over lapack functionality for
 /// column pivoted QR decomposition.
 #[allow(missing_docs)]
-pub trait ColPivQrScalar: ComplexField + QRScalar {
+pub unsafe trait ColPivQrScalar: ComplexField + QRScalar {
     /// routine for column pivoting QR decomposition using level 3 BLAS,
     /// see https://www.netlib.org/lapack/lug/node42.html
     /// or https://www.intel.com/content/www/us/en/docs/onemkl/developer-reference-c/2023-0/geqp3.html
-    fn xgeqp3(
+    unsafe fn xgeqp3(
         m: i32,
         n: i32,
         a: &mut [Self],
@@ -500,7 +520,7 @@ pub trait ColPivQrScalar: ComplexField + QRScalar {
         lwork: i32,
     ) -> Result<(), LapackErrorCode>;
 
-    fn xgeqp3_work_size(
+    unsafe fn xgeqp3_work_size(
         m: i32,
         n: i32,
         a: &mut [Self],
@@ -509,7 +529,7 @@ pub trait ColPivQrScalar: ComplexField + QRScalar {
         tau: &mut [Self],
     ) -> Result<i32, LapackErrorCode>;
 
-    fn xtrtrs(
+    unsafe fn xtrtrs(
         uplo: TriangularStructure,
         trans: Transposition,
         diag: DiagonalKind,
@@ -521,7 +541,7 @@ pub trait ColPivQrScalar: ComplexField + QRScalar {
         ldb: i32,
     ) -> Result<(), LapackErrorCode>;
 
-    fn xlapmt(
+    unsafe fn xlapmt(
         forwrd: bool,
         m: i32,
         n: i32,
@@ -530,7 +550,7 @@ pub trait ColPivQrScalar: ComplexField + QRScalar {
         k: &mut [i32],
     ) -> Result<(), LapackErrorCode>;
 
-    fn xlapmr(
+    unsafe fn xlapmr(
         forwrd: bool,
         m: i32,
         n: i32,
@@ -548,8 +568,8 @@ macro_rules! colpiv_qr_scalar_impl {
         xlapmt=$xlapmt:path,
         xlapmr=$xlapmr:path $(,)?
     ) => {
-        impl ColPivQrScalar for $type {
-            fn xgeqp3(
+        unsafe impl ColPivQrScalar for $type {
+            unsafe fn xgeqp3(
                 m: i32,
                 n: i32,
                 a: &mut [Self],
@@ -564,7 +584,7 @@ macro_rules! colpiv_qr_scalar_impl {
                 check_lapack_info(info)
             }
 
-            fn xgeqp3_work_size(
+            unsafe fn xgeqp3_work_size(
                 m: i32,
                 n: i32,
                 a: &mut [Self],
@@ -580,7 +600,7 @@ macro_rules! colpiv_qr_scalar_impl {
                 Ok(work[0] as i32)
             }
 
-            fn xtrtrs(
+            unsafe fn xtrtrs(
                 uplo: TriangularStructure,
                 trans: Transposition,
                 diag: DiagonalKind,
@@ -615,7 +635,7 @@ macro_rules! colpiv_qr_scalar_impl {
                 check_lapack_info(info)
             }
 
-            fn xlapmt(
+            unsafe fn xlapmt(
                 forwrd: bool,
                 m: i32,
                 n: i32,
@@ -630,7 +650,7 @@ macro_rules! colpiv_qr_scalar_impl {
                 Ok(())
             }
 
-            fn xlapmr(
+            unsafe fn xlapmr(
                 forwrd: bool,
                 m: i32,
                 n: i32,
@@ -670,8 +690,8 @@ colpiv_qr_scalar_impl!(
 // without pivoting. I'm not 100% sure that we can't abstract over real and
 // complex behavior in the scalar trait, but I'll keep it like this for now.
 #[allow(missing_docs)]
-pub trait ColPivQrReal: ColPivQrScalar + QRReal {
-    fn xormqr(
+pub unsafe trait ColPivQrReal: ColPivQrScalar + QRReal {
+    unsafe fn xormqr(
         side: Side,
         trans: Transposition,
         m: i32,
@@ -686,7 +706,7 @@ pub trait ColPivQrReal: ColPivQrScalar + QRReal {
         lwork: i32,
     ) -> Result<(), LapackErrorCode>;
 
-    fn xormqr_work_size(
+    unsafe fn xormqr_work_size(
         side: Side,
         trans: Transposition,
         m: i32,
@@ -705,8 +725,8 @@ macro_rules! colpiv_qr_real_impl {
         $type:ty,
         xormqr = $xormqr:path $(,)?
     ) => {
-        impl ColPivQrReal for $type {
-            fn xormqr(
+        unsafe impl ColPivQrReal for $type {
+            unsafe fn xormqr(
                 side: Side,
                 trans: Transposition,
                 m: i32,
@@ -737,7 +757,7 @@ macro_rules! colpiv_qr_real_impl {
                 check_lapack_info(info)
             }
 
-            fn xormqr_work_size(
+            unsafe fn xormqr_work_size(
                 side: Side,
                 trans: Transposition,
                 m: i32,

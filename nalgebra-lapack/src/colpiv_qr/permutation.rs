@@ -104,15 +104,19 @@ where
             .try_into()
             .expect("matrix dimensions out of bounds");
 
-        T::xlapmr(
-            forward,
-            m,
-            n,
-            mat.as_mut_slice(),
-            m,
-            self.jpvt.as_mut_slice(),
-        )
-        .unwrap();
+        // SAFETY: inputs according to spec, see
+        // https://www.netlib.org/lapack/explore-html/d3/d10/group__lapmr.html
+        unsafe {
+            T::xlapmr(
+                forward,
+                m,
+                n,
+                mat.as_mut_slice(),
+                m,
+                self.jpvt.as_mut_slice(),
+            )?;
+        }
+
         Ok(())
     }
 
@@ -140,15 +144,18 @@ where
             .try_into()
             .expect("matrix dimensions out of bounds");
 
-        T::xlapmt(
-            forward,
-            m,
-            n,
-            mat.as_mut_slice(),
-            m,
-            self.jpvt.as_mut_slice(),
-        )
-        .unwrap();
+        // SAFETY: arguments provided according to spec
+        // https://www.netlib.org/lapack/explore-html/d0/dcb/group__lapmt.html
+        unsafe {
+            T::xlapmt(
+                forward,
+                m,
+                n,
+                mat.as_mut_slice(),
+                m,
+                self.jpvt.as_mut_slice(),
+            )?;
+        }
         Ok(())
     }
 
