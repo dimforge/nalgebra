@@ -29,7 +29,7 @@ use rkyv::bytecheck;
 /// The `Rotation` type can either represent a 2D or 3D rotation, represented as a matrix.
 /// For a rotation based on quaternions, see [`UnitQuaternion`](crate::UnitQuaternion) instead.
 ///
-/// Note that instead of using the [`Rotation`](crate::Rotation) type in your code directly, you should use one
+/// Note that instead of using the [`Rotation`] type in your code directly, you should use one
 /// of its aliases: [`Rotation2`](crate::Rotation2), or [`Rotation3`](crate::Rotation3). Though
 /// keep in mind that all the documentation of all the methods of these aliases will also appears on
 /// this page.
