@@ -108,7 +108,7 @@ mod slow {
 
         // This number needs to be high enough so that we with high probability sample
         // all possible cases
-        let num_generated_matrices = 500000;
+        let num_generated_matrices = 750000;
 
         let values = -1..=1;
         let rows = 0..=2;
