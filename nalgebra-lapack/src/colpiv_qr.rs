@@ -1,5 +1,6 @@
 use super::qr::{QRReal, QRScalar};
 use crate::ComplexHelper;
+use crate::sealed::Sealed;
 use error::Error;
 use error::{LapackErrorCode, check_lapack_info};
 use na::{ComplexField, Const, IsContiguous, Matrix, OVector, RealField, Storage, Vector};
@@ -505,7 +506,7 @@ where
 /// Utility trait to add a thin abstraction layer over lapack functionality for
 /// column pivoted QR decomposition.
 #[allow(missing_docs)]
-pub unsafe trait ColPivQrScalar: ComplexField + QRScalar {
+pub trait ColPivQrScalar: ComplexField + QRScalar + Sealed {
     /// routine for column pivoting QR decomposition using level 3 BLAS,
     /// see https://www.netlib.org/lapack/lug/node42.html
     /// or https://www.intel.com/content/www/us/en/docs/onemkl/developer-reference-c/2023-0/geqp3.html
@@ -568,7 +569,8 @@ macro_rules! colpiv_qr_scalar_impl {
         xlapmt=$xlapmt:path,
         xlapmr=$xlapmr:path $(,)?
     ) => {
-        unsafe impl ColPivQrScalar for $type {
+        impl Sealed for $type {}
+        impl ColPivQrScalar for $type {
             unsafe fn xgeqp3(
                 m: i32,
                 n: i32,
@@ -690,7 +692,7 @@ colpiv_qr_scalar_impl!(
 // without pivoting. I'm not 100% sure that we can't abstract over real and
 // complex behavior in the scalar trait, but I'll keep it like this for now.
 #[allow(missing_docs)]
-pub unsafe trait ColPivQrReal: ColPivQrScalar + QRReal {
+pub trait ColPivQrReal: ColPivQrScalar + QRReal {
     unsafe fn xormqr(
         side: Side,
         trans: Transposition,
@@ -725,7 +727,7 @@ macro_rules! colpiv_qr_real_impl {
         $type:ty,
         xormqr = $xormqr:path $(,)?
     ) => {
-        unsafe impl ColPivQrReal for $type {
+        impl ColPivQrReal for $type {
             unsafe fn xormqr(
                 side: Side,
                 trans: Transposition,

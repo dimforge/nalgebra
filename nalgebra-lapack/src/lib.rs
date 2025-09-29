@@ -108,6 +108,8 @@ pub use self::schur::Schur;
 pub use self::svd::SVD;
 pub use self::symmetric_eigen::SymmetricEigen;
 
+mod sealed;
+
 trait ComplexHelper {
     type RealPart;
 
