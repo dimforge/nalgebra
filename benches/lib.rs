@@ -6,13 +6,24 @@ extern crate rand_package as rand;
 #[macro_use]
 extern crate criterion;
 
-use na::DMatrix;
+use na::{DMatrix, SMatrix, Scalar};
 use rand::Rng;
+use rand::distr::{Distribution, StandardUniform};
 use rand_isaac::IsaacRng;
 
 pub mod core;
 pub mod geometry;
 pub mod linalg;
+
+fn reproducible_smatrix<T, const R: usize, const C: usize>() -> SMatrix<T, R, C>
+where
+    T: Scalar,
+    StandardUniform: Distribution<T>,
+{
+    use rand::SeedableRng;
+    let mut rng = IsaacRng::seed_from_u64(0);
+    SMatrix::from_fn(|_, _| rng.random())
+}
 
 fn reproducible_dmatrix(nrows: usize, ncols: usize) -> DMatrix<f64> {
     use rand::SeedableRng;

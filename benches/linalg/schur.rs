@@ -1,9 +1,9 @@
-use na::{Matrix4, Schur};
+use na::Schur;
 
 fn schur_decompose_4x4(bh: &mut criterion::Criterion) {
     bh.bench_function("schur_decompose_4x4", |bh| {
         bh.iter_batched(
-            || Matrix4::<f64>::new_random(),
+            || crate::reproducible_smatrix::<f64, 4, 4>(),
             |m| Schur::new(m),
             criterion::BatchSize::SmallInput,
         )
@@ -43,7 +43,7 @@ fn schur_decompose_200x200(bh: &mut criterion::Criterion) {
 fn eigenvalues_4x4(bh: &mut criterion::Criterion) {
     bh.bench_function("eigenvalues_4x4", |bh| {
         bh.iter_batched_ref(
-            || Matrix4::<f64>::new_random(),
+            || crate::reproducible_smatrix::<f64, 4, 4>(),
             |m| m.complex_eigenvalues(),
             criterion::BatchSize::SmallInput,
         )

@@ -1,9 +1,9 @@
-use na::{Matrix4, SymmetricEigen};
+use na::SymmetricEigen;
 
 fn symmetric_eigen_decompose_4x4(bh: &mut criterion::Criterion) {
     bh.bench_function("symmetric_eigen_decompose_4x4", |bh| {
         bh.iter_batched(
-            || Matrix4::<f64>::new_random(),
+            || crate::reproducible_smatrix::<f64, 4, 4>(),
             |m| SymmetricEigen::new(m),
             criterion::BatchSize::SmallInput,
         )
