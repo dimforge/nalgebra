@@ -16,6 +16,12 @@ bench_binop!(
     Vector3<f32>,
     mul
 );
+bench_binop_single_1st!(
+    single_unit_quaternion_mul_v,
+    UnitQuaternion<f32>,
+    Vector3<f32>,
+    mul
+);
 
 bench_binop!(quaternion_mul_s, Quaternion<f32>, f32, mul);
 bench_binop!(quaternion_div_s, Quaternion<f32>, f32, div);
@@ -32,6 +38,7 @@ criterion_group!(
     quaternion_sub_q,
     quaternion_mul_q,
     unit_quaternion_mul_v,
+    single_unit_quaternion_mul_v,
     quaternion_mul_s,
     quaternion_div_s,
     quaternion_inv,

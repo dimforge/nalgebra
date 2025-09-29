@@ -26,9 +26,17 @@ bench_binop!(mat2_mul_v, Matrix2<f32>, Vector2<f32>, mul);
 bench_binop!(mat3_mul_v, Matrix3<f32>, Vector3<f32>, mul);
 bench_binop!(mat4_mul_v, Matrix4<f32>, Vector4<f32>, mul);
 
+bench_binop_single_1st!(single_mat2_mul_v, Matrix2<f32>, Vector2<f32>, mul);
+bench_binop_single_1st!(single_mat3_mul_v, Matrix3<f32>, Vector3<f32>, mul);
+bench_binop_single_1st!(single_mat4_mul_v, Matrix4<f32>, Vector4<f32>, mul);
+
 bench_binop_ref!(mat2_tr_mul_v, Matrix2<f32>, Vector2<f32>, tr_mul);
 bench_binop_ref!(mat3_tr_mul_v, Matrix3<f32>, Vector3<f32>, tr_mul);
 bench_binop_ref!(mat4_tr_mul_v, Matrix4<f32>, Vector4<f32>, tr_mul);
+
+bench_binop_single_1st_ref!(single_mat2_tr_mul_v, Matrix2<f32>, Vector2<f32>, tr_mul);
+bench_binop_single_1st_ref!(single_mat3_tr_mul_v, Matrix3<f32>, Vector3<f32>, tr_mul);
+bench_binop_single_1st_ref!(single_mat4_tr_mul_v, Matrix4<f32>, Vector4<f32>, tr_mul);
 
 bench_binop!(mat2_mul_s, Matrix2<f32>, f32, mul);
 bench_binop!(mat3_mul_s, Matrix3<f32>, f32, mul);
@@ -232,9 +240,15 @@ criterion_group!(
     mat2_mul_v,
     mat3_mul_v,
     mat4_mul_v,
+    single_mat2_mul_v,
+    single_mat3_mul_v,
+    single_mat4_mul_v,
     mat2_tr_mul_v,
     mat3_tr_mul_v,
     mat4_tr_mul_v,
+    single_mat2_tr_mul_v,
+    single_mat3_tr_mul_v,
+    single_mat4_tr_mul_v,
     mat2_mul_s,
     mat3_mul_s,
     mat4_mul_s,
