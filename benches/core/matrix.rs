@@ -229,8 +229,8 @@ fn mat500_mul_mat500(bench: &mut criterion::Criterion) {
         bh.iter_batched_ref(
             || {
                 (
-                    DMatrix::<f64>::from_element(500, 500, 5f64),
-                    DMatrix::<f64>::from_element(500, 500, 6f64),
+                    DMatrix::<f64>::new_random(500, 500),
+                    DMatrix::<f64>::new_random(500, 500),
                 )
             },
             |args| (&args.0) * (&args.1),
@@ -290,9 +290,9 @@ fn axpy(bench: &mut criterion::Criterion) {
         bh.iter_batched(
             || {
                 (
-                    DVector::<f64>::from_element(100000, 2.0),
-                    DVector::<f64>::from_element(100000, 3.0),
-                    42.0,
+                    DVector::<f64>::new_random(100000),
+                    DVector::<f64>::new_random(100000),
+                    rand::random(),
                 )
             },
             |(x, mut y, a)| {
@@ -323,8 +323,8 @@ fn tr_mul_to(bench: &mut criterion::Criterion) {
     });
 }
 
-fn mat_mul_mat(bench: &mut criterion::Criterion) {
-    bench.bench_function("mat_mul_mat", |bh| {
+fn mat_mul_mat_to(bench: &mut criterion::Criterion) {
+    bench.bench_function("mat_mul_mat_to", |bh| {
         bh.iter_batched(
             || {
                 (

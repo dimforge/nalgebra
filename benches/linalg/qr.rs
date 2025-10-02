@@ -89,7 +89,7 @@ fn qr_solve_10x10(bh: &mut criterion::Criterion) {
         bh.iter_batched(
             || {
                 let m = DMatrix::<f64>::new_random(10, 10);
-                (QR::new(m), DVector::<f64>::from_element(10, 1.0))
+                (QR::new(m), DVector::<f64>::new_random(10))
             },
             |(qr, mut b)| {
                 qr.solve_mut(&mut b);
@@ -105,7 +105,7 @@ fn qr_solve_100x100(bh: &mut criterion::Criterion) {
         bh.iter_batched(
             || {
                 let m = DMatrix::<f64>::new_random(100, 100);
-                (QR::new(m), DVector::<f64>::from_element(100, 1.0))
+                (QR::new(m), DVector::<f64>::new_random(100))
             },
             |(qr, mut b)| {
                 qr.solve_mut(&mut b);

@@ -1,9 +1,9 @@
-use na::SVD;
+use na::{DMatrix, SMatrix, SVD};
 
 fn svd_decompose_2x2_f32(bh: &mut criterion::Criterion) {
     bh.bench_function("svd_decompose_2x2", |bh| {
         bh.iter_batched(
-            || crate::reproducible_smatrix::<f32, 2, 2>(),
+            || SMatrix::<f32, 2, 2>::new_random(),
             |m| SVD::new_unordered(m, true, true),
             criterion::BatchSize::SmallInput,
         )
@@ -13,7 +13,7 @@ fn svd_decompose_2x2_f32(bh: &mut criterion::Criterion) {
 fn svd_decompose_3x3_f32(bh: &mut criterion::Criterion) {
     bh.bench_function("svd_decompose_3x3", |bh| {
         bh.iter_batched(
-            || crate::reproducible_smatrix::<f32, 3, 3>(),
+            || SMatrix::<f32, 3, 3>::new_random(),
             |m| SVD::new_unordered(m, true, true),
             criterion::BatchSize::SmallInput,
         )
@@ -23,8 +23,8 @@ fn svd_decompose_3x3_f32(bh: &mut criterion::Criterion) {
 fn svd_decompose_4x4(bh: &mut criterion::Criterion) {
     bh.bench_function("svd_decompose_4x4", |bh| {
         bh.iter_batched(
-            || crate::reproducible_smatrix::<f64, 4, 4>(),
-            |m| SVD::new(m, true, true),
+            || SMatrix::<f64, 4, 4>::new_random(),
+            |m| SVD::new_unordered(m, true, true),
             criterion::BatchSize::SmallInput,
         )
     });
@@ -33,8 +33,8 @@ fn svd_decompose_4x4(bh: &mut criterion::Criterion) {
 fn svd_decompose_10x10(bh: &mut criterion::Criterion) {
     bh.bench_function("svd_decompose_10x10", |bh| {
         bh.iter_batched(
-            || crate::reproducible_dmatrix(10, 10),
-            |m| SVD::new(m, true, true),
+            || DMatrix::<f64>::new_random(10, 10),
+            |m| SVD::new_unordered(m, true, true),
             criterion::BatchSize::SmallInput,
         )
     });
@@ -43,8 +43,8 @@ fn svd_decompose_10x10(bh: &mut criterion::Criterion) {
 fn svd_decompose_100x100(bh: &mut criterion::Criterion) {
     bh.bench_function("svd_decompose_100x100", |bh| {
         bh.iter_batched(
-            || crate::reproducible_dmatrix(100, 100),
-            |m| SVD::new(m, true, true),
+            || DMatrix::<f64>::new_random(100, 100),
+            |m| SVD::new_unordered(m, true, true),
             criterion::BatchSize::SmallInput,
         )
     });
@@ -53,8 +53,8 @@ fn svd_decompose_100x100(bh: &mut criterion::Criterion) {
 fn svd_decompose_200x200(bh: &mut criterion::Criterion) {
     bh.bench_function("svd_decompose_200x200", |bh| {
         bh.iter_batched(
-            || crate::reproducible_dmatrix(200, 200),
-            |m| SVD::new(m, true, true),
+            || DMatrix::<f64>::new_random(200, 200),
+            |m| SVD::new_unordered(m, true, true),
             criterion::BatchSize::SmallInput,
         )
     });
@@ -63,7 +63,7 @@ fn svd_decompose_200x200(bh: &mut criterion::Criterion) {
 fn rank_4x4(bh: &mut criterion::Criterion) {
     bh.bench_function("rank_4x4", |bh| {
         bh.iter_batched_ref(
-            || crate::reproducible_smatrix::<f64, 4, 4>(),
+            || SMatrix::<f64, 4, 4>::new_random(),
             |m| m.rank(1.0e-10),
             criterion::BatchSize::SmallInput,
         )
@@ -73,7 +73,7 @@ fn rank_4x4(bh: &mut criterion::Criterion) {
 fn rank_10x10(bh: &mut criterion::Criterion) {
     bh.bench_function("rank_10x10", |bh| {
         bh.iter_batched_ref(
-            || crate::reproducible_dmatrix(10, 10),
+            || DMatrix::<f64>::new_random(10, 10),
             |m| m.rank(1.0e-10),
             criterion::BatchSize::SmallInput,
         )
@@ -83,7 +83,7 @@ fn rank_10x10(bh: &mut criterion::Criterion) {
 fn rank_100x100(bh: &mut criterion::Criterion) {
     bh.bench_function("rank_100x100", |bh| {
         bh.iter_batched_ref(
-            || crate::reproducible_dmatrix(100, 100),
+            || DMatrix::<f64>::new_random(100, 100),
             |m| m.rank(1.0e-10),
             criterion::BatchSize::SmallInput,
         )
@@ -93,7 +93,7 @@ fn rank_100x100(bh: &mut criterion::Criterion) {
 fn rank_200x200(bh: &mut criterion::Criterion) {
     bh.bench_function("rank_200x200", |bh| {
         bh.iter_batched_ref(
-            || crate::reproducible_dmatrix(200, 200),
+            || DMatrix::<f64>::new_random(200, 200),
             |m| m.rank(1.0e-10),
             criterion::BatchSize::SmallInput,
         )
@@ -103,7 +103,7 @@ fn rank_200x200(bh: &mut criterion::Criterion) {
 fn singular_values_4x4(bh: &mut criterion::Criterion) {
     bh.bench_function("singular_values_4x4", |bh| {
         bh.iter_batched_ref(
-            || crate::reproducible_smatrix::<f64, 4, 4>(),
+            || SMatrix::<f64, 4, 4>::new_random(),
             |m| m.singular_values(),
             criterion::BatchSize::SmallInput,
         )
@@ -113,7 +113,7 @@ fn singular_values_4x4(bh: &mut criterion::Criterion) {
 fn singular_values_10x10(bh: &mut criterion::Criterion) {
     bh.bench_function("singular_values_10x10", |bh| {
         bh.iter_batched_ref(
-            || crate::reproducible_dmatrix(10, 10),
+            || DMatrix::<f64>::new_random(10, 10),
             |m| m.singular_values(),
             criterion::BatchSize::SmallInput,
         )
@@ -123,7 +123,7 @@ fn singular_values_10x10(bh: &mut criterion::Criterion) {
 fn singular_values_100x100(bh: &mut criterion::Criterion) {
     bh.bench_function("singular_values_100x100", |bh| {
         bh.iter_batched_ref(
-            || crate::reproducible_dmatrix(100, 100),
+            || DMatrix::<f64>::new_random(100, 100),
             |m| m.singular_values(),
             criterion::BatchSize::SmallInput,
         )
@@ -133,7 +133,7 @@ fn singular_values_100x100(bh: &mut criterion::Criterion) {
 fn singular_values_200x200(bh: &mut criterion::Criterion) {
     bh.bench_function("singular_values_200x200", |bh| {
         bh.iter_batched_ref(
-            || crate::reproducible_dmatrix(200, 200),
+            || DMatrix::<f64>::new_random(200, 200),
             |m| m.singular_values(),
             criterion::BatchSize::SmallInput,
         )
@@ -143,7 +143,7 @@ fn singular_values_200x200(bh: &mut criterion::Criterion) {
 fn pseudo_inverse_4x4(bh: &mut criterion::Criterion) {
     bh.bench_function("pseudo_inverse_4x4", |bh| {
         bh.iter_batched(
-            || crate::reproducible_smatrix::<f64, 4, 4>(),
+            || SMatrix::<f64, 4, 4>::new_random(),
             |m| m.pseudo_inverse(1.0e-10),
             criterion::BatchSize::SmallInput,
         )
@@ -153,7 +153,7 @@ fn pseudo_inverse_4x4(bh: &mut criterion::Criterion) {
 fn pseudo_inverse_10x10(bh: &mut criterion::Criterion) {
     bh.bench_function("pseudo_inverse_10x10", |bh| {
         bh.iter_batched(
-            || crate::reproducible_dmatrix(10, 10),
+            || DMatrix::<f64>::new_random(10, 10),
             |m| m.pseudo_inverse(1.0e-10),
             criterion::BatchSize::SmallInput,
         )
@@ -163,7 +163,7 @@ fn pseudo_inverse_10x10(bh: &mut criterion::Criterion) {
 fn pseudo_inverse_100x100(bh: &mut criterion::Criterion) {
     bh.bench_function("pseudo_inverse_100x100", |bh| {
         bh.iter_batched(
-            || crate::reproducible_dmatrix(100, 100),
+            || DMatrix::<f64>::new_random(100, 100),
             |m| m.pseudo_inverse(1.0e-10),
             criterion::BatchSize::SmallInput,
         )
@@ -173,7 +173,7 @@ fn pseudo_inverse_100x100(bh: &mut criterion::Criterion) {
 fn pseudo_inverse_200x200(bh: &mut criterion::Criterion) {
     bh.bench_function("pseudo_inverse_200x200", |bh| {
         bh.iter_batched(
-            || crate::reproducible_dmatrix(200, 200),
+            || DMatrix::<f64>::new_random(200, 200),
             |m| m.pseudo_inverse(1.0e-10),
             criterion::BatchSize::SmallInput,
         )

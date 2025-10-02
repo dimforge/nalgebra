@@ -26,7 +26,7 @@ fn full_piv_lu_solve_10x10(bh: &mut criterion::Criterion) {
         bh.iter_batched(
             || {
                 let m = DMatrix::<f64>::new_random(10, 10);
-                (FullPivLU::new(m), DVector::<f64>::from_element(10, 1.0))
+                (FullPivLU::new(m), DVector::<f64>::new_random(10))
             },
             |(lu, mut b)| {
                 lu.solve_mut(&mut b);
@@ -42,7 +42,7 @@ fn full_piv_lu_solve_100x100(bh: &mut criterion::Criterion) {
         bh.iter_batched(
             || {
                 let m = DMatrix::<f64>::new_random(100, 100);
-                (FullPivLU::new(m), DVector::<f64>::from_element(100, 1.0))
+                (FullPivLU::new(m), DVector::<f64>::new_random(100))
             },
             |(lu, mut b)| {
                 lu.solve_mut(&mut b);
