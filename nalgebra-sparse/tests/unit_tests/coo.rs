@@ -428,3 +428,44 @@ fn coo_push_matrix_out_of_bounds_entries() {
         assert_panics!(CooMatrix::new(3, 3).push_matrix(2, 2, &inserted));
     }
 }
+
+#[test]
+fn coo_remove_row_valid() {
+    let mut coo = CooMatrix::new(3, 3);
+
+    coo.push(0, 0, 1);
+    coo.push(0, 1, 2);
+    coo.push(0, 2, 3);
+
+    let mut removed_coo = coo.remove_row(0);
+    assert_eq!(removed_coo.nrows(), 2);
+    assert_eq!(removed_coo.nnz(), 0);
+
+    // makes sure resulting COO matrix still works.
+    removed_coo.push(0, 0, 1);
+    removed_coo.push(0, 1, 2);
+    removed_coo.push(0, 2, 3);
+    assert_eq!(removed_coo.nnz(), 3);
+
+    assert_panics!(removed_coo.clone().push(2, 0, 4));
+
+    // makes sure original matrix is untouched.
+    assert_eq!(
+        coo.triplet_iter().collect::<Vec<_>>(),
+        vec![(0, 0, &1), (0, 1, &2), (0, 2, &3)]
+    );
+}
+
+#[test]
+fn coo_remove_row_out_of_bounds() {
+    let mut coo = CooMatrix::new(3, 3);
+
+    coo.push(0, 0, 1);
+    coo.push(0, 1, 2);
+    coo.push(0, 2, 3);
+
+    // Push past col-dim
+    {
+        assert_panics!(coo.clone().remove_row(3));
+    }
+}

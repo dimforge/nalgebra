@@ -311,4 +311,45 @@ impl<T> CooMatrix<T> {
     pub fn disassemble(self) -> (Vec<usize>, Vec<usize>, Vec<T>) {
         (self.row_indices, self.col_indices, self.values)
     }
+
+    /// Removes the `i`th row from the matrix. Beware the cost of the operation is `O(nnz)` and
+    /// causes a reallocation.
+    ///
+    /// Panics
+    /// -------
+    /// Panics if `i < nrows`.
+    ///
+    /// Examples
+    /// --------
+    ///
+    /// ```
+    /// # use nalgebra_sparse::coo::CooMatrix;
+    /// let row_indices = vec![0, 1];
+    /// let col_indices = vec![1, 2];
+    /// let values = vec![1.0, 2.0];
+    /// let mut coo = CooMatrix::try_from_triplets(2, 3, row_indices, col_indices, values)
+    ///     .unwrap();
+    ///
+    /// coo.remove_row(0);
+    /// ```
+    pub fn remove_row(&self, i: usize) -> Self
+    where
+        T: Copy,
+    {
+        assert!(i < self.nrows);
+        let ((new_row_indices, new_col_indices), new_values) = self
+            .row_indices
+            .iter()
+            .zip(self.col_indices.iter())
+            .zip(self.values.iter())
+            .filter(|((row, _), _)| **row != i)
+            .unzip();
+        Self {
+            nrows: self.nrows - 1,
+            ncols: self.ncols,
+            row_indices: new_row_indices,
+            col_indices: new_col_indices,
+            values: new_values,
+        }
+    }
 }
