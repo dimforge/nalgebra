@@ -417,7 +417,7 @@ criterion_group!(
     copy_from,
     axpy,
     tr_mul_to,
-    mat_mul_mat,
+    mat_mul_mat_to,
     mat100_from_fn,
     mat500_from_fn,
 );
