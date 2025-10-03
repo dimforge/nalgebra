@@ -53,7 +53,25 @@ debug = ["approx/num-complex", "rand"]
 alloc = []
 io = ["pest", "pest_derive"]
 compare = ["matrixcompare-core"]
-libm = ["simba/libm"]
+libm = [
+    "simba/libm",
+    "glam014?/libm",
+    "glam015?/libm",
+    "glam016?/libm",
+    "glam017?/libm",
+    "glam018?/libm",
+    "glam019?/libm",
+    "glam020?/libm",
+    "glam021?/libm",
+    "glam022?/libm",
+    "glam023?/libm",
+    "glam024?/libm",
+    "glam025?/libm",
+    "glam027?/libm",
+    "glam028?/libm",
+    "glam029?/libm",
+    "glam030?/libm",
+]
 libm-force = ["simba/libm_force"]
 macros = ["nalgebra-macros"]
 
