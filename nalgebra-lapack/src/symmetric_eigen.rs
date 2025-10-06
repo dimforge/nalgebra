@@ -186,6 +186,8 @@ pub trait SymmetricEigenScalar: Scalar {
     -> i32;
 }
 
+/// This macro uses unsafe to manually ensure memory safety for external function xsyev
+/// For incorrectly sized and initialized matrices and arrays, undefined behavior will occur
 macro_rules! real_eigensystem_scalar_impl (
     ($N: ty, $xsyev: path) => (
         impl SymmetricEigenScalar for $N {

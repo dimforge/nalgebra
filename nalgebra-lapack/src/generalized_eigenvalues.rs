@@ -289,6 +289,8 @@ pub trait GeneralizedEigenScalar: Scalar {
     ) -> i32;
 }
 
+/// This macro uses unsafe to manually ensure memory safety for external function xggev
+/// For incorrectly sized and initialized matrices and arrays, undefined behavior will occur
 macro_rules! generalized_eigen_scalar_impl (
     ($N: ty, $xggev: path) => (
         impl GeneralizedEigenScalar for $N {

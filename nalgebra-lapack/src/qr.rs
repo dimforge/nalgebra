@@ -217,6 +217,8 @@ pub trait QRReal: QRScalar {
     ) -> i32;
 }
 
+/// This macro uses unsafe to manually ensure memory safety for external function xgeqrf
+/// For incorrectly sized and initialized matrices and arrays, undefined behavior will occur 
 macro_rules! qr_scalar_impl(
     ($N: ty, $xgeqrf: path) => (
         impl QRScalar for $N {
@@ -239,6 +241,8 @@ macro_rules! qr_scalar_impl(
     )
 );
 
+/// This macro uses unsafe to manually ensure memory safety for external function xorgqr
+/// For incorrectly sized and initialized matrices and arrays, undefined behavior will occur
 macro_rules! qr_real_impl(
     ($N: ty, $xorgqr: path) => (
         impl QRReal for $N {

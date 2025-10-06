@@ -253,6 +253,8 @@ pub trait QZScalar: Scalar {
     ) -> i32;
 }
 
+/// This macro uses unsafe to manually ensure memory safety for external function xgges
+/// For incorrectly sized and initialized matrices and arrays, undefined behavior will occur
 macro_rules! qz_scalar_impl (
     ($N: ty, $xgges: path) => (
         impl QZScalar for $N {

@@ -190,6 +190,8 @@ pub trait HessenbergReal: HessenbergScalar {
     ) -> i32;
 }
 
+/// This macro uses unsafe to manually ensure memory safety for external function xgehrd
+/// For incorrectly sized and initialized matrices and arrays, undefined behavior will occur
 macro_rules! hessenberg_scalar_impl(
     ($N: ty, $xgehrd: path) => (
         impl HessenbergScalar for $N {
@@ -212,6 +214,7 @@ macro_rules! hessenberg_scalar_impl(
     )
 );
 
+/// This macro uses unsafe to manually ensure memory safety for external function xorghr
 macro_rules! hessenberg_real_impl(
     ($N: ty, $xorghr: path) => (
         impl HessenbergReal for $N {

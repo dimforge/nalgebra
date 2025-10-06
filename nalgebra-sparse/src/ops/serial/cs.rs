@@ -44,6 +44,7 @@ where
             let alpha_aik = alpha.clone() * a_ik.clone();
             for (j, b_kj) in b_lane_k.minor_indices().iter().zip(b_lane_k.values()) {
                 // use a dense scatter vector to accumulate non-zeros quickly
+                // using unsafe to ensure *j index and get_unchecked memory access are always valid     
                 unsafe {
                     *scratchpad_values.get_unchecked_mut(*j) += alpha_aik.clone() * b_kj.clone();
                 }
@@ -51,6 +52,7 @@ where
         }
 
         //Get indices from C pattern and gather from the dense scratchpad_values
+        //Using unsafe to ensure *index is always valid
         let (indices, values) = c_lane_i.indices_and_values_mut();
         values
             .iter_mut()
