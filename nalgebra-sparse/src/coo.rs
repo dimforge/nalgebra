@@ -317,7 +317,7 @@ impl<T> CooMatrix<T> {
     ///
     /// Panics
     /// -------
-    /// Panics if `i < nrows`.
+    /// Panics if `i >= nrows`.
     ///
     /// Examples
     /// --------
@@ -337,13 +337,8 @@ impl<T> CooMatrix<T> {
         T: Copy,
     {
         assert!(i < self.nrows);
-        let ((new_row_indices, new_col_indices), new_values) = self
-            .row_indices
-            .iter()
-            .zip(self.col_indices.iter())
-            .zip(self.values.iter())
-            .filter(|((row, _), _)| **row != i)
-            .unzip();
+        let ((new_row_indices, new_col_indices), new_values) =
+            self.remove_helper(|((row, _), _)| row != i);
         Self {
             nrows: self.nrows - 1,
             ncols: self.ncols,
@@ -351,5 +346,94 @@ impl<T> CooMatrix<T> {
             col_indices: new_col_indices,
             values: new_values,
         }
+    }
+
+    /// Removes the `i`th column from the matrix. Beware the cost of the operation is `O(nnz)` and
+    /// causes a reallocation.
+    ///
+    /// Panics
+    /// -------
+    /// Panics if `i >= ncols`.
+    ///
+    /// Examples
+    /// --------
+    ///
+    /// ```
+    /// # use nalgebra_sparse::coo::CooMatrix;
+    /// let row_indices = vec![0, 1];
+    /// let col_indices = vec![1, 2];
+    /// let values = vec![1.0, 2.0];
+    /// let mut coo = CooMatrix::try_from_triplets(2, 3, row_indices, col_indices, values)
+    ///     .unwrap();
+    ///
+    /// coo.remove_col(0);
+    /// ```
+    pub fn remove_col(&self, i: usize) -> Self
+    where
+        T: Copy,
+    {
+        assert!(i < self.ncols);
+        let ((new_row_indices, new_col_indices), new_values) =
+            self.remove_helper(|((_, col), _)| col != i);
+        Self {
+            nrows: self.nrows,
+            ncols: self.ncols - 1,
+            row_indices: new_row_indices,
+            col_indices: new_col_indices,
+            values: new_values,
+        }
+    }
+
+    /// Removes the `i`th row and the `j`th column from the matrix. Beware the cost of the operation
+    /// is `O(nnz)` and causes a reallocation. Note that a reallocation can be saved calling this
+    /// function rather than successive calls to `remove_row` or `remove_col`.
+    ///
+    /// Panics
+    /// -------
+    /// Panics if `i >= nrows` or `j >= ncols`.
+    ///
+    /// Examples
+    /// --------
+    ///
+    /// ```
+    /// # use nalgebra_sparse::coo::CooMatrix;
+    /// let row_indices = vec![0, 1];
+    /// let col_indices = vec![1, 2];
+    /// let values = vec![1.0, 2.0];
+    /// let mut coo = CooMatrix::try_from_triplets(2, 3, row_indices, col_indices, values)
+    ///     .unwrap();
+    ///
+    /// coo.remove_row_col(0, 1);
+    /// ```
+    pub fn remove_row_col(&self, i: usize, j: usize) -> Self
+    where
+        T: Copy,
+    {
+        assert!(i < self.nrows);
+        assert!(j < self.ncols);
+        let ((new_row_indices, new_col_indices), new_values) =
+            self.remove_helper(|((row, col), _)| row != i && col != j);
+        Self {
+            nrows: self.nrows - 1,
+            ncols: self.ncols - 1,
+            row_indices: new_row_indices,
+            col_indices: new_col_indices,
+            values: new_values,
+        }
+    }
+
+    // Helper function for all remove_x functions
+    #[inline]
+    fn remove_helper<F>(&self, filter_fn: F) -> ((Vec<usize>, Vec<usize>), Vec<T>)
+    where
+        F: Fn(((usize, usize), T)) -> bool,
+        T: Copy,
+    {
+        self.row_indices
+            .iter()
+            .zip(self.col_indices.iter())
+            .zip(self.values.iter())
+            .filter(|((i, j), v)| filter_fn(((**i, **j), **v)))
+            .unzip()
     }
 }

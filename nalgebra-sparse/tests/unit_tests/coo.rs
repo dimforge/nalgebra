@@ -439,9 +439,11 @@ fn coo_remove_row_valid() {
 
     let mut removed_coo = coo.remove_row(0);
     assert_eq!(removed_coo.nrows(), 2);
+    assert_eq!(removed_coo.ncols(), 3);
     assert_eq!(removed_coo.nnz(), 0);
 
-    // makes sure resulting COO matrix still works.
+    // makes sure resulting COO matrix still works. This will push to the new
+    // matrices row 0.
     removed_coo.push(0, 0, 1);
     removed_coo.push(0, 1, 2);
     removed_coo.push(0, 2, 3);
@@ -465,7 +467,90 @@ fn coo_remove_row_out_of_bounds() {
     coo.push(0, 2, 3);
 
     // Push past col-dim
-    {
-        assert_panics!(coo.clone().remove_row(3));
-    }
+    assert_panics!(coo.clone().remove_row(3));
+}
+
+#[test]
+fn coo_remove_col_valid() {
+    let mut coo = CooMatrix::new(3, 3);
+
+    coo.push(0, 0, 1);
+    coo.push(0, 1, 2);
+    coo.push(0, 2, 3);
+
+    let mut removed_coo = coo.remove_col(1);
+    assert_eq!(removed_coo.ncols(), 2);
+    assert_eq!(removed_coo.nrows(), 3);
+    assert_eq!(removed_coo.nnz(), 2);
+
+    // makes sure resulting COO matrix still works.
+    removed_coo.push(0, 1, 2);
+    removed_coo.push(2, 1, 4);
+    assert_eq!(removed_coo.nnz(), 4);
+
+    assert_panics!(removed_coo.clone().push(0, 2, 4));
+
+    // makes sure original matrix is untouched.
+    assert_eq!(
+        coo.triplet_iter().collect::<Vec<_>>(),
+        vec![(0, 0, &1), (0, 1, &2), (0, 2, &3)]
+    );
+}
+
+#[test]
+fn coo_remove_col_out_of_bounds() {
+    let mut coo = CooMatrix::new(3, 3);
+
+    coo.push(0, 0, 1);
+    coo.push(0, 1, 2);
+    coo.push(0, 2, 3);
+
+    // Push past col-dim
+    assert_panics!(coo.clone().remove_col(3));
+}
+
+#[test]
+fn coo_remove_row_col_valid() {
+    let mut coo = CooMatrix::new(3, 3);
+
+    coo.push(0, 0, 1);
+    coo.push(0, 1, 2);
+    coo.push(0, 2, 3);
+    coo.push(1, 0, 4);
+    coo.push(1, 1, 5);
+    coo.push(1, 2, 6);
+    coo.push(2, 0, 7);
+    coo.push(2, 1, 8);
+    coo.push(2, 2, 9);
+
+    let mut removed_coo = coo.remove_row_col(1, 1);
+    assert_eq!(removed_coo.ncols(), 2);
+    assert_eq!(removed_coo.nrows(), 2);
+    assert_eq!(removed_coo.nnz(), 4);
+
+    // makes sure resulting COO matrix still works.
+    removed_coo.push(0, 0, 1);
+    removed_coo.push(0, 1, 0);
+    removed_coo.push(1, 0, 0);
+    removed_coo.push(1, 1, 4);
+    assert_eq!(removed_coo.nnz(), 8);
+
+    assert_panics!(removed_coo.clone().push(0, 2, 4));
+    assert_panics!(removed_coo.clone().push(2, 1, 4));
+
+    // makes sure original matrix is untouched.
+    assert_eq!(
+        coo.triplet_iter().collect::<Vec<_>>(),
+        vec![
+            (0, 0, &1),
+            (0, 1, &2),
+            (0, 2, &3),
+            (1, 0, &4),
+            (1, 1, &5),
+            (1, 2, &6),
+            (2, 0, &7),
+            (2, 1, &8),
+            (2, 2, &9)
+        ]
+    );
 }
