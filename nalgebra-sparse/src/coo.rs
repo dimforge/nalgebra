@@ -312,11 +312,27 @@ impl<T> CooMatrix<T> {
         (self.row_indices, self.col_indices, self.values)
     }
 
+    // Helper function for all remove_x functions
+    #[inline]
+    fn remove_helper<F>(&self, filter_fn: F) -> ((Vec<usize>, Vec<usize>), Vec<T>)
+    where
+        F: Fn(((usize, usize), T)) -> bool,
+        T: Copy,
+    {
+        self.row_indices
+            .iter()
+            .zip(self.col_indices.iter())
+            .zip(self.values.iter())
+            .filter(|((i, j), v)| filter_fn(((**i, **j), **v)))
+            .unzip()
+    }
+
     /// Removes the `i`th row from the matrix. Beware the cost of the operation is `O(nnz)` and
     /// causes a reallocation.
     ///
     /// Panics
     /// -------
+    ///
     /// Panics if `i >= nrows`.
     ///
     /// Examples
@@ -353,7 +369,8 @@ impl<T> CooMatrix<T> {
     ///
     /// Panics
     /// -------
-    /// Panics if `i >= ncols`.
+    ///
+    /// Panics if `i` is out of bounds.
     ///
     /// Examples
     /// --------
@@ -390,7 +407,8 @@ impl<T> CooMatrix<T> {
     ///
     /// Panics
     /// -------
-    /// Panics if `i >= nrows` or `j >= ncols`.
+    ///
+    /// Panics if `i` or `j` are out of bounds.
     ///
     /// Examples
     /// --------
@@ -420,20 +438,5 @@ impl<T> CooMatrix<T> {
             col_indices: new_col_indices,
             values: new_values,
         }
-    }
-
-    // Helper function for all remove_x functions
-    #[inline]
-    fn remove_helper<F>(&self, filter_fn: F) -> ((Vec<usize>, Vec<usize>), Vec<T>)
-    where
-        F: Fn(((usize, usize), T)) -> bool,
-        T: Copy,
-    {
-        self.row_indices
-            .iter()
-            .zip(self.col_indices.iter())
-            .zip(self.values.iter())
-            .filter(|((i, j), v)| filter_fn(((**i, **j), **v)))
-            .unzip()
     }
 }
