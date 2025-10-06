@@ -366,9 +366,9 @@ impl<T> CooMatrix<T> {
     /// let mut coo = CooMatrix::try_from_triplets(2, 3, row_indices, col_indices, values)
     ///     .unwrap();
     ///
-    /// coo.remove_col(0);
+    /// coo.remove_column(0);
     /// ```
-    pub fn remove_col(&self, i: usize) -> Self
+    pub fn remove_column(&self, i: usize) -> Self
     where
         T: Copy,
     {
@@ -386,7 +386,7 @@ impl<T> CooMatrix<T> {
 
     /// Removes the `i`th row and the `j`th column from the matrix. Beware the cost of the operation
     /// is `O(nnz)` and causes a reallocation. Note that a reallocation can be saved calling this
-    /// function rather than successive calls to `remove_row` or `remove_col`.
+    /// function rather than successive calls to `remove_row` or `remove_column`.
     ///
     /// Panics
     /// -------
@@ -403,9 +403,9 @@ impl<T> CooMatrix<T> {
     /// let mut coo = CooMatrix::try_from_triplets(2, 3, row_indices, col_indices, values)
     ///     .unwrap();
     ///
-    /// coo.remove_row_col(0, 1);
+    /// coo.remove_row_column(0, 1);
     /// ```
-    pub fn remove_row_col(&self, i: usize, j: usize) -> Self
+    pub fn remove_row_column(&self, i: usize, j: usize) -> Self
     where
         T: Copy,
     {

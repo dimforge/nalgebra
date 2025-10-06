@@ -471,14 +471,14 @@ fn coo_remove_row_out_of_bounds() {
 }
 
 #[test]
-fn coo_remove_col_valid() {
+fn coo_remove_column_valid() {
     let mut coo = CooMatrix::new(3, 3);
 
     coo.push(0, 0, 1);
     coo.push(0, 1, 2);
     coo.push(0, 2, 3);
 
-    let mut removed_coo = coo.remove_col(1);
+    let mut removed_coo = coo.remove_column(1);
     assert_eq!(removed_coo.ncols(), 2);
     assert_eq!(removed_coo.nrows(), 3);
     assert_eq!(removed_coo.nnz(), 2);
@@ -498,7 +498,7 @@ fn coo_remove_col_valid() {
 }
 
 #[test]
-fn coo_remove_col_out_of_bounds() {
+fn coo_remove_column_out_of_bounds() {
     let mut coo = CooMatrix::new(3, 3);
 
     coo.push(0, 0, 1);
@@ -506,11 +506,11 @@ fn coo_remove_col_out_of_bounds() {
     coo.push(0, 2, 3);
 
     // Push past col-dim
-    assert_panics!(coo.clone().remove_col(3));
+    assert_panics!(coo.clone().remove_column(3));
 }
 
 #[test]
-fn coo_remove_row_col_valid() {
+fn coo_remove_row_column_valid() {
     let mut coo = CooMatrix::new(3, 3);
 
     coo.push(0, 0, 1);
@@ -523,7 +523,7 @@ fn coo_remove_row_col_valid() {
     coo.push(2, 1, 8);
     coo.push(2, 2, 9);
 
-    let mut removed_coo = coo.remove_row_col(1, 1);
+    let mut removed_coo = coo.remove_row_column(1, 1);
     assert_eq!(removed_coo.ncols(), 2);
     assert_eq!(removed_coo.nrows(), 2);
     assert_eq!(removed_coo.nnz(), 4);
