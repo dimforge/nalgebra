@@ -4,7 +4,6 @@ version = "0.26.0"
 authors = ["Sébastien Crozet <developer@crozet.re>", "Andrew Straw <strawman@astraw.com>"]
 
 description = "Matrix decompositions using nalgebra matrices and Lapack bindings."
-documentation = "https://www.nalgebra.rs/docs"
 homepage = "https://nalgebra.rs"
 repository = "https://github.com/dimforge/nalgebra"
 readme = "../README.md"

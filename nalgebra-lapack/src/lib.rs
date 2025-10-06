@@ -51,8 +51,6 @@
 //!
 //! [version-img]: https://img.shields.io/crates/v/nalgebra-lapack.svg
 //! [version-url]: https://crates.io/crates/nalgebra-lapack
-//! [status-img]: https://travis-ci.org/strawlab/nalgebra-lapack.svg?branch=master
-//! [status-url]: https://travis-ci.org/strawlab/nalgebra-lapack
 //! [doc-img]: https://docs.rs/nalgebra-lapack/badge.svg
 //! [doc-url]: https://docs.rs/nalgebra-lapack/
 //!
