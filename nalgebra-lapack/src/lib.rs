@@ -116,6 +116,10 @@ enforce_exactly_one_feature_selected!(
     "lapack-custom"
 );
 
+extern crate lapack;
+#[cfg(not(feature = "lapack-custom"))]
+extern crate lapack_src;
+
 extern crate nalgebra as na;
 extern crate num_traits as num;
 

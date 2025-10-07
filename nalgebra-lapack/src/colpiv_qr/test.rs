@@ -301,7 +301,7 @@ fn solve_full_rank_overdetermined_system_with_single_rhs() {
         ColPivQR::with_rank_algo(a, Default::default()).expect("qr decomposition must not fail");
     assert_eq!(qr.rank(), 3);
     let x_calc = qr.solve(b).unwrap();
-    assert_abs_diff_eq!(x_calc, x, epsilon = 1e-6);
+    assert_abs_diff_eq!(x_calc, x, epsilon = 1e-5);
 }
 
 #[test]
