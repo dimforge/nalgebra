@@ -1,6 +1,7 @@
 use na::{DVector, SVector, Vector2, Vector3, Vector4};
 use rand::Rng;
 use rand_isaac::IsaacRng;
+
 use std::ops::{Add, Div, Mul, Sub};
 
 #[path = "../common/macros.rs"]
@@ -49,81 +50,144 @@ bench_binop_ref!(vec10000_dot_f32, SVector<f32, 10000>, SVector<f32, 10000>, dot
 
 fn vec10000_axpy_f64(bh: &mut criterion::Criterion) {
     use rand::SeedableRng;
-    let mut rng = IsaacRng::seed_from_u64(0);
-    let mut a = DVector::new_random(10000);
-    let b = DVector::new_random(10000);
-    let n = rng.random::<f64>();
 
-    bh.bench_function("vec10000_axpy_f64", move |bh| {
-        bh.iter(|| a.axpy(n, &b, 1.0))
+    let mut rng = IsaacRng::seed_from_u64(0);
+
+    bh.bench_function("vec10000_axpy_f64", |bh| {
+        bh.iter_batched(
+            || {
+                (
+                    DVector::new_random(10000),
+                    DVector::new_random(10000),
+                    rng.random::<f64>(),
+                )
+            },
+            |(mut a, b, n)| {
+                a.axpy(n, &b, 1.0);
+                (a, b)
+            },
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 fn vec10000_axpy_beta_f64(bh: &mut criterion::Criterion) {
     use rand::SeedableRng;
-    let mut rng = IsaacRng::seed_from_u64(0);
-    let mut a = DVector::new_random(10000);
-    let b = DVector::new_random(10000);
-    let n = rng.random::<f64>();
-    let beta = rng.random::<f64>();
 
-    bh.bench_function("vec10000_axpy_beta_f64", move |bh| {
-        bh.iter(|| a.axpy(n, &b, beta))
+    let mut rng = IsaacRng::seed_from_u64(0);
+
+    bh.bench_function("vec10000_axpy_beta_f64", |bh| {
+        bh.iter_batched(
+            || {
+                (
+                    DVector::new_random(10000),
+                    DVector::new_random(10000),
+                    rng.random::<f64>(),
+                    rng.random::<f64>(),
+                )
+            },
+            |(mut a, b, n, beta)| {
+                a.axpy(n, &b, beta);
+                (a, b)
+            },
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 fn vec10000_axpy_f64_slice(bh: &mut criterion::Criterion) {
     use rand::SeedableRng;
+
     let mut rng = IsaacRng::seed_from_u64(0);
-    let mut a = DVector::new_random(10000);
-    let b = DVector::new_random(10000);
-    let n = rng.random::<f64>();
 
-    bh.bench_function("vec10000_axpy_f64_slice", move |bh| {
-        bh.iter(|| {
-            let mut a = a.fixed_rows_mut::<10000>(0);
-            let b = b.fixed_rows::<10000>(0);
-
-            a.axpy(n, &b, 1.0)
-        })
+    bh.bench_function("vec10000_axpy_f64_slice", |bh| {
+        bh.iter_batched(
+            || {
+                (
+                    DVector::new_random(10000),
+                    DVector::new_random(10000),
+                    rng.random::<f64>(),
+                )
+            },
+            |(mut a, b, n)| {
+                let mut a_slice = a.fixed_rows_mut::<10000>(0);
+                let b_slice = b.fixed_rows::<10000>(0);
+                a_slice.axpy(n, &b_slice, 1.0);
+                (a, b)
+            },
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 fn vec10000_axpy_f64_static(bh: &mut criterion::Criterion) {
     use rand::SeedableRng;
+
     let mut rng = IsaacRng::seed_from_u64(0);
-    let mut a = SVector::<f64, 10000>::new_random();
-    let b = SVector::<f64, 10000>::new_random();
-    let n = rng.random::<f64>();
 
     // NOTE: for some reasons, it is much faster if the argument are boxed (Box::new(OVector...)).
-    bh.bench_function("vec10000_axpy_f64_static", move |bh| {
-        bh.iter(|| a.axpy(n, &b, 1.0))
+    bh.bench_function("vec10000_axpy_f64_static", |bh| {
+        bh.iter_batched(
+            || {
+                (
+                    SVector::<f64, 10000>::new_random(),
+                    SVector::<f64, 10000>::new_random(),
+                    rng.random::<f64>(),
+                )
+            },
+            |(mut a, b, n)| {
+                a.axpy(n, &b, 1.0);
+                (a, b)
+            },
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 fn vec10000_axpy_f32(bh: &mut criterion::Criterion) {
     use rand::SeedableRng;
-    let mut rng = IsaacRng::seed_from_u64(0);
-    let mut a = DVector::new_random(10000);
-    let b = DVector::new_random(10000);
-    let n = rng.random::<f32>();
 
-    bh.bench_function("vec10000_axpy_f32", move |bh| {
-        bh.iter(|| a.axpy(n, &b, 1.0))
+    let mut rng = IsaacRng::seed_from_u64(0);
+
+    bh.bench_function("vec10000_axpy_f32", |bh| {
+        bh.iter_batched(
+            || {
+                (
+                    DVector::new_random(10000),
+                    DVector::new_random(10000),
+                    rng.random::<f32>(),
+                )
+            },
+            |(mut a, b, n)| {
+                a.axpy(n, &b, 1.0);
+                (a, b)
+            },
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 fn vec10000_axpy_beta_f32(bh: &mut criterion::Criterion) {
     use rand::SeedableRng;
-    let mut rng = IsaacRng::seed_from_u64(0);
-    let mut a = DVector::new_random(10000);
-    let b = DVector::new_random(10000);
-    let n = rng.random::<f32>();
-    let beta = rng.random::<f32>();
 
-    bh.bench_function("vec10000_axpy_beta_f32", move |bh| {
-        bh.iter(|| a.axpy(n, &b, beta))
+    let mut rng = IsaacRng::seed_from_u64(0);
+
+    bh.bench_function("vec10000_axpy_beta_f32", |bh| {
+        bh.iter_batched(
+            || {
+                (
+                    DVector::new_random(10000),
+                    DVector::new_random(10000),
+                    rng.random::<f32>(),
+                    rng.random::<f32>(),
+                )
+            },
+            |(mut a, b, n, beta)| {
+                a.axpy(n, &b, beta);
+                (a, b)
+            },
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 

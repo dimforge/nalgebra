@@ -1,30 +1,42 @@
-use na::{Matrix4, SymmetricEigen};
+use na::{DMatrix, SMatrix, SymmetricEigen};
 
 fn symmetric_eigen_decompose_4x4(bh: &mut criterion::Criterion) {
-    let m = Matrix4::<f64>::new_random();
-    bh.bench_function("symmetric_eigen_decompose_4x4", move |bh| {
-        bh.iter(|| std::hint::black_box(SymmetricEigen::new(m.clone())))
+    bh.bench_function("symmetric_eigen_decompose_4x4", |bh| {
+        bh.iter_batched(
+            || SMatrix::<f64, 4, 4>::new_random(),
+            |m| SymmetricEigen::new(m),
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 fn symmetric_eigen_decompose_10x10(bh: &mut criterion::Criterion) {
-    let m = crate::reproducible_dmatrix(10, 10);
-    bh.bench_function("symmetric_eigen_decompose_10x10", move |bh| {
-        bh.iter(|| std::hint::black_box(SymmetricEigen::new(m.clone())))
+    bh.bench_function("symmetric_eigen_decompose_10x10", |bh| {
+        bh.iter_batched(
+            || DMatrix::<f64>::new_random(10, 10),
+            |m| SymmetricEigen::new(m),
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 fn symmetric_eigen_decompose_100x100(bh: &mut criterion::Criterion) {
-    let m = crate::reproducible_dmatrix(100, 100);
-    bh.bench_function("symmetric_eigen_decompose_100x100", move |bh| {
-        bh.iter(|| std::hint::black_box(SymmetricEigen::new(m.clone())))
+    bh.bench_function("symmetric_eigen_decompose_100x100", |bh| {
+        bh.iter_batched(
+            || DMatrix::<f64>::new_random(100, 100),
+            |m| SymmetricEigen::new(m),
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
 fn symmetric_eigen_decompose_200x200(bh: &mut criterion::Criterion) {
-    let m = crate::reproducible_dmatrix(200, 200);
-    bh.bench_function("symmetric_eigen_decompose_200x200", move |bh| {
-        bh.iter(|| std::hint::black_box(SymmetricEigen::new(m.clone())))
+    bh.bench_function("symmetric_eigen_decompose_200x200", |bh| {
+        bh.iter_batched(
+            || DMatrix::<f64>::new_random(200, 200),
+            |m| SymmetricEigen::new(m),
+            criterion::BatchSize::SmallInput,
+        )
     });
 }
 
