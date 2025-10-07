@@ -10,6 +10,7 @@ For the **changes between versions 0.4.0 and 0.27.0** see the main
 * fix failing tests for Cholesky decomposition
 * fix compilation with `serde-serialize` feature enabled
 * add column-pivoting QR decomposition and solver
+* fix logic error in calculation of complex eigenvalues in eigen-decomposition.
 
 ## [0.4.0] - 2016-09-07
 
