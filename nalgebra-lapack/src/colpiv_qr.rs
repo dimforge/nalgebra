@@ -508,8 +508,8 @@ where
 #[allow(missing_docs)]
 pub trait ColPivQrScalar: ComplexField + QRScalar + Sealed {
     /// routine for column pivoting QR decomposition using level 3 BLAS,
-    /// see https://www.netlib.org/lapack/lug/node42.html
-    /// or https://www.intel.com/content/www/us/en/docs/onemkl/developer-reference-c/2023-0/geqp3.html
+    /// see <https://www.netlib.org/lapack/lug/node42.html>
+    /// or <https://www.intel.com/content/www/us/en/docs/onemkl/developer-reference-c/2023-0/geqp3.html>
     unsafe fn xgeqp3(
         m: i32,
         n: i32,

@@ -2,57 +2,63 @@
 //!
 //! Rust library for linear algebra using nalgebra and LAPACK.
 //!
-//! ## Documentation
+//! ## Selecting a LAPACK Backend
 //!
-//! Documentation is available [here](https://docs.rs/nalgebra-lapack/).
+//! This crate uses cargo [cargo features](https://doc.crates.io/manifest.html#the-[features]-section)
+//! to select which lapack provider (or implementation) is used.
 //!
-//! ## License
+//! ### Default LAPACK Backend and Performance
 //!
-//! MIT
+//! By default, the [`netlib-src`](https://crates.io/crates/netlib-src) crate
+//! is used as a LAPACK source, which bundles netlib and works out of the box,
+//! given an existing FOTRAN compiler on your system. That makes this choice
+//! practical, but it's typically not the best performing backend.
 //!
-//! ## Cargo features to select lapack provider
+//! ### Lapack Backends
 //!
-//! Like the [lapack crate](https://crates.io/crates/lapack) from which this
-//! behavior is inherited, nalgebra-lapack uses [cargo
-//! features](https://doc.crates.io/manifest.html#the-[features]-section) to select
-//! which lapack provider (or implementation) is used. Command line arguments to
-//! cargo are the easiest way to do this, and the best provider depends on your
-//! particular system. In some cases, the providers can be further tuned with
-//! environment variables.
+//! LAPACK backends other than `netlib` typically assume the libraries or
+//! frameworks are present on your system. See the respective vendors how to
+//! install them. Backends are selected using one of the `lapack-*` feature flags:
 //!
-//! Below are given examples of how to invoke `cargo build` on two different systems
-//! using two different providers. The `--no-default-features --features "provider"`
-//! arguments will be consistent for other `cargo` commands.
+//! * `lapack-netlib`: use the bundled [Netlib](http://www.netlib.org/) reference
+//! implementation. This feature is enabled by default.
+//! * `lapack-openblas`: Use LAPACK provided via [OpenBLAS](http://www.openmathlib.org/OpenBLAS/).
+//! * `lapack-accelerate`: Use Apple's [Accelerate](https://developer.apple.com/documentation/accelerate)
+//! framework.
+//! * `lapack-mkl`: alias for `lapack-mkl-static-seq`. A useful default for [Intel MKL](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html)
+//! * `lapack-mkl-static-seq`: statically link the _sequential_ version of MKL.
+//! * `lapack-mkl-static-par`: statically link the _parallel_ version of MKL.
+//! * `lapack-mkl-dynamic-seq`: dynamically link the sequential version of MKL.
+//! * `lapack-mkl-dynamic-par`: dynamically link the parallel version of MKL.
+//! * `lapack-custom`: Use a custom lapack backend whose functions must be
+//! available at linktime. It is your responsibility to make sure those are
+//! ABI compatible to the function signatures in the [lapack](https://crates.io/crates/lapack)
+//! crate.
 //!
-//! ### Ubuntu
+//! Note that **exactly one** of these features must be selected
+//! and that `lapack-netlib` is selected by default, which means **you have
+//! to disable default features**, when explicitly specifying a lapack backend.
 //!
-//! As tested on Ubuntu 12.04, do this to build the lapack package against
-//! the system installation of netlib without LAPACKE (note the E) or
-//! CBLAS:
-//!
-//! ```ignore
-//! sudo apt-get install gfortran libblas3gf liblapack3gf
-//! export CARGO_FEATURE_SYSTEM_NETLIB=1
-//! export CARGO_FEATURE_EXCLUDE_LAPACKE=1
-//! export CARGO_FEATURE_EXCLUDE_CBLAS=1
-//!
-//! export CARGO_FEATURES="--no-default-features --features netlib"
-//! cargo build ${CARGO_FEATURES}
-//! ```
-//!
-//! ### macOS
-//!
-//! On macOS, do this to use Apple's Accelerate framework:
-//!
-//! ```ignore
-//! export CARGO_FEATURES="--no-default-features --features accelerate"
-//! cargo build ${CARGO_FEATURES}
+//! ```toml
+//! nalgebra-lapack = {version = *, default-features = false, features = ["lapack-*"]}
 //! ```
 //!
 //! [version-img]: https://img.shields.io/crates/v/nalgebra-lapack.svg
 //! [version-url]: https://crates.io/crates/nalgebra-lapack
 //! [doc-img]: https://docs.rs/nalgebra-lapack/badge.svg
 //! [doc-url]: https://docs.rs/nalgebra-lapack/
+//!
+//! ## Performance
+//!
+//! As always, there's only one way to find out if nalgebra-lapack brings
+//! a performance benefit to your project, which is _measuring_. The same
+//! goes for deciding which LAPACK backend to use, if you have multiple available
+//! options.
+//!
+//! ## License
+//!
+//! MIT
+//!
 //!
 //! ## Contributors
 //! This integration of LAPACK on nalgebra was
@@ -71,8 +77,44 @@
     html_root_url = "https://nalgebra.rs/rustdoc"
 )]
 
-extern crate lapack;
-extern crate lapack_src;
+// a utility macro that makes sure that exactly one of the lapack backend
+// features is selected. It provides helpful error messages otherwise.
+macro_rules! enforce_exactly_one_feature_selected {
+    ($($feat:literal),+ $(,)?) => {
+        const _ENABLED_FEATURE_COUNT : usize = $(if cfg!(feature = $feat) {1} else {0} +)* 0;
+        const _ASSERT_EXACTLY_ONE : () = if _ENABLED_FEATURE_COUNT > 1 {
+            panic!("Multiple `lapack-*` features selected! Make sure to set `default-features = false` when including nalgebra-lapack with explicit `lapack-*` features.");
+        } else if _ENABLED_FEATURE_COUNT == 0 {
+            panic!("Select at least one `lapack-*` feature! To use a custom backend at link-time, specify `lapack-custom` without default features.");
+        } else {};
+    };
+}
+
+// If you hit a compile error here, make sure to specify exactly one of the
+// available `lapack-*` features in this crate.
+//
+// # Troubleshooting
+//
+// ## Multiple Features Selected!
+//
+// By default, the `lapack-netlib`
+// backend is specified, so to select another backend, you have disable
+// the default-features of this crate, when including this crate.
+//
+// ## Select At Least One Feature!
+//
+// If you want to use a custom backend at link-time, turn off default features
+// and use `lapack-custom`.
+enforce_exactly_one_feature_selected!(
+    "lapack-openblas",
+    "lapack-netlib",
+    "lapack-accelerate",
+    "lapack-mkl-static-seq",
+    "lapack-mkl-static-par",
+    "lapack-mkl-dynamic-seq",
+    "lapack-mkl-dynamic-par",
+    "lapack-custom"
+);
 
 extern crate nalgebra as na;
 extern crate num_traits as num;
