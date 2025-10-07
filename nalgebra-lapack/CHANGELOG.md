@@ -11,6 +11,7 @@ For the **changes between versions 0.4.0 and 0.27.0** see the main
 * fix compilation with `serde-serialize` feature enabled
 * add column-pivoting QR decomposition and solver
 * fix logic error in calculation of complex eigenvalues in eigen-decomposition.
+* change the feature flags for choosing the lapack backend, update docs accordingly
 
 ## [0.4.0] - 2016-09-07
 
