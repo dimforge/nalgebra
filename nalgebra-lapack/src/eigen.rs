@@ -285,7 +285,7 @@ where
                                 );
                                 vec_conj[r] = Complex::<T>::new(
                                     self.eigenvectors.as_ref().unwrap()[(r, c)].clone(),
-                                    self.eigenvectors.as_ref().unwrap()[(r, c + 1)].clone(),
+                                    -self.eigenvectors.as_ref().unwrap()[(r, c + 1)].clone(),
                                 );
                             }
 
@@ -310,7 +310,7 @@ where
                                 );
                                 vec_conj[r] = Complex::<T>::new(
                                     self.left_eigenvectors.as_ref().unwrap()[(r, c)].clone(),
-                                    self.left_eigenvectors.as_ref().unwrap()[(r, c + 1)].clone(),
+                                    -self.left_eigenvectors.as_ref().unwrap()[(r, c + 1)].clone(),
                                 );
                             }
 
