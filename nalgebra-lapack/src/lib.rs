@@ -21,19 +21,19 @@
 //! install them. Backends are selected using one of the `lapack-*` feature flags:
 //!
 //! * `lapack-netlib`: use the bundled [Netlib](http://www.netlib.org/) reference
-//! implementation. This feature is enabled by default.
+//!   implementation. This feature is enabled by default.
 //! * `lapack-openblas`: Use LAPACK provided via [OpenBLAS](http://www.openmathlib.org/OpenBLAS/).
 //! * `lapack-accelerate`: Use Apple's [Accelerate](https://developer.apple.com/documentation/accelerate)
-//! framework.
+//!   framework.
 //! * `lapack-mkl`: alias for `lapack-mkl-static-seq`. A useful default for [Intel MKL](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html)
 //! * `lapack-mkl-static-seq`: statically link the _sequential_ version of MKL.
 //! * `lapack-mkl-static-par`: statically link the _parallel_ version of MKL.
 //! * `lapack-mkl-dynamic-seq`: dynamically link the sequential version of MKL.
 //! * `lapack-mkl-dynamic-par`: dynamically link the parallel version of MKL.
 //! * `lapack-custom`: Use a custom lapack backend whose functions must be
-//! available at linktime. It is your responsibility to make sure those are
-//! ABI compatible to the function signatures in the [lapack](https://crates.io/crates/lapack)
-//! crate.
+//!   available at linktime. It is your responsibility to make sure those are
+//!   ABI compatible to the function signatures in the [lapack](https://crates.io/crates/lapack)
+//!   crate.
 //!
 //! Note that **exactly one** of these features must be selected
 //! and that `lapack-netlib` is selected by default, which means **you have
