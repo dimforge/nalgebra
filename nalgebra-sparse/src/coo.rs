@@ -430,7 +430,7 @@ impl<T> CooMatrix<T> {
         assert!(i < self.nrows);
         assert!(j < self.ncols);
         let ((new_row_indices, new_col_indices), new_values) =
-            self.remove_helper(|((row, col), _)| row != i && col != j);
+            self.remove_helper(|((row, col), _)| row != i || col != j);
         Self {
             nrows: self.nrows - 1,
             ncols: self.ncols - 1,
