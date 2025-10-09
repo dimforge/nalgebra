@@ -314,7 +314,7 @@ impl<T> CooMatrix<T> {
 
     // Helper function for all remove_x functions
     #[inline]
-    fn remove_helper<F>(&self, filter_fn: F) -> ((Vec<usize>, Vec<usize>), Vec<T>)
+    fn remove_helper<F>(&self, predicate: F) -> ((Vec<usize>, Vec<usize>), Vec<T>)
     where
         F: Fn(((usize, usize), T)) -> bool,
         T: Copy,
@@ -323,7 +323,7 @@ impl<T> CooMatrix<T> {
             .iter()
             .zip(self.col_indices.iter())
             .zip(self.values.iter())
-            .filter(|((i, j), v)| filter_fn(((**i, **j), **v)))
+            .filter(|((i, j), v)| predicate(((**i, **j), **v)))
             .unzip()
     }
 
@@ -353,8 +353,13 @@ impl<T> CooMatrix<T> {
         T: Copy,
     {
         assert!(i < self.nrows);
-        let ((new_row_indices, new_col_indices), new_values) =
+        let ((mut new_row_indices, new_col_indices), new_values) =
             self.remove_helper(|((row, _), _)| row != i);
+        new_row_indices.iter_mut().for_each(|idx| {
+            if *idx > i {
+                *idx -= 1;
+            }
+        });
         Self {
             nrows: self.nrows - 1,
             ncols: self.ncols,
@@ -390,8 +395,13 @@ impl<T> CooMatrix<T> {
         T: Copy,
     {
         assert!(i < self.ncols);
-        let ((new_row_indices, new_col_indices), new_values) =
+        let ((new_row_indices, mut new_col_indices), new_values) =
             self.remove_helper(|((_, col), _)| col != i);
+        new_col_indices.iter_mut().for_each(|idx| {
+            if *idx > i {
+                *idx -= 1;
+            }
+        });
         Self {
             nrows: self.nrows,
             ncols: self.ncols - 1,
@@ -429,8 +439,19 @@ impl<T> CooMatrix<T> {
     {
         assert!(i < self.nrows);
         assert!(j < self.ncols);
-        let ((new_row_indices, new_col_indices), new_values) =
-            self.remove_helper(|((row, col), _)| row != i || col != j);
+        let ((mut new_row_indices, mut new_col_indices), new_values) =
+            self.remove_helper(|((row, col), _)| row != i && col != j);
+        new_row_indices
+            .iter_mut()
+            .zip(new_col_indices.iter_mut())
+            .for_each(|(row_idx, col_idx)| {
+                if *row_idx > i {
+                    *row_idx -= 1;
+                }
+                if *col_idx > j {
+                    *col_idx -= 1;
+                }
+            });
         Self {
             nrows: self.nrows - 1,
             ncols: self.ncols - 1,
