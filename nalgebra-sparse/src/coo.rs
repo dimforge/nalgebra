@@ -312,19 +312,28 @@ impl<T> CooMatrix<T> {
         (self.row_indices, self.col_indices, self.values)
     }
 
-    // Helper function for all remove_x functions
+    /// Returns a new COO matrix containing only entries specified by the given predicate. The cost
+    /// of this operation is O(nnz) and allocates space for the new matrix.
     #[inline]
-    fn remove_helper<F>(&self, predicate: F) -> ((Vec<usize>, Vec<usize>), Vec<T>)
+    fn filter<F>(&self, predicate: F) -> Self
     where
-        F: Fn(((usize, usize), T)) -> bool,
+        F: Fn(usize, usize, T) -> bool,
         T: Copy,
     {
-        self.row_indices
+        let ((row_indices, col_indices), values) = self
+            .row_indices
             .iter()
             .zip(self.col_indices.iter())
             .zip(self.values.iter())
-            .filter(|((i, j), v)| predicate(((**i, **j), **v)))
-            .unzip()
+            .filter(|((i, j), v)| predicate(**i, **j, **v))
+            .unzip();
+        Self {
+            nrows: self.nrows,
+            ncols: self.ncols,
+            row_indices,
+            col_indices,
+            values,
+        }
     }
 
     /// Removes the `i`th row from the matrix. Beware the cost of the operation is `O(nnz)` and
@@ -333,7 +342,7 @@ impl<T> CooMatrix<T> {
     /// Panics
     /// -------
     ///
-    /// Panics if `i >= nrows`.
+    /// Panics if `i` is out of bounds.
     ///
     /// Examples
     /// --------
@@ -353,20 +362,14 @@ impl<T> CooMatrix<T> {
         T: Copy,
     {
         assert!(i < self.nrows);
-        let ((mut new_row_indices, new_col_indices), new_values) =
-            self.remove_helper(|((row, _), _)| row != i);
-        new_row_indices.iter_mut().for_each(|idx| {
+        let mut new_coo = self.filter(|row, _, _| row != i);
+        new_coo.row_indices.iter_mut().for_each(|idx| {
             if *idx > i {
                 *idx -= 1;
             }
         });
-        Self {
-            nrows: self.nrows - 1,
-            ncols: self.ncols,
-            row_indices: new_row_indices,
-            col_indices: new_col_indices,
-            values: new_values,
-        }
+        new_coo.nrows -= 1;
+        new_coo
     }
 
     /// Removes the `i`th column from the matrix. Beware the cost of the operation is `O(nnz)` and
@@ -395,20 +398,14 @@ impl<T> CooMatrix<T> {
         T: Copy,
     {
         assert!(i < self.ncols);
-        let ((new_row_indices, mut new_col_indices), new_values) =
-            self.remove_helper(|((_, col), _)| col != i);
-        new_col_indices.iter_mut().for_each(|idx| {
+        let mut new_coo = self.filter(|_, col, _| col != i);
+        new_coo.col_indices.iter_mut().for_each(|idx| {
             if *idx > i {
                 *idx -= 1;
             }
         });
-        Self {
-            nrows: self.nrows,
-            ncols: self.ncols - 1,
-            row_indices: new_row_indices,
-            col_indices: new_col_indices,
-            values: new_values,
-        }
+        new_coo.ncols -= 1;
+        new_coo
     }
 
     /// Removes the `i`th row and the `j`th column from the matrix. Beware the cost of the operation
@@ -439,11 +436,11 @@ impl<T> CooMatrix<T> {
     {
         assert!(i < self.nrows);
         assert!(j < self.ncols);
-        let ((mut new_row_indices, mut new_col_indices), new_values) =
-            self.remove_helper(|((row, col), _)| row != i && col != j);
-        new_row_indices
+        let mut new_coo = self.filter(|row, col, _| row != i && col != j);
+        new_coo
+            .row_indices
             .iter_mut()
-            .zip(new_col_indices.iter_mut())
+            .zip(new_coo.col_indices.iter_mut())
             .for_each(|(row_idx, col_idx)| {
                 if *row_idx > i {
                     *row_idx -= 1;
@@ -452,12 +449,8 @@ impl<T> CooMatrix<T> {
                     *col_idx -= 1;
                 }
             });
-        Self {
-            nrows: self.nrows - 1,
-            ncols: self.ncols - 1,
-            row_indices: new_row_indices,
-            col_indices: new_col_indices,
-            values: new_values,
-        }
+        new_coo.nrows -= 1;
+        new_coo.ncols -= 1;
+        new_coo
     }
 }
