@@ -38,7 +38,7 @@ where
     coo
 }
 
-/// Converts a [`CooMatrix`] to a dense matrix.
+/// Converts a [`CooMatrix`] to a dense matrix summing duplicates.
 pub fn convert_coo_dense<T>(coo: &CooMatrix<T>) -> DMatrix<T>
 where
     T: Scalar + Zero + ClosedAddAssign,
@@ -50,7 +50,7 @@ where
     output
 }
 
-/// Converts a [`CooMatrix`] to a [`CsrMatrix`].
+/// Converts a [`CooMatrix`] to a [`CsrMatrix`] summing duplicates.
 pub fn convert_coo_csr<T>(coo: &CooMatrix<T>) -> CsrMatrix<T>
 where
     T: Scalar + Zero,
@@ -124,7 +124,7 @@ where
         .expect("Internal error: Invalid CsrMatrix format during dense-> CSR conversion")
 }
 
-/// Converts a [`CooMatrix`] to a [`CscMatrix`].
+/// Converts a [`CooMatrix`] to a [`CscMatrix`] summing duplicates.
 pub fn convert_coo_csc<T>(coo: &CooMatrix<T>) -> CscMatrix<T>
 where
     T: Scalar + Zero,
