@@ -315,7 +315,7 @@ impl<T> CooMatrix<T> {
     /// Returns a new COO matrix containing only entries specified by the given predicate. The cost
     /// of this operation is O(nnz) and allocates space for the new matrix.
     #[inline]
-    fn filter<F>(&self, predicate: F) -> Self
+    pub fn filter<F>(&self, predicate: F) -> Self
     where
         F: Fn(usize, usize, T) -> bool,
         T: Copy,
