@@ -50,7 +50,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! nalgebra_sparse = "0.1"
+//! nalgebra_sparse = "0.11"
 //! ```
 //!
 //! # Supported matrix formats
