@@ -1,6 +1,6 @@
 use crate::storage::RawStorage;
 use crate::{ComplexField, Dim, Matrix, Scalar, SimdComplexField, SimdPartialOrd, Vector};
-use num::{Signed, Zero};
+use num::{Float, Signed, Zero};
 use simba::simd::SimdSigned;
 
 /// # Find the min and max components
@@ -120,12 +120,14 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     #[must_use]
     pub fn min(&self) -> T
     where
-        T: SimdPartialOrd + Zero,
+        T: SimdPartialOrd + Zero + std::fmt::Debug + Float,
+        S: std::fmt::Debug,
     {
-        self.fold_with(
-            |e| e.cloned().unwrap_or_else(T::zero),
-            |a, b| a.simd_min(b.clone()),
-        )
+        // Remove NaN values before computing the minimum.
+        self.iter().filter(|x| !x.is_nan()).cloned().collect::<Vec<_>>()
+            .into_iter()
+            .fold(T::infinity(), |a, b| a.simd_min(b))
+
     }
 
     /// Computes the index of the matrix component with the largest absolute value.
