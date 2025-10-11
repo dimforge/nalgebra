@@ -32,6 +32,18 @@ use crate::base::{
 
 use crate::geometry::{Point, Rotation};
 
+/// Indexes the rotation matrix by row and column.
+///
+/// Allows accessing elements of the underlying rotation matrix using `rot[(row, col)]` syntax.
+///
+/// # Example
+/// ```
+/// # use nalgebra::Rotation2;
+/// # use std::f64::consts::PI;
+/// let rot = Rotation2::new(PI / 2.0); // 90° rotation
+/// // Access the rotation matrix elements
+/// let element = rot[(0, 0)]; // Top-left element
+/// ```
 impl<T: Scalar, const D: usize> Index<(usize, usize)> for Rotation<T, D> {
     type Output = T;
 
@@ -42,6 +54,29 @@ impl<T: Scalar, const D: usize> Index<(usize, usize)> for Rotation<T, D> {
 }
 
 // Rotation × Rotation
+/// Composes two rotations by multiplying their matrices.
+///
+/// The multiplication order is: `rot1 * rot2` means "first apply `rot2`, then apply `rot1`".
+/// This composes the two rotations into a single rotation.
+///
+/// # Example
+/// ```
+/// # use nalgebra::Rotation2;
+/// # use std::f64::consts::PI;
+/// // Two 45° rotations
+/// let rot1 = Rotation2::new(PI / 4.0);
+/// let rot2 = Rotation2::new(PI / 4.0);
+///
+/// // Compose them to get a 90° rotation
+/// let combined = rot1 * rot2;
+///
+/// // Verify the result is approximately a 90° rotation
+/// let expected = Rotation2::new(PI / 2.0);
+/// assert_relative_eq!(combined.angle(), expected.angle(), epsilon = 1.0e-6);
+/// ```
+///
+/// # See Also
+/// - [`Rotation::div`]: For computing relative rotations
 md_impl_all!(
     Mul, mul;
     (Const<D>, Const<D>), (Const<D>, Const<D>)
@@ -56,6 +91,27 @@ md_impl_all!(
 );
 
 // Rotation ÷ Rotation
+/// Computes the relative rotation from `right` to `self`.
+///
+/// This operation returns the rotation that, when applied after `right`, produces `self`.
+/// Mathematically: `self / right = self * right.inverse()`.
+///
+/// # Example
+/// ```
+/// # use nalgebra::Rotation2;
+/// # use std::f64::consts::PI;
+/// let rot1 = Rotation2::new(PI / 2.0); // 90° rotation
+/// let rot2 = Rotation2::new(PI / 4.0); // 45° rotation
+///
+/// // Compute the rotation difference
+/// let diff = rot1 / rot2;
+///
+/// // Verify: rot2 * diff should equal rot1
+/// assert_relative_eq!((rot2 * diff).angle(), rot1.angle(), epsilon = 1.0e-6);
+/// ```
+///
+/// # See Also
+/// - [`Rotation::rotation_to`]: For finding the shortest rotation between two orientations
 // TODO: instead of calling inverse explicitly, could we just add a `mul_tr` or `mul_inv` method?
 md_impl_all!(
     Div, div;
@@ -119,6 +175,27 @@ md_impl_all!(
 );
 
 // Rotation × Point
+/// Rotates a point around the origin.
+///
+/// This operation applies the rotation to a point in space. The rotation is performed
+/// around the origin, so points at the origin remain unchanged.
+///
+/// # Example
+/// ```
+/// # use nalgebra::{Rotation2, Point2};
+/// # use std::f64::consts::PI;
+/// // 90° counterclockwise rotation
+/// let rot = Rotation2::new(PI / 2.0);
+/// let point = Point2::new(1.0, 0.0);
+///
+/// let rotated = rot * point;
+///
+/// // Point is rotated from positive x-axis to positive y-axis
+/// assert_relative_eq!(rotated, Point2::new(0.0, 1.0), epsilon = 1.0e-6);
+/// ```
+///
+/// # See Also
+/// - [`Isometry::transform_point`]: For rotation combined with translation
 // TODO: we don't handle properly non-zero origins here. Do we want this to be the intended
 // behavior?
 md_impl_all!(

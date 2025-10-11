@@ -21,7 +21,35 @@ use crate::geometry::Point;
 #[cfg(feature = "rkyv-serialize")]
 use rkyv::bytecheck;
 
-/// A scale which supports non-uniform scaling.
+/// A scale transformation that supports non-uniform scaling.
+///
+/// # What is Non-Uniform Scaling?
+///
+/// Non-uniform scaling allows different scale factors along each axis. This is more flexible
+/// than uniform scaling (where all axes scale by the same amount).
+///
+/// For example, in 2D:
+/// - Uniform scaling by 2: `Scale2::new(2.0, 2.0)` makes objects twice as large in all directions
+/// - Non-uniform scaling: `Scale2::new(2.0, 0.5)` stretches horizontally and squashes vertically
+///
+/// # Common Use Cases
+///
+/// - **Sprite scaling**: Different width/height scaling for game sprites
+/// - **Hitbox adjustment**: Resize collision boxes independently per axis
+/// - **Ellipse creation**: Transform circles into ellipses by scaling axes differently
+/// - **Squash and stretch**: Classic animation technique for organic motion
+///
+/// # Example
+/// ```
+/// # use nalgebra::{Scale2, Point2};
+/// // Create a non-uniform scale (2x wider, 0.5x shorter)
+/// let scale = Scale2::new(2.0, 0.5);
+///
+/// // Apply to a point
+/// let point = Point2::new(1.0, 4.0);
+/// let scaled = scale.transform_point(&point);
+/// assert_eq!(scaled, Point2::new(2.0, 2.0));
+/// ```
 #[repr(C)]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
@@ -103,24 +131,57 @@ where
 }
 
 impl<T: Scalar, const D: usize> Scale<T, D> {
-    /// Inverts `self`.
+    /// Attempts to compute the inverse of this scale transformation.
     ///
-    /// # Example
+    /// The inverse scale reverses the scaling operation. For a scale with factors `(sx, sy, sz)`,
+    /// the inverse has factors `(1/sx, 1/sy, 1/sz)`. This is useful for "undoing" a scaling
+    /// transformation or for transforming points in the opposite direction.
+    ///
+    /// Returns `None` if any scale factor is zero (since division by zero is undefined).
+    ///
+    /// # Examples
+    ///
+    /// ## Basic usage in 3D
     /// ```
-    /// # use nalgebra::{Scale2, Scale3};
-    /// let t = Scale3::new(1.0, 2.0, 3.0);
-    /// assert_eq!(t * t.try_inverse().unwrap(), Scale3::identity());
-    /// assert_eq!(t.try_inverse().unwrap() * t, Scale3::identity());
+    /// # use nalgebra::{Scale3, Point3};
+    /// let scale = Scale3::new(2.0, 4.0, 8.0);
+    /// let inverse = scale.try_inverse().unwrap();
     ///
-    /// // Work in all dimensions.
-    /// let t = Scale2::new(1.0, 2.0);
-    /// assert_eq!(t * t.try_inverse().unwrap(), Scale2::identity());
-    /// assert_eq!(t.try_inverse().unwrap() * t, Scale2::identity());
+    /// // The inverse reverses the scaling
+    /// assert_eq!(inverse, Scale3::new(0.5, 0.25, 0.125));
     ///
-    /// // Returns None if any coordinate is 0.
-    /// let t = Scale2::new(0.0, 2.0);
-    /// assert_eq!(t.try_inverse(), None);
+    /// // Applying scale then inverse returns identity
+    /// assert_eq!(scale * inverse, Scale3::identity());
+    /// assert_eq!(inverse * scale, Scale3::identity());
     /// ```
+    ///
+    /// ## 2D sprite scaling example
+    /// ```
+    /// # use nalgebra::{Scale2, Point2};
+    /// // Scale a sprite to 3x width, 2x height
+    /// let scale = Scale2::new(3.0, 2.0);
+    /// let sprite_corner = Point2::new(1.0, 1.0);
+    /// let scaled_corner = scale.transform_point(&sprite_corner);
+    ///
+    /// // Undo the scaling with the inverse
+    /// let inverse = scale.try_inverse().unwrap();
+    /// let original = inverse.transform_point(&scaled_corner);
+    /// assert_eq!(original, sprite_corner);
+    /// ```
+    ///
+    /// ## Handling zero scale factors
+    /// ```
+    /// # use nalgebra::Scale2;
+    /// // Cannot invert a scale with zero factor
+    /// let scale = Scale2::new(0.0, 2.0);
+    /// assert_eq!(scale.try_inverse(), None);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`inverse_unchecked`](Self::inverse_unchecked) - Faster version without zero-check (unsafe)
+    /// - [`pseudo_inverse`](Self::pseudo_inverse) - Returns zero for zero scale factors
+    /// - [`try_inverse_mut`](Self::try_inverse_mut) - In-place version
     #[inline]
     #[must_use = "Did you mean to use try_inverse_mut()?"]
     pub fn try_inverse(&self) -> Option<Scale<T, D>>
@@ -135,27 +196,68 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
         Some(self.vector.map(|e| T::one() / e).into())
     }
 
-    /// Inverts `self`.
+    /// Computes the inverse of this scale transformation without checking for zero scale factors.
     ///
-    /// # Example
-    /// ```
-    /// # use nalgebra::{Scale2, Scale3};
-    ///
-    /// unsafe {
-    ///     let t = Scale3::new(1.0, 2.0, 3.0);
-    ///     assert_eq!(t * t.inverse_unchecked(), Scale3::identity());
-    ///     assert_eq!(t.inverse_unchecked() * t, Scale3::identity());
-    ///
-    ///     // Work in all dimensions.
-    ///     let t = Scale2::new(1.0, 2.0);
-    ///     assert_eq!(t * t.inverse_unchecked(), Scale2::identity());
-    ///     assert_eq!(t.inverse_unchecked() * t, Scale2::identity());
-    /// }
-    /// ```
+    /// This is a faster alternative to [`try_inverse`](Self::try_inverse) that skips the
+    /// zero-check. The inverse scale has factors `(1/sx, 1/sy, 1/sz)` for a scale with
+    /// factors `(sx, sy, sz)`.
     ///
     /// # Safety
     ///
-    /// Should only be used if all scaling is known to be non-zero.
+    /// This function performs division by the scale factors without checking if they are zero.
+    /// Calling this with any zero scale factor will result in undefined behavior (infinity or NaN
+    /// for floating-point types). Only use this function if you can guarantee that all scale
+    /// factors are non-zero.
+    ///
+    /// # Examples
+    ///
+    /// ## Basic usage (safe scale factors)
+    /// ```
+    /// # use nalgebra::Scale3;
+    /// let scale = Scale3::new(2.0, 4.0, 8.0);
+    ///
+    /// unsafe {
+    ///     let inverse = scale.inverse_unchecked();
+    ///     assert_eq!(inverse, Scale3::new(0.5, 0.25, 0.125));
+    ///
+    ///     // Composing with inverse gives identity
+    ///     assert_eq!(scale * inverse, Scale3::identity());
+    ///     assert_eq!(inverse * scale, Scale3::identity());
+    /// }
+    /// ```
+    ///
+    /// ## Performance-critical code
+    /// ```
+    /// # use nalgebra::{Scale2, Point2};
+    /// // In a hot loop where you know scale factors are never zero
+    /// let scale = Scale2::new(1.5, 2.5);
+    /// let points = vec![Point2::new(10.0, 20.0), Point2::new(30.0, 40.0)];
+    ///
+    /// unsafe {
+    ///     let inverse = scale.inverse_unchecked();
+    ///     for point in &points {
+    ///         let transformed = inverse.transform_point(point);
+    ///         // Process transformed point...
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// ## Undefined behavior with zero (DO NOT DO THIS)
+    /// ```no_run
+    /// # use nalgebra::Scale2;
+    /// let scale = Scale2::new(0.0, 2.0);  // Contains zero!
+    ///
+    /// unsafe {
+    ///     // This is undefined behavior - will produce infinity or NaN
+    ///     let inverse = scale.inverse_unchecked();
+    ///     // inverse.vector.x will be infinity or NaN
+    /// }
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`try_inverse`](Self::try_inverse) - Safe version that checks for zeros
+    /// - [`pseudo_inverse`](Self::pseudo_inverse) - Handles zeros by leaving them as zero
     #[inline]
     #[must_use]
     pub unsafe fn inverse_unchecked(&self) -> Scale<T, D>
@@ -165,25 +267,67 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
         self.vector.map(|e| T::one() / e).into()
     }
 
-    /// Inverts `self`.
+    /// Computes the pseudo-inverse of this scale transformation.
     ///
-    /// # Example
+    /// The pseudo-inverse is similar to the regular inverse, but handles zero scale factors
+    /// gracefully. For non-zero factors, it computes `1/factor`. For zero factors, it leaves
+    /// them as zero instead of failing or producing infinity/NaN.
+    ///
+    /// This is useful when you want to invert a scale but some axes might have zero scaling
+    /// (effectively collapsing to a lower dimension).
+    ///
+    /// # How It Works
+    ///
+    /// For a scale with factors `(sx, sy, sz)`:
+    /// - Non-zero factors are inverted: `sx -> 1/sx`
+    /// - Zero factors remain zero: `0 -> 0`
+    ///
+    /// # Examples
+    ///
+    /// ## Basic usage with non-zero factors
     /// ```
-    /// # use nalgebra::{Scale2, Scale3};
-    /// let t = Scale3::new(1.0, 2.0, 3.0);
-    /// assert_eq!(t * t.pseudo_inverse(), Scale3::identity());
-    /// assert_eq!(t.pseudo_inverse() * t, Scale3::identity());
+    /// # use nalgebra::Scale3;
+    /// let scale = Scale3::new(2.0, 4.0, 8.0);
+    /// let pseudo_inv = scale.pseudo_inverse();
     ///
-    /// // Work in all dimensions.
-    /// let t = Scale2::new(1.0, 2.0);
-    /// assert_eq!(t * t.pseudo_inverse(), Scale2::identity());
-    /// assert_eq!(t.pseudo_inverse() * t, Scale2::identity());
-    ///
-    /// // Inverts only non-zero coordinates.
-    /// let t = Scale2::new(0.0, 2.0);
-    /// assert_eq!(t * t.pseudo_inverse(), Scale2::new(0.0, 1.0));
-    /// assert_eq!(t.pseudo_inverse() * t, Scale2::new(0.0, 1.0));
+    /// // Acts like regular inverse for non-zero factors
+    /// assert_eq!(pseudo_inv, Scale3::new(0.5, 0.25, 0.125));
+    /// assert_eq!(scale * pseudo_inv, Scale3::identity());
     /// ```
+    ///
+    /// ## Handling zero scale factors
+    /// ```
+    /// # use nalgebra::{Scale2, Point2};
+    /// // Scale that collapses the x-axis to zero
+    /// let scale = Scale2::new(0.0, 2.0);
+    /// let pseudo_inv = scale.pseudo_inverse();
+    ///
+    /// // Zero factors remain zero, non-zero factors are inverted
+    /// assert_eq!(pseudo_inv, Scale2::new(0.0, 0.5));
+    ///
+    /// // Composing doesn't give full identity (x-axis stays collapsed)
+    /// assert_eq!(scale * pseudo_inv, Scale2::new(0.0, 1.0));
+    /// ```
+    ///
+    /// ## Projection use case
+    /// ```
+    /// # use nalgebra::{Scale3, Point3};
+    /// // Flatten geometry onto XY plane (zero Z scaling)
+    /// let flatten = Scale3::new(1.0, 1.0, 0.0);
+    /// let point = Point3::new(5.0, 10.0, 15.0);
+    /// let flattened = flatten.transform_point(&point);
+    ///
+    /// assert_eq!(flattened, Point3::new(5.0, 10.0, 0.0));
+    ///
+    /// // Pseudo-inverse keeps XY, leaves Z at zero
+    /// let pseudo_inv = flatten.pseudo_inverse();
+    /// assert_eq!(pseudo_inv, Scale3::new(1.0, 1.0, 0.0));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`try_inverse`](Self::try_inverse) - Returns `None` if any factor is zero
+    /// - [`inverse_unchecked`](Self::inverse_unchecked) - Unsafe version without checks
     #[inline]
     #[must_use]
     pub fn pseudo_inverse(&self) -> Scale<T, D>
@@ -201,24 +345,82 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
             .into()
     }
 
-    /// Converts this Scale into its equivalent homogeneous transformation matrix.
+    /// Converts this scale transformation into its equivalent homogeneous transformation matrix.
     ///
-    /// # Example
-    /// ```
-    /// # use nalgebra::{Scale2, Scale3, Matrix3, Matrix4};
-    /// let t = Scale3::new(10.0, 20.0, 30.0);
-    /// let expected = Matrix4::new(10.0, 0.0, 0.0, 0.0,
-    ///                             0.0, 20.0, 0.0, 0.0,
-    ///                             0.0, 0.0, 30.0, 0.0,
-    ///                             0.0, 0.0, 0.0, 1.0);
-    /// assert_eq!(t.to_homogeneous(), expected);
+    /// A homogeneous matrix is a standard way to represent transformations in computer graphics.
+    /// For a scale, this produces a diagonal matrix with the scale factors on the diagonal and
+    /// 1 in the bottom-right corner.
     ///
-    /// let t = Scale2::new(10.0, 20.0);
-    /// let expected = Matrix3::new(10.0, 0.0, 0.0,
-    ///                             0.0, 20.0, 0.0,
-    ///                             0.0, 0.0, 1.0);
-    /// assert_eq!(t.to_homogeneous(), expected);
+    /// # Why Use Homogeneous Matrices?
+    ///
+    /// Homogeneous matrices allow you to:
+    /// - Combine multiple transformations (scale, rotation, translation) by matrix multiplication
+    /// - Use with graphics APIs that expect matrix form
+    /// - Apply transformations using standard matrix-vector multiplication
+    ///
+    /// # Matrix Structure
+    ///
+    /// For a 3D scale with factors `(sx, sy, sz)`, the matrix is:
+    /// ```text
+    /// [sx  0   0   0]
+    /// [0   sy  0   0]
+    /// [0   0   sz  0]
+    /// [0   0   0   1]
     /// ```
+    ///
+    /// # Examples
+    ///
+    /// ## 3D scale to matrix
+    /// ```
+    /// # use nalgebra::{Scale3, Matrix4};
+    /// let scale = Scale3::new(2.0, 3.0, 4.0);
+    /// let matrix = scale.to_homogeneous();
+    ///
+    /// let expected = Matrix4::new(
+    ///     2.0, 0.0, 0.0, 0.0,
+    ///     0.0, 3.0, 0.0, 0.0,
+    ///     0.0, 0.0, 4.0, 0.0,
+    ///     0.0, 0.0, 0.0, 1.0
+    /// );
+    /// assert_eq!(matrix, expected);
+    /// ```
+    ///
+    /// ## 2D scale to matrix
+    /// ```
+    /// # use nalgebra::{Scale2, Matrix3};
+    /// let scale = Scale2::new(1.5, 0.5);
+    /// let matrix = scale.to_homogeneous();
+    ///
+    /// let expected = Matrix3::new(
+    ///     1.5, 0.0, 0.0,
+    ///     0.0, 0.5, 0.0,
+    ///     0.0, 0.0, 1.0
+    /// );
+    /// assert_eq!(matrix, expected);
+    /// ```
+    ///
+    /// ## Combining with other transformations
+    /// ```
+    /// # use nalgebra::{Scale3, Translation3, Matrix4};
+    /// let scale = Scale3::new(2.0, 2.0, 2.0);
+    /// let translation = Translation3::new(10.0, 20.0, 30.0);
+    ///
+    /// // Combine transformations by multiplying their matrices
+    /// let combined = translation.to_homogeneous() * scale.to_homogeneous();
+    ///
+    /// // This scales first, then translates
+    /// let expected = Matrix4::new(
+    ///     2.0, 0.0, 0.0, 10.0,
+    ///     0.0, 2.0, 0.0, 20.0,
+    ///     0.0, 0.0, 2.0, 30.0,
+    ///     0.0, 0.0, 0.0, 1.0
+    /// );
+    /// assert_eq!(combined, expected);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`From<Scale>`](From) - Can convert implicitly using `.into()`
     #[inline]
     #[must_use]
     pub fn to_homogeneous(&self) -> OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
@@ -239,28 +441,78 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
         OMatrix::from_diagonal(&v)
     }
 
-    /// Inverts `self` in-place.
+    /// Attempts to invert this scale transformation in-place.
     ///
-    /// # Example
+    /// This is the in-place version of [`try_inverse`](Self::try_inverse). Instead of returning
+    /// a new scale, it modifies `self` to become its inverse. This is more efficient when you
+    /// don't need to keep the original scale.
+    ///
+    /// Returns `true` if successful, `false` if any scale factor is zero (in which case `self`
+    /// is left unchanged).
+    ///
+    /// # Examples
+    ///
+    /// ## Basic usage
     /// ```
-    /// # use nalgebra::{Scale2, Scale3};
-    /// let t = Scale3::new(1.0, 2.0, 3.0);
-    /// let mut inv_t = Scale3::new(1.0, 2.0, 3.0);
-    /// assert!(inv_t.try_inverse_mut());
-    /// assert_eq!(t * inv_t, Scale3::identity());
-    /// assert_eq!(inv_t * t, Scale3::identity());
+    /// # use nalgebra::Scale3;
+    /// let original = Scale3::new(2.0, 4.0, 8.0);
+    /// let mut scale = original;
     ///
-    /// // Work in all dimensions.
-    /// let t = Scale2::new(1.0, 2.0);
-    /// let mut inv_t = Scale2::new(1.0, 2.0);
-    /// assert!(inv_t.try_inverse_mut());
-    /// assert_eq!(t * inv_t, Scale2::identity());
-    /// assert_eq!(inv_t * t, Scale2::identity());
+    /// assert!(scale.try_inverse_mut());
+    /// assert_eq!(scale, Scale3::new(0.5, 0.25, 0.125));
     ///
-    /// // Does not perform any operation if a coordinate is 0.
-    /// let mut t = Scale2::new(0.0, 2.0);
-    /// assert!(!t.try_inverse_mut());
+    /// // Verify it's the inverse
+    /// assert_eq!(original * scale, Scale3::identity());
     /// ```
+    ///
+    /// ## Animation: bounce effect
+    /// ```
+    /// # use nalgebra::{Scale2, Point2};
+    /// // Animate a sprite bouncing (squash and stretch)
+    /// let mut sprite_scale = Scale2::new(1.0, 1.5);  // Stretched up
+    /// let sprite_pos = Point2::new(10.0, 20.0);
+    ///
+    /// // Scale the sprite
+    /// let scaled = sprite_scale.transform_point(&sprite_pos);
+    ///
+    /// // Later: return to normal by inverting the scale
+    /// sprite_scale.try_inverse_mut();
+    /// let normal = sprite_scale.transform_point(&scaled);
+    /// assert_eq!(normal, sprite_pos);
+    /// ```
+    ///
+    /// ## Handling zero factors
+    /// ```
+    /// # use nalgebra::Scale2;
+    /// let mut scale = Scale2::new(0.0, 2.0);
+    ///
+    /// // Cannot invert due to zero factor
+    /// assert!(!scale.try_inverse_mut());
+    ///
+    /// // Scale remains unchanged
+    /// assert_eq!(scale, Scale2::new(0.0, 2.0));
+    /// ```
+    ///
+    /// ## Performance comparison
+    /// ```
+    /// # use nalgebra::Scale3;
+    /// let mut scale1 = Scale3::new(2.0, 3.0, 4.0);
+    /// let scale2 = Scale3::new(2.0, 3.0, 4.0);
+    ///
+    /// // In-place: modifies existing scale (more efficient)
+    /// scale1.try_inverse_mut();
+    ///
+    /// // Creates new scale (allocates new memory)
+    /// let scale2_inv = scale2.try_inverse().unwrap();
+    ///
+    /// assert_eq!(scale1, scale2_inv);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`try_inverse`](Self::try_inverse) - Returns a new inverted scale
+    /// - [`inverse_unchecked`](Self::inverse_unchecked) - Unsafe version without zero-check
+    /// - [`pseudo_inverse`](Self::pseudo_inverse) - Handles zeros by leaving them as zero
     #[inline]
     pub fn try_inverse_mut(&mut self) -> bool
     where
@@ -277,17 +529,76 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
 }
 
 impl<T: Scalar + ClosedMulAssign, const D: usize> Scale<T, D> {
-    /// Translate the given point.
+    /// Applies this scale transformation to a point.
     ///
-    /// This is the same as the multiplication `self * pt`.
+    /// Each coordinate of the point is multiplied by the corresponding scale factor.
+    /// For a scale `(sx, sy, sz)` and point `(x, y, z)`, the result is `(sx*x, sy*y, sz*z)`.
     ///
-    /// # Example
+    /// This is equivalent to the multiplication `self * pt`, but may be more readable.
+    ///
+    /// # Examples
+    ///
+    /// ## Basic transformation
     /// ```
     /// # use nalgebra::{Scale3, Point3};
-    /// let t = Scale3::new(1.0, 2.0, 3.0);
-    /// let transformed_point = t.transform_point(&Point3::new(4.0, 5.0, 6.0));
-    /// assert_eq!(transformed_point, Point3::new(4.0, 10.0, 18.0));
+    /// let scale = Scale3::new(2.0, 3.0, 4.0);
+    /// let point = Point3::new(1.0, 2.0, 3.0);
+    /// let result = scale.transform_point(&point);
+    ///
+    /// assert_eq!(result, Point3::new(2.0, 6.0, 12.0));
     /// ```
+    ///
+    /// ## Game sprite scaling
+    /// ```
+    /// # use nalgebra::{Scale2, Point2};
+    /// // Make a sprite 2x wider and 1.5x taller
+    /// let sprite_scale = Scale2::new(2.0, 1.5);
+    ///
+    /// // Transform sprite corners
+    /// let top_left = Point2::new(0.0, 0.0);
+    /// let bottom_right = Point2::new(32.0, 32.0);  // Original 32x32 sprite
+    ///
+    /// let scaled_tl = sprite_scale.transform_point(&top_left);
+    /// let scaled_br = sprite_scale.transform_point(&bottom_right);
+    ///
+    /// assert_eq!(scaled_tl, Point2::new(0.0, 0.0));
+    /// assert_eq!(scaled_br, Point2::new(64.0, 48.0));  // Now 64x48
+    /// ```
+    ///
+    /// ## Creating an ellipse from a circle
+    /// ```
+    /// # use nalgebra::{Scale2, Point2};
+    /// use std::f64::consts::PI;
+    ///
+    /// // Start with a unit circle point
+    /// let angle = PI / 4.0;  // 45 degrees
+    /// let circle_point = Point2::new(angle.cos(), angle.sin());
+    ///
+    /// // Stretch to create an ellipse (3:1 ratio)
+    /// let ellipse_scale = Scale2::new(3.0, 1.0);
+    /// let ellipse_point = ellipse_scale.transform_point(&circle_point);
+    ///
+    /// // X coordinate is 3x larger, Y stays the same
+    /// assert!((ellipse_point.x - 3.0 * angle.cos()).abs() < 1e-10);
+    /// assert!((ellipse_point.y - angle.sin()).abs() < 1e-10);
+    /// ```
+    ///
+    /// ## Hitbox scaling
+    /// ```
+    /// # use nalgebra::{Scale2, Point2};
+    /// // Scale down a hitbox to 80% of sprite size
+    /// let hitbox_scale = Scale2::new(0.8, 0.8);
+    ///
+    /// let sprite_corner = Point2::new(50.0, 50.0);
+    /// let hitbox_corner = hitbox_scale.transform_point(&sprite_corner);
+    ///
+    /// assert_eq!(hitbox_corner, Point2::new(40.0, 40.0));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`try_inverse_transform_point`](Self::try_inverse_transform_point) - Transform by the inverse scale
+    /// - Multiplication operator `*` - Alternative syntax: `scale * point`
     #[inline]
     #[must_use]
     pub fn transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
@@ -296,20 +607,87 @@ impl<T: Scalar + ClosedMulAssign, const D: usize> Scale<T, D> {
 }
 
 impl<T: Scalar + ClosedDivAssign + ClosedMulAssign + One + Zero, const D: usize> Scale<T, D> {
-    /// Translate the given point by the inverse of this Scale.
+    /// Applies the inverse of this scale transformation to a point.
     ///
-    /// # Example
+    /// This divides each coordinate of the point by the corresponding scale factor, effectively
+    /// "undoing" the scale. For a scale `(sx, sy, sz)` and point `(x, y, z)`, the result is
+    /// `(x/sx, y/sy, z/sz)`.
+    ///
+    /// Returns `None` if any scale factor is zero (since division by zero is undefined).
+    ///
+    /// # When to Use This
+    ///
+    /// - Converting from scaled space back to original space
+    /// - Undoing a previous scaling operation
+    /// - Working with inverse transformations without explicitly computing the inverse scale
+    ///
+    /// # Examples
+    ///
+    /// ## Basic inverse transformation
     /// ```
     /// # use nalgebra::{Scale3, Point3};
-    /// let t = Scale3::new(1.0, 2.0, 3.0);
-    /// let transformed_point = t.try_inverse_transform_point(&Point3::new(4.0, 6.0, 6.0)).unwrap();
-    /// assert_eq!(transformed_point, Point3::new(4.0, 3.0, 2.0));
+    /// let scale = Scale3::new(2.0, 4.0, 8.0);
+    /// let scaled_point = Point3::new(10.0, 20.0, 40.0);
     ///
-    /// // Returns None if the inverse doesn't exist.
-    /// let t = Scale3::new(1.0, 0.0, 3.0);
-    /// let transformed_point = t.try_inverse_transform_point(&Point3::new(4.0, 6.0, 6.0));
-    /// assert_eq!(transformed_point, None);
+    /// // Transform by inverse scale
+    /// let original = scale.try_inverse_transform_point(&scaled_point).unwrap();
+    /// assert_eq!(original, Point3::new(5.0, 5.0, 5.0));
     /// ```
+    ///
+    /// ## Round-trip transformation
+    /// ```
+    /// # use nalgebra::{Scale2, Point2};
+    /// let scale = Scale2::new(3.0, 2.0);
+    /// let original = Point2::new(5.0, 10.0);
+    ///
+    /// // Scale and then inverse-scale returns original
+    /// let scaled = scale.transform_point(&original);
+    /// let back = scale.try_inverse_transform_point(&scaled).unwrap();
+    ///
+    /// assert_eq!(back, original);
+    /// ```
+    ///
+    /// ## Converting screen space to world space
+    /// ```
+    /// # use nalgebra::{Scale2, Point2};
+    /// // Viewport is scaled 2x for hi-DPI display
+    /// let viewport_scale = Scale2::new(2.0, 2.0);
+    ///
+    /// // Mouse click at screen position
+    /// let screen_pos = Point2::new(400.0, 300.0);
+    ///
+    /// // Convert to world position
+    /// let world_pos = viewport_scale.try_inverse_transform_point(&screen_pos).unwrap();
+    /// assert_eq!(world_pos, Point2::new(200.0, 150.0));
+    /// ```
+    ///
+    /// ## Handling zero scale factors
+    /// ```
+    /// # use nalgebra::{Scale3, Point3};
+    /// let scale = Scale3::new(2.0, 0.0, 4.0);  // Zero Y scale
+    /// let point = Point3::new(10.0, 20.0, 40.0);
+    ///
+    /// // Cannot inverse-transform due to zero factor
+    /// assert_eq!(scale.try_inverse_transform_point(&point), None);
+    /// ```
+    ///
+    /// ## Alternative: explicit inverse
+    /// ```
+    /// # use nalgebra::{Scale2, Point2};
+    /// let scale = Scale2::new(3.0, 4.0);
+    /// let point = Point2::new(12.0, 16.0);
+    ///
+    /// // These two approaches are equivalent:
+    /// let result1 = scale.try_inverse_transform_point(&point).unwrap();
+    /// let result2 = scale.try_inverse().unwrap().transform_point(&point);
+    ///
+    /// assert_eq!(result1, result2);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`transform_point`](Self::transform_point) - Apply the scale (not its inverse)
+    /// - [`try_inverse`](Self::try_inverse) - Get the inverse scale explicitly
     #[inline]
     #[must_use]
     pub fn try_inverse_transform_point(&self, pt: &Point<T, D>) -> Option<Point<T, D>> {

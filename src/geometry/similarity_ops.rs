@@ -139,6 +139,33 @@ macro_rules! similarity_binop_assign_impl_all(
 );
 
 // Similarity × Similarity
+/// Composes two similarity transformations (rotation + translation + uniform scaling).
+///
+/// A similarity transformation combines rotation, translation, and uniform scaling.
+/// The multiplication order is: `sim1 * sim2` means "first apply `sim2`, then apply `sim1`".
+///
+/// # Example
+/// ```
+/// # use nalgebra::{Similarity2, Vector2};
+/// # use std::f64::consts::PI;
+/// // First transformation: scale by 2
+/// let sim1 = Similarity2::new(Vector2::zeros(), 0.0, 2.0);
+///
+/// // Second transformation: rotate 90°
+/// let sim2 = Similarity2::new(Vector2::zeros(), PI / 2.0, 1.0);
+///
+/// // Compose them
+/// let combined = sim1 * sim2;
+///
+/// // Apply to a point - rotated then scaled
+/// let point = nalgebra::Point2::new(1.0, 0.0);
+/// let result = combined * point;
+/// assert_relative_eq!(result, nalgebra::Point2::new(0.0, 2.0), epsilon = 1.0e-6);
+/// ```
+///
+/// # See Also
+/// - [`Similarity::div`]: For computing relative transformations
+/// - [`Isometry::mul`]: For transformations without scaling
 // Similarity ÷ Similarity
 similarity_binop_impl_all!(
     Mul, mul;
@@ -333,6 +360,30 @@ similarity_binop_impl_all!(
 );
 
 // Similarity × Point
+/// Transforms a point using this similarity (applies rotation, scaling, then translation).
+///
+/// This operation transforms a point by first rotating it, then scaling uniformly,
+/// and finally translating. It's useful for graphics and coordinate transformations
+/// where objects need to be resized as well as repositioned.
+///
+/// # Example
+/// ```
+/// # use nalgebra::{Similarity2, Point2, Vector2};
+/// # use std::f64::consts::PI;
+/// // Create a similarity: 90° rotation + scale by 2 + translate by (1, 1)
+/// let sim = Similarity2::new(Vector2::new(1.0, 1.0), PI / 2.0, 2.0);
+///
+/// // Transform a point
+/// let point = Point2::new(1.0, 0.0);
+/// let transformed = sim * point;
+///
+/// // Point (1,0) → rotated to (0,1) → scaled to (0,2) → translated to (1,3)
+/// assert_relative_eq!(transformed, Point2::new(1.0, 3.0), epsilon = 1.0e-6);
+/// ```
+///
+/// # See Also
+/// - [`Isometry::transform_point`]: For transformation without scaling
+/// - [`Similarity::transform_vector`]: For transforming vectors
 similarity_binop_impl_all!(
     Mul, mul;
     self: Similarity<T, R, D>, right: Point<T, D>, Output = Point<T, D>;

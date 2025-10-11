@@ -177,6 +177,33 @@ where
     }
 }
 
+/// Converts a translation into its homogeneous matrix representation.
+///
+/// This implementation allows implicit conversion from a `Translation<T, D>` to a
+/// homogeneous transformation matrix of size (D+1)×(D+1). The resulting matrix can
+/// be multiplied with other transformation matrices.
+///
+/// # Examples
+///
+/// ```
+/// # use nalgebra::{Translation3, Matrix4};
+/// let t = Translation3::new(10.0, 20.0, 30.0);
+///
+/// // Implicit conversion to matrix
+/// let matrix: Matrix4<f64> = t.into();
+///
+/// let expected = Matrix4::new(
+///     1.0, 0.0, 0.0, 10.0,
+///     0.0, 1.0, 0.0, 20.0,
+///     0.0, 0.0, 1.0, 30.0,
+///     0.0, 0.0, 0.0, 1.0
+/// );
+/// assert_eq!(matrix, expected);
+/// ```
+///
+/// # See Also
+///
+/// * [`Translation::to_homogeneous`] - Explicit method for the same conversion
 impl<T: Scalar + Zero + One, const D: usize> From<Translation<T, D>>
     for OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
 where
@@ -190,6 +217,47 @@ where
     }
 }
 
+/// Creates a translation from a displacement vector.
+///
+/// This implementation allows you to convert a vector (which represents the displacement
+/// in each dimension) directly into a translation. This is useful when you already have
+/// the displacement calculated as a vector.
+///
+/// # Examples
+///
+/// ```
+/// # use nalgebra::{Translation3, Vector3, Point3};
+/// let displacement = Vector3::new(5.0, 10.0, 15.0);
+///
+/// // Convert vector to translation
+/// let t: Translation3<f64> = displacement.into();
+///
+/// // Use it to move a point
+/// let point = Point3::origin();
+/// let moved = t * point;
+/// assert_eq!(moved, Point3::new(5.0, 10.0, 15.0));
+/// ```
+///
+/// Practical use - velocity to translation:
+/// ```
+/// # use nalgebra::{Translation2, Vector2, Point2};
+/// let velocity = Vector2::new(2.0, 3.0);
+/// let delta_time = 0.5;
+///
+/// // Calculate displacement
+/// let displacement = velocity * delta_time;
+///
+/// // Convert to translation
+/// let movement: Translation2<f64> = displacement.into();
+///
+/// let position = Point2::new(10.0, 20.0);
+/// let new_position = movement * position;
+/// assert_eq!(new_position, Point2::new(11.0, 21.5));
+/// ```
+///
+/// # See Also
+///
+/// * [`Translation::new`] - Create from individual components
 impl<T: Scalar, const D: usize> From<OVector<T, Const<D>>> for Translation<T, D> {
     #[inline]
     fn from(vector: OVector<T, Const<D>>) -> Self {
@@ -197,6 +265,50 @@ impl<T: Scalar, const D: usize> From<OVector<T, Const<D>>> for Translation<T, D>
     }
 }
 
+/// Creates a translation from an array of coordinates.
+///
+/// This implementation provides a convenient way to create a translation from a simple
+/// array of values. The array length must match the dimensionality of the translation.
+///
+/// # Examples
+///
+/// Creating a 2D translation:
+/// ```
+/// # use nalgebra::{Translation2, Point2};
+/// let coords = [5.0, 10.0];
+/// let t: Translation2<f64> = coords.into();
+///
+/// assert_eq!(t, Translation2::new(5.0, 10.0));
+///
+/// let point = Point2::origin();
+/// assert_eq!(t * point, Point2::new(5.0, 10.0));
+/// ```
+///
+/// Creating a 3D translation:
+/// ```
+/// # use nalgebra::{Translation3, Point3};
+/// let coords = [1.0, 2.0, 3.0];
+/// let t: Translation3<f64> = coords.into();
+///
+/// assert_eq!(t, Translation3::new(1.0, 2.0, 3.0));
+/// ```
+///
+/// Using in a function:
+/// ```
+/// # use nalgebra::{Translation2, Point2};
+/// fn offset_position(pos: Point2<f64>, offset_array: [f64; 2]) -> Point2<f64> {
+///     let translation: Translation2<f64> = offset_array.into();
+///     translation * pos
+/// }
+///
+/// let result = offset_position(Point2::new(10.0, 20.0), [5.0, -5.0]);
+/// assert_eq!(result, Point2::new(15.0, 15.0));
+/// ```
+///
+/// # See Also
+///
+/// * [`Translation::new`] - Explicit constructor with named parameters
+/// * [`From<Vector>`] - Create from a vector type
 impl<T: Scalar, const D: usize> From<[T; D]> for Translation<T, D> {
     #[inline]
     fn from(coords: [T; D]) -> Self {
@@ -206,6 +318,55 @@ impl<T: Scalar, const D: usize> From<[T; D]> for Translation<T, D> {
     }
 }
 
+/// Creates a translation from a point, treating the point's coordinates as a displacement vector.
+///
+/// This implementation allows you to convert a `Point` into a `Translation` by using the
+/// point's coordinates as the translation's displacement. This is useful when you want to
+/// treat a position as an offset from the origin.
+///
+/// # Examples
+///
+/// Basic conversion:
+/// ```
+/// # use nalgebra::{Translation2, Point2};
+/// let point = Point2::new(5.0, 10.0);
+/// let t: Translation2<f64> = point.into();
+///
+/// assert_eq!(t, Translation2::new(5.0, 10.0));
+/// ```
+///
+/// Using as a displacement:
+/// ```
+/// # use nalgebra::{Translation3, Point3};
+/// // Treat a point as a displacement from origin
+/// let target_position = Point3::new(100.0, 200.0, 300.0);
+/// let translation: Translation3<f64> = target_position.into();
+///
+/// // Apply this displacement to the origin
+/// let result = translation * Point3::origin();
+/// assert_eq!(result, target_position);
+/// ```
+///
+/// Practical use - converting between representations:
+/// ```
+/// # use nalgebra::{Translation2, Point2};
+/// // Get offset between two coordinate systems
+/// let origin_a = Point2::<f64>::origin();
+/// let origin_b = Point2::new(50.0, 100.0);
+///
+/// // Create translation from second origin
+/// let offset: Translation2<f64> = origin_b.into();
+///
+/// // Transform point from system A to system B
+/// let point_in_a = Point2::new(10.0, 20.0);
+/// let point_in_b = offset * point_in_a;
+/// assert_eq!(point_in_b, Point2::new(60.0, 120.0));
+/// ```
+///
+/// # See Also
+///
+/// * [`Translation::new`] - Create from individual components
+/// * [`From<Vector>`] - Create from a displacement vector
 impl<T: Scalar, const D: usize> From<Point<T, D>> for Translation<T, D> {
     #[inline]
     fn from(pt: Point<T, D>) -> Self {
@@ -213,6 +374,45 @@ impl<T: Scalar, const D: usize> From<Point<T, D>> for Translation<T, D> {
     }
 }
 
+/// Converts a translation into an array of its displacement components.
+///
+/// This implementation extracts the translation's displacement values into a simple array.
+/// This is useful when you need to pass translation data to APIs that work with raw arrays,
+/// or when you need to serialize or store the translation components.
+///
+/// # Examples
+///
+/// Basic conversion:
+/// ```
+/// # use nalgebra::Translation2;
+/// let t = Translation2::new(5.0, 10.0);
+/// let array: [f64; 2] = t.into();
+/// assert_eq!(array, [5.0, 10.0]);
+/// ```
+///
+/// Converting 3D translation:
+/// ```
+/// # use nalgebra::Translation3;
+/// let t = Translation3::new(1.0, 2.0, 3.0);
+/// let array: [f64; 3] = t.into();
+/// assert_eq!(array, [1.0, 2.0, 3.0]);
+/// ```
+///
+/// Using for serialization or storage:
+/// ```
+/// # use nalgebra::Translation2;
+/// fn store_translation_data(t: Translation2<f32>) -> [f32; 2] {
+///     t.into()
+/// }
+///
+/// let translation = Translation2::new(100.0, 200.0);
+/// let data = store_translation_data(translation);
+/// assert_eq!(data, [100.0, 200.0]);
+/// ```
+///
+/// # See Also
+///
+/// * [`From<[T; D]>`] for `Translation` - Reverse conversion from array to translation
 impl<T: Scalar, const D: usize> From<Translation<T, D>> for [T; D] {
     #[inline]
     fn from(t: Translation<T, D>) -> Self {
@@ -220,6 +420,26 @@ impl<T: Scalar, const D: usize> From<Translation<T, D>> for [T; D] {
     }
 }
 
+/// Converts an array of 2 translations into a SIMD translation.
+///
+/// This is an advanced conversion for SIMD (Single Instruction, Multiple Data) operations,
+/// which allow performing the same operation on multiple translations simultaneously for
+/// better performance. This is typically used in high-performance computing scenarios.
+///
+/// # Examples
+///
+/// ```
+/// # use nalgebra::Translation2;
+/// # #[cfg(feature = "simd")]
+/// # {
+/// use simba::simd::f32x2;
+///
+/// let t1 = Translation2::new(1.0f32, 2.0);
+/// let t2 = Translation2::new(3.0f32, 4.0);
+///
+/// let simd_t: Translation2<f32x2> = [t1, t2].into();
+/// # }
+/// ```
 impl<T: Scalar + PrimitiveSimdValue, const D: usize> From<[Translation<T::Element, D>; 2]>
     for Translation<T, D>
 where
@@ -235,6 +455,30 @@ where
     }
 }
 
+/// Converts an array of 4 translations into a SIMD translation.
+///
+/// This is an advanced conversion for SIMD operations that processes 4 translations
+/// simultaneously. This can provide significant performance improvements when applying
+/// the same transformation to multiple objects.
+///
+/// # Examples
+///
+/// ```
+/// # use nalgebra::Translation2;
+/// # #[cfg(feature = "simd")]
+/// # {
+/// use simba::simd::f32x4;
+///
+/// let translations = [
+///     Translation2::new(1.0f32, 2.0),
+///     Translation2::new(3.0f32, 4.0),
+///     Translation2::new(5.0f32, 6.0),
+///     Translation2::new(7.0f32, 8.0),
+/// ];
+///
+/// let simd_t: Translation2<f32x4> = translations.into();
+/// # }
+/// ```
 impl<T: Scalar + PrimitiveSimdValue, const D: usize> From<[Translation<T::Element, D>; 4]>
     for Translation<T, D>
 where
@@ -252,6 +496,34 @@ where
     }
 }
 
+/// Converts an array of 8 translations into a SIMD translation.
+///
+/// This is an advanced conversion for wide SIMD operations that processes 8 translations
+/// simultaneously. This provides maximum throughput for batch transformation operations
+/// on modern CPUs with AVX-512 or similar instruction sets.
+///
+/// # Examples
+///
+/// ```
+/// # use nalgebra::Translation2;
+/// # #[cfg(feature = "simd")]
+/// # {
+/// use simba::simd::f32x8;
+///
+/// let translations = [
+///     Translation2::new(1.0f32, 2.0),
+///     Translation2::new(3.0f32, 4.0),
+///     Translation2::new(5.0f32, 6.0),
+///     Translation2::new(7.0f32, 8.0),
+///     Translation2::new(9.0f32, 10.0),
+///     Translation2::new(11.0f32, 12.0),
+///     Translation2::new(13.0f32, 14.0),
+///     Translation2::new(15.0f32, 16.0),
+/// ];
+///
+/// let simd_t: Translation2<f32x8> = translations.into();
+/// # }
+/// ```
 impl<T: Scalar + PrimitiveSimdValue, const D: usize> From<[Translation<T::Element, D>; 8]>
     for Translation<T, D>
 where
@@ -273,6 +545,29 @@ where
     }
 }
 
+/// Converts an array of 16 translations into a SIMD translation.
+///
+/// This is an advanced conversion for very wide SIMD operations that processes 16 translations
+/// simultaneously. This is useful for maximum throughput on specialized hardware or when
+/// processing large batches of transformations in parallel.
+///
+/// # Examples
+///
+/// ```
+/// # use nalgebra::Translation2;
+/// # #[cfg(feature = "simd")]
+/// # {
+/// use simba::simd::f32x16;
+///
+/// // Create 16 translations for batch processing
+/// let mut translations = [Translation2::new(0.0f32, 0.0); 16];
+/// for (i, t) in translations.iter_mut().enumerate() {
+///     *t = Translation2::new(i as f32, (i * 2) as f32);
+/// }
+///
+/// let simd_t: Translation2<f32x16> = translations.into();
+/// # }
+/// ```
 impl<T: Scalar + PrimitiveSimdValue, const D: usize> From<[Translation<T::Element, D>; 16]>
     for Translation<T, D>
 where

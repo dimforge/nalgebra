@@ -79,7 +79,113 @@ impl<T: Scalar, R, S> CsVector<T, R, S> {
 impl<T: Scalar + Zero + ClosedAddAssign + ClosedMulAssign, D: Dim, S: StorageMut<T, D>>
     Vector<T, D, S>
 {
-    /// Perform a sparse axpy operation: `self = alpha * x + beta * self` operation.
+    /// Performs a sparse AXPY operation: `self = alpha * x + beta * self`.
+    ///
+    /// AXPY (A times X Plus Y) is a fundamental linear algebra operation that combines
+    /// two vectors with scalar multipliers. This sparse version is optimized for when
+    /// `x` is a sparse vector, avoiding unnecessary operations on zero elements.
+    ///
+    /// # Parameters
+    ///
+    /// - `alpha`: Scalar multiplier for the sparse vector `x`
+    /// - `x`: Sparse vector to add (scaled by alpha)
+    /// - `beta`: Scalar multiplier for self
+    ///
+    /// # Mathematical Operation
+    ///
+    /// For each element i: `self[i] = alpha * x[i] + beta * self[i]`
+    ///
+    /// The key optimization is that only the non-zero elements of `x` need to be
+    /// considered, making this much faster than dense AXPY when `x` is sparse.
+    ///
+    /// # Special Cases
+    ///
+    /// - If `beta = 0`, self is overwritten (only x values matter)
+    /// - If `alpha = 0`, self is just scaled by beta
+    /// - If `beta = 1`, this is a pure sparse accumulation into self
+    ///
+    /// # Examples
+    ///
+    /// ## Basic AXPY
+    ///
+    /// ```
+    /// use nalgebra::{CsVector, DVector, Dyn};
+    ///
+    /// // Create a dense vector
+    /// let mut y = DVector::from_vec(vec![1.0, 2.0, 3.0, 4.0]);
+    ///
+    /// // Create a sparse vector with only 2 non-zero elements
+    /// let triplets = vec![
+    ///     (1, 0, 5.0),  // element at index 1
+    ///     (3, 0, 7.0),  // element at index 3
+    /// ];
+    /// let x = CsVector::<f64, Dyn>::from_triplet(4, 1, &triplets);
+    ///
+    /// // Perform: y = 2.0 * x + 1.0 * y
+    /// y.axpy_cs(2.0, &x, 1.0);
+    ///
+    /// // Result: [1.0, 2.0+10.0, 3.0, 4.0+14.0] = [1.0, 12.0, 3.0, 18.0]
+    /// assert_eq!(y[0], 1.0);
+    /// assert_eq!(y[1], 12.0);
+    /// assert_eq!(y[2], 3.0);
+    /// assert_eq!(y[3], 18.0);
+    /// ```
+    ///
+    /// ## Accumulation Pattern (beta = 1)
+    ///
+    /// Common in iterative solvers and assembly operations:
+    ///
+    /// ```
+    /// use nalgebra::{CsVector, DVector, Dyn};
+    ///
+    /// let mut accumulator = DVector::from_vec(vec![0.0; 5]);
+    ///
+    /// // Accumulate contributions from sparse sources
+    /// let contrib1 = CsVector::<f64, Dyn>::from_triplet(5, 1, &[(0, 0, 1.0), (2, 0, 2.0)]);
+    /// let contrib2 = CsVector::<f64, Dyn>::from_triplet(5, 1, &[(1, 0, 3.0), (2, 0, 4.0)]);
+    ///
+    /// accumulator.axpy_cs(1.0, &contrib1, 1.0);
+    /// accumulator.axpy_cs(1.0, &contrib2, 1.0);
+    ///
+    /// // Result: contributions summed at each index
+    /// assert_eq!(accumulator[0], 1.0);
+    /// assert_eq!(accumulator[1], 3.0);
+    /// assert_eq!(accumulator[2], 6.0); // 2.0 + 4.0
+    /// ```
+    ///
+    /// ## Overwrite Pattern (beta = 0)
+    ///
+    /// ```
+    /// use nalgebra::{CsVector, DVector, Dyn};
+    ///
+    /// let mut result = DVector::from_vec(vec![999.0; 3]);
+    /// let sparse = CsVector::<f64, Dyn>::from_triplet(3, 1, &[(1, 0, 5.0)]);
+    ///
+    /// // Overwrite with scaled sparse vector (beta = 0)
+    /// result.axpy_cs(2.0, &sparse, 0.0);
+    ///
+    /// // Old values ignored, only sparse entries copied
+    /// assert_eq!(result[0], 0.0);
+    /// assert_eq!(result[1], 10.0);
+    /// assert_eq!(result[2], 0.0);
+    /// ```
+    ///
+    /// # Performance
+    ///
+    /// - Time complexity: O(nnz(x)) where nnz is the number of non-zeros
+    /// - Much faster than dense AXPY when x is sparse
+    /// - If beta ≠ 0, all elements of self are scaled (O(n) operation)
+    ///
+    /// # Applications
+    ///
+    /// - **Finite Element Assembly**: Accumulating element contributions to global vectors
+    /// - **Iterative Solvers**: Computing residuals and updates
+    /// - **Sparse Matrix-Vector Products**: Building up results column by column
+    /// - **Graph Algorithms**: Accumulating values from sparse neighborhoods
+    ///
+    /// # See Also
+    ///
+    /// - Dense AXPY methods for dense vector operations
     pub fn axpy_cs<D2: Dim, S2>(&mut self, alpha: T, x: &CsVector<T, D2, S2>, beta: T)
     where
         S2: CsStorage<T, D2>,
@@ -125,6 +231,118 @@ impl<T: Scalar + Zero + ClosedAddAssign + ClosedMulAssign, D: Dim, S: StorageMut
     */
 }
 
+/// Implements sparse matrix multiplication: `C = A * B`.
+///
+/// This implementation multiplies two sparse matrices efficiently by taking advantage
+/// of the sparsity structure. The algorithm computes the result column by column,
+/// only performing operations on non-zero elements.
+///
+/// # Algorithm
+///
+/// For each column j of B:
+/// 1. For each non-zero B\[i,j\]:
+///    - Accumulate column i of A scaled by B\[i,j\] into column j of result
+/// 2. Extract accumulated values and compress into sparse format
+///
+/// Time complexity: O(nnz(A) * nnz_per_col(B)) where nnz_per_col is average non-zeros per column
+///
+/// # Examples
+///
+/// ## Basic Matrix Multiplication
+///
+/// ```
+/// use nalgebra::CsMatrix;
+/// use nalgebra::Dyn;
+///
+/// // Create two small sparse matrices
+/// // A = [1.0  0.0]      B = [2.0  0.0]
+/// //     [0.0  3.0]          [0.0  4.0]
+/// let a = CsMatrix::<f64, Dyn, Dyn>::from_triplet(2, 2, &[
+///     (0, 0, 1.0),
+///     (1, 1, 3.0),
+/// ]);
+/// let b = CsMatrix::<f64, Dyn, Dyn>::from_triplet(2, 2, &[
+///     (0, 0, 2.0),
+///     (1, 1, 4.0),
+/// ]);
+///
+/// // Compute C = A * B
+/// let c = &a * &b;
+///
+/// // Result: [2.0  0.0]
+/// //         [0.0  12.0]
+/// assert_eq!(c.nrows(), 2);
+/// assert_eq!(c.ncols(), 2);
+/// assert_eq!(c.len(), 2); // Still only 2 non-zeros
+/// ```
+///
+/// ## Graph Operations
+///
+/// Matrix multiplication on adjacency matrices computes paths:
+///
+/// ```
+/// use nalgebra::CsMatrix;
+/// use nalgebra::Dyn;
+///
+/// // Adjacency matrix for graph: 0->1, 1->2
+/// let adj = CsMatrix::<f64, Dyn, Dyn>::from_triplet(3, 3, &[
+///     (0, 1, 1.0),  // edge from 0 to 1
+///     (1, 2, 1.0),  // edge from 1 to 2
+/// ]);
+///
+/// // A^2 gives 2-hop paths
+/// let two_hop = &adj * &adj;
+///
+/// // There's one 2-hop path: 0->1->2
+/// assert_eq!(two_hop.len(), 1);
+/// ```
+///
+/// ## Finite Element Assembly
+///
+/// Computing element stiffness contributions:
+///
+/// ```
+/// use nalgebra::CsMatrix;
+/// use nalgebra::Dyn;
+///
+/// // B is shape function derivatives (3 nodes x 2 DOF)
+/// let b = CsMatrix::<f64, Dyn, Dyn>::from_triplet(2, 3, &[
+///     (0, 0, 1.0), (0, 1, -0.5), (0, 2, -0.5),
+///     (1, 0, 0.0), (1, 1, 0.5), (1, 2, -0.5),
+/// ]);
+///
+/// // D is material matrix (2x2 for plane stress/strain)
+/// let d = CsMatrix::<f64, Dyn, Dyn>::from_triplet(2, 2, &[
+///     (0, 0, 1.0), (0, 1, 0.3),
+///     (1, 0, 0.3), (1, 1, 1.0),
+/// ]);
+///
+/// // Intermediate: D * B
+/// let db = &d * &b;
+///
+/// // Element stiffness would be: B^T * D * B
+/// let k = &b.transpose() * &db;
+///
+/// assert_eq!(k.nrows(), 3);
+/// assert_eq!(k.ncols(), 3);
+/// ```
+///
+/// # Applications
+///
+/// - **Finite Element Analysis**: Computing stiffness matrices
+/// - **Graph Algorithms**: Finding paths, computing PageRank
+/// - **Machine Learning**: Feature transformations, kernel methods
+/// - **Network Analysis**: Flow computations, coupling matrices
+///
+/// # Performance Notes
+///
+/// - Much faster than dense multiplication for sparse inputs
+/// - Performance depends on sparsity pattern (more non-zeros = slower)
+/// - Pre-allocates result size as nnz(A) + nnz(B) and shrinks after
+///
+/// # See Also
+///
+/// - [`CsMatrix::transpose`] - Often used in combination: `A^T * A`
 impl<'b, T, R1, R2, C1, C2, S1, S2> Mul<&'b CsMatrix<T, R2, C2, S2>> for &'_ CsMatrix<T, R1, C1, S1>
 where
     T: Scalar + ClosedAddAssign + ClosedMulAssign + Zero,
@@ -217,6 +435,149 @@ where
     }
 }
 
+/// Implements sparse matrix addition: `C = A + B`.
+///
+/// Adds two sparse matrices element-wise, efficiently handling the sparsity structure.
+/// The result includes all positions where either A or B (or both) have non-zero values.
+/// This operation merges the sparsity patterns of both matrices.
+///
+/// # Algorithm
+///
+/// For each column j:
+/// 1. Scatter non-zeros from A\[j\] into a workspace
+/// 2. Scatter and accumulate non-zeros from B\[j\] into the same workspace
+/// 3. Extract all accumulated values to form the result column
+///
+/// Time complexity: O(nnz(A) + nnz(B)) where nnz is the number of non-zeros
+///
+/// # Examples
+///
+/// ## Basic Addition
+///
+/// ```
+/// use nalgebra::CsMatrix;
+/// use nalgebra::Dyn;
+///
+/// // First matrix:
+/// // [1.0  0.0]
+/// // [0.0  2.0]
+/// let a = CsMatrix::<f64, Dyn, Dyn>::from_triplet(2, 2, &[
+///     (0, 0, 1.0),
+///     (1, 1, 2.0),
+/// ]);
+///
+/// // Second matrix:
+/// // [0.0  3.0]
+/// // [4.0  0.0]
+/// let b = CsMatrix::<f64, Dyn, Dyn>::from_triplet(2, 2, &[
+///     (0, 1, 3.0),
+///     (1, 0, 4.0),
+/// ]);
+///
+/// // Sum:
+/// // [1.0  3.0]
+/// // [4.0  2.0]
+/// let c = &a + &b;
+///
+/// assert_eq!(c.nrows(), 2);
+/// assert_eq!(c.ncols(), 2);
+/// assert_eq!(c.len(), 4); // All 4 positions are now non-zero
+/// ```
+///
+/// ## Overlapping Non-zeros
+///
+/// When both matrices have values at the same position, they are added:
+///
+/// ```
+/// use nalgebra::CsMatrix;
+/// use nalgebra::Dyn;
+///
+/// let a = CsMatrix::<f64, Dyn, Dyn>::from_triplet(3, 3, &[
+///     (0, 0, 1.0),
+///     (1, 1, 2.0),
+/// ]);
+///
+/// let b = CsMatrix::<f64, Dyn, Dyn>::from_triplet(3, 3, &[
+///     (0, 0, 3.0),  // Same position as in A
+///     (2, 2, 4.0),
+/// ]);
+///
+/// let c = &a + &b;
+///
+/// // Position (0,0) contains 1.0 + 3.0 = 4.0
+/// assert_eq!(c.len(), 3); // Three non-zero positions total
+/// ```
+///
+/// ## Finite Element Assembly
+///
+/// Adding element matrices to form global stiffness matrix:
+///
+/// ```
+/// use nalgebra::CsMatrix;
+/// use nalgebra::Dyn;
+///
+/// // Element 1 stiffness (simplified 2x2)
+/// let k1 = CsMatrix::<f64, Dyn, Dyn>::from_triplet(4, 4, &[
+///     (0, 0, 2.0), (0, 1, -1.0),
+///     (1, 0, -1.0), (1, 1, 2.0),
+/// ]);
+///
+/// // Element 2 stiffness (shares node 1 with element 1)
+/// let k2 = CsMatrix::<f64, Dyn, Dyn>::from_triplet(4, 4, &[
+///     (1, 1, 3.0), (1, 2, -1.5),
+///     (2, 1, -1.5), (2, 2, 3.0),
+/// ]);
+///
+/// // Global stiffness: overlapping entries are added
+/// let k_global = &k1 + &k2;
+///
+/// // Node 1 appears in both elements, so its contributions are summed
+/// ```
+///
+/// ## Iterative Methods
+///
+/// Building approximations by adding corrections:
+///
+/// ```
+/// use nalgebra::CsMatrix;
+/// use nalgebra::Dyn;
+///
+/// // Initial approximation
+/// let a_approx = CsMatrix::<f64, Dyn, Dyn>::from_triplet(3, 3, &[
+///     (0, 0, 1.0),
+///     (1, 1, 1.0),
+///     (2, 2, 1.0),
+/// ]);
+///
+/// // Sparse correction/update
+/// let correction = CsMatrix::<f64, Dyn, Dyn>::from_triplet(3, 3, &[
+///     (0, 1, 0.1),
+///     (1, 2, 0.2),
+/// ]);
+///
+/// let updated = &a_approx + &correction;
+///
+/// // Combines diagonal structure with off-diagonal updates
+/// assert_eq!(updated.len(), 5);
+/// ```
+///
+/// # Applications
+///
+/// - **Finite Element Analysis**: Assembling element contributions
+/// - **Iterative Solvers**: Adding corrections and residuals
+/// - **Graph Operations**: Combining adjacency matrices from multiple graphs
+/// - **Numerical Methods**: Building composite operators
+///
+/// # Performance Notes
+///
+/// - Time complexity is linear in total non-zeros
+/// - Result may have more non-zeros than either input
+/// - Pre-allocates for worst case (nnz(A) + nnz(B)) and shrinks
+///
+/// # See Also
+///
+/// - Subtraction can be done via scalar multiplication and addition
+/// - Matrix multiplication via the `*` operator
 impl<'b, T, R1, R2, C1, C2, S1, S2> Add<&'b CsMatrix<T, R2, C2, S2>> for &'_ CsMatrix<T, R1, C1, S1>
 where
     T: Scalar + ClosedAddAssign + ClosedMulAssign + Zero + One,
@@ -285,6 +646,79 @@ where
     }
 }
 
+/// Implements scalar multiplication: `B = A * scalar`.
+///
+/// Multiplies every non-zero element in the sparse matrix by a scalar value.
+/// This operation preserves the sparsity pattern (positions of non-zeros)
+/// and only modifies the stored values.
+///
+/// # Examples
+///
+/// ## Basic Scaling
+///
+/// ```
+/// use nalgebra::CsMatrix;
+/// use nalgebra::Dyn;
+///
+/// let triplets = vec![
+///     (0, 0, 1.0),
+///     (1, 1, 2.0),
+///     (2, 2, 3.0),
+/// ];
+/// let m = CsMatrix::<f64, Dyn, Dyn>::from_triplet(3, 3, &triplets);
+///
+/// // Scale all values by 2.5
+/// let scaled = m * 2.5;
+///
+/// // The sparsity pattern is unchanged, but values are scaled
+/// assert_eq!(scaled.len(), 3); // Still 3 non-zeros
+/// ```
+///
+/// ## Normalization
+///
+/// ```
+/// use nalgebra::CsMatrix;
+/// use nalgebra::Dyn;
+///
+/// // Create a matrix
+/// let triplets = vec![
+///     (0, 0, 10.0),
+///     (1, 1, 20.0),
+/// ];
+/// let m = CsMatrix::<f64, Dyn, Dyn>::from_triplet(3, 3, &triplets);
+///
+/// // Normalize by the maximum value
+/// let max_val = 20.0;
+/// let normalized = m * (1.0 / max_val);
+/// ```
+///
+/// ## Physical Unit Conversion
+///
+/// Converting stiffness matrix from kN/mm to N/m:
+///
+/// ```
+/// use nalgebra::CsMatrix;
+/// use nalgebra::Dyn;
+///
+/// // Stiffness in kN/mm
+/// let k_knmm = CsMatrix::<f64, Dyn, Dyn>::from_triplet(2, 2, &[
+///     (0, 0, 100.0),
+///     (1, 1, 150.0),
+/// ]);
+///
+/// // Convert to N/m: 1 kN/mm = 1e6 N/m
+/// let k_nm = k_knmm * 1e6;
+/// ```
+///
+/// # Performance
+///
+/// - Time complexity: O(nnz) where nnz is the number of non-zeros
+/// - In-place operation, no memory allocation
+/// - Preserves sparsity pattern exactly
+///
+/// # See Also
+///
+/// - Division by a scalar can be done by multiplying by its reciprocal
 impl<T, R, C, S> Mul<T> for CsMatrix<T, R, C, S>
 where
     T: Scalar + ClosedAddAssign + ClosedMulAssign + Zero,

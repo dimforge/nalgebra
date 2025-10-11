@@ -119,6 +119,63 @@ pub type MatrixVec<T, R, C> = VecStorage<T, R, C>;
 
 impl<T, R: Dim, C: Dim> VecStorage<T, R, C> {
     /// Creates a new dynamic matrix data storage from the given vector and shape.
+    ///
+    /// This function constructs a `VecStorage` by wrapping a `Vec<T>` with the specified
+    /// number of rows and columns. The storage uses column-major order, meaning elements
+    /// are stored column by column.
+    ///
+    /// # Arguments
+    ///
+    /// * `nrows` - The number of rows in the matrix
+    /// * `ncols` - The number of columns in the matrix
+    /// * `data` - A vector containing all matrix elements in column-major order
+    ///
+    /// # Panics
+    ///
+    /// Panics if the length of `data` does not equal `nrows * ncols`.
+    ///
+    /// # Examples
+    ///
+    /// Creating a 2x3 matrix storage with dynamic dimensions:
+    ///
+    /// ```
+    /// use nalgebra::base::{VecStorage, Dyn};
+    ///
+    /// // Create storage for a 2x3 matrix in column-major order
+    /// // Matrix:
+    /// // [1, 3, 5]
+    /// // [2, 4, 6]
+    /// let data = vec![1, 2, 3, 4, 5, 6]; // Column-major: col1[1,2], col2[3,4], col3[5,6]
+    /// let storage = VecStorage::new(Dyn(2), Dyn(3), data);
+    ///
+    /// assert_eq!(storage.len(), 6);
+    /// ```
+    ///
+    /// Creating storage from computed values:
+    ///
+    /// ```
+    /// use nalgebra::base::{VecStorage, Dyn};
+    ///
+    /// // Create a 3x2 matrix where element (i,j) = i + j
+    /// let nrows = 3;
+    /// let ncols = 2;
+    /// let mut data = Vec::with_capacity(nrows * ncols);
+    ///
+    /// // Fill in column-major order
+    /// for col in 0..ncols {
+    ///     for row in 0..nrows {
+    ///         data.push(row + col);
+    ///     }
+    /// }
+    ///
+    /// let storage = VecStorage::new(Dyn(nrows), Dyn(ncols), data);
+    /// assert_eq!(storage.as_vec().len(), 6);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`as_vec`](Self::as_vec) - Get a reference to the underlying vector
+    /// * [`len`](Self::len) - Get the total number of elements
     #[inline]
     pub fn new(nrows: R, ncols: C, data: Vec<T>) -> Self {
         assert!(
@@ -128,29 +185,186 @@ impl<T, R: Dim, C: Dim> VecStorage<T, R, C> {
         Self { data, nrows, ncols }
     }
 
-    /// The underlying data storage.
+    /// Returns a reference to the underlying vector storage.
+    ///
+    /// This function provides read-only access to the internal `Vec<T>` that stores
+    /// all matrix elements in column-major order. This is useful when you need to
+    /// work with the raw data or pass it to functions expecting a vector.
+    ///
+    /// # Returns
+    ///
+    /// A reference to the underlying `Vec<T>` containing all matrix elements.
+    ///
+    /// # Examples
+    ///
+    /// Accessing the underlying vector:
+    ///
+    /// ```
+    /// use nalgebra::base::{VecStorage, Dyn};
+    ///
+    /// let data = vec![1, 2, 3, 4];
+    /// let storage = VecStorage::new(Dyn(2), Dyn(2), data);
+    ///
+    /// let vec_ref = storage.as_vec();
+    /// assert_eq!(vec_ref.len(), 4);
+    /// assert_eq!(vec_ref[0], 1);
+    /// ```
+    ///
+    /// Using the vector reference for computations:
+    ///
+    /// ```
+    /// use nalgebra::base::{VecStorage, Dyn};
+    ///
+    /// let data = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0];
+    /// let storage = VecStorage::new(Dyn(2), Dyn(3), data);
+    ///
+    /// // Calculate sum of all elements
+    /// let sum: f64 = storage.as_vec().iter().sum();
+    /// assert_eq!(sum, 21.0);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`as_vec_mut`](Self::as_vec_mut) - Get a mutable reference to the underlying vector (unsafe)
+    /// * [`as_slice`](Self::as_slice) - Get a slice view of the data
+    /// * [`len`](Self::len) - Get the number of elements
     #[inline]
     #[must_use]
     pub const fn as_vec(&self) -> &Vec<T> {
         &self.data
     }
 
-    /// The underlying mutable data storage.
+    /// Returns a mutable reference to the underlying vector storage.
+    ///
+    /// This function provides mutable access to the internal `Vec<T>` that stores
+    /// all matrix elements. This is marked unsafe because modifying the vector's
+    /// length could break the storage's dimension invariants.
     ///
     /// # Safety
-    /// This is unsafe because this may cause UB if the size of the vector is changed
-    /// by the user.
+    ///
+    /// The caller must ensure that they do not change the length of the vector.
+    /// Changing the vector's length will cause undefined behavior because the
+    /// storage's dimensions (nrows × ncols) must always equal the vector's length.
+    ///
+    /// You may modify the elements themselves, but operations like `push`, `pop`,
+    /// `truncate`, `resize`, or `clear` must not be used.
+    ///
+    /// # Examples
+    ///
+    /// Safely modifying elements (safe usage):
+    ///
+    /// ```
+    /// use nalgebra::base::{VecStorage, Dyn};
+    ///
+    /// let data = vec![1, 2, 3, 4];
+    /// let mut storage = VecStorage::new(Dyn(2), Dyn(2), data);
+    ///
+    /// // SAFE: We're only modifying elements, not changing the length
+    /// unsafe {
+    ///     let vec = storage.as_vec_mut();
+    ///     vec[0] = 10;
+    ///     vec[1] = 20;
+    /// }
+    ///
+    /// assert_eq!(storage.as_vec()[0], 10);
+    /// assert_eq!(storage.as_vec()[1], 20);
+    /// assert_eq!(storage.len(), 4); // Length unchanged
+    /// ```
+    ///
+    /// Using iterator methods that don't change length:
+    ///
+    /// ```
+    /// use nalgebra::base::{VecStorage, Dyn};
+    ///
+    /// let data = vec![1.0, 2.0, 3.0, 4.0];
+    /// let mut storage = VecStorage::new(Dyn(2), Dyn(2), data);
+    ///
+    /// // SAFE: iter_mut doesn't change the length
+    /// unsafe {
+    ///     storage.as_vec_mut().iter_mut().for_each(|x| *x *= 2.0);
+    /// }
+    ///
+    /// assert_eq!(storage.as_vec()[0], 2.0);
+    /// assert_eq!(storage.as_vec()[3], 8.0);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`as_vec`](Self::as_vec) - Get an immutable reference to the underlying vector
+    /// * [`as_mut_slice`](Self::as_mut_slice) - Get a mutable slice (safe alternative)
     #[inline]
     pub const unsafe fn as_vec_mut(&mut self) -> &mut Vec<T> {
         &mut self.data
     }
 
-    /// Resizes the underlying mutable data storage and unwraps it.
+    /// Resizes the underlying vector storage and returns it as uninitialized memory.
+    ///
+    /// This function consumes the `VecStorage`, resizes its internal vector to the
+    /// specified size, and returns it as a `Vec<MaybeUninit<T>>`. This is a low-level
+    /// operation used internally for efficient memory management during matrix
+    /// reshaping operations.
+    ///
+    /// # Arguments
+    ///
+    /// * `sz` - The new size for the vector
+    ///
+    /// # Returns
+    ///
+    /// A `Vec<MaybeUninit<T>>` containing the resized data.
     ///
     /// # Safety
-    /// - If `sz` is larger than the current size, additional elements are uninitialized.
-    /// - If `sz` is smaller than the current size, additional elements are truncated but **not** dropped.
-    ///   It is the responsibility of the caller of this method to drop these elements.
+    ///
+    /// This function is unsafe because:
+    /// - If `sz` is larger than the current size, the additional elements are uninitialized.
+    ///   The caller must initialize these elements before reading them.
+    /// - If `sz` is smaller than the current size, the removed elements are truncated but
+    ///   **not** dropped. It is the caller's responsibility to properly drop these elements
+    ///   to avoid memory leaks.
+    ///
+    /// # Examples
+    ///
+    /// Growing the storage (caller must initialize new elements):
+    ///
+    /// ```
+    /// use nalgebra::base::{VecStorage, Dyn};
+    /// use std::mem::MaybeUninit;
+    ///
+    /// let data = vec![1, 2, 3, 4];
+    /// let storage = VecStorage::new(Dyn(2), Dyn(2), data);
+    ///
+    /// unsafe {
+    ///     // Resize to hold 6 elements
+    ///     let mut resized = storage.resize(6);
+    ///
+    ///     // The first 4 elements are initialized, last 2 are not
+    ///     assert_eq!(resized.len(), 6);
+    ///
+    ///     // Initialize the new elements
+    ///     resized[4] = MaybeUninit::new(5);
+    ///     resized[5] = MaybeUninit::new(6);
+    /// }
+    /// ```
+    ///
+    /// Shrinking the storage (caller must handle dropped elements):
+    ///
+    /// ```
+    /// use nalgebra::base::{VecStorage, Dyn};
+    ///
+    /// let data = vec![1, 2, 3, 4, 5, 6];
+    /// let storage = VecStorage::new(Dyn(2), Dyn(3), data);
+    ///
+    /// unsafe {
+    ///     // Resize to hold only 4 elements
+    ///     // Elements 5 and 6 are truncated but not dropped (caller's responsibility)
+    ///     let resized = storage.resize(4);
+    ///     assert_eq!(resized.len(), 4);
+    /// }
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`new`](Self::new) - Create a new VecStorage with a specific size
+    /// * [`len`](Self::len) - Get the current number of elements
     #[inline]
     pub unsafe fn resize(mut self, sz: usize) -> Vec<MaybeUninit<T>> {
         unsafe {
@@ -195,27 +409,261 @@ impl<T, R: Dim, C: Dim> VecStorage<T, R, C> {
         }
     }
 
-    /// The number of elements on the underlying vector.
+    /// Returns the total number of elements stored in the vector.
+    ///
+    /// This returns the length of the underlying vector, which equals the product
+    /// of the number of rows and columns (nrows × ncols) in the matrix storage.
+    ///
+    /// # Returns
+    ///
+    /// The total number of elements in the storage.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use nalgebra::base::{VecStorage, Dyn};
+    ///
+    /// let data = vec![1, 2, 3, 4, 5, 6];
+    /// let storage = VecStorage::new(Dyn(2), Dyn(3), data);
+    ///
+    /// assert_eq!(storage.len(), 6); // 2 rows × 3 columns = 6 elements
+    /// ```
+    ///
+    /// Empty storage:
+    ///
+    /// ```
+    /// use nalgebra::base::{VecStorage, Dyn};
+    ///
+    /// let storage: VecStorage<f64, Dyn, Dyn> = VecStorage::new(Dyn(0), Dyn(0), vec![]);
+    ///
+    /// assert_eq!(storage.len(), 0);
+    /// assert!(storage.is_empty());
+    /// ```
+    ///
+    /// Verifying storage dimensions:
+    ///
+    /// ```
+    /// use nalgebra::base::{VecStorage, Dyn};
+    ///
+    /// let nrows = 4;
+    /// let ncols = 5;
+    /// let data = vec![0; nrows * ncols];
+    /// let storage = VecStorage::new(Dyn(nrows), Dyn(ncols), data);
+    ///
+    /// assert_eq!(storage.len(), nrows * ncols);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`is_empty`](Self::is_empty) - Check if the storage contains no elements
+    /// * [`as_vec`](Self::as_vec) - Get a reference to the underlying vector
+    /// * [`as_slice`](Self::as_slice) - Get a slice view of the elements
     #[inline]
     #[must_use]
     pub const fn len(&self) -> usize {
         self.data.len()
     }
 
-    /// Returns true if the underlying vector contains no elements.
+    /// Returns `true` if the storage contains no elements.
+    ///
+    /// This is equivalent to checking if `len() == 0`. An empty storage represents
+    /// a matrix with zero rows or zero columns (or both).
+    ///
+    /// # Returns
+    ///
+    /// `true` if the storage is empty, `false` otherwise.
+    ///
+    /// # Examples
+    ///
+    /// Empty storage:
+    ///
+    /// ```
+    /// use nalgebra::base::{VecStorage, Dyn};
+    ///
+    /// let storage: VecStorage<i32, Dyn, Dyn> = VecStorage::new(Dyn(0), Dyn(0), vec![]);
+    ///
+    /// assert!(storage.is_empty());
+    /// assert_eq!(storage.len(), 0);
+    /// ```
+    ///
+    /// Non-empty storage:
+    ///
+    /// ```
+    /// use nalgebra::base::{VecStorage, Dyn};
+    ///
+    /// let data = vec![1, 2, 3, 4];
+    /// let storage = VecStorage::new(Dyn(2), Dyn(2), data);
+    ///
+    /// assert!(!storage.is_empty());
+    /// assert_eq!(storage.len(), 4);
+    /// ```
+    ///
+    /// Checking before operations:
+    ///
+    /// ```
+    /// use nalgebra::base::{VecStorage, Dyn};
+    ///
+    /// let data = vec![1.0, 2.0, 3.0];
+    /// let storage = VecStorage::new(Dyn(3), Dyn(1), data);
+    ///
+    /// if !storage.is_empty() {
+    ///     let sum: f64 = storage.as_slice().iter().sum();
+    ///     assert_eq!(sum, 6.0);
+    /// }
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`len`](Self::len) - Get the number of elements in the storage
+    /// * [`as_vec`](Self::as_vec) - Get a reference to the underlying vector
     #[inline]
     #[must_use]
     pub const fn is_empty(&self) -> bool {
         self.len() == 0
     }
 
-    /// A slice containing all the components stored in this storage in column-major order.
+    /// Returns a slice containing all elements in column-major order.
+    ///
+    /// This provides an immutable view of all matrix elements as a contiguous slice.
+    /// The elements are stored in column-major order, meaning all elements of the
+    /// first column come first, followed by all elements of the second column, and so on.
+    ///
+    /// # Returns
+    ///
+    /// A slice `&[T]` containing all matrix elements in column-major order.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use nalgebra::base::{VecStorage, Dyn};
+    ///
+    /// // Create a 2x3 matrix storage:
+    /// // [1, 3, 5]
+    /// // [2, 4, 6]
+    /// let data = vec![1, 2, 3, 4, 5, 6]; // Column-major order
+    /// let storage = VecStorage::new(Dyn(2), Dyn(3), data);
+    ///
+    /// let slice = storage.as_slice();
+    /// assert_eq!(slice, &[1, 2, 3, 4, 5, 6]);
+    /// assert_eq!(slice.len(), 6);
+    /// ```
+    ///
+    /// Iterating over all elements:
+    ///
+    /// ```
+    /// use nalgebra::base::{VecStorage, Dyn};
+    ///
+    /// let data = vec![1.0, 2.0, 3.0, 4.0];
+    /// let storage = VecStorage::new(Dyn(2), Dyn(2), data);
+    ///
+    /// let sum: f64 = storage.as_slice().iter().sum();
+    /// assert_eq!(sum, 10.0);
+    /// ```
+    ///
+    /// Using slice methods:
+    ///
+    /// ```
+    /// use nalgebra::base::{VecStorage, Dyn};
+    ///
+    /// let data = vec![5, 2, 8, 1, 9, 3];
+    /// let storage = VecStorage::new(Dyn(2), Dyn(3), data);
+    ///
+    /// let slice = storage.as_slice();
+    /// assert_eq!(slice.first(), Some(&5));
+    /// assert_eq!(slice.last(), Some(&3));
+    /// assert_eq!(*slice.iter().max().unwrap(), 9);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`as_mut_slice`](Self::as_mut_slice) - Get a mutable slice
+    /// * [`as_vec`](Self::as_vec) - Get a reference to the underlying vector
+    /// * [`len`](Self::len) - Get the number of elements
     #[inline]
     pub fn as_slice(&self) -> &[T] {
         &self.data[..]
     }
 
-    /// A mutable slice containing all the components stored in this storage in column-major order.
+    /// Returns a mutable slice containing all elements in column-major order.
+    ///
+    /// This provides a mutable view of all matrix elements as a contiguous slice.
+    /// The elements are stored in column-major order, meaning all elements of the
+    /// first column come first, followed by all elements of the second column, and so on.
+    ///
+    /// Unlike [`as_vec_mut`](Self::as_vec_mut), this is a safe function because it only
+    /// provides access to modify elements, not to change the vector's length.
+    ///
+    /// # Returns
+    ///
+    /// A mutable slice `&mut [T]` containing all matrix elements in column-major order.
+    ///
+    /// # Examples
+    ///
+    /// Modifying elements:
+    ///
+    /// ```
+    /// use nalgebra::base::{VecStorage, Dyn};
+    ///
+    /// let data = vec![1, 2, 3, 4];
+    /// let mut storage = VecStorage::new(Dyn(2), Dyn(2), data);
+    ///
+    /// // Modify elements through the mutable slice
+    /// let slice = storage.as_mut_slice();
+    /// slice[0] = 10;
+    /// slice[3] = 40;
+    ///
+    /// assert_eq!(storage.as_slice(), &[10, 2, 3, 40]);
+    /// ```
+    ///
+    /// Applying operations to all elements:
+    ///
+    /// ```
+    /// use nalgebra::base::{VecStorage, Dyn};
+    ///
+    /// let data = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0];
+    /// let mut storage = VecStorage::new(Dyn(2), Dyn(3), data);
+    ///
+    /// // Double all elements
+    /// storage.as_mut_slice().iter_mut().for_each(|x| *x *= 2.0);
+    ///
+    /// assert_eq!(storage.as_slice(), &[2.0, 4.0, 6.0, 8.0, 10.0, 12.0]);
+    /// ```
+    ///
+    /// Filling with a specific value:
+    ///
+    /// ```
+    /// use nalgebra::base::{VecStorage, Dyn};
+    ///
+    /// let data = vec![1, 2, 3, 4];
+    /// let mut storage = VecStorage::new(Dyn(2), Dyn(2), data);
+    ///
+    /// storage.as_mut_slice().fill(0);
+    ///
+    /// assert_eq!(storage.as_slice(), &[0, 0, 0, 0]);
+    /// ```
+    ///
+    /// Swapping elements:
+    ///
+    /// ```
+    /// use nalgebra::base::{VecStorage, Dyn};
+    ///
+    /// let data = vec![1, 2, 3, 4];
+    /// let mut storage = VecStorage::new(Dyn(2), Dyn(2), data);
+    ///
+    /// storage.as_mut_slice().swap(0, 3);
+    ///
+    /// assert_eq!(storage.as_slice(), &[4, 2, 3, 1]);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`as_slice`](Self::as_slice) - Get an immutable slice
+    /// * [`as_vec_mut`](Self::as_vec_mut) - Get a mutable vector reference (unsafe)
+    /// * [`len`](Self::len) - Get the number of elements
     #[inline]
     pub fn as_mut_slice(&mut self) -> &mut [T] {
         &mut self.data[..]

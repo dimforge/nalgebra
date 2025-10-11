@@ -21,7 +21,53 @@ use crate::geometry::Point;
 #[cfg(feature = "rkyv-serialize")]
 use rkyv::bytecheck;
 
-/// A translation.
+/// A translation in a D-dimensional space.
+///
+/// A translation is a geometric transformation that moves every point by a fixed distance
+/// in a specific direction. Unlike rotation or scaling, translations preserve the shape
+/// and orientation of objects - they simply shift their position.
+///
+/// # Type Parameters
+///
+/// * `T` - The scalar type (usually `f32` or `f64`)
+/// * `D` - The dimension of the space (e.g., 2 for 2D, 3 for 3D)
+///
+/// # Common Use Cases
+///
+/// - Moving game objects in space
+/// - Positioning UI elements with offsets
+/// - Camera movement and positioning
+/// - Applying coordinate system shifts
+///
+/// # Examples
+///
+/// Creating and using a 2D translation:
+/// ```
+/// # use nalgebra::{Translation2, Point2};
+/// // Create a translation that moves points 5 units right and 3 units up
+/// let t = Translation2::new(5.0, 3.0);
+///
+/// // Apply it to a point
+/// let point = Point2::new(1.0, 2.0);
+/// let moved = t * point;
+/// assert_eq!(moved, Point2::new(6.0, 5.0));
+/// ```
+///
+/// Using in 3D space:
+/// ```
+/// # use nalgebra::{Translation3, Point3};
+/// // Moving an object in 3D
+/// let t = Translation3::new(10.0, 0.0, -5.0);
+/// let position = Point3::new(0.0, 0.0, 0.0);
+/// let new_position = t * position;
+/// assert_eq!(new_position, Point3::new(10.0, 0.0, -5.0));
+/// ```
+///
+/// # See Also
+///
+/// * [`Translation::identity`] - Create a translation that doesn't move anything
+/// * [`Translation::inverse`] - Get the opposite translation
+/// * [`Translation::new`] - Create a translation from coordinates
 #[repr(C)]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
@@ -104,26 +150,93 @@ where
 
 impl<T: Scalar, const D: usize> Translation<T, D> {
     /// Creates a new translation from the given vector.
+    ///
+    /// **Deprecated:** Use `Translation::from(vector)` instead.
+    ///
+    /// This method constructs a translation from a vector representing the displacement
+    /// in each dimension.
+    ///
+    /// # Arguments
+    ///
+    /// * `vector` - The displacement vector for the translation
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::{Translation3, Vector3};
+    /// # #[allow(deprecated)]
+    /// # {
+    /// let vec = Vector3::new(1.0, 2.0, 3.0);
+    /// let t = Translation3::from_vector(vec);
+    /// # }
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`From::from`] - The preferred way to create translations from vectors
+    /// * [`Translation::new`] - Create from individual components
     #[inline]
     #[deprecated(note = "Use `::from` instead.")]
     pub const fn from_vector(vector: SVector<T, D>) -> Translation<T, D> {
         Translation { vector }
     }
 
-    /// Inverts `self`.
+    /// Computes the inverse of this translation.
     ///
-    /// # Example
+    /// The inverse of a translation is a translation that moves points in the opposite
+    /// direction by the same distance. When you compose a translation with its inverse,
+    /// you get the identity translation (which doesn't move anything).
+    ///
+    /// This is useful when you want to "undo" a translation or move back to an original position.
+    ///
+    /// # Returns
+    ///
+    /// A new translation that moves points in the opposite direction.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage in 3D:
     /// ```
-    /// # use nalgebra::{Translation2, Translation3};
+    /// # use nalgebra::{Translation3, Point3};
     /// let t = Translation3::new(1.0, 2.0, 3.0);
-    /// assert_eq!(t * t.inverse(), Translation3::identity());
-    /// assert_eq!(t.inverse() * t, Translation3::identity());
+    /// let t_inv = t.inverse();
     ///
-    /// // Work in all dimensions.
+    /// // Composing a translation with its inverse gives identity
+    /// assert_eq!(t * t_inv, Translation3::identity());
+    /// assert_eq!(t_inv * t, Translation3::identity());
+    ///
+    /// // The inverse moves in the opposite direction
+    /// let point = Point3::new(5.0, 6.0, 7.0);
+    /// let moved = t * point;
+    /// let back = t_inv * moved;
+    /// assert_eq!(back, point);
+    /// ```
+    ///
+    /// Practical use case - returning to origin:
+    /// ```
+    /// # use nalgebra::{Translation2, Point2};
+    /// // Move a camera position
+    /// let camera_offset = Translation2::new(100.0, 50.0);
+    /// let screen_pos = Point2::new(0.0, 0.0);
+    /// let world_pos = camera_offset * screen_pos;
+    ///
+    /// // Convert back to screen coordinates
+    /// let back_to_screen = camera_offset.inverse() * world_pos;
+    /// assert_eq!(back_to_screen, screen_pos);
+    /// ```
+    ///
+    /// Works in all dimensions:
+    /// ```
+    /// # use nalgebra::Translation2;
     /// let t = Translation2::new(1.0, 2.0);
     /// assert_eq!(t * t.inverse(), Translation2::identity());
     /// assert_eq!(t.inverse() * t, Translation2::identity());
     /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`inverse_mut`](Self::inverse_mut) - In-place version of this method
+    /// * [`Translation::identity`] - The neutral translation that doesn't move anything
     #[inline]
     #[must_use = "Did you mean to use inverse_mut()?"]
     pub fn inverse(&self) -> Translation<T, D>
@@ -135,22 +248,65 @@ impl<T: Scalar, const D: usize> Translation<T, D> {
 
     /// Converts this translation into its equivalent homogeneous transformation matrix.
     ///
-    /// # Example
-    /// ```
-    /// # use nalgebra::{Translation2, Translation3, Matrix3, Matrix4};
-    /// let t = Translation3::new(10.0, 20.0, 30.0);
-    /// let expected = Matrix4::new(1.0, 0.0, 0.0, 10.0,
-    ///                             0.0, 1.0, 0.0, 20.0,
-    ///                             0.0, 0.0, 1.0, 30.0,
-    ///                             0.0, 0.0, 0.0, 1.0);
-    /// assert_eq!(t.to_homogeneous(), expected);
+    /// A homogeneous matrix is a square matrix representation of the translation that can
+    /// be used in computer graphics pipelines. For a D-dimensional translation, this produces
+    /// a (D+1)×(D+1) matrix. The translation values appear in the last column.
     ///
-    /// let t = Translation2::new(10.0, 20.0);
-    /// let expected = Matrix3::new(1.0, 0.0, 10.0,
-    ///                             0.0, 1.0, 20.0,
-    ///                             0.0, 0.0, 1.0);
-    /// assert_eq!(t.to_homogeneous(), expected);
+    /// Homogeneous matrices are useful because they allow translations to be combined with
+    /// other transformations (like rotations and scaling) using matrix multiplication.
+    ///
+    /// # Returns
+    ///
+    /// A (D+1)×(D+1) homogeneous transformation matrix representing this translation.
+    ///
+    /// # Examples
+    ///
+    /// Converting a 3D translation:
     /// ```
+    /// # use nalgebra::{Translation3, Matrix4};
+    /// let t = Translation3::new(10.0, 20.0, 30.0);
+    /// let matrix = t.to_homogeneous();
+    ///
+    /// // The result is a 4x4 matrix with translation in the last column
+    /// let expected = Matrix4::new(
+    ///     1.0, 0.0, 0.0, 10.0,
+    ///     0.0, 1.0, 0.0, 20.0,
+    ///     0.0, 0.0, 1.0, 30.0,
+    ///     0.0, 0.0, 0.0, 1.0
+    /// );
+    /// assert_eq!(matrix, expected);
+    /// ```
+    ///
+    /// Converting a 2D translation:
+    /// ```
+    /// # use nalgebra::{Translation2, Matrix3};
+    /// let t = Translation2::new(10.0, 20.0);
+    /// let matrix = t.to_homogeneous();
+    ///
+    /// // The result is a 3x3 matrix
+    /// let expected = Matrix3::new(
+    ///     1.0, 0.0, 10.0,
+    ///     0.0, 1.0, 20.0,
+    ///     0.0, 0.0, 1.0
+    /// );
+    /// assert_eq!(matrix, expected);
+    /// ```
+    ///
+    /// Using in a graphics pipeline:
+    /// ```
+    /// # use nalgebra::{Translation3, Point3, Point4};
+    /// let t = Translation3::new(5.0, 0.0, 0.0);
+    /// let matrix = t.to_homogeneous();
+    ///
+    /// // Apply to a homogeneous point
+    /// let point = Point4::new(1.0, 2.0, 3.0, 1.0);
+    /// let result = matrix * point;
+    /// assert_eq!(result, Point4::new(6.0, 2.0, 3.0, 1.0));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`From<Translation>`] for `Matrix` - Implicit conversion to homogeneous matrix
     #[inline]
     #[must_use]
     pub fn to_homogeneous(&self) -> OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
@@ -165,24 +321,63 @@ impl<T: Scalar, const D: usize> Translation<T, D> {
         res
     }
 
-    /// Inverts `self` in-place.
+    /// Inverts this translation in-place, modifying it directly.
     ///
-    /// # Example
+    /// This method mutates the translation to become its inverse, which moves points in
+    /// the opposite direction. This is more efficient than calling [`inverse`](Self::inverse)
+    /// when you don't need to keep the original translation.
+    ///
+    /// After calling this method, the translation will move points in the opposite direction
+    /// by the same distance.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage in 3D:
     /// ```
-    /// # use nalgebra::{Translation2, Translation3};
-    /// let t = Translation3::new(1.0, 2.0, 3.0);
-    /// let mut inv_t = Translation3::new(1.0, 2.0, 3.0);
-    /// inv_t.inverse_mut();
-    /// assert_eq!(t * inv_t, Translation3::identity());
-    /// assert_eq!(inv_t * t, Translation3::identity());
+    /// # use nalgebra::{Translation3, Point3};
+    /// let original = Translation3::new(1.0, 2.0, 3.0);
+    /// let mut t = Translation3::new(1.0, 2.0, 3.0);
+    /// t.inverse_mut();
     ///
-    /// // Work in all dimensions.
+    /// // t is now the inverse
+    /// assert_eq!(original * t, Translation3::identity());
+    /// assert_eq!(t * original, Translation3::identity());
+    ///
+    /// // It moves in the opposite direction
+    /// let point = Point3::new(5.0, 6.0, 7.0);
+    /// assert_eq!(t * point, Point3::new(4.0, 4.0, 4.0));
+    /// ```
+    ///
+    /// Practical use - toggling a camera offset:
+    /// ```
+    /// # use nalgebra::{Translation2, Point2};
+    /// let mut camera_offset = Translation2::new(100.0, 50.0);
+    /// let point = Point2::new(10.0, 20.0);
+    ///
+    /// // Apply offset
+    /// let world_pos = camera_offset * point;
+    /// assert_eq!(world_pos, Point2::new(110.0, 70.0));
+    ///
+    /// // Flip the offset direction
+    /// camera_offset.inverse_mut();
+    /// let back = camera_offset * world_pos;
+    /// assert_eq!(back, point);
+    /// ```
+    ///
+    /// Works in all dimensions:
+    /// ```
+    /// # use nalgebra::Translation2;
     /// let t = Translation2::new(1.0, 2.0);
     /// let mut inv_t = Translation2::new(1.0, 2.0);
     /// inv_t.inverse_mut();
     /// assert_eq!(t * inv_t, Translation2::identity());
     /// assert_eq!(inv_t * t, Translation2::identity());
     /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`inverse`](Self::inverse) - Non-mutating version that returns a new translation
+    /// * [`Translation::identity`] - The neutral translation
     #[inline]
     pub fn inverse_mut(&mut self)
     where
@@ -193,17 +388,72 @@ impl<T: Scalar, const D: usize> Translation<T, D> {
 }
 
 impl<T: Scalar + ClosedAddAssign, const D: usize> Translation<T, D> {
-    /// Translate the given point.
+    /// Applies this translation to the given point, moving it by the translation's offset.
     ///
-    /// This is the same as the multiplication `self * pt`.
+    /// This method transforms a point by adding the translation's displacement vector to it.
+    /// It's equivalent to the multiplication `self * pt`, but can be more explicit in intent.
     ///
-    /// # Example
+    /// Translations preserve distances and angles - they simply shift the position of the point
+    /// without changing any other properties.
+    ///
+    /// # Arguments
+    ///
+    /// * `pt` - The point to translate
+    ///
+    /// # Returns
+    ///
+    /// A new point that has been moved by this translation's offset.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage in 3D:
     /// ```
     /// # use nalgebra::{Translation3, Point3};
     /// let t = Translation3::new(1.0, 2.0, 3.0);
-    /// let transformed_point = t.transform_point(&Point3::new(4.0, 5.0, 6.0));
-    /// assert_eq!(transformed_point, Point3::new(5.0, 7.0, 9.0));
+    /// let point = Point3::new(4.0, 5.0, 6.0);
+    /// let transformed = t.transform_point(&point);
+    /// assert_eq!(transformed, Point3::new(5.0, 7.0, 9.0));
     /// ```
+    ///
+    /// Moving a game object:
+    /// ```
+    /// # use nalgebra::{Translation2, Point2};
+    /// // Player position
+    /// let player_pos = Point2::new(100.0, 200.0);
+    ///
+    /// // Movement offset (5 units right, 10 units down)
+    /// let movement = Translation2::new(5.0, -10.0);
+    ///
+    /// // New position after movement
+    /// let new_pos = movement.transform_point(&player_pos);
+    /// assert_eq!(new_pos, Point2::new(105.0, 190.0));
+    /// ```
+    ///
+    /// Equivalent to multiplication:
+    /// ```
+    /// # use nalgebra::{Translation2, Point2};
+    /// let t = Translation2::new(3.0, 4.0);
+    /// let p = Point2::new(1.0, 2.0);
+    ///
+    /// // These are equivalent
+    /// assert_eq!(t.transform_point(&p), t * p);
+    /// ```
+    ///
+    /// Chaining multiple translations:
+    /// ```
+    /// # use nalgebra::{Translation3, Point3};
+    /// let t1 = Translation3::new(1.0, 0.0, 0.0);
+    /// let t2 = Translation3::new(0.0, 2.0, 0.0);
+    /// let p = Point3::origin();
+    ///
+    /// let result = t2.transform_point(&t1.transform_point(&p));
+    /// assert_eq!(result, Point3::new(1.0, 2.0, 0.0));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`inverse_transform_point`](Self::inverse_transform_point) - Apply the inverse translation
+    /// * Multiplication operator (`*`) - Alternative syntax for the same operation
     #[inline]
     #[must_use]
     pub fn transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
@@ -212,15 +462,79 @@ impl<T: Scalar + ClosedAddAssign, const D: usize> Translation<T, D> {
 }
 
 impl<T: Scalar + ClosedSubAssign, const D: usize> Translation<T, D> {
-    /// Translate the given point by the inverse of this translation.
+    /// Applies the inverse of this translation to the given point, moving it in the opposite direction.
     ///
-    /// # Example
+    /// This method transforms a point by subtracting the translation's displacement vector from it.
+    /// It's useful when you want to "undo" a translation or convert from a translated coordinate
+    /// system back to the original one.
+    ///
+    /// This is more efficient than computing `self.inverse().transform_point(pt)` because it
+    /// doesn't create a new translation object.
+    ///
+    /// # Arguments
+    ///
+    /// * `pt` - The point to transform
+    ///
+    /// # Returns
+    ///
+    /// A new point moved in the opposite direction of this translation.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage in 3D:
     /// ```
     /// # use nalgebra::{Translation3, Point3};
     /// let t = Translation3::new(1.0, 2.0, 3.0);
-    /// let transformed_point = t.inverse_transform_point(&Point3::new(4.0, 5.0, 6.0));
-    /// assert_eq!(transformed_point, Point3::new(3.0, 3.0, 3.0));
+    /// let point = Point3::new(4.0, 5.0, 6.0);
+    /// let transformed = t.inverse_transform_point(&point);
+    /// assert_eq!(transformed, Point3::new(3.0, 3.0, 3.0));
     /// ```
+    ///
+    /// Undoing a transformation:
+    /// ```
+    /// # use nalgebra::{Translation2, Point2};
+    /// let t = Translation2::new(10.0, 20.0);
+    /// let original = Point2::new(5.0, 5.0);
+    ///
+    /// // Apply translation
+    /// let moved = t.transform_point(&original);
+    /// assert_eq!(moved, Point2::new(15.0, 25.0));
+    ///
+    /// // Undo translation
+    /// let back = t.inverse_transform_point(&moved);
+    /// assert_eq!(back, original);
+    /// ```
+    ///
+    /// Converting between coordinate systems:
+    /// ```
+    /// # use nalgebra::{Translation2, Point2};
+    /// // Offset from world origin to UI origin
+    /// let ui_offset = Translation2::new(100.0, 50.0);
+    ///
+    /// // Convert UI coordinates to world coordinates
+    /// let ui_pos = Point2::new(150.0, 75.0);
+    /// let world_pos = ui_offset.inverse_transform_point(&ui_pos);
+    /// assert_eq!(world_pos, Point2::new(50.0, 25.0));
+    /// ```
+    ///
+    /// More efficient than creating an inverse:
+    /// ```
+    /// # use nalgebra::{Translation3, Point3};
+    /// let t = Translation3::new(1.0, 2.0, 3.0);
+    /// let p = Point3::new(10.0, 20.0, 30.0);
+    ///
+    /// // These give the same result
+    /// let result1 = t.inverse_transform_point(&p);
+    /// let result2 = t.inverse().transform_point(&p);
+    /// assert_eq!(result1, result2);
+    ///
+    /// // But inverse_transform_point is more efficient
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`transform_point`](Self::transform_point) - Apply the translation in the forward direction
+    /// * [`inverse`](Self::inverse) - Get the inverse translation object
     #[inline]
     #[must_use]
     pub fn inverse_transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {

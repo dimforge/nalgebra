@@ -167,6 +167,24 @@ where
     }
 }
 
+/// Converts a similarity transformation into a homogeneous transformation matrix.
+///
+/// This implementation allows using `.into()` to convert a similarity to a matrix,
+/// providing a convenient alternative to [`to_homogeneous`](Similarity::to_homogeneous).
+///
+/// # Example
+///
+/// ```
+/// # use nalgebra::{Similarity2, Vector2, Matrix3};
+/// let sim = Similarity2::new(Vector2::new(1.0, 2.0), 0.0, 3.0);
+///
+/// // Convert to matrix using .into()
+/// let matrix: Matrix3<f32> = sim.into();
+///
+/// // Equivalent to calling to_homogeneous()
+/// let matrix2 = sim.to_homogeneous();
+/// assert_eq!(matrix, matrix2);
+/// ```
 impl<T: SimdRealField, R, const D: usize> From<Similarity<T, R, D>>
     for OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
 where

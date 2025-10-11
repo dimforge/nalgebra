@@ -130,8 +130,42 @@ where
         Self::from_iterator_generic(nrows, ncols, slice.iter().cloned())
     }
 
-    /// Creates a matrix filled with the results of a function applied to each of its component
-    /// coordinates.
+    /// Creates a matrix filled with values computed by a function.
+    ///
+    /// This generic constructor creates a matrix where each element is computed by calling
+    /// the provided function `f` with the element's row and column indices. This is useful
+    /// for creating matrices with patterns or formulas.
+    ///
+    /// The function `f` receives `(row, col)` as arguments, both zero-based.
+    ///
+    /// # Arguments
+    ///
+    /// * `nrows` - The number of rows in the matrix
+    /// * `ncols` - The number of columns in the matrix
+    /// * `f` - A function that takes `(row, col)` and returns the value for that position
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use nalgebra::{Matrix3, Dyn, DMatrix};
+    ///
+    /// // Create a 3x3 multiplication table
+    /// let table = Matrix3::from_fn_generic(
+    ///     nalgebra::Const::<3>,
+    ///     nalgebra::Const::<3>,
+    ///     |r, c| (r + 1) * (c + 1)
+    /// );
+    /// assert_eq!(table[(0, 0)], 1);  // 1 * 1
+    /// assert_eq!(table[(1, 2)], 6);  // 2 * 3
+    /// assert_eq!(table[(2, 2)], 9);  // 3 * 3
+    ///
+    /// // Create a diagonal-like pattern
+    /// let diag = DMatrix::from_fn_generic(
+    ///     Dyn(4),
+    ///     Dyn(4),
+    ///     |r, c| if r == c { 1.0 } else { 0.0 }
+    /// );
+    /// ```
     #[inline]
     pub fn from_fn_generic<F>(nrows: R, ncols: C, mut f: F) -> Self
     where

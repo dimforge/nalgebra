@@ -62,6 +62,39 @@ where
     DefaultAllocator: Allocator<D>,
 {
     /// The coordinates of this point, i.e., the shift from the origin.
+    ///
+    /// # Understanding Points vs Vectors
+    ///
+    /// While points and vectors both have coordinates, they represent different concepts:
+    /// - A **point** represents a location in space
+    /// - A **vector** represents a displacement or direction
+    ///
+    /// The `coords` field stores the vector from the origin to this point's location.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::{Point2, Point3, Vector2, Vector3};
+    /// // Access coordinates directly
+    /// let p = Point2::new(3.0, 4.0);
+    /// assert_eq!(p.coords, Vector2::new(3.0, 4.0));
+    ///
+    /// // Modify coordinates
+    /// let mut p = Point3::new(1.0, 2.0, 3.0);
+    /// p.coords.x = 10.0;
+    /// assert_eq!(p.coords, Vector3::new(10.0, 2.0, 3.0));
+    ///
+    /// // Convert to a vector when you need displacement semantics
+    /// let origin = Point2::new(0.0, 0.0);
+    /// let position = Point2::new(5.0, 12.0);
+    /// let direction = position.coords - origin.coords;
+    /// assert_eq!(direction, Vector2::new(5.0, 12.0));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`into()`](Self#impl-From<OPoint<T,+D>>-for-OVector<T,+DimNameSum<D,+U1>>) - Convert point to homogeneous vector
+    /// - [`from()`](Self#impl-From<OVector<T,+D>>-for-OPoint<T,+D>) - Create point from vector
     pub coords: OVector<T, D>,
 }
 
@@ -141,18 +174,54 @@ impl<T: Scalar, D: DimName> OPoint<T, D>
 where
     DefaultAllocator: Allocator<D>,
 {
-    /// Returns a point containing the result of `f` applied to each of its entries.
+    /// Returns a new point by applying a function to each coordinate.
     ///
-    /// # Example
+    /// This method creates a new point where each coordinate is the result of applying
+    /// the function `f` to the corresponding coordinate of `self`. The function can
+    /// change the type of the coordinates (e.g., from `f64` to `i32`).
+    ///
+    /// # Arguments
+    ///
+    /// * `f` - A closure that takes each coordinate value and returns a new value
+    ///
+    /// # Examples
+    ///
+    /// ## Scaling coordinates
     /// ```
-    /// # use nalgebra::{Point2, Point3};
+    /// # use nalgebra::Point2;
     /// let p = Point2::new(1.0, 2.0);
-    /// assert_eq!(p.map(|e| e * 10.0), Point2::new(10.0, 20.0));
-    ///
-    /// // This works in any dimension.
-    /// let p = Point3::new(1.1, 2.1, 3.1);
-    /// assert_eq!(p.map(|e| e as u32), Point3::new(1, 2, 3));
+    /// let scaled = p.map(|e| e * 10.0);
+    /// assert_eq!(scaled, Point2::new(10.0, 20.0));
     /// ```
+    ///
+    /// ## Converting coordinate types
+    /// ```
+    /// # use nalgebra::Point3;
+    /// let p = Point3::new(1.7f32, 2.3f32, 3.9f32);
+    /// let rounded = p.map(|e| e.round() as i32);
+    /// assert_eq!(rounded, Point3::new(2, 2, 4));
+    /// ```
+    ///
+    /// ## Negating all coordinates
+    /// ```
+    /// # use nalgebra::Point2;
+    /// let p = Point2::new(-5.0, 3.0);
+    /// let negated = p.map(|e| -e);
+    /// assert_eq!(negated, Point2::new(5.0, -3.0));
+    /// ```
+    ///
+    /// ## Squaring each coordinate
+    /// ```
+    /// # use nalgebra::Point3;
+    /// let p = Point3::new(1.0, 2.0, 3.0);
+    /// let squared = p.map(|e| e * e);
+    /// assert_eq!(squared, Point3::new(1.0, 4.0, 9.0));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`apply`](Self::apply) - Modify coordinates in place with a closure
+    /// * [`cast`](Self::cast) - Convert coordinate types using type conversion
     #[inline]
     #[must_use]
     pub fn map<T2: Scalar, F: FnMut(T) -> T2>(&self, f: F) -> OPoint<T2, D>
@@ -162,40 +231,121 @@ where
         self.coords.map(f).into()
     }
 
-    /// Replaces each component of `self` by the result of a closure `f` applied on it.
+    /// Modifies each coordinate of the point in place using a closure.
     ///
-    /// # Example
+    /// This method applies the function `f` to each coordinate of the point, modifying
+    /// the point directly. Unlike [`map`](Self::map), this method doesn't create a new
+    /// point and doesn't change the coordinate type.
+    ///
+    /// # Arguments
+    ///
+    /// * `f` - A closure that receives a mutable reference to each coordinate
+    ///
+    /// # Examples
+    ///
+    /// ## Scaling coordinates in place
     /// ```
-    /// # use nalgebra::{Point2, Point3};
+    /// # use nalgebra::Point2;
     /// let mut p = Point2::new(1.0, 2.0);
-    /// p.apply(|e| *e = *e * 10.0);
+    /// p.apply(|e| *e *= 10.0);
     /// assert_eq!(p, Point2::new(10.0, 20.0));
-    ///
-    /// // This works in any dimension.
-    /// let mut p = Point3::new(1.0, 2.0, 3.0);
-    /// p.apply(|e| *e = *e * 10.0);
-    /// assert_eq!(p, Point3::new(10.0, 20.0, 30.0));
     /// ```
+    ///
+    /// ## Doubling each coordinate
+    /// ```
+    /// # use nalgebra::Point3;
+    /// let mut p = Point3::new(1.0, 2.0, 3.0);
+    /// p.apply(|e| *e = *e * 2.0);
+    /// assert_eq!(p, Point3::new(2.0, 4.0, 6.0));
+    /// ```
+    ///
+    /// ## Adding a constant to all coordinates
+    /// ```
+    /// # use nalgebra::Point2;
+    /// let mut p = Point2::new(1.0, 2.0);
+    /// p.apply(|e| *e = *e + 5.0);
+    /// assert_eq!(p, Point2::new(6.0, 7.0));
+    /// ```
+    ///
+    /// ## Normalizing screen coordinates
+    /// ```
+    /// # use nalgebra::Point2;
+    /// // Convert from [0, 800] to [-1, 1] range
+    /// let mut screen_pos = Point2::new(400.0, 600.0);
+    /// screen_pos.apply(|e| *e = (*e / 400.0) - 1.0);
+    /// assert_eq!(screen_pos, Point2::new(0.0, 0.5));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`map`](Self::map) - Create a new point by applying a function to coordinates
+    /// * [`iter_mut`](Self::iter_mut) - Iterate over mutable references to coordinates
     #[inline]
     pub fn apply<F: FnMut(&mut T)>(&mut self, f: F) {
         self.coords.apply(f)
     }
 
-    /// Converts this point into a vector in homogeneous coordinates, i.e., appends a `1` at the
-    /// end of it.
+    /// Converts this point to homogeneous coordinates by appending a `1`.
     ///
-    /// This is the same as `.into()`.
+    /// Homogeneous coordinates are commonly used in computer graphics and geometric
+    /// transformations. A point in N-dimensional space becomes a vector in (N+1)-dimensional
+    /// space with the extra coordinate set to `1`. This allows representing translations
+    /// as matrix multiplications.
     ///
-    /// # Example
+    /// This is the same as calling `.into()` with the appropriate type annotation.
+    ///
+    /// # What are Homogeneous Coordinates?
+    ///
+    /// Homogeneous coordinates add an extra dimension to make certain transformations
+    /// easier to express:
+    /// - A 2D point `(x, y)` becomes the 3D vector `(x, y, 1)`
+    /// - A 3D point `(x, y, z)` becomes the 4D vector `(x, y, z, 1)`
+    ///
+    /// This representation is essential for:
+    /// - Applying affine transformations (rotation + translation) with matrix multiplication
+    /// - Perspective projection in 3D graphics
+    /// - Combining multiple transformations efficiently
+    ///
+    /// # Examples
+    ///
+    /// ## Basic conversion to homogeneous coordinates
     /// ```
-    /// # use nalgebra::{Point2, Point3, Vector3, Vector4};
+    /// # use nalgebra::{Point2, Vector3};
     /// let p = Point2::new(10.0, 20.0);
-    /// assert_eq!(p.to_homogeneous(), Vector3::new(10.0, 20.0, 1.0));
-    ///
-    /// // This works in any dimension.
-    /// let p = Point3::new(10.0, 20.0, 30.0);
-    /// assert_eq!(p.to_homogeneous(), Vector4::new(10.0, 20.0, 30.0, 1.0));
+    /// let homogeneous = p.to_homogeneous();
+    /// assert_eq!(homogeneous, Vector3::new(10.0, 20.0, 1.0));
     /// ```
+    ///
+    /// ## Works in any dimension
+    /// ```
+    /// # use nalgebra::{Point3, Vector4};
+    /// let p = Point3::new(10.0, 20.0, 30.0);
+    /// let homogeneous = p.to_homogeneous();
+    /// assert_eq!(homogeneous, Vector4::new(10.0, 20.0, 30.0, 1.0));
+    /// ```
+    ///
+    /// ## Useful for transformations in graphics
+    /// ```
+    /// # use nalgebra::{Point2, Vector3, Matrix3};
+    /// // Create a 2D point
+    /// let point = Point2::new(5.0, 3.0);
+    ///
+    /// // Translation matrix (move by (10, 20))
+    /// let translation = Matrix3::new(
+    ///     1.0, 0.0, 10.0,
+    ///     0.0, 1.0, 20.0,
+    ///     0.0, 0.0,  1.0,
+    /// );
+    ///
+    /// // Apply transformation using homogeneous coordinates
+    /// let transformed = translation * point.to_homogeneous();
+    /// assert_eq!(transformed, Vector3::new(15.0, 23.0, 1.0));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`from_homogeneous`](Self::from_homogeneous) - Convert from homogeneous coordinates back to a point
+    /// * [`coords`](Self::coords) - Access the underlying coordinate vector
     #[inline]
     #[must_use]
     pub fn to_homogeneous(&self) -> OVector<T, DimNameSum<D, U1>>
@@ -220,21 +370,90 @@ where
         unsafe { res.assume_init() }
     }
 
-    /// Linear interpolation between two points.
+    /// Performs linear interpolation (lerp) between two points.
     ///
-    /// Returns `self * (1.0 - t) + rhs.coords * t`, i.e., the linear blend of the points
-    /// `self` and `rhs` using the scalar value `t`.
+    /// Computes a point along the line segment between `self` and `rhs`. The parameter `t`
+    /// controls the position:
+    /// - When `t = 0.0`, returns `self`
+    /// - When `t = 1.0`, returns `rhs`
+    /// - When `t = 0.5`, returns the midpoint
     ///
-    /// The value for a is not restricted to the range `[0, 1]`.
+    /// The formula used is: `self * (1.0 - t) + rhs * t`
     ///
-    /// # Examples:
+    /// # Arguments
     ///
+    /// * `rhs` - The target point to interpolate towards
+    /// * `t` - The interpolation parameter (not restricted to [0, 1])
+    ///
+    /// # Note
+    ///
+    /// The parameter `t` is not clamped to [0, 1]. Values outside this range will
+    /// extrapolate beyond the two points:
+    /// - `t < 0.0` extrapolates beyond `self`
+    /// - `t > 1.0` extrapolates beyond `rhs`
+    ///
+    /// # Examples
+    ///
+    /// ## Basic interpolation
     /// ```
     /// # use nalgebra::Point3;
-    /// let a = Point3::new(1.0, 2.0, 3.0);
-    /// let b = Point3::new(10.0, 20.0, 30.0);
-    /// assert_eq!(a.lerp(&b, 0.1), Point3::new(1.9, 3.8, 5.7));
+    /// let start = Point3::new(0.0, 0.0, 0.0);
+    /// let end = Point3::new(10.0, 20.0, 30.0);
+    ///
+    /// // At t=0, we get the start point
+    /// assert_eq!(start.lerp(&end, 0.0), start);
+    ///
+    /// // At t=1, we get the end point
+    /// assert_eq!(start.lerp(&end, 1.0), end);
+    ///
+    /// // At t=0.5, we get the midpoint
+    /// assert_eq!(start.lerp(&end, 0.5), Point3::new(5.0, 10.0, 15.0));
     /// ```
+    ///
+    /// ## Animation and smooth movement
+    /// ```
+    /// # use nalgebra::Point2;
+    /// let start_pos = Point2::new(0.0, 0.0);
+    /// let target_pos = Point2::new(100.0, 50.0);
+    ///
+    /// // Simulate 10% progress in an animation
+    /// let current_pos = start_pos.lerp(&target_pos, 0.1);
+    /// assert_eq!(current_pos, Point2::new(10.0, 5.0));
+    ///
+    /// // 90% complete
+    /// let almost_there = start_pos.lerp(&target_pos, 0.9);
+    /// assert_eq!(almost_there, Point2::new(90.0, 45.0));
+    /// ```
+    ///
+    /// ## Extrapolation (t outside [0, 1])
+    /// ```
+    /// # use nalgebra::Point2;
+    /// let a = Point2::new(0.0, 0.0);
+    /// let b = Point2::new(10.0, 10.0);
+    ///
+    /// // Extrapolate beyond b
+    /// let beyond = a.lerp(&b, 2.0);
+    /// assert_eq!(beyond, Point2::new(20.0, 20.0));
+    ///
+    /// // Extrapolate before a
+    /// let before = a.lerp(&b, -1.0);
+    /// assert_eq!(before, Point2::new(-10.0, -10.0));
+    /// ```
+    ///
+    /// ## Finding points along a path
+    /// ```
+    /// # use nalgebra::Point3;
+    /// let waypoint1 = Point3::new(1.0, 2.0, 3.0);
+    /// let waypoint2 = Point3::new(10.0, 20.0, 30.0);
+    ///
+    /// // Find a point 10% of the way from waypoint1 to waypoint2
+    /// let position = waypoint1.lerp(&waypoint2, 0.1);
+    /// assert_eq!(position, Point3::new(1.9, 3.8, 5.7));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`coords`](Self::coords) - Access the underlying coordinate vector
     #[must_use]
     pub fn lerp(&self, rhs: &OPoint<T, D>, t: T) -> OPoint<T, D>
     where
@@ -252,32 +471,112 @@ where
         Self { coords }
     }
 
-    /// The dimension of this point.
+    /// Returns the number of coordinates (dimensions) of this point.
     ///
-    /// # Example
-    /// ```
-    /// # use nalgebra::{Point2, Point3};
-    /// let p = Point2::new(1.0, 2.0);
-    /// assert_eq!(p.len(), 2);
+    /// This method returns the dimensionality of the space in which the point exists.
+    /// For example, a 2D point has 2 coordinates (x, y), while a 3D point has 3
+    /// coordinates (x, y, z).
     ///
-    /// // This works in any dimension.
-    /// let p = Point3::new(10.0, 20.0, 30.0);
-    /// assert_eq!(p.len(), 3);
+    /// # Returns
+    ///
+    /// The number of coordinates in this point.
+    ///
+    /// # Examples
+    ///
+    /// ## Getting dimensions of different points
     /// ```
+    /// # use nalgebra::{Point1, Point2, Point3, Point4};
+    /// let p1 = Point1::new(1.0);
+    /// assert_eq!(p1.len(), 1);
+    ///
+    /// let p2 = Point2::new(1.0, 2.0);
+    /// assert_eq!(p2.len(), 2);
+    ///
+    /// let p3 = Point3::new(1.0, 2.0, 3.0);
+    /// assert_eq!(p3.len(), 3);
+    ///
+    /// let p4 = Point4::new(1.0, 2.0, 3.0, 4.0);
+    /// assert_eq!(p4.len(), 4);
+    /// ```
+    ///
+    /// ## Using len() for dynamic operations
+    /// ```
+    /// # use nalgebra::Point3;
+    /// let point = Point3::new(1.0, 2.0, 3.0);
+    ///
+    /// // Iterate over all coordinates by index
+    /// for i in 0..point.len() {
+    ///     println!("Coordinate {}: {}", i, point[i]);
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// This method returns the *dimension* of the point, not the magnitude or
+    /// Euclidean length. To compute the distance from the origin, use the vector
+    /// norm methods on [`coords`](Self::coords):
+    ///
+    /// ```
+    /// # use nalgebra::Point3;
+    /// let point = Point3::new(3.0, 4.0, 0.0);
+    /// let dimension = point.len();  // Returns 3 (number of coordinates)
+    /// let distance = point.coords.norm();  // Returns 5.0 (distance from origin)
+    /// assert_eq!(dimension, 3);
+    /// assert_eq!(distance, 5.0);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`is_empty`](Self::is_empty) - Check if the point has zero dimensions
+    /// * [`iter`](Self::iter) - Iterate over the coordinates
+    /// * [`coords`](Self::coords) - Access the coordinate vector
     #[inline]
     #[must_use]
     pub fn len(&self) -> usize {
         self.coords.len()
     }
 
-    /// Returns true if the point contains no elements.
+    /// Returns `true` if the point has zero dimensions.
     ///
-    /// # Example
+    /// In practice, this method always returns `false` for standard point types
+    /// like `Point1`, `Point2`, `Point3`, etc., since they all have at least one
+    /// dimension. This method exists for API completeness and consistency with
+    /// collection-like types.
+    ///
+    /// # Returns
+    ///
+    /// `true` if the point has 0 dimensions, `false` otherwise.
+    ///
+    /// # Examples
+    ///
+    /// ## Standard points are never empty
     /// ```
-    /// # use nalgebra::{Point2, Point3};
-    /// let p = Point2::new(1.0, 2.0);
-    /// assert!(!p.is_empty());
+    /// # use nalgebra::{Point1, Point2, Point3};
+    /// let p1 = Point1::new(1.0);
+    /// assert!(!p1.is_empty());
+    ///
+    /// let p2 = Point2::new(1.0, 2.0);
+    /// assert!(!p2.is_empty());
+    ///
+    /// let p3 = Point3::new(1.0, 2.0, 3.0);
+    /// assert!(!p3.is_empty());
     /// ```
+    ///
+    /// ## Checking before iteration
+    /// ```
+    /// # use nalgebra::Point3;
+    /// let point = Point3::new(1.0, 2.0, 3.0);
+    ///
+    /// if !point.is_empty() {
+    ///     // Safe to access coordinates
+    ///     println!("First coordinate: {}", point[0]);
+    /// }
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`len`](Self::len) - Get the number of coordinates
+    /// * [`iter`](Self::iter) - Iterate over the coordinates
     #[inline]
     #[must_use]
     pub fn is_empty(&self) -> bool {
@@ -292,9 +591,18 @@ where
         self.coords.strides().0
     }
 
-    /// Iterates through this point coordinates.
+    /// Returns an iterator over immutable references to the point's coordinates.
     ///
-    /// # Example
+    /// This method provides read-only access to each coordinate in order. Use
+    /// [`iter_mut`](Self::iter_mut) if you need to modify the coordinates during iteration.
+    ///
+    /// # Returns
+    ///
+    /// An iterator yielding references to each coordinate.
+    ///
+    /// # Examples
+    ///
+    /// ## Basic iteration
     /// ```
     /// # use nalgebra::Point3;
     /// let p = Point3::new(1.0, 2.0, 3.0);
@@ -305,6 +613,46 @@ where
     /// assert_eq!(it.next(), Some(3.0));
     /// assert_eq!(it.next(), None);
     /// ```
+    ///
+    /// ## Collecting coordinates into a vector
+    /// ```
+    /// # use nalgebra::Point3;
+    /// let point = Point3::new(10.0, 20.0, 30.0);
+    /// let coords: Vec<f64> = point.iter().cloned().collect();
+    /// assert_eq!(coords, vec![10.0, 20.0, 30.0]);
+    /// ```
+    ///
+    /// ## Finding maximum coordinate
+    /// ```
+    /// # use nalgebra::Point3;
+    /// let point = Point3::new(5.0, 12.0, 3.0);
+    /// let max_coord = point.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
+    /// assert_eq!(max_coord, 12.0);
+    /// ```
+    ///
+    /// ## Computing sum of coordinates
+    /// ```
+    /// # use nalgebra::Point2;
+    /// let point = Point2::new(3.0, 7.0);
+    /// let sum: f64 = point.iter().sum();
+    /// assert_eq!(sum, 10.0);
+    /// ```
+    ///
+    /// ## Checking if all coordinates are positive
+    /// ```
+    /// # use nalgebra::Point3;
+    /// let point1 = Point3::new(1.0, 2.0, 3.0);
+    /// assert!(point1.iter().all(|&x| x > 0.0));
+    ///
+    /// let point2 = Point3::new(1.0, -2.0, 3.0);
+    /// assert!(!point2.iter().all(|&x| x > 0.0));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`iter_mut`](Self::iter_mut) - Iterate with mutable references
+    /// * [`len`](Self::len) - Get the number of coordinates
+    /// * [`apply`](Self::apply) - Modify coordinates with a closure
     #[inline]
     pub fn iter(
         &self,
@@ -323,19 +671,85 @@ where
         unsafe { self.coords.vget_unchecked(i) }
     }
 
-    /// Mutably iterates through this point coordinates.
+    /// Returns an iterator over mutable references to the point's coordinates.
     ///
-    /// # Example
+    /// This method allows you to modify each coordinate in place during iteration.
+    /// For read-only access, use [`iter`](Self::iter) instead.
+    ///
+    /// # Returns
+    ///
+    /// An iterator yielding mutable references to each coordinate.
+    ///
+    /// # Examples
+    ///
+    /// ## Scaling all coordinates
     /// ```
     /// # use nalgebra::Point3;
     /// let mut p = Point3::new(1.0, 2.0, 3.0);
     ///
-    /// for e in p.iter_mut() {
-    ///     *e *= 10.0;
+    /// for coord in p.iter_mut() {
+    ///     *coord *= 10.0;
     /// }
     ///
     /// assert_eq!(p, Point3::new(10.0, 20.0, 30.0));
     /// ```
+    ///
+    /// ## Doubling coordinates
+    /// ```
+    /// # use nalgebra::Point3;
+    /// let mut point = Point3::new(1.0, 2.0, 3.0);
+    ///
+    /// for coord in point.iter_mut() {
+    ///     *coord = *coord * 2.0;
+    /// }
+    ///
+    /// assert_eq!(point, Point3::new(2.0, 4.0, 6.0));
+    /// ```
+    ///
+    /// ## Adding a constant to each coordinate
+    /// ```
+    /// # use nalgebra::Point2;
+    /// let mut point = Point2::new(1.0, 4.0);
+    ///
+    /// for coord in point.iter_mut() {
+    ///     *coord = *coord + 10.0;
+    /// }
+    ///
+    /// assert_eq!(point, Point2::new(11.0, 14.0));
+    /// ```
+    ///
+    /// ## Conditionally modifying coordinates
+    /// ```
+    /// # use nalgebra::Point3;
+    /// let mut point = Point3::new(1.0, 5.0, 3.0);
+    ///
+    /// for coord in point.iter_mut() {
+    ///     if *coord > 4.0 {
+    ///         *coord = 4.0;
+    ///     }
+    /// }
+    ///
+    /// assert_eq!(point, Point3::new(1.0, 4.0, 3.0));
+    /// ```
+    ///
+    /// ## Normalizing coordinates to [0, 1] range
+    /// ```
+    /// # use nalgebra::Point2;
+    /// let mut screen_pos = Point2::new(400.0, 300.0);
+    /// let screen_size = Point2::new(800.0, 600.0);
+    ///
+    /// for (coord, size) in screen_pos.iter_mut().zip(screen_size.iter()) {
+    ///     *coord /= size;
+    /// }
+    ///
+    /// assert_eq!(screen_pos, Point2::new(0.5, 0.5));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`iter`](Self::iter) - Iterate with immutable references
+    /// * [`apply`](Self::apply) - Modify coordinates with a closure
+    /// * [`map`](Self::map) - Create a new point by transforming coordinates
     #[inline]
     pub fn iter_mut(
         &mut self,
@@ -470,21 +884,246 @@ impl<T: Scalar + SimdPartialOrd, D: DimName> OPoint<T, D>
 where
     DefaultAllocator: Allocator<D>,
 {
-    /// Computes the infimum (aka. componentwise min) of two points.
+    /// Computes the component-wise minimum of two points.
+    ///
+    /// Returns a new point where each coordinate is the minimum of the corresponding
+    /// coordinates from `self` and `other`. This is also known as the infimum or
+    /// componentwise min operation.
+    ///
+    /// # Arguments
+    ///
+    /// * `other` - The other point to compare with
+    ///
+    /// # Returns
+    ///
+    /// A new point with the minimum coordinate values from both points.
+    ///
+    /// # Examples
+    ///
+    /// ## Basic component-wise minimum
+    /// ```
+    /// # use nalgebra::Point2;
+    /// let p1 = Point2::new(1.0, 5.0);
+    /// let p2 = Point2::new(3.0, 2.0);
+    ///
+    /// let min_point = p1.inf(&p2);
+    /// assert_eq!(min_point, Point2::new(1.0, 2.0));
+    /// ```
+    ///
+    /// ## Finding bounding box minimum corner
+    /// ```
+    /// # use nalgebra::Point3;
+    /// // Define some points in 3D space
+    /// let p1 = Point3::new(2.0, -1.0, 5.0);
+    /// let p2 = Point3::new(-3.0, 4.0, 1.0);
+    /// let p3 = Point3::new(0.0, 2.0, -2.0);
+    ///
+    /// // Find the minimum corner of the bounding box
+    /// let min_corner = p1.inf(&p2).inf(&p3);
+    /// assert_eq!(min_corner, Point3::new(-3.0, -1.0, -2.0));
+    /// ```
+    ///
+    /// ## Clamping a point to a minimum bound
+    /// ```
+    /// # use nalgebra::Point2;
+    /// let position = Point2::new(-5.0, 10.0);
+    /// let min_bound = Point2::new(0.0, 0.0);
+    ///
+    /// // Ensure position doesn't go below min_bound
+    /// // (You'd also need sup() for the upper bound)
+    /// let clamped = position.sup(&min_bound);
+    /// assert_eq!(clamped, Point2::new(0.0, 10.0));
+    /// ```
+    ///
+    /// ## Works with any comparable type
+    /// ```
+    /// # use nalgebra::Point3;
+    /// let p1 = Point3::new(10, 20, 30);
+    /// let p2 = Point3::new(15, 5, 25);
+    ///
+    /// let min = p1.inf(&p2);
+    /// assert_eq!(min, Point3::new(10, 5, 25));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`sup`](Self::sup) - Compute component-wise maximum
+    /// * [`inf_sup`](Self::inf_sup) - Compute both minimum and maximum at once
     #[inline]
     #[must_use]
     pub fn inf(&self, other: &Self) -> OPoint<T, D> {
         self.coords.inf(&other.coords).into()
     }
 
-    /// Computes the supremum (aka. componentwise max) of two points.
+    /// Computes the component-wise maximum of two points.
+    ///
+    /// Returns a new point where each coordinate is the maximum of the corresponding
+    /// coordinates from `self` and `other`. This is also known as the supremum or
+    /// componentwise max operation.
+    ///
+    /// # Arguments
+    ///
+    /// * `other` - The other point to compare with
+    ///
+    /// # Returns
+    ///
+    /// A new point with the maximum coordinate values from both points.
+    ///
+    /// # Examples
+    ///
+    /// ## Basic component-wise maximum
+    /// ```
+    /// # use nalgebra::Point2;
+    /// let p1 = Point2::new(1.0, 5.0);
+    /// let p2 = Point2::new(3.0, 2.0);
+    ///
+    /// let max_point = p1.sup(&p2);
+    /// assert_eq!(max_point, Point2::new(3.0, 5.0));
+    /// ```
+    ///
+    /// ## Finding bounding box maximum corner
+    /// ```
+    /// # use nalgebra::Point3;
+    /// // Define some points in 3D space
+    /// let p1 = Point3::new(2.0, -1.0, 5.0);
+    /// let p2 = Point3::new(-3.0, 4.0, 1.0);
+    /// let p3 = Point3::new(0.0, 2.0, 7.0);
+    ///
+    /// // Find the maximum corner of the bounding box
+    /// let max_corner = p1.sup(&p2).sup(&p3);
+    /// assert_eq!(max_corner, Point3::new(2.0, 4.0, 7.0));
+    /// ```
+    ///
+    /// ## Creating an axis-aligned bounding box
+    /// ```
+    /// # use nalgebra::Point2;
+    /// let objects = vec![
+    ///     Point2::new(1.0, 2.0),
+    ///     Point2::new(5.0, 1.0),
+    ///     Point2::new(3.0, 6.0),
+    /// ];
+    ///
+    /// // Find bounding box for all objects
+    /// let mut min = objects[0];
+    /// let mut max = objects[0];
+    ///
+    /// for point in &objects[1..] {
+    ///     min = min.inf(point);
+    ///     max = max.sup(point);
+    /// }
+    ///
+    /// assert_eq!(min, Point2::new(1.0, 1.0));
+    /// assert_eq!(max, Point2::new(5.0, 6.0));
+    /// ```
+    ///
+    /// ## Clamping a point to upper bounds
+    /// ```
+    /// # use nalgebra::Point2;
+    /// let position = Point2::new(150.0, 80.0);
+    /// let max_bound = Point2::new(100.0, 100.0);
+    ///
+    /// // Ensure position doesn't exceed max_bound
+    /// let clamped = position.inf(&max_bound);
+    /// assert_eq!(clamped, Point2::new(100.0, 80.0));
+    /// ```
+    ///
+    /// ## Works with any comparable type
+    /// ```
+    /// # use nalgebra::Point3;
+    /// let p1 = Point3::new(10, 20, 30);
+    /// let p2 = Point3::new(15, 5, 25);
+    ///
+    /// let max = p1.sup(&p2);
+    /// assert_eq!(max, Point3::new(15, 20, 30));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`inf`](Self::inf) - Compute component-wise minimum
+    /// * [`inf_sup`](Self::inf_sup) - Compute both minimum and maximum at once
     #[inline]
     #[must_use]
     pub fn sup(&self, other: &Self) -> OPoint<T, D> {
         self.coords.sup(&other.coords).into()
     }
 
-    /// Computes the (infimum, supremum) of two points.
+    /// Computes both the component-wise minimum and maximum of two points simultaneously.
+    ///
+    /// This method is more efficient than calling [`inf`](Self::inf) and [`sup`](Self::sup)
+    /// separately, as it computes both in a single pass.
+    ///
+    /// # Arguments
+    ///
+    /// * `other` - The other point to compare with
+    ///
+    /// # Returns
+    ///
+    /// A tuple `(min_point, max_point)` where:
+    /// - `min_point` contains the minimum of each coordinate pair
+    /// - `max_point` contains the maximum of each coordinate pair
+    ///
+    /// # Examples
+    ///
+    /// ## Basic usage
+    /// ```
+    /// # use nalgebra::Point2;
+    /// let p1 = Point2::new(1.0, 5.0);
+    /// let p2 = Point2::new(3.0, 2.0);
+    ///
+    /// let (min, max) = p1.inf_sup(&p2);
+    /// assert_eq!(min, Point2::new(1.0, 2.0));
+    /// assert_eq!(max, Point2::new(3.0, 5.0));
+    /// ```
+    ///
+    /// ## Computing axis-aligned bounding box
+    /// ```
+    /// # use nalgebra::Point3;
+    /// let corner1 = Point3::new(2.0, -1.0, 5.0);
+    /// let corner2 = Point3::new(-3.0, 4.0, 1.0);
+    ///
+    /// let (min_corner, max_corner) = corner1.inf_sup(&corner2);
+    /// assert_eq!(min_corner, Point3::new(-3.0, -1.0, 1.0));
+    /// assert_eq!(max_corner, Point3::new(2.0, 4.0, 5.0));
+    ///
+    /// // The bounding box spans from min_corner to max_corner
+    /// let size = max_corner - min_corner;
+    /// ```
+    ///
+    /// ## Finding bounds for collision detection
+    /// ```
+    /// # use nalgebra::Point2;
+    /// // Two objects with their positions
+    /// let obj1_pos = Point2::new(10.0, 20.0);
+    /// let obj2_pos = Point2::new(15.0, 18.0);
+    ///
+    /// // Find the encompassing bounding region
+    /// let (min_bound, max_bound) = obj1_pos.inf_sup(&obj2_pos);
+    ///
+    /// assert_eq!(min_bound, Point2::new(10.0, 18.0));
+    /// assert_eq!(max_bound, Point2::new(15.0, 20.0));
+    /// ```
+    ///
+    /// ## More efficient than separate calls
+    /// ```
+    /// # use nalgebra::Point3;
+    /// let p1 = Point3::new(1.0, 2.0, 3.0);
+    /// let p2 = Point3::new(4.0, 0.0, 2.0);
+    ///
+    /// // This is more efficient:
+    /// let (min, max) = p1.inf_sup(&p2);
+    ///
+    /// // Than this:
+    /// let min_slow = p1.inf(&p2);
+    /// let max_slow = p1.sup(&p2);
+    ///
+    /// assert_eq!(min, min_slow);
+    /// assert_eq!(max, max_slow);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`inf`](Self::inf) - Compute component-wise minimum only
+    /// * [`sup`](Self::sup) - Compute component-wise maximum only
     #[inline]
     #[must_use]
     pub fn inf_sup(&self, other: &Self) -> (OPoint<T, D>, OPoint<T, D>) {

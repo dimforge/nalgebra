@@ -115,6 +115,30 @@ where
     S: StorageMut<T, R, C>,
 {
     /// Negates `self` in-place.
+    ///
+    /// This method flips the sign of every element in the matrix without allocating
+    /// a new matrix. It's more efficient than using the unary `-` operator when you
+    /// don't need to preserve the original matrix.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let mut m = Matrix2::new(1.0, -2.0,
+    ///                           3.0, -4.0);
+    /// m.neg_mut();
+    /// assert_eq!(m, Matrix2::new(-1.0, 2.0,
+    ///                            -3.0, 4.0));
+    /// ```
+    ///
+    /// # Performance
+    ///
+    /// This operation is performed in-place and does not allocate memory. It's
+    /// equivalent to multiplying each element by -1.
+    ///
+    /// # See Also
+    ///
+    /// * [`Neg`](std::ops::Neg) trait implementation for creating a negated copy
     #[inline]
     pub fn neg_mut(&mut self) {
         for e in self.iter_mut() {
@@ -246,6 +270,44 @@ macro_rules! componentwise_binop_impl(
              *
              */
             /// Equivalent to `self + rhs` but stores the result into `out` to avoid allocations.
+            ///
+            /// This method performs component-wise addition (or subtraction) and writes the result
+            /// directly into a pre-allocated output matrix. This is useful for performance-critical
+            /// code where you want to reuse matrices and avoid heap allocations.
+            ///
+            /// # Arguments
+            ///
+            /// * `rhs` - The right-hand side matrix to add/subtract
+            /// * `out` - The output matrix where the result will be stored
+            ///
+            /// # Panics
+            ///
+            /// Panics if the matrices don't have the same dimensions.
+            ///
+            /// # Example
+            ///
+            /// ```
+            /// # use nalgebra::Matrix2;
+            /// let a = Matrix2::new(1.0, 2.0,
+            ///                      3.0, 4.0);
+            /// let b = Matrix2::new(5.0, 6.0,
+            ///                      7.0, 8.0);
+            /// let mut result = Matrix2::zeros();
+            ///
+            /// a.add_to(&b, &mut result);
+            /// assert_eq!(result, Matrix2::new(6.0, 8.0,
+            ///                                 10.0, 12.0));
+            /// ```
+            ///
+            /// # Performance
+            ///
+            /// This method does not allocate memory, making it faster than the `+` operator
+            /// when you can reuse the output matrix across multiple operations.
+            ///
+            /// # See Also
+            ///
+            /// * [`Add`](std::ops::Add) and [`Sub`](std::ops::Sub) trait implementations for
+            ///   allocating versions
             #[inline]
             pub fn $method_to<R2: Dim, C2: Dim, SB,
                               R3: Dim, C3: Dim, SC>(&self,
@@ -669,6 +731,39 @@ where
     SA: Storage<T, R1, C1>,
 {
     /// Equivalent to `self.transpose() * rhs`.
+    ///
+    /// This method computes the matrix product of the transpose of `self` with `rhs`
+    /// without actually transposing the matrix. This is more efficient than calling
+    /// `self.transpose() * rhs` because it avoids creating the intermediate transposed matrix.
+    ///
+    /// If `self` is an `m × n` matrix and `rhs` is an `m × p` matrix, the result
+    /// will be an `n × p` matrix. Note that both matrices must have the same number of rows.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2x3, Matrix2};
+    /// let a = Matrix2x3::new(1.0, 2.0, 3.0,
+    ///                        4.0, 5.0, 6.0);
+    /// let b = Matrix2::new(7.0, 8.0,
+    ///                      9.0, 10.0);
+    ///
+    /// let result = a.tr_mul(&b);
+    /// // This computes the same as a.transpose() * b, but more efficiently
+    /// assert_eq!(result, a.transpose() * b);
+    /// ```
+    ///
+    /// # Use Cases
+    ///
+    /// This operation is commonly used in:
+    /// - Linear least squares problems (computing A^T * A or A^T * b)
+    /// - Optimization algorithms
+    /// - Covariance matrix calculations
+    ///
+    /// # See Also
+    ///
+    /// * [`tr_mul_to`](Self::tr_mul_to) - Non-allocating version
+    /// * [`ad_mul`](Self::ad_mul) - Similar operation using the adjoint (conjugate transpose)
     #[inline]
     #[must_use]
     pub fn tr_mul<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<T, R2, C2, SB>) -> OMatrix<T, C1, C2>
@@ -684,6 +779,48 @@ where
     }
 
     /// Equivalent to `self.adjoint() * rhs`.
+    ///
+    /// This method computes the matrix product of the adjoint (conjugate transpose)
+    /// of `self` with `rhs` without creating intermediate matrices. The adjoint is
+    /// the transpose of the matrix with each element replaced by its complex conjugate.
+    /// For real matrices, this is the same as `tr_mul`.
+    ///
+    /// If `self` is an `m × n` matrix and `rhs` is an `m × p` matrix, the result
+    /// will be an `n × p` matrix. Both matrices must have the same number of rows.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2, Complex};
+    /// use num_complex::Complex;
+    ///
+    /// let a = Matrix2::new(
+    ///     Complex::new(1.0, 1.0), Complex::new(2.0, 0.0),
+    ///     Complex::new(3.0, 0.0), Complex::new(4.0, -1.0)
+    /// );
+    /// let b = Matrix2::new(
+    ///     Complex::new(5.0, 0.0), Complex::new(6.0, 0.0),
+    ///     Complex::new(7.0, 0.0), Complex::new(8.0, 1.0)
+    /// );
+    ///
+    /// let result = a.ad_mul(&b);
+    /// // This computes the same as a.adjoint() * b, but more efficiently
+    /// assert_eq!(result, a.adjoint() * b);
+    /// ```
+    ///
+    /// # Use Cases
+    ///
+    /// This operation is essential in:
+    /// - Quantum mechanics calculations
+    /// - Signal processing with complex values
+    /// - Hermitian matrix operations
+    /// - Complex optimization problems
+    ///
+    /// # See Also
+    ///
+    /// * [`ad_mul_to`](Self::ad_mul_to) - Non-allocating version
+    /// * [`tr_mul`](Self::tr_mul) - Similar operation using the transpose (no conjugation)
+    /// * [`adjoint`](crate::base::Matrix::adjoint) - Compute the adjoint matrix explicitly
     #[inline]
     #[must_use]
     pub fn ad_mul<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<T, R2, C2, SB>) -> OMatrix<T, C1, C2>
@@ -749,6 +886,47 @@ where
 
     /// Equivalent to `self.transpose() * rhs` but stores the result into `out` to avoid
     /// allocations.
+    ///
+    /// This is the non-allocating version of [`tr_mul`](Self::tr_mul). It computes
+    /// the product of the transpose of `self` with `rhs` and writes the result directly
+    /// into the provided output matrix. This is useful in hot loops where you want to
+    /// avoid repeated allocations.
+    ///
+    /// # Arguments
+    ///
+    /// * `rhs` - The right-hand side matrix to multiply with
+    /// * `out` - The output matrix where the result will be stored
+    ///
+    /// # Panics
+    ///
+    /// Panics if the dimensions don't match: `self` must have the same number of rows
+    /// as `rhs`, and `out` must have dimensions `C1 × C2` (where C1 is the number of
+    /// columns in `self` and C2 is the number of columns in `rhs`).
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2x3, Matrix2, Matrix3x2};
+    /// let a = Matrix2x3::new(1.0, 2.0, 3.0,
+    ///                        4.0, 5.0, 6.0);
+    /// let b = Matrix2::new(7.0, 8.0,
+    ///                      9.0, 10.0);
+    /// let mut result = Matrix3x2::zeros();
+    ///
+    /// a.tr_mul_to(&b, &mut result);
+    /// // result now contains a.transpose() * b
+    /// assert_eq!(result, a.transpose() * b);
+    /// ```
+    ///
+    /// # Performance
+    ///
+    /// This method does not allocate memory, making it suitable for performance-critical
+    /// code where matrices are reused across iterations.
+    ///
+    /// # See Also
+    ///
+    /// * [`tr_mul`](Self::tr_mul) - Allocating version
+    /// * [`ad_mul_to`](Self::ad_mul_to) - Similar operation for adjoint (conjugate transpose)
     #[inline]
     pub fn tr_mul_to<R2: Dim, C2: Dim, SB, R3: Dim, C3: Dim, SC>(
         &self,
@@ -764,6 +942,53 @@ where
 
     /// Equivalent to `self.adjoint() * rhs` but stores the result into `out` to avoid
     /// allocations.
+    ///
+    /// This is the non-allocating version of [`ad_mul`](Self::ad_mul). It computes
+    /// the product of the adjoint (conjugate transpose) of `self` with `rhs` and writes
+    /// the result directly into the provided output matrix. For complex matrices, this
+    /// performs conjugation of the left operand's elements.
+    ///
+    /// # Arguments
+    ///
+    /// * `rhs` - The right-hand side matrix to multiply with
+    /// * `out` - The output matrix where the result will be stored
+    ///
+    /// # Panics
+    ///
+    /// Panics if the dimensions don't match: `self` must have the same number of rows
+    /// as `rhs`, and `out` must have dimensions `C1 × C2` (where C1 is the number of
+    /// columns in `self` and C2 is the number of columns in `rhs`).
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2, Complex};
+    /// use num_complex::Complex;
+    ///
+    /// let a = Matrix2::new(
+    ///     Complex::new(1.0, 1.0), Complex::new(2.0, 0.0),
+    ///     Complex::new(3.0, 0.0), Complex::new(4.0, -1.0)
+    /// );
+    /// let b = Matrix2::new(
+    ///     Complex::new(5.0, 0.0), Complex::new(6.0, 0.0),
+    ///     Complex::new(7.0, 0.0), Complex::new(8.0, 1.0)
+    /// );
+    /// let mut result = Matrix2::zeros();
+    ///
+    /// a.ad_mul_to(&b, &mut result);
+    /// // result now contains a.adjoint() * b
+    /// assert_eq!(result, a.adjoint() * b);
+    /// ```
+    ///
+    /// # Performance
+    ///
+    /// This method does not allocate memory, making it efficient for repeated operations
+    /// in inner loops of numerical algorithms.
+    ///
+    /// # See Also
+    ///
+    /// * [`ad_mul`](Self::ad_mul) - Allocating version
+    /// * [`tr_mul_to`](Self::tr_mul_to) - Similar operation using transpose (no conjugation)
     #[inline]
     pub fn ad_mul_to<R2: Dim, C2: Dim, SB, R3: Dim, C3: Dim, SC>(
         &self,
@@ -779,6 +1004,68 @@ where
     }
 
     /// Equivalent to `self * rhs` but stores the result into `out` to avoid allocations.
+    ///
+    /// This is the non-allocating version of matrix multiplication. It computes the
+    /// standard matrix product `self * rhs` and writes the result directly into the
+    /// provided output matrix. This is particularly useful in hot loops and real-time
+    /// applications where minimizing allocations is critical.
+    ///
+    /// # Arguments
+    ///
+    /// * `rhs` - The right-hand side matrix to multiply with
+    /// * `out` - The output matrix where the result will be stored
+    ///
+    /// # Panics
+    ///
+    /// Panics if the dimensions are incompatible:
+    /// - The number of columns in `self` must equal the number of rows in `rhs`
+    /// - `out` must have dimensions `R1 × C2` (rows of `self` × columns of `rhs`)
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let a = Matrix2::new(1.0, 2.0,
+    ///                      3.0, 4.0);
+    /// let b = Matrix2::new(5.0, 6.0,
+    ///                      7.0, 8.0);
+    /// let mut result = Matrix2::zeros();
+    ///
+    /// a.mul_to(&b, &mut result);
+    /// assert_eq!(result, a * b);
+    /// ```
+    ///
+    /// # Reusing the output matrix in a loop
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let matrices: Vec<Matrix2<f64>> = vec![
+    ///     Matrix2::identity(),
+    ///     Matrix2::new(2.0, 0.0, 0.0, 2.0),
+    ///     Matrix2::new(3.0, 0.0, 0.0, 3.0),
+    /// ];
+    ///
+    /// let mut accumulator = Matrix2::identity();
+    /// let mut temp = Matrix2::zeros();
+    ///
+    /// for matrix in &matrices {
+    ///     accumulator.mul_to(matrix, &mut temp);
+    ///     accumulator.copy_from(&temp);
+    /// }
+    /// // accumulator now contains the product of all matrices
+    /// ```
+    ///
+    /// # Performance
+    ///
+    /// This method does not allocate memory and uses optimized BLAS-like operations
+    /// internally (via `gemm`). It's the most efficient way to perform matrix
+    /// multiplication when you can reuse the output matrix.
+    ///
+    /// # See Also
+    ///
+    /// * [`Mul`](std::ops::Mul) trait implementation for allocating version
+    /// * [`tr_mul_to`](Self::tr_mul_to) - Multiply with transpose of left matrix
+    /// * [`gemm`](crate::base::Matrix::gemm) - Generalized matrix multiplication
     #[inline]
     pub fn mul_to<R2: Dim, C2: Dim, SB, R3: Dim, C3: Dim, SC>(
         &self,
@@ -796,6 +1083,55 @@ where
 
     /// The kronecker product of two matrices (aka. tensor product of the corresponding linear
     /// maps).
+    ///
+    /// The Kronecker product creates a larger matrix by taking every element of `self` and
+    /// multiplying it by the entire `rhs` matrix. If `self` is an `m × n` matrix and `rhs`
+    /// is a `p × q` matrix, the result is an `(m*p) × (n*q)` matrix.
+    ///
+    /// More formally, if A is `m × n` and B is `p × q`, then the Kronecker product
+    /// A ⊗ B is an `mp × nq` matrix where each block `(i,j)` is `A[i,j] * B`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let a = Matrix2::new(1.0, 2.0,
+    ///                      3.0, 4.0);
+    /// let b = Matrix2::new(5.0, 6.0,
+    ///                      7.0, 8.0);
+    ///
+    /// let result = a.kronecker(&b);
+    /// // result is a 4×4 matrix:
+    /// // [ 1*5  1*6  2*5  2*6 ]   [  5   6  10  12 ]
+    /// // [ 1*7  1*8  2*7  2*8 ] = [  7   8  14  16 ]
+    /// // [ 3*5  3*6  4*5  4*6 ]   [ 15  18  20  24 ]
+    /// // [ 3*7  3*8  4*7  4*8 ]   [ 21  24  28  32 ]
+    /// ```
+    ///
+    /// # Simple 2×1 example
+    ///
+    /// ```
+    /// # use nalgebra::{Vector2, Matrix2x4};
+    /// let a = Vector2::new(1.0, 2.0);
+    /// let b = Vector2::new(3.0, 4.0);
+    ///
+    /// let result = a.kronecker(&b);
+    /// // result = [1*3, 1*4, 2*3, 2*4] = [3, 4, 6, 8]
+    /// assert_eq!(result, nalgebra::Vector4::new(3.0, 4.0, 6.0, 8.0));
+    /// ```
+    ///
+    /// # Use Cases
+    ///
+    /// The Kronecker product is used in:
+    /// - Quantum mechanics (tensor products of quantum states)
+    /// - Linear systems theory
+    /// - Signal processing (multi-dimensional transforms)
+    /// - Graph theory (graph products)
+    /// - Mixed-effects models in statistics
+    ///
+    /// # See Also
+    ///
+    /// * [Kronecker product on Wikipedia](https://en.wikipedia.org/wiki/Kronecker_product)
     #[must_use]
     pub fn kronecker<R2: Dim, C2: Dim, SB>(
         &self,

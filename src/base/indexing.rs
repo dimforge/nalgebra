@@ -472,8 +472,60 @@ pub trait MatrixIndexMut<'a, T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>>:
 ///                         5, 8)));
 /// ```
 impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
-    /// Produces a view of the data at the given index, or
-    /// `None` if the index is out of bounds.
+    /// Returns a view of the element or submatrix at the given index, or `None` if out of bounds.
+    ///
+    /// This method provides safe, bounds-checked access to matrix elements or submatrices.
+    /// The return type depends on the index type:
+    /// - Single element access `(row, col)` or linear index `i` returns `Option<&T>`
+    /// - Range-based access like `(row_range, col_range)` returns `Option<MatrixView<...>>`
+    ///
+    /// This method never panics. If you want panicking behavior for out-of-bounds access,
+    /// use the indexing operator `matrix[index]` instead.
+    ///
+    /// # Examples
+    ///
+    /// ## Single Element Access
+    ///
+    /// ```
+    /// # use nalgebra::Matrix3;
+    /// let m = Matrix3::new(1, 2, 3,
+    ///                      4, 5, 6,
+    ///                      7, 8, 9);
+    ///
+    /// // 2D indexing
+    /// assert_eq!(m.get((0, 0)), Some(&1));
+    /// assert_eq!(m.get((1, 2)), Some(&6));
+    /// assert_eq!(m.get((5, 5)), None);  // Out of bounds
+    ///
+    /// // Linear indexing (column-major order)
+    /// assert_eq!(m.get(0), Some(&1));
+    /// assert_eq!(m.get(3), Some(&2));
+    /// assert_eq!(m.get(100), None);  // Out of bounds
+    /// ```
+    ///
+    /// ## Submatrix Access
+    ///
+    /// ```
+    /// # use nalgebra::Matrix3;
+    /// let m = Matrix3::new(1, 2, 3,
+    ///                      4, 5, 6,
+    ///                      7, 8, 9);
+    ///
+    /// // Get a 2x2 submatrix
+    /// if let Some(sub) = m.get((0..2, 1..3)) {
+    ///     assert_eq!(sub[(0, 0)], 2);
+    ///     assert_eq!(sub[(1, 1)], 6);
+    /// }
+    ///
+    /// // Out of bounds returns None
+    /// assert!(m.get((0..10, 0..2)).is_none());
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`get_mut`](#method.get_mut) - Mutable version of this method
+    /// - [`get_unchecked`](#method.get_unchecked) - Unchecked version (unsafe, no bounds check)
+    /// - Indexing operator `matrix[index]` - Panics on out-of-bounds instead of returning `None`
     #[inline]
     #[must_use]
     pub fn get<'a, I>(&'a self, index: I) -> Option<I::Output>
@@ -483,8 +535,56 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         index.get(self)
     }
 
-    /// Produces a mutable view of the data at the given index, or
-    /// `None` if the index is out of bounds.
+    /// Returns a mutable view of the element or submatrix at the given index, or `None` if out of bounds.
+    ///
+    /// This is the mutable version of [`get`](#method.get). It provides safe, bounds-checked
+    /// mutable access to matrix elements or submatrices. The return type depends on the index type:
+    /// - Single element access `(row, col)` or linear index `i` returns `Option<&mut T>`
+    /// - Range-based access like `(row_range, col_range)` returns `Option<MatrixViewMut<...>>`
+    ///
+    /// This method never panics. If you want panicking behavior for out-of-bounds access,
+    /// use the indexing operator `matrix[index]` instead.
+    ///
+    /// # Examples
+    ///
+    /// ## Single Element Modification
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let mut m = Matrix2::new(1, 2,
+    ///                          3, 4);
+    ///
+    /// // Modify an element
+    /// if let Some(elem) = m.get_mut((0, 1)) {
+    ///     *elem = 20;
+    /// }
+    /// assert_eq!(m[(0, 1)], 20);
+    ///
+    /// // Out of bounds returns None
+    /// assert!(m.get_mut((5, 5)).is_none());
+    /// ```
+    ///
+    /// ## Submatrix Modification
+    ///
+    /// ```
+    /// # use nalgebra::Matrix3;
+    /// let mut m = Matrix3::zeros();
+    ///
+    /// // Modify a submatrix
+    /// if let Some(mut sub) = m.get_mut((0..2, 1..3)) {
+    ///     sub.fill(5);
+    /// }
+    ///
+    /// assert_eq!(m[(0, 1)], 5);
+    /// assert_eq!(m[(1, 2)], 5);
+    /// assert_eq!(m[(0, 0)], 0);  // Unchanged
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`get`](#method.get) - Immutable version of this method
+    /// - [`get_unchecked_mut`](#method.get_unchecked_mut) - Unchecked mutable version (unsafe)
+    /// - Indexing operator `matrix[index]` - Panics on out-of-bounds
     #[inline]
     #[must_use]
     pub fn get_mut<'a, I>(&'a mut self, index: I) -> Option<I::OutputMut>
@@ -517,12 +617,42 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         index.index_mut(self)
     }
 
-    /// Produces a view of the data at the given index, without doing
-    /// any bounds checking.
+    /// Returns a view of the element or submatrix at the given index without bounds checking.
+    ///
+    /// This is the unchecked version of [`get`](#method.get). It skips bounds checking for
+    /// maximum performance. The return type depends on the index type:
+    /// - Single element access `(row, col)` or linear index `i` returns `&T`
+    /// - Range-based access like `(row_range, col_range)` returns `MatrixView<...>`
     ///
     /// # Safety
     ///
-    /// `index` must within bounds of the array.
+    /// The caller must ensure that the index is within bounds:
+    /// - For `(row, col)`: `row < nrows()` and `col < ncols()`
+    /// - For linear index `i`: `i < len()`
+    /// - For range indices: all elements in the range must be within bounds
+    ///
+    /// Accessing out-of-bounds indices is undefined behavior and may cause crashes,
+    /// data corruption, or other unexpected behavior.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::Matrix3;
+    /// let m = Matrix3::new(1, 2, 3,
+    ///                      4, 5, 6,
+    ///                      7, 8, 9);
+    ///
+    /// // Safe because we know the indices are in bounds
+    /// unsafe {
+    ///     assert_eq!(*m.get_unchecked((1, 1)), 5);
+    ///     assert_eq!(*m.get_unchecked(4), 5);  // Linear index (column-major)
+    /// }
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`get`](#method.get) - Safe, bounds-checked version
+    /// - [`get_unchecked_mut`](#method.get_unchecked_mut) - Unchecked mutable version
     #[inline]
     #[must_use]
     pub unsafe fn get_unchecked<'a, I>(&'a self, index: I) -> I::Output
@@ -532,11 +662,42 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         unsafe { index.get_unchecked(self) }
     }
 
-    /// Returns a mutable view of the data at the given index, without doing
-    /// any bounds checking.
+    /// Returns a mutable view of the element or submatrix at the given index without bounds checking.
+    ///
+    /// This is the unchecked mutable version of [`get`](#method.get). It skips bounds checking
+    /// for maximum performance. The return type depends on the index type:
+    /// - Single element access `(row, col)` or linear index `i` returns `&mut T`
+    /// - Range-based access like `(row_range, col_range)` returns `MatrixViewMut<...>`
+    ///
     /// # Safety
     ///
-    /// `index` must within bounds of the array.
+    /// The caller must ensure that the index is within bounds:
+    /// - For `(row, col)`: `row < nrows()` and `col < ncols()`
+    /// - For linear index `i`: `i < len()`
+    /// - For range indices: all elements in the range must be within bounds
+    ///
+    /// Accessing out-of-bounds indices is undefined behavior and may cause crashes,
+    /// data corruption, or other unexpected behavior.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let mut m = Matrix2::new(1, 2,
+    ///                          3, 4);
+    ///
+    /// // Safe because we know the index is in bounds
+    /// unsafe {
+    ///     *m.get_unchecked_mut((0, 1)) = 20;
+    /// }
+    ///
+    /// assert_eq!(m[(0, 1)], 20);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`get_mut`](#method.get_mut) - Safe, bounds-checked mutable version
+    /// - [`get_unchecked`](#method.get_unchecked) - Unchecked immutable version
     #[inline]
     #[must_use]
     pub unsafe fn get_unchecked_mut<'a, I>(&'a mut self, index: I) -> I::OutputMut

@@ -43,6 +43,29 @@ use simba::simd::SimdRealField;
  */
 
 // UnitComplex × UnitComplex
+/// Composes two 2D rotations using complex number multiplication.
+///
+/// This combines two rotations in 2D space. The multiplication order is:
+/// `rot1 * rot2` means "first apply `rot2`, then apply `rot1`".
+///
+/// # Example
+/// ```
+/// # use nalgebra::UnitComplex;
+/// # use std::f64::consts::PI;
+/// // Two 45° rotations
+/// let rot1 = UnitComplex::new(PI / 4.0);
+/// let rot2 = UnitComplex::new(PI / 4.0);
+///
+/// // Compose them to get a 90° rotation
+/// let combined = rot1 * rot2;
+///
+/// // Verify the angle is 90°
+/// assert_relative_eq!(combined.angle(), PI / 2.0, epsilon = 1.0e-6);
+/// ```
+///
+/// # See Also
+/// - [`UnitComplex::div`]: For computing relative rotations
+/// - [`Rotation2::mul`]: Alternative using rotation matrices
 impl<T: SimdRealField> Mul<Self> for UnitComplex<T> {
     type Output = Self;
 
@@ -89,6 +112,27 @@ where
 }
 
 // UnitComplex ÷ UnitComplex
+/// Computes the relative rotation from `rhs` to `self` in 2D.
+///
+/// This returns the rotation that, when applied after `rhs`, gives `self`.
+/// Mathematically: `self / rhs = self * rhs.inverse()`.
+///
+/// # Example
+/// ```
+/// # use nalgebra::UnitComplex;
+/// # use std::f64::consts::PI;
+/// let rot1 = UnitComplex::new(PI / 2.0); // 90°
+/// let rot2 = UnitComplex::new(PI / 4.0); // 45°
+///
+/// // Compute the difference: should be 45°
+/// let diff = rot1 / rot2;
+///
+/// // Verify: rot2 * diff = rot1
+/// assert_relative_eq!((rot2 * diff).angle(), rot1.angle(), epsilon = 1.0e-6);
+/// ```
+///
+/// # See Also
+/// - [`UnitComplex::rotation_to`]: For computing rotations between directions
 impl<T: SimdRealField> Div<Self> for UnitComplex<T>
 where
     T::Element: SimdRealField,
@@ -236,6 +280,28 @@ complex_op_impl_all!(
 );
 
 // UnitComplex × Point
+/// Rotates a 2D point around the origin using complex number rotation.
+///
+/// This applies a 2D rotation to a point. The rotation is performed around
+/// the origin, so points at the origin remain unchanged.
+///
+/// # Example
+/// ```
+/// # use nalgebra::{UnitComplex, Point2};
+/// # use std::f64::consts::PI;
+/// // 90° counterclockwise rotation
+/// let rot = UnitComplex::new(PI / 2.0);
+/// let point = Point2::new(1.0, 0.0);
+///
+/// let rotated = rot * point;
+///
+/// // Point rotated from x-axis to y-axis
+/// assert_relative_eq!(rotated, Point2::new(0.0, 1.0), epsilon = 1.0e-6);
+/// ```
+///
+/// # See Also
+/// - [`UnitComplex::transform_vector`]: For rotating vectors
+/// - [`Isometry2::transform_point`]: For rotation combined with translation
 complex_op_impl_all!(
     Mul, mul;
     ;

@@ -413,14 +413,31 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         unsafe { Self::from_data_statically_unchecked(data) }
     }
 
-    /// The shape of this matrix returned as the tuple (number of rows, number of columns).
+    /// Returns the shape of this matrix as a tuple `(nrows, ncols)`.
     ///
-    /// # Example
+    /// This method returns the dimensions of the matrix: the first element is the number
+    /// of rows, and the second element is the number of columns. The values are returned
+    /// as runtime `usize` values, regardless of whether the dimensions are known at
+    /// compile-time or dynamically allocated.
+    ///
+    /// # Examples
+    ///
     /// ```
-    /// # use nalgebra::Matrix3x4;
+    /// # use nalgebra::{Matrix3x4, DMatrix};
+    /// // Static size matrix
     /// let mat = Matrix3x4::<f32>::zeros();
     /// assert_eq!(mat.shape(), (3, 4));
+    ///
+    /// // Dynamic size matrix
+    /// let dmat = DMatrix::<f64>::zeros(5, 7);
+    /// assert_eq!(dmat.shape(), (5, 7));
     /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`shape_generic`](#method.shape_generic) - Returns dimensions as type-level values
+    /// - [`nrows`](#method.nrows) - Returns only the number of rows
+    /// - [`ncols`](#method.ncols) - Returns only the number of columns
     #[inline]
     #[must_use]
     pub fn shape(&self) -> (usize, usize) {
@@ -428,51 +445,138 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         (nrows.value(), ncols.value())
     }
 
-    /// The shape of this matrix wrapped into their representative types (`Const` or `Dyn`).
+    /// Returns the shape of this matrix as type-level dimensions.
+    ///
+    /// Unlike [`shape`](#method.shape), which returns runtime `usize` values, this method
+    /// returns the dimensions wrapped in their compile-time type representations: either
+    /// `Const<N>` for statically-sized dimensions, or `Dyn` for dynamically-sized dimensions.
+    ///
+    /// This is useful for type-level programming and when you need to preserve compile-time
+    /// dimension information for type safety.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix3x4, DMatrix, Const, Dyn};
+    /// // Static size matrix - returns (Const<3>, Const<4>)
+    /// let mat = Matrix3x4::<f32>::zeros();
+    /// let (rows, cols) = mat.shape_generic();
+    /// assert_eq!(rows.value(), 3);
+    /// assert_eq!(cols.value(), 4);
+    ///
+    /// // Dynamic size matrix - returns (Dyn, Dyn)
+    /// let dmat = DMatrix::<f64>::zeros(5, 7);
+    /// let (rows, cols) = dmat.shape_generic();
+    /// assert_eq!(rows.value(), 5);
+    /// assert_eq!(cols.value(), 7);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`shape`](#method.shape) - Returns dimensions as runtime `usize` values
+    /// - [`nrows`](#method.nrows) - Returns only the number of rows
+    /// - [`ncols`](#method.ncols) - Returns only the number of columns
     #[inline]
     #[must_use]
     pub fn shape_generic(&self) -> (R, C) {
         self.data.shape()
     }
 
-    /// The number of rows of this matrix.
+    /// Returns the number of rows in this matrix.
     ///
-    /// # Example
+    /// This is a convenience method that extracts just the row count from the matrix's shape.
+    /// It's equivalent to calling `self.shape().0`.
+    ///
+    /// # Examples
+    ///
     /// ```
-    /// # use nalgebra::Matrix3x4;
+    /// # use nalgebra::{Matrix3x4, DMatrix, Vector5};
+    /// // Rectangular matrix
     /// let mat = Matrix3x4::<f32>::zeros();
     /// assert_eq!(mat.nrows(), 3);
+    ///
+    /// // Column vector
+    /// let vec = Vector5::<f64>::zeros();
+    /// assert_eq!(vec.nrows(), 5);
+    ///
+    /// // Dynamic matrix
+    /// let dmat = DMatrix::<i32>::zeros(10, 5);
+    /// assert_eq!(dmat.nrows(), 10);
     /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`ncols`](#method.ncols) - Returns the number of columns
+    /// - [`shape`](#method.shape) - Returns both dimensions as a tuple
+    /// - [`len`](#method.len) - Returns the total number of elements
     #[inline]
     #[must_use]
     pub fn nrows(&self) -> usize {
         self.shape().0
     }
 
-    /// The number of columns of this matrix.
+    /// Returns the number of columns in this matrix.
     ///
-    /// # Example
+    /// This is a convenience method that extracts just the column count from the matrix's shape.
+    /// It's equivalent to calling `self.shape().1`.
+    ///
+    /// # Examples
+    ///
     /// ```
-    /// # use nalgebra::Matrix3x4;
+    /// # use nalgebra::{Matrix3x4, DMatrix, RowVector6};
+    /// // Rectangular matrix
     /// let mat = Matrix3x4::<f32>::zeros();
     /// assert_eq!(mat.ncols(), 4);
+    ///
+    /// // Row vector
+    /// let vec = RowVector6::<f64>::zeros();
+    /// assert_eq!(vec.ncols(), 6);
+    ///
+    /// // Dynamic matrix
+    /// let dmat = DMatrix::<i32>::zeros(10, 5);
+    /// assert_eq!(dmat.ncols(), 5);
     /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`nrows`](#method.nrows) - Returns the number of rows
+    /// - [`shape`](#method.shape) - Returns both dimensions as a tuple
+    /// - [`len`](#method.len) - Returns the total number of elements
     #[inline]
     #[must_use]
     pub fn ncols(&self) -> usize {
         self.shape().1
     }
 
-    /// The strides (row stride, column stride) of this matrix.
+    /// Returns the strides between elements in memory as a tuple `(row_stride, column_stride)`.
     ///
-    /// # Example
+    /// The strides indicate how many elements to skip in memory to move to the next row or column.
+    /// - **Row stride**: Number of elements between consecutive rows (within the same column)
+    /// - **Column stride**: Number of elements between consecutive columns (within the same row)
+    ///
+    /// For a standard column-major matrix with `nrows` rows:
+    /// - Row stride is typically `1` (elements in the same column are contiguous)
+    /// - Column stride is typically `nrows` (columns are stored sequentially)
+    ///
+    /// Matrix views or slices may have different strides.
+    ///
+    /// # Examples
+    ///
     /// ```
-    /// # use nalgebra::DMatrix;
-    /// let mat = DMatrix::<f32>::zeros(10, 10);
-    /// let view = mat.view_with_steps((0, 0), (5, 3), (1, 2));
-    /// // The column strides is the number of steps (here 2) multiplied by the corresponding dimension.
-    /// assert_eq!(mat.strides(), (1, 10));
+    /// # use nalgebra::{Matrix3, DMatrix};
+    /// // Standard matrix has row_stride=1, col_stride=nrows
+    /// let mat = Matrix3::<f32>::zeros();
+    /// assert_eq!(mat.strides(), (1, 3));
+    ///
+    /// // Dynamic matrix
+    /// let dmat = DMatrix::<f64>::zeros(10, 5);
+    /// assert_eq!(dmat.strides(), (1, 10));
     /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`shape`](#method.shape) - Returns the dimensions of the matrix
+    /// - [`as_slice`](#method.as_slice) - Access contiguous matrix data as a slice
     #[inline]
     #[must_use]
     pub fn strides(&self) -> (usize, usize) {
@@ -480,18 +584,43 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         (srows.value(), scols.value())
     }
 
-    /// Computes the row and column coordinates of the i-th element of this matrix seen as a
-    /// vector.
+    /// Converts a linear vector index to matrix row and column coordinates.
     ///
-    /// # Example
+    /// When treating the matrix as a flat vector (in column-major order), this method converts
+    /// a linear index into the corresponding (row, column) coordinates in the matrix.
+    ///
+    /// Elements are indexed in column-major order: the first column is indexed from 0 to nrows-1,
+    /// the second column from nrows to 2*nrows-1, and so on.
+    ///
+    /// # Examples
+    ///
     /// ```
     /// # use nalgebra::Matrix2;
     /// let m = Matrix2::new(1, 2,
     ///                      3, 4);
+    /// // Matrix in column-major order: [1, 3, 2, 4]
+    /// assert_eq!(m.vector_to_matrix_index(0), (0, 0)); // element 1
+    /// assert_eq!(m.vector_to_matrix_index(1), (1, 0)); // element 3
+    /// assert_eq!(m.vector_to_matrix_index(2), (0, 1)); // element 2
+    /// assert_eq!(m.vector_to_matrix_index(3), (1, 1)); // element 4
+    ///
+    /// // Verify the conversion
     /// let i = m.vector_to_matrix_index(3);
-    /// assert_eq!(i, (1, 1));
     /// assert_eq!(m[i], m[3]);
     /// ```
+    ///
+    /// ```
+    /// # use nalgebra::Matrix3x2;
+    /// let m = Matrix3x2::new(1, 2,
+    ///                        3, 4,
+    ///                        5, 6);
+    /// assert_eq!(m.vector_to_matrix_index(4), (1, 1)); // element 4
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`len`](#method.len) - Returns the total number of elements
+    /// - Indexing with `matrix[index]` for linear element access
     #[inline]
     #[must_use]
     pub fn vector_to_matrix_index(&self, i: usize) -> (usize, usize) {
@@ -508,28 +637,82 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         }
     }
 
-    /// Returns a pointer to the start of the matrix.
+    /// Returns a raw pointer to the first element of the matrix.
     ///
-    /// If the matrix is not empty, this pointer is guaranteed to be aligned
-    /// and non-null.
+    /// This provides direct access to the underlying memory. The matrix data is stored in
+    /// column-major order, meaning elements within each column are contiguous in memory.
     ///
-    /// # Example
+    /// If the matrix is not empty, this pointer is guaranteed to be properly aligned and non-null.
+    ///
+    /// # Safety
+    ///
+    /// While this method itself is safe, dereferencing the returned pointer requires `unsafe` code.
+    /// The caller must ensure:
+    /// - The pointer is only used while the matrix is valid and hasn't been moved
+    /// - Proper bounds are maintained (use [`len`](#method.len) to check the element count)
+    /// - Concurrent access follows Rust's aliasing rules
+    ///
+    /// # Examples
+    ///
     /// ```
     /// # use nalgebra::Matrix2;
     /// let m = Matrix2::new(1, 2,
     ///                      3, 4);
     /// let ptr = m.as_ptr();
-    /// assert_eq!(unsafe { *ptr }, m[0]);
+    ///
+    /// // Elements are stored in column-major order: [1, 3, 2, 4]
+    /// unsafe {
+    ///     assert_eq!(*ptr, 1);
+    ///     assert_eq!(*ptr.add(1), 3);
+    ///     assert_eq!(*ptr.add(2), 2);
+    ///     assert_eq!(*ptr.add(3), 4);
+    /// }
     /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`as_mut_ptr`](#method.as_mut_ptr) - Returns a mutable pointer
+    /// - [`as_slice`](#method.as_slice) - Returns a safe slice for contiguous matrices
     #[inline]
     #[must_use]
     pub fn as_ptr(&self) -> *const T {
         self.data.ptr()
     }
 
-    /// Tests whether `self` and `rhs` are equal up to a given epsilon.
+    /// Tests whether two matrices are approximately equal using relative and absolute tolerances.
     ///
-    /// See `relative_eq` from the `RelativeEq` trait for more details.
+    /// This method compares each corresponding pair of elements and returns `true` if all pairs
+    /// satisfy the relative equality test. This is useful when working with floating-point numbers
+    /// where exact equality is often not achievable due to rounding errors.
+    ///
+    /// The comparison uses two tolerance parameters:
+    /// - `eps`: The absolute tolerance (epsilon) for small values
+    /// - `max_relative`: The relative tolerance for larger values
+    ///
+    /// # Panics
+    ///
+    /// Panics if the matrices have different shapes.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let a = Matrix2::new(1.0, 2.0,
+    ///                      3.0, 4.0);
+    /// let b = Matrix2::new(1.0000001, 2.0,
+    ///                      3.0, 4.0);
+    ///
+    /// // Not exactly equal
+    /// assert_ne!(a, b);
+    ///
+    /// // But approximately equal with tolerance
+    /// assert!(a.relative_eq(&b, 1e-5, 1e-5));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`abs_diff_eq`](#method.abs_diff_eq) - Simpler absolute difference comparison
+    /// - The `approx` crate for more comparison options
     #[inline]
     #[must_use]
     pub fn relative_eq<R2, C2, SB>(
@@ -552,7 +735,45 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
             .all(|(a, b)| a.relative_eq(b, eps.clone(), max_relative.clone()))
     }
 
-    /// Tests whether `self` and `rhs` are exactly equal.
+    /// Tests whether two matrices are exactly equal element-wise.
+    ///
+    /// This method compares each corresponding pair of elements and returns `true` if all pairs
+    /// are exactly equal according to the `PartialEq` trait. Unlike the standard `==` operator,
+    /// this method works with matrices of different storage types.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the matrices have different shapes.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2, DMatrix};
+    /// let a = Matrix2::new(1, 2,
+    ///                      3, 4);
+    /// let b = Matrix2::new(1, 2,
+    ///                      3, 4);
+    /// let c = Matrix2::new(1, 2,
+    ///                      3, 5);
+    ///
+    /// assert!(a.eq(&b));
+    /// assert!(!a.eq(&c));
+    /// ```
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2, DMatrix};
+    /// // Compare matrices with different storage types
+    /// let static_mat = Matrix2::new(1.0, 2.0,
+    ///                               3.0, 4.0);
+    /// let dynamic_mat = DMatrix::from_row_slice(2, 2, &[1.0, 2.0, 3.0, 4.0]);
+    ///
+    /// assert!(static_mat.eq(&dynamic_mat));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`relative_eq`](#method.relative_eq) - Approximate equality with tolerance
+    /// - The standard `==` operator for matrices with the same storage type
     #[inline]
     #[must_use]
     #[allow(clippy::should_implement_trait)]
@@ -568,7 +789,42 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         self.iter().zip(other.iter()).all(|(a, b)| *a == *b)
     }
 
-    /// Moves this matrix into one that owns its data.
+    /// Converts this matrix into one that owns its data.
+    ///
+    /// If the matrix already owns its data (e.g., it's a `Matrix` with `ArrayStorage` or `VecStorage`),
+    /// this is essentially a no-op. If it's a matrix view (e.g., a slice), this creates a new owned
+    /// matrix with a copy of the data.
+    ///
+    /// This is useful when you need to store a matrix beyond the lifetime of borrowed data, or when
+    /// you need to modify a matrix that was originally a view.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2, DMatrix};
+    /// let m = Matrix2::new(1, 2,
+    ///                      3, 4);
+    ///
+    /// // Convert a matrix view to an owned matrix
+    /// let row_view = m.row(0);
+    /// let owned = row_view.into_owned();
+    /// // Now `owned` can outlive `m`
+    /// drop(m);
+    /// assert_eq!(owned[(0, 0)], 1);
+    /// ```
+    ///
+    /// ```
+    /// # use nalgebra::DMatrix;
+    /// // Useful for storing views in data structures
+    /// let m = DMatrix::from_row_slice(3, 3, &[1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    /// let col = m.column(1).into_owned();
+    /// assert_eq!(col.len(), 3);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`clone_owned`](#method.clone_owned) - Non-consuming version
+    /// - [`into_owned_sum`](#method.into_owned_sum) - For type-level storage combination
     #[inline]
     pub fn into_owned(self) -> OMatrix<T, R, C>
     where
@@ -581,8 +837,29 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
 
     // TODO: this could probably benefit from specialization.
     // XXX: bad name.
-    /// Moves this matrix into one that owns its data. The actual type of the result depends on
-    /// matrix storage combination rules for addition.
+    /// Converts this matrix into one that owns its data, with storage type suitable for addition.
+    ///
+    /// This method is similar to [`into_owned`](#method.into_owned), but the resulting storage
+    /// type is determined by the type-level storage combination rules used for matrix addition.
+    /// This is useful in generic code where you need to ensure the result is compatible with
+    /// addition operations involving another matrix of dimensions `R2 × C2`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2, U2};
+    /// let m = Matrix2::new(1, 2,
+    ///                      3, 4);
+    /// let row_view = m.row(0);
+    ///
+    /// // Convert to owned with storage type compatible for addition
+    /// let owned = row_view.into_owned_sum::<U2, U2>();
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`into_owned`](#method.into_owned) - Simpler version without type-level storage rules
+    /// - [`clone_owned_sum`](#method.clone_owned_sum) - Non-consuming version
     #[inline]
     pub fn into_owned_sum<R2, C2>(self) -> MatrixSum<T, R, C, R2, C2>
     where
@@ -608,7 +885,39 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         }
     }
 
-    /// Clones this matrix to one that owns its data.
+    /// Clones this matrix, creating one that owns its data.
+    ///
+    /// This is similar to [`into_owned`](#method.into_owned) but doesn't consume the original matrix.
+    /// It always creates a new owned matrix with a copy of the data, regardless of whether the
+    /// original matrix owns its data or is a view.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let m = Matrix2::new(1, 2,
+    ///                      3, 4);
+    ///
+    /// // Clone a view into an owned matrix
+    /// let row_view = m.row(0);
+    /// let owned = row_view.clone_owned();
+    ///
+    /// // Both the original and the clone are still accessible
+    /// assert_eq!(row_view[(0, 0)], 1);
+    /// assert_eq!(owned[(0, 0)], 1);
+    /// ```
+    ///
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let v = Vector3::new(1.0, 2.0, 3.0);
+    /// let v2 = v.clone_owned();
+    /// assert_eq!(v, v2);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`into_owned`](#method.into_owned) - Consuming version
+    /// - [`clone_owned_sum`](#method.clone_owned_sum) - For type-level storage combination
     #[inline]
     #[must_use]
     pub fn clone_owned(&self) -> OMatrix<T, R, C>
@@ -620,8 +929,29 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         Matrix::from_data(self.data.clone_owned())
     }
 
-    /// Clones this matrix into one that owns its data. The actual type of the result depends on
-    /// matrix storage combination rules for addition.
+    /// Clones this matrix, creating one that owns its data with storage type suitable for addition.
+    ///
+    /// This method is similar to [`clone_owned`](#method.clone_owned), but the resulting storage
+    /// type is determined by the type-level storage combination rules used for matrix addition.
+    /// This is useful in generic code where you need to ensure the result is compatible with
+    /// addition operations involving another matrix of dimensions `R2 × C2`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2, U2};
+    /// let m = Matrix2::new(1, 2,
+    ///                      3, 4);
+    /// let row_view = m.row(0);
+    ///
+    /// // Clone to owned with storage type compatible for addition
+    /// let owned = row_view.clone_owned_sum::<U2, U2>();
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`clone_owned`](#method.clone_owned) - Simpler version without type-level storage rules
+    /// - [`into_owned_sum`](#method.into_owned_sum) - Consuming version
     #[inline]
     #[must_use]
     pub fn clone_owned_sum<R2, C2>(&self) -> MatrixSum<T, R, C, R2, C2>
@@ -687,7 +1017,35 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         }
     }
 
-    /// Transposes `self` and store the result into `out`.
+    /// Transposes `self` and stores the result into the pre-allocated matrix `out`.
+    ///
+    /// This method is useful when you want to avoid allocating a new matrix for the transpose
+    /// operation. The output matrix must have dimensions matching the transpose (i.e., if `self`
+    /// is `m × n`, then `out` must be `n × m`).
+    ///
+    /// # Panics
+    ///
+    /// Panics if the output matrix dimensions don't match the expected transpose dimensions.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2x3, Matrix3x2};
+    /// let m = Matrix2x3::new(1, 2, 3,
+    ///                        4, 5, 6);
+    ///
+    /// let mut out = Matrix3x2::zeros();
+    /// m.transpose_to(&mut out);
+    ///
+    /// assert_eq!(out, Matrix3x2::new(1, 4,
+    ///                                2, 5,
+    ///                                3, 6));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`transpose`](#method.transpose) - Allocates and returns a new transposed matrix
+    /// - [`transpose_mut`](#method.transpose_mut) - In-place transpose for square matrices
     #[inline]
     pub fn transpose_to<R2, C2, SB>(&self, out: &mut Matrix<T, R2, C2, SB>)
     where
@@ -700,7 +1058,41 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         self.transpose_to_uninit(Init, out)
     }
 
-    /// Transposes `self`.
+    /// Returns the transpose of this matrix.
+    ///
+    /// The transpose of a matrix swaps its rows and columns. If the original matrix has
+    /// dimensions `m × n`, the transposed matrix will have dimensions `n × m`.
+    ///
+    /// This method creates a new matrix. For in-place transposition of square matrices,
+    /// use [`transpose_mut`](#method.transpose_mut).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2x3;
+    /// let m = Matrix2x3::new(1, 2, 3,
+    ///                        4, 5, 6);
+    ///
+    /// let mt = m.transpose();
+    /// assert_eq!(mt.shape(), (3, 2));
+    /// assert_eq!(mt[(0, 0)], 1);
+    /// assert_eq!(mt[(1, 0)], 2);
+    /// assert_eq!(mt[(2, 0)], 3);
+    /// assert_eq!(mt[(0, 1)], 4);
+    /// ```
+    ///
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// // Transpose a column vector to a row vector
+    /// let col = Vector3::new(1, 2, 3);
+    /// let row = col.transpose();
+    /// assert_eq!(row.shape(), (1, 3));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`transpose_mut`](#method.transpose_mut) - In-place transpose for square matrices
+    /// - [`adjoint`](#method.adjoint) - Conjugate transpose (for complex matrices)
     #[inline]
     #[must_use = "Did you mean to use transpose_mut()?"]
     pub fn transpose(&self) -> OMatrix<T, C, R>
@@ -719,7 +1111,45 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
 
 /// # Elementwise mapping and folding
 impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
-    /// Returns a matrix containing the result of `f` applied to each of its entries.
+    /// Returns a new matrix with the function `f` applied to each element.
+    ///
+    /// This method transforms each element of the matrix using the provided function.
+    /// The function receives each element value and returns a potentially different type.
+    /// The resulting matrix has the same dimensions as the original.
+    ///
+    /// This is useful for element-wise transformations such as scaling, absolute values,
+    /// type conversions, or any other per-element operations.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let m = Matrix2::new(1, 2,
+    ///                      3, 4);
+    ///
+    /// // Double each element
+    /// let doubled = m.map(|x| x * 2);
+    /// assert_eq!(doubled, Matrix2::new(2, 4, 6, 8));
+    ///
+    /// // Convert to floating point and compute square
+    /// let squared = m.map(|x| (x as f64).powi(2));
+    /// assert_eq!(squared, Matrix2::new(1.0, 4.0, 9.0, 16.0));
+    /// ```
+    ///
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let v = Vector3::new(-1.5, 2.7, -3.2);
+    ///
+    /// // Apply absolute value to each element
+    /// let abs = v.map(|x| x.abs());
+    /// assert_eq!(abs, Vector3::new(1.5, 2.7, 3.2));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`map_with_location`](#method.map_with_location) - Map with row/column indices
+    /// - [`cast`](#method.cast) - Type conversion for matrices
+    /// - [`apply`](#method.apply) - In-place element-wise transformation
     #[inline]
     #[must_use]
     pub fn map<T2: Scalar, F: FnMut(T) -> T2>(&self, mut f: F) -> OMatrix<T2, R, C>
@@ -744,15 +1174,34 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         unsafe { res.assume_init() }
     }
 
-    /// Cast the components of `self` to another type.
+    /// Converts each element of this matrix to another type.
     ///
-    /// # Example
+    /// This method performs type conversion on each element of the matrix, creating a new
+    /// matrix with elements of the target type. The conversion must be valid according to
+    /// the `SupersetOf` trait relationship.
+    ///
+    /// This is commonly used to convert between different numeric types (e.g., `f64` to `f32`,
+    /// `i32` to `f64`, etc.).
+    ///
+    /// # Examples
+    ///
     /// ```
-    /// # use nalgebra::Vector3;
-    /// let q = Vector3::new(1.0f64, 2.0, 3.0);
-    /// let q2 = q.cast::<f32>();
-    /// assert_eq!(q2, Vector3::new(1.0f32, 2.0, 3.0));
+    /// # use nalgebra::{Vector3, Matrix2};
+    /// // Convert from f64 to f32
+    /// let v = Vector3::new(1.0f64, 2.0, 3.0);
+    /// let v_f32 = v.cast::<f32>();
+    /// assert_eq!(v_f32, Vector3::new(1.0f32, 2.0, 3.0));
+    ///
+    /// // Convert from integers to floats
+    /// let m = Matrix2::new(1, 2, 3, 4);
+    /// let m_float = m.cast::<f64>();
+    /// assert_eq!(m_float, Matrix2::new(1.0, 2.0, 3.0, 4.0));
     /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`try_cast`](#method.try_cast) - Fallible version that returns `Option`
+    /// - [`map`](#method.map) - General element-wise transformation
     pub fn cast<T2: Scalar>(self) -> OMatrix<T2, R, C>
     where
         T: Scalar,
@@ -762,15 +1211,35 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         crate::convert(self)
     }
 
-    /// Attempts to cast the components of `self` to another type.
+    /// Attempts to convert each element of this matrix to another type, returning `None` on failure.
     ///
-    /// # Example
+    /// This is the fallible version of [`cast`](#method.cast). It returns `Some` if all elements
+    /// can be successfully converted, or `None` if any conversion fails. This is useful when
+    /// converting from floating-point to integer types where overflow is possible, or when
+    /// converting between types with different ranges.
+    ///
+    /// # Examples
+    ///
     /// ```
     /// # use nalgebra::Vector3;
-    /// let q = Vector3::new(1.0f64, 2.0, 3.0);
-    /// let q2 = q.try_cast::<i32>();
-    /// assert_eq!(q2, Some(Vector3::new(1, 2, 3)));
+    /// // Successful conversion from float to int
+    /// let v = Vector3::new(1.0f64, 2.0, 3.0);
+    /// let v_int = v.try_cast::<i32>();
+    /// assert_eq!(v_int, Some(Vector3::new(1, 2, 3)));
     /// ```
+    ///
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// // Failed conversion due to non-integer values
+    /// let v = Vector3::new(1.5f64, 2.7, 3.2);
+    /// let v_int = v.try_cast::<i32>();
+    /// assert_eq!(v_int, None);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`cast`](#method.cast) - Infallible version (may panic on failure)
+    /// - [`map`](#method.map) - General element-wise transformation
     pub fn try_cast<T2: Scalar>(self) -> Option<OMatrix<T2, R, C>>
     where
         T: Scalar,
@@ -780,13 +1249,49 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         crate::try_convert(self)
     }
 
-    /// Similar to `self.iter().fold(init, f)` except that `init` is replaced by a closure.
+    /// Folds (reduces) the matrix elements using a closure to determine the initial value.
+    ///
+    /// This is similar to `self.iter().fold(init, f)` except that the initial value is computed
+    /// by a closure rather than being provided directly. This is useful when the initial value
+    /// depends on the first element or when you need different behavior for empty matrices.
     ///
     /// The initialization closure is given the first component of this matrix:
-    /// - If the matrix has no component (0 rows or 0 columns) then `init_f` is called with `None`
+    /// - If the matrix has no components (0 rows or 0 columns), `init_f` is called with `None`
     ///   and its return value is the value returned by this method.
-    /// - If the matrix has has least one component, then `init_f` is called with the first component
-    ///   to compute the initial value. Folding then continues on all the remaining components of the matrix.
+    /// - If the matrix has at least one component, `init_f` is called with the first component
+    ///   to compute the initial value. Folding then continues on all remaining components.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let m = Matrix2::new(1, 2,
+    ///                      3, 4);
+    ///
+    /// // Use the first element as the initial value for summing
+    /// let sum = m.fold_with(
+    ///     |first| first.copied().unwrap_or(0),
+    ///     |acc, &x| acc + x
+    /// );
+    /// assert_eq!(sum, 10);
+    /// ```
+    ///
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let v = Vector3::new(2.0, 8.0, 4.0);
+    ///
+    /// // Find maximum value
+    /// let max = v.fold_with(
+    ///     |first| *first.unwrap(),
+    ///     |acc, &x| acc.max(x)
+    /// );
+    /// assert_eq!(max, 8.0);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`fold`](#method.fold) - Standard fold with explicit initial value
+    /// - [`zip_fold`](#method.zip_fold) - Fold over two matrices simultaneously
     #[inline]
     #[must_use]
     pub fn fold_with<T2>(
@@ -802,8 +1307,38 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         it.fold(init, f)
     }
 
-    /// Returns a matrix containing the result of `f` applied to each of its entries. Unlike `map`,
-    /// `f` also gets passed the row and column index, i.e. `f(row, col, value)`.
+    /// Returns a new matrix with a function applied to each element along with its position.
+    ///
+    /// This is similar to [`map`](#method.map), but the function also receives the row and column
+    /// indices of each element. The signature is `f(row, col, value)`. This is useful when the
+    /// transformation depends on the element's position in the matrix.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let m = Matrix2::new(1, 2,
+    ///                      3, 4);
+    ///
+    /// // Add row and column indices to each element
+    /// let result = m.map_with_location(|i, j, val| val + (i + j) as i32);
+    /// assert_eq!(result, Matrix2::new(1, 3,
+    ///                                 4, 6));
+    /// ```
+    ///
+    /// ```
+    /// # use nalgebra::Matrix3;
+    /// // Create a matrix where each element is its position encoded as row * 10 + col
+    /// let m = Matrix3::from_element(0);
+    /// let positions = m.map_with_location(|i, j, _| (i * 10 + j) as i32);
+    /// assert_eq!(positions[(1, 2)], 12);
+    /// assert_eq!(positions[(2, 1)], 21);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`map`](#method.map) - Map without position information
+    /// - [`zip_map`](#method.zip_map) - Map over two matrices simultaneously
     #[inline]
     #[must_use]
     pub fn map_with_location<T2: Scalar, F: FnMut(usize, usize, T) -> T2>(
@@ -831,8 +1366,48 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         unsafe { res.assume_init() }
     }
 
-    /// Returns a matrix containing the result of `f` applied to each entries of `self` and
-    /// `rhs`.
+    /// Returns a new matrix by applying a function to corresponding elements of two matrices.
+    ///
+    /// This method combines elements from `self` and `rhs` pairwise using the provided function.
+    /// The matrices must have the same dimensions. The function signature is `f(self_elem, rhs_elem)`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the matrices have different shapes.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let a = Matrix2::new(1, 2,
+    ///                      3, 4);
+    /// let b = Matrix2::new(10, 20,
+    ///                      30, 40);
+    ///
+    /// // Add corresponding elements
+    /// let sum = a.zip_map(&b, |x, y| x + y);
+    /// assert_eq!(sum, Matrix2::new(11, 22, 33, 44));
+    ///
+    /// // Multiply corresponding elements
+    /// let product = a.zip_map(&b, |x, y| x * y);
+    /// assert_eq!(product, Matrix2::new(10, 40, 90, 160));
+    /// ```
+    ///
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let v1 = Vector3::new(1.0, 2.0, 3.0);
+    /// let v2 = Vector3::new(2.0, 3.0, 4.0);
+    ///
+    /// // Compute element-wise maximum
+    /// let max = v1.zip_map(&v2, |a, b| a.max(b));
+    /// assert_eq!(max, Vector3::new(2.0, 3.0, 4.0));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`map`](#method.map) - Map over a single matrix
+    /// - [`zip_zip_map`](#method.zip_zip_map) - Map over three matrices
+    /// - [`zip_apply`](#method.zip_apply) - In-place version
     #[inline]
     #[must_use]
     pub fn zip_map<T2, N3, S2, F>(&self, rhs: &Matrix<T2, R, C, S2>, mut f: F) -> OMatrix<N3, R, C>
@@ -868,8 +1443,51 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         unsafe { res.assume_init() }
     }
 
-    /// Returns a matrix containing the result of `f` applied to each entries of `self` and
-    /// `b`, and `c`.
+    /// Returns a new matrix by applying a function to corresponding elements of three matrices.
+    ///
+    /// This method combines elements from `self`, `b`, and `c` using the provided function.
+    /// All matrices must have the same dimensions. The function signature is `f(self_elem, b_elem, c_elem)`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the matrices have different shapes.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let a = Matrix2::new(1, 2,
+    ///                      3, 4);
+    /// let b = Matrix2::new(10, 20,
+    ///                      30, 40);
+    /// let c = Matrix2::new(100, 200,
+    ///                      300, 400);
+    ///
+    /// // Compute a weighted sum: a + 2*b + 3*c
+    /// let result = a.zip_zip_map(&b, &c, |x, y, z| x + 2*y + 3*z);
+    /// assert_eq!(result, Matrix2::new(321, 642, 963, 1284));
+    /// ```
+    ///
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let v1 = Vector3::new(1.0, 5.0, 3.0);
+    /// let v2 = Vector3::new(2.0, 4.0, 6.0);
+    /// let v3 = Vector3::new(3.0, 2.0, 1.0);
+    ///
+    /// // Find the middle value (median) among three values
+    /// let median = v1.zip_zip_map(&v2, &v3, |a, b, c| {
+    ///     let mut arr = [a, b, c];
+    ///     arr.sort_by(|x, y| x.partial_cmp(y).unwrap());
+    ///     arr[1]
+    /// });
+    /// assert_eq!(median, Vector3::new(2.0, 4.0, 3.0));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`map`](#method.map) - Map over a single matrix
+    /// - [`zip_map`](#method.zip_map) - Map over two matrices
+    /// - [`zip_zip_apply`](#method.zip_zip_apply) - In-place version
     #[inline]
     #[must_use]
     pub fn zip_zip_map<T2, N3, N4, S2, S3, F>(
@@ -918,7 +1536,43 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         unsafe { res.assume_init() }
     }
 
-    /// Folds a function `f` on each entry of `self`.
+    /// Folds (reduces) all matrix elements into a single value using a function.
+    ///
+    /// This method iterates through all elements of the matrix in column-major order,
+    /// repeatedly applying the function to combine the accumulator with each element.
+    /// The function signature is `f(accumulator, element)`.
+    ///
+    /// This is equivalent to `self.iter().fold(init, f)` but optimized for matrix layout.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let m = Matrix2::new(1, 2,
+    ///                      3, 4);
+    ///
+    /// // Sum all elements
+    /// let sum = m.fold(0, |acc, x| acc + x);
+    /// assert_eq!(sum, 10);
+    ///
+    /// // Find maximum element
+    /// let max = m.fold(i32::MIN, |acc, x| acc.max(x));
+    /// assert_eq!(max, 4);
+    /// ```
+    ///
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let v = Vector3::new(2.0, 3.0, 4.0);
+    ///
+    /// // Compute product of all elements
+    /// let product = v.fold(1.0, |acc, x| acc * x);
+    /// assert_eq!(product, 24.0);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`fold_with`](#method.fold_with) - Fold with computed initial value
+    /// - [`zip_fold`](#method.zip_fold) - Fold over two matrices simultaneously
     #[inline]
     #[must_use]
     pub fn fold<Acc>(&self, init: Acc, mut f: impl FnMut(Acc, T) -> Acc) -> Acc
@@ -942,7 +1596,46 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         res
     }
 
-    /// Folds a function `f` on each pairs of entries from `self` and `rhs`.
+    /// Folds (reduces) corresponding elements from two matrices using a function.
+    ///
+    /// This method iterates through corresponding elements of `self` and `rhs` in column-major order,
+    /// repeatedly applying the function to combine the accumulator with each pair of elements.
+    /// The function signature is `f(accumulator, self_elem, rhs_elem)`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the matrices have different shapes.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let a = Matrix2::new(1, 2,
+    ///                      3, 4);
+    /// let b = Matrix2::new(10, 20,
+    ///                      30, 40);
+    ///
+    /// // Compute sum of products of corresponding elements
+    /// let dot_product = a.zip_fold(&b, 0, |acc, x, y| acc + x * y);
+    /// assert_eq!(dot_product, 1*10 + 2*20 + 3*30 + 4*40);
+    /// ```
+    ///
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let v1 = Vector3::new(1.0, 2.0, 3.0);
+    /// let v2 = Vector3::new(2.0, 3.0, 1.0);
+    ///
+    /// // Count how many corresponding elements satisfy a condition
+    /// let count = v1.zip_fold(&v2, 0, |acc, x, y| {
+    ///     if x > y { acc + 1 } else { acc }
+    /// });
+    /// assert_eq!(count, 1); // Only 3.0 > 1.0
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`fold`](#method.fold) - Fold over a single matrix
+    /// - [`zip_map`](#method.zip_map) - Map over two matrices
     #[inline]
     #[must_use]
     pub fn zip_fold<T2, R2, C2, S2, Acc>(
@@ -982,7 +1675,38 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         res
     }
 
-    /// Applies a closure `f` to modify each component of `self`.
+    /// Applies a function to each element of the matrix, modifying it in-place.
+    ///
+    /// This is the in-place version of [`map`](#method.map). The function receives a mutable
+    /// reference to each element and can modify it directly. Elements are processed in
+    /// column-major order.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let mut m = Matrix2::new(1, 2,
+    ///                          3, 4);
+    ///
+    /// // Double each element in-place
+    /// m.apply(|x| *x *= 2);
+    /// assert_eq!(m, Matrix2::new(2, 4, 6, 8));
+    /// ```
+    ///
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let mut v = Vector3::new(-1.0, 2.5, -3.7);
+    ///
+    /// // Take absolute value of each element
+    /// v.apply(|x| *x = x.abs());
+    /// assert_eq!(v, Vector3::new(1.0, 2.5, 3.7));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`map`](#method.map) - Non-mutating version that returns a new matrix
+    /// - [`apply_into`](#method.apply_into) - Chainable version
+    /// - [`zip_apply`](#method.zip_apply) - Apply with elements from another matrix
     #[inline]
     pub fn apply<F: FnMut(&mut T)>(&mut self, mut f: F)
     where
@@ -1000,8 +1724,45 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         }
     }
 
-    /// Replaces each component of `self` by the result of a closure `f` applied on its components
-    /// joined with the components from `rhs`.
+    /// Modifies each element in-place using corresponding elements from another matrix.
+    ///
+    /// This is the in-place version of [`zip_map`](#method.zip_map). The function receives
+    /// a mutable reference to each element of `self` and the corresponding element from `rhs`.
+    /// The function signature is `f(&mut self_elem, rhs_elem)`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the matrices have different shapes.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let mut a = Matrix2::new(1, 2,
+    ///                          3, 4);
+    /// let b = Matrix2::new(10, 20,
+    ///                      30, 40);
+    ///
+    /// // Add corresponding elements from b to a
+    /// a.zip_apply(&b, |x, y| *x += y);
+    /// assert_eq!(a, Matrix2::new(11, 22, 33, 44));
+    /// ```
+    ///
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let mut v1 = Vector3::new(1.0, 2.0, 3.0);
+    /// let v2 = Vector3::new(2.0, 3.0, 1.0);
+    ///
+    /// // Keep maximum of each pair
+    /// v1.zip_apply(&v2, |x, y| *x = (*x).max(y));
+    /// assert_eq!(v1, Vector3::new(2.0, 3.0, 3.0));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`zip_map`](#method.zip_map) - Non-mutating version that returns a new matrix
+    /// - [`apply`](#method.apply) - Apply to a single matrix
+    /// - [`zip_zip_apply`](#method.zip_zip_apply) - Apply with three matrices
     #[inline]
     pub fn zip_apply<T2, R2, C2, S2>(
         &mut self,
@@ -1034,8 +1795,48 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         }
     }
 
-    /// Replaces each component of `self` by the result of a closure `f` applied on its components
-    /// joined with the components from `b` and `c`.
+    /// Modifies each element in-place using corresponding elements from two other matrices.
+    ///
+    /// This is the in-place version of [`zip_zip_map`](#method.zip_zip_map). The function receives
+    /// a mutable reference to each element of `self` and the corresponding elements from `b` and `c`.
+    /// The function signature is `f(&mut self_elem, b_elem, c_elem)`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the matrices have different shapes.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let mut a = Matrix2::new(1, 2,
+    ///                          3, 4);
+    /// let b = Matrix2::new(10, 20,
+    ///                      30, 40);
+    /// let c = Matrix2::new(100, 200,
+    ///                      300, 400);
+    ///
+    /// // Compute: a = a + 2*b + 3*c
+    /// a.zip_zip_apply(&b, &c, |x, y, z| *x = *x + 2*y + 3*z);
+    /// assert_eq!(a, Matrix2::new(321, 642, 963, 1284));
+    /// ```
+    ///
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let mut v1 = Vector3::new(1.0, 5.0, 3.0);
+    /// let v2 = Vector3::new(2.0, 4.0, 6.0);
+    /// let v3 = Vector3::new(3.0, 2.0, 1.0);
+    ///
+    /// // Find and store the maximum among three values
+    /// v1.zip_zip_apply(&v2, &v3, |x, y, z| *x = (*x).max(y).max(z));
+    /// assert_eq!(v1, Vector3::new(3.0, 5.0, 6.0));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`zip_zip_map`](#method.zip_zip_map) - Non-mutating version that returns a new matrix
+    /// - [`zip_apply`](#method.zip_apply) - Apply with two matrices
+    /// - [`apply`](#method.apply) - Apply to a single matrix
     #[inline]
     pub fn zip_zip_apply<T2, R2, C2, S2, N3, R3, C3, S3>(
         &mut self,
@@ -1083,13 +1884,20 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
 
 /// # Iteration on components, rows, and columns
 impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
-    /// Iterates through this matrix coordinates in column-major order.
+    /// Returns an iterator over all matrix elements in column-major order.
     ///
-    /// # Example
+    /// The iterator yields references to each element, traversing the matrix column by column.
+    /// This is the standard iteration order for matrices in nalgebra, optimized for column-major
+    /// storage layout.
+    ///
+    /// # Examples
+    ///
     /// ```
     /// # use nalgebra::Matrix2x3;
     /// let mat = Matrix2x3::new(11, 12, 13,
     ///                          21, 22, 23);
+    ///
+    /// // Iterate in column-major order: first column, then second, then third
     /// let mut it = mat.iter();
     /// assert_eq!(*it.next().unwrap(), 11);
     /// assert_eq!(*it.next().unwrap(), 21);
@@ -1099,6 +1907,19 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_eq!(*it.next().unwrap(), 23);
     /// assert!(it.next().is_none());
     /// ```
+    ///
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let v = Vector3::new(1, 2, 3);
+    /// let sum: i32 = v.iter().sum();
+    /// assert_eq!(sum, 6);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`iter_mut`](#method.iter_mut) - Mutable iterator
+    /// - [`column_iter`](#method.column_iter) - Iterate over columns
+    /// - [`row_iter`](#method.row_iter) - Iterate over rows
     #[inline]
     pub fn iter(&self) -> MatrixIter<'_, T, R, C, S> {
         MatrixIter::new(&self.data)
@@ -1120,9 +1941,13 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         RowIter::new(self)
     }
 
-    /// Iterate through the columns of this matrix.
+    /// Returns an iterator over the columns of the matrix.
     ///
-    /// # Example
+    /// Each iteration yields a column view, allowing you to process the matrix one column at a time.
+    /// This is efficient for column-major matrices as columns are stored contiguously in memory.
+    ///
+    /// # Examples
+    ///
     /// ```
     /// # use nalgebra::Matrix2x3;
     /// let mut a = Matrix2x3::new(1, 2, 3,
@@ -1131,12 +1956,57 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     ///     assert_eq!(column, a.column(i))
     /// }
     /// ```
+    ///
+    /// ```
+    /// # use nalgebra::Matrix3;
+    /// let m = Matrix3::identity();
+    /// let col_sums: Vec<f64> = m.column_iter()
+    ///     .map(|col| col.iter().sum())
+    ///     .collect();
+    /// assert_eq!(col_sums, vec![1.0, 1.0, 1.0]);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`column_iter_mut`](#method.column_iter_mut) - Mutable column iterator
+    /// - [`row_iter`](#method.row_iter) - Iterate over rows
+    /// - [`iter`](#method.iter) - Iterate over individual elements
     #[inline]
     pub fn column_iter(&self) -> ColumnIter<'_, T, R, C, S> {
         ColumnIter::new(self)
     }
 
-    /// Mutably iterates through this matrix coordinates.
+    /// Returns a mutable iterator over all matrix elements in column-major order.
+    ///
+    /// The iterator yields mutable references to each element, allowing in-place modifications
+    /// while traversing the matrix column by column.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2x3;
+    /// let mut m = Matrix2x3::new(1, 2, 3,
+    ///                            4, 5, 6);
+    ///
+    /// // Double each element
+    /// for elem in m.iter_mut() {
+    ///     *elem *= 2;
+    /// }
+    /// assert_eq!(m, Matrix2x3::new(2, 4, 6, 8, 10, 12));
+    /// ```
+    ///
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let mut v = Vector3::new(1.0, 2.0, 3.0);
+    /// v.iter_mut().for_each(|x| *x = x.sqrt());
+    /// assert_eq!(v, Vector3::new(1.0, 2.0f64.sqrt(), 3.0f64.sqrt()));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`iter`](#method.iter) - Immutable iterator
+    /// - [`column_iter_mut`](#method.column_iter_mut) - Mutable iterator over columns
+    /// - [`apply`](#method.apply) - Apply a function to each element in-place
     #[inline]
     pub fn iter_mut(&mut self) -> MatrixIterMut<'_, T, R, C, S>
     where
@@ -1168,9 +2038,14 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         RowIterMut::new(self)
     }
 
-    /// Mutably iterates through this matrix columns.
+    /// Returns a mutable iterator over the columns of the matrix.
     ///
-    /// # Example
+    /// Each iteration yields a mutable column view, allowing you to modify the matrix
+    /// one column at a time. This is efficient for column-major matrices as columns
+    /// are stored contiguously in memory.
+    ///
+    /// # Examples
+    ///
     /// ```
     /// # use nalgebra::Matrix2x3;
     /// let mut a = Matrix2x3::new(1, 2, 3,
@@ -1183,6 +2058,24 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     ///                               40, 100, 180);
     /// assert_eq!(a, expected);
     /// ```
+    ///
+    /// ```
+    /// # use nalgebra::Matrix3;
+    /// let mut m = Matrix3::zeros();
+    /// // Set each column to increasing values
+    /// for (i, mut col) in m.column_iter_mut().enumerate() {
+    ///     col.fill((i + 1) as f64);
+    /// }
+    /// assert_eq!(m.column(0).sum(), 3.0);
+    /// assert_eq!(m.column(1).sum(), 6.0);
+    /// assert_eq!(m.column(2).sum(), 9.0);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`column_iter`](#method.column_iter) - Immutable column iterator
+    /// - [`row_iter_mut`](#method.row_iter_mut) - Mutable row iterator
+    /// - [`iter_mut`](#method.iter_mut) - Mutable iterator over individual elements
     #[inline]
     pub fn column_iter_mut(&mut self) -> ColumnIterMut<'_, T, R, C, S>
     where
@@ -1193,10 +2086,42 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
 }
 
 impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
-    /// Returns a mutable pointer to the start of the matrix.
+    /// Returns a mutable raw pointer to the first element of the matrix.
     ///
-    /// If the matrix is not empty, this pointer is guaranteed to be aligned
-    /// and non-null.
+    /// This provides direct mutable access to the underlying memory. The matrix data is stored
+    /// in column-major order, meaning elements within each column are contiguous in memory.
+    ///
+    /// If the matrix is not empty, this pointer is guaranteed to be properly aligned and non-null.
+    ///
+    /// # Safety
+    ///
+    /// While this method itself is safe, dereferencing the returned pointer requires `unsafe` code.
+    /// The caller must ensure:
+    /// - The pointer is only used while the matrix is valid and hasn't been moved
+    /// - Proper bounds are maintained (use [`len`](#method.len) to check the element count)
+    /// - No other references (mutable or immutable) to the matrix data exist while using this pointer
+    /// - Modifications through the pointer maintain the matrix's invariants
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let mut m = Matrix2::new(1, 2,
+    ///                          3, 4);
+    /// let ptr = m.as_mut_ptr();
+    ///
+    /// // Modify the first element (stored in column-major order)
+    /// unsafe {
+    ///     *ptr = 10;
+    /// }
+    ///
+    /// assert_eq!(m[(0, 0)], 10);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`as_ptr`](#method.as_ptr) - Returns an immutable pointer
+    /// - [`as_mut_slice`](#method.as_mut_slice) - Returns a safe mutable slice for contiguous matrices
     #[inline]
     pub fn as_mut_ptr(&mut self) -> *mut T {
         self.data.ptr_mut()
@@ -1216,7 +2141,39 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
         }
     }
 
-    /// Swaps two entries.
+    /// Swaps two elements in the matrix.
+    ///
+    /// The elements are specified by their `(row, column)` coordinates. This method
+    /// can swap any two elements, even if they're in the same row or column.
+    ///
+    /// # Panics
+    ///
+    /// Panics if either coordinate pair is out of bounds.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let mut m = Matrix2::new(1, 2,
+    ///                          3, 4);
+    ///
+    /// // Swap elements at (0, 0) and (1, 1)
+    /// m.swap((0, 0), (1, 1));
+    /// assert_eq!(m, Matrix2::new(4, 2,
+    ///                            3, 1));
+    /// ```
+    ///
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let mut v = Vector3::new(1, 2, 3);
+    /// v.swap((0, 0), (2, 0));
+    /// assert_eq!(v, Vector3::new(3, 2, 1));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`swap_rows`](#method.swap_rows) - Swap entire rows
+    /// - [`swap_columns`](#method.swap_columns) - Swap entire columns
     #[inline]
     pub fn swap(&mut self, row_cols1: (usize, usize), row_cols2: (usize, usize)) {
         let (nrows, ncols) = self.shape();
@@ -1231,9 +2188,40 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
         unsafe { self.swap_unchecked(row_cols1, row_cols2) }
     }
 
-    /// Fills this matrix with the content of a slice. Both must hold the same number of elements.
+    /// Copies elements from a slice into this matrix.
     ///
-    /// The components of the slice are assumed to be ordered in column-major order.
+    /// The slice must contain exactly as many elements as the matrix (nrows × ncols).
+    /// Elements from the slice are copied in column-major order: the first `nrows` elements
+    /// fill the first column, the next `nrows` elements fill the second column, and so on.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the slice length doesn't match the matrix size.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2x3;
+    /// let mut m = Matrix2x3::zeros();
+    /// let data = [1, 4, 2, 5, 3, 6];  // Column-major order
+    ///
+    /// m.copy_from_slice(&data);
+    /// assert_eq!(m, Matrix2x3::new(1, 2, 3,
+    ///                              4, 5, 6));
+    /// ```
+    ///
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let mut v = Vector3::zeros();
+    /// v.copy_from_slice(&[10, 20, 30]);
+    /// assert_eq!(v, Vector3::new(10, 20, 30));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`copy_from`](#method.copy_from) - Copy from another matrix
+    /// - [`from_row_slice`](#method.from_row_slice) - Create a matrix from row-major data
+    /// - [`from_column_slice`](#method.from_column_slice) - Create a matrix from column-major data
     #[inline]
     pub fn copy_from_slice(&mut self, slice: &[T])
     where
@@ -1255,7 +2243,43 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
         }
     }
 
-    /// Fills this matrix with the content of another one. Both must have the same shape.
+    /// Copies all elements from another matrix into this one.
+    ///
+    /// Both matrices must have the same dimensions. This is useful for copying data between
+    /// matrices with different storage types (e.g., from a dynamic matrix to a static one,
+    /// or from a matrix view to an owned matrix).
+    ///
+    /// # Panics
+    ///
+    /// Panics if the matrices have different shapes.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2, DMatrix};
+    /// let source = Matrix2::new(1, 2,
+    ///                           3, 4);
+    /// let mut dest = Matrix2::zeros();
+    ///
+    /// dest.copy_from(&source);
+    /// assert_eq!(dest, source);
+    /// ```
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix3, DMatrix};
+    /// // Copy from dynamic to static
+    /// let dyn_mat = DMatrix::from_row_slice(2, 2, &[1, 2, 3, 4]);
+    /// let mut static_mat = Matrix3::zeros();
+    /// static_mat.view_mut((0, 0), (2, 2)).copy_from(&dyn_mat);
+    /// assert_eq!(static_mat[(0, 0)], 1);
+    /// assert_eq!(static_mat[(1, 1)], 4);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`copy_from_slice`](#method.copy_from_slice) - Copy from a slice
+    /// - [`tr_copy_from`](#method.tr_copy_from) - Copy the transpose of another matrix
+    /// - [`clone_from`](#method.clone_from) - Standard library clone method
     #[inline]
     pub fn copy_from<R2, C2, SB>(&mut self, other: &Matrix<T, R2, C2, SB>)
     where
@@ -1279,7 +2303,43 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
         }
     }
 
-    /// Fills this matrix with the content of the transpose another one.
+    /// Copies the transpose of another matrix into this one.
+    ///
+    /// If `other` has dimensions `m × n`, then `self` must have dimensions `n × m`.
+    /// This is equivalent to `self.copy_from(&other.transpose())` but more efficient
+    /// as it avoids allocating a temporary transposed matrix.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the dimensions are incompatible (i.e., if `self.shape()` ≠ `(other.ncols(), other.nrows())`).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2x3, Matrix3x2};
+    /// let source = Matrix2x3::new(1, 2, 3,
+    ///                             4, 5, 6);
+    /// let mut dest = Matrix3x2::zeros();
+    ///
+    /// dest.tr_copy_from(&source);
+    /// assert_eq!(dest, Matrix3x2::new(1, 4,
+    ///                                 2, 5,
+    ///                                 3, 6));
+    /// ```
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2, RowVector2, Vector2};
+    /// let col = Vector2::new(1, 2);
+    /// let mut row = RowVector2::zeros();
+    ///
+    /// row.tr_copy_from(&col);
+    /// assert_eq!(row, RowVector2::new(1, 2));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`copy_from`](#method.copy_from) - Copy without transposing
+    /// - [`transpose_to`](#method.transpose_to) - Transpose into a pre-allocated matrix
     #[inline]
     pub fn tr_copy_from<R2, C2, SB>(&mut self, other: &Matrix<T, R2, C2, SB>)
     where
@@ -1305,7 +2365,36 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
     }
 
     // TODO: rename `apply` to `apply_mut` and `apply_into` to `apply`?
-    /// Returns `self` with each of its components replaced by the result of a closure `f` applied on it.
+    /// Applies a function to each element and returns the modified matrix.
+    ///
+    /// This is a chainable version of [`apply`](#method.apply). It consumes `self`, applies
+    /// the function to each element in-place, and returns the modified matrix. This is useful
+    /// for method chaining and functional-style programming.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let m = Matrix2::new(1, 2,
+    ///                      3, 4);
+    ///
+    /// let doubled = m.apply_into(|x| *x *= 2);
+    /// assert_eq!(doubled, Matrix2::new(2, 4, 6, 8));
+    /// ```
+    ///
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// // Chain multiple operations
+    /// let v = Vector3::new(1.0, 4.0, 9.0)
+    ///     .apply_into(|x| *x = x.sqrt())
+    ///     .apply_into(|x| *x *= 2.0);
+    /// assert_eq!(v, Vector3::new(2.0, 4.0, 6.0));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`apply`](#method.apply) - Non-chainable in-place version
+    /// - [`map`](#method.map) - Creates a new matrix instead of modifying
     #[inline]
     pub fn apply_into<F: FnMut(&mut T)>(mut self, f: F) -> Self {
         self.apply(f);
@@ -1344,7 +2433,39 @@ impl<T, D: Dim, S: RawStorageMut<T, D>> Vector<T, D, S> {
 }
 
 impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C> + IsContiguous> Matrix<T, R, C, S> {
-    /// Extracts a slice containing the entire matrix entries ordered column-by-columns.
+    /// Returns a slice containing all matrix elements in column-major order.
+    ///
+    /// This method provides safe, direct access to the underlying matrix data as a slice.
+    /// Elements are arranged in column-major order: all elements from the first column,
+    /// followed by all elements from the second column, and so on.
+    ///
+    /// This method is only available for matrices with contiguous storage (indicated by the
+    /// `IsContiguous` trait bound). Most standard matrix types like `Matrix`, `DMatrix`,
+    /// and `Vector` satisfy this requirement, but some matrix views may not.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2x3;
+    /// let m = Matrix2x3::new(1, 2, 3,
+    ///                        4, 5, 6);
+    ///
+    /// // Elements are in column-major order: column 1, then column 2, then column 3
+    /// let slice = m.as_slice();
+    /// assert_eq!(slice, &[1, 4, 2, 5, 3, 6]);
+    /// ```
+    ///
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let v = Vector3::new(10, 20, 30);
+    /// assert_eq!(v.as_slice(), &[10, 20, 30]);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`as_mut_slice`](#method.as_mut_slice) - Returns a mutable slice
+    /// - [`as_ptr`](#method.as_ptr) - Returns a raw pointer for unsafe access
+    /// - [`iter`](#method.iter) - Iterate over elements
     #[inline]
     #[must_use]
     pub fn as_slice(&self) -> &[T] {
@@ -1362,7 +2483,44 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C> + IsContiguous> AsRef<[T]> for Ma
 }
 
 impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C> + IsContiguous> Matrix<T, R, C, S> {
-    /// Extracts a mutable slice containing the entire matrix entries ordered column-by-columns.
+    /// Returns a mutable slice containing all matrix elements in column-major order.
+    ///
+    /// This method provides safe, direct mutable access to the underlying matrix data as a slice.
+    /// Elements are arranged in column-major order: all elements from the first column,
+    /// followed by all elements from the second column, and so on.
+    ///
+    /// This method is only available for matrices with contiguous storage (indicated by the
+    /// `IsContiguous` trait bound). Most standard matrix types like `Matrix`, `DMatrix`,
+    /// and `Vector` satisfy this requirement, but some matrix views may not.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2x3;
+    /// let mut m = Matrix2x3::new(1, 2, 3,
+    ///                            4, 5, 6);
+    ///
+    /// // Modify elements through the slice (in column-major order)
+    /// let slice = m.as_mut_slice();
+    /// slice[0] = 10;  // Modifies m[(0, 0)]
+    /// slice[1] = 40;  // Modifies m[(1, 0)]
+    ///
+    /// assert_eq!(m[(0, 0)], 10);
+    /// assert_eq!(m[(1, 0)], 40);
+    /// ```
+    ///
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let mut v = Vector3::new(1, 2, 3);
+    /// v.as_mut_slice().iter_mut().for_each(|x| *x *= 2);
+    /// assert_eq!(v, Vector3::new(2, 4, 6));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`as_slice`](#method.as_slice) - Returns an immutable slice
+    /// - [`as_mut_ptr`](#method.as_mut_ptr) - Returns a raw mutable pointer for unsafe access
+    /// - [`iter_mut`](#method.iter_mut) - Iterate mutably over elements
     #[inline]
     #[must_use]
     pub fn as_mut_slice(&mut self) -> &mut [T] {
@@ -1372,7 +2530,42 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C> + IsContiguous> Matrix<T, R, C
 }
 
 impl<T: Scalar, D: Dim, S: RawStorageMut<T, D, D>> Matrix<T, D, D, S> {
-    /// Transposes the square matrix `self` in-place.
+    /// Transposes a square matrix in-place.
+    ///
+    /// This method swaps rows and columns of a square matrix without allocating new memory.
+    /// It's more efficient than `transpose()` when you don't need to keep the original matrix.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the matrix is not square.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::Matrix3;
+    /// let mut m = Matrix3::new(1, 2, 3,
+    ///                          4, 5, 6,
+    ///                          7, 8, 9);
+    ///
+    /// m.transpose_mut();
+    /// assert_eq!(m, Matrix3::new(1, 4, 7,
+    ///                            2, 5, 8,
+    ///                            3, 6, 9));
+    /// ```
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let mut m = Matrix2::new(1.0, 2.0,
+    ///                          3.0, 4.0);
+    /// m.transpose_mut();
+    /// assert_eq!(m[(0, 1)], 3.0);
+    /// assert_eq!(m[(1, 0)], 2.0);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`transpose`](#method.transpose) - Returns a new transposed matrix
+    /// - [`adjoint_mut`](#method.adjoint_mut) - In-place conjugate transpose
     pub fn transpose_mut(&mut self) {
         assert!(
             self.is_square(),
@@ -1423,7 +2616,37 @@ impl<T: SimdComplexField, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C
         }
     }
 
-    /// Takes the adjoint (aka. conjugate-transpose) of `self` and store the result into `out`.
+    /// Computes the adjoint (conjugate transpose) and stores it into a pre-allocated matrix.
+    ///
+    /// This method is useful when you want to avoid allocating a new matrix for the adjoint
+    /// operation. The output matrix must have dimensions matching the adjoint (i.e., if `self`
+    /// is `m × n`, then `out` must be `n × m`).
+    ///
+    /// # Panics
+    ///
+    /// Panics if the output matrix dimensions don't match the expected adjoint dimensions.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2, Complex};
+    /// let m = Matrix2::new(
+    ///     Complex::new(1.0, 2.0), Complex::new(3.0, 4.0),
+    ///     Complex::new(5.0, 6.0), Complex::new(7.0, 8.0)
+    /// );
+    ///
+    /// let mut out = Matrix2::zeros();
+    /// m.adjoint_to(&mut out);
+    ///
+    /// // Adjoint: transposed and conjugated
+    /// assert_eq!(out[(0, 0)], Complex::new(1.0, -2.0));
+    /// assert_eq!(out[(1, 0)], Complex::new(3.0, -4.0));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`adjoint`](#method.adjoint) - Allocates and returns a new adjoint matrix
+    /// - [`transpose_to`](#method.transpose_to) - Transpose without conjugation
     #[inline]
     pub fn adjoint_to<R2, C2, SB>(&self, out: &mut Matrix<T, R2, C2, SB>)
     where
@@ -1435,7 +2658,48 @@ impl<T: SimdComplexField, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C
         self.adjoint_to_uninit(Init, out)
     }
 
-    /// The adjoint (aka. conjugate-transpose) of `self`.
+    /// Returns the adjoint (conjugate transpose) of this matrix.
+    ///
+    /// The adjoint of a matrix is obtained by taking the transpose and then taking the
+    /// complex conjugate of each element. For real-valued matrices, this is equivalent to
+    /// the transpose. For complex matrices, each element is conjugated (the sign of the
+    /// imaginary part is flipped).
+    ///
+    /// If the original matrix has dimensions `m × n`, the adjoint will have dimensions `n × m`.
+    ///
+    /// This operation is commonly used in quantum mechanics, signal processing, and when
+    /// working with Hermitian matrices.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2, Complex};
+    /// // Real matrix: adjoint is the same as transpose
+    /// let m = Matrix2::new(1.0, 2.0,
+    ///                      3.0, 4.0);
+    /// let adj = m.adjoint();
+    /// assert_eq!(adj[(0, 0)], 1.0);
+    /// assert_eq!(adj[(1, 0)], 2.0);
+    /// assert_eq!(adj[(0, 1)], 3.0);
+    /// ```
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2, Complex};
+    /// // Complex matrix: transpose and conjugate each element
+    /// let m = Matrix2::new(
+    ///     Complex::new(1.0, 2.0), Complex::new(3.0, 4.0),
+    ///     Complex::new(5.0, 6.0), Complex::new(7.0, 8.0)
+    /// );
+    /// let adj = m.adjoint();
+    /// assert_eq!(adj[(0, 0)], Complex::new(1.0, -2.0));  // Conjugated
+    /// assert_eq!(adj[(1, 0)], Complex::new(3.0, -4.0));  // Conjugated and transposed
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`transpose`](#method.transpose) - Transpose without conjugation
+    /// - [`conjugate`](#method.conjugate) - Conjugate without transposition
+    /// - [`adjoint_mut`](#method.adjoint_mut) - In-place adjoint for square matrices
     #[inline]
     #[must_use = "Did you mean to use adjoint_mut()?"]
     pub fn adjoint(&self) -> OMatrix<T, C, R>
@@ -1474,7 +2738,44 @@ impl<T: SimdComplexField, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C
         self.adjoint()
     }
 
-    /// The conjugate of `self`.
+    /// Returns the complex conjugate of this matrix.
+    ///
+    /// The conjugate of a matrix is obtained by taking the complex conjugate of each element.
+    /// For complex numbers, this flips the sign of the imaginary part. For real numbers,
+    /// the conjugate is the same as the original number.
+    ///
+    /// The matrix dimensions remain unchanged (unlike `transpose` or `adjoint`).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2, Complex};
+    /// // Real matrix: conjugate returns a copy
+    /// let m = Matrix2::new(1.0, 2.0,
+    ///                      3.0, 4.0);
+    /// let conj = m.conjugate();
+    /// assert_eq!(conj, m);
+    /// ```
+    ///
+    /// ```
+    /// # use nalgebra::{Vector3, Complex};
+    /// // Complex vector: flip the sign of imaginary parts
+    /// let v = Vector3::new(
+    ///     Complex::new(1.0, 2.0),
+    ///     Complex::new(3.0, -4.0),
+    ///     Complex::new(5.0, 0.0)
+    /// );
+    /// let conj = v.conjugate();
+    /// assert_eq!(conj[0], Complex::new(1.0, -2.0));
+    /// assert_eq!(conj[1], Complex::new(3.0, 4.0));
+    /// assert_eq!(conj[2], Complex::new(5.0, 0.0));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`adjoint`](#method.adjoint) - Conjugate transpose
+    /// - [`conjugate_mut`](#method.conjugate_mut) - In-place conjugation
+    /// - [`transpose`](#method.transpose) - Transpose without conjugation
     #[inline]
     #[must_use = "Did you mean to use conjugate_mut()?"]
     pub fn conjugate(&self) -> OMatrix<T, R, C>
@@ -1484,7 +2785,30 @@ impl<T: SimdComplexField, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C
         self.map(|e| e.simd_conjugate())
     }
 
-    /// Divides each component of the complex matrix `self` by the given real.
+    /// Divides each element of the matrix by a real scalar.
+    ///
+    /// This method is specifically for complex matrices, where each complex element
+    /// is divided by the given real number. For real matrices, this is equivalent to
+    /// regular scalar division.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2, Complex};
+    /// let m = Matrix2::new(
+    ///     Complex::new(2.0, 4.0), Complex::new(6.0, 8.0),
+    ///     Complex::new(10.0, 12.0), Complex::new(14.0, 16.0)
+    /// );
+    ///
+    /// let result = m.unscale(2.0);
+    /// assert_eq!(result[(0, 0)], Complex::new(1.0, 2.0));
+    /// assert_eq!(result[(1, 1)], Complex::new(7.0, 8.0));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`scale`](#method.scale) - Multiply by a scalar
+    /// - [`unscale_mut`](#method.unscale_mut) - In-place version
     #[inline]
     #[must_use = "Did you mean to use unscale_mut()?"]
     pub fn unscale(&self, real: T::SimdRealField) -> OMatrix<T, R, C>
@@ -1494,7 +2818,30 @@ impl<T: SimdComplexField, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C
         self.map(|e| e.simd_unscale(real.clone()))
     }
 
-    /// Multiplies each component of the complex matrix `self` by the given real.
+    /// Multiplies each element of the matrix by a real scalar.
+    ///
+    /// This method is specifically for complex matrices, where each complex element
+    /// is multiplied by the given real number. For real matrices, this is equivalent to
+    /// regular scalar multiplication.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2, Complex};
+    /// let m = Matrix2::new(
+    ///     Complex::new(1.0, 2.0), Complex::new(3.0, 4.0),
+    ///     Complex::new(5.0, 6.0), Complex::new(7.0, 8.0)
+    /// );
+    ///
+    /// let result = m.scale(2.0);
+    /// assert_eq!(result[(0, 0)], Complex::new(2.0, 4.0));
+    /// assert_eq!(result[(1, 1)], Complex::new(14.0, 16.0));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`unscale`](#method.unscale) - Divide by a scalar
+    /// - [`scale_mut`](#method.scale_mut) - In-place version
     #[inline]
     #[must_use = "Did you mean to use scale_mut()?"]
     pub fn scale(&self, real: T::SimdRealField) -> OMatrix<T, R, C>
@@ -1506,19 +2853,85 @@ impl<T: SimdComplexField, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C
 }
 
 impl<T: SimdComplexField, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
-    /// The conjugate of the complex matrix `self` computed in-place.
+    /// Conjugates the matrix in-place.
+    ///
+    /// For complex matrices, this flips the sign of the imaginary part of each element.
+    /// For real matrices, this has no effect.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::{Vector3, Complex};
+    /// let mut v = Vector3::new(
+    ///     Complex::new(1.0, 2.0),
+    ///     Complex::new(3.0, -4.0),
+    ///     Complex::new(5.0, 0.0)
+    /// );
+    ///
+    /// v.conjugate_mut();
+    /// assert_eq!(v[0], Complex::new(1.0, -2.0));
+    /// assert_eq!(v[1], Complex::new(3.0, 4.0));
+    /// assert_eq!(v[2], Complex::new(5.0, 0.0));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`conjugate`](#method.conjugate) - Non-mutating version
+    /// - [`adjoint_mut`](#method.adjoint_mut) - In-place conjugate transpose
     #[inline]
     pub fn conjugate_mut(&mut self) {
         self.apply(|e| *e = e.clone().simd_conjugate())
     }
 
-    /// Divides each component of the complex matrix `self` by the given real.
+    /// Divides each element by a real scalar in-place.
+    ///
+    /// This is the in-place version of [`unscale`](#method.unscale).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2, Complex};
+    /// let mut m = Matrix2::new(
+    ///     Complex::new(2.0, 4.0), Complex::new(6.0, 8.0),
+    ///     Complex::new(10.0, 12.0), Complex::new(14.0, 16.0)
+    /// );
+    ///
+    /// m.unscale_mut(2.0);
+    /// assert_eq!(m[(0, 0)], Complex::new(1.0, 2.0));
+    /// assert_eq!(m[(1, 1)], Complex::new(7.0, 8.0));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`unscale`](#method.unscale) - Non-mutating version
+    /// - [`scale_mut`](#method.scale_mut) - Multiply by a scalar
     #[inline]
     pub fn unscale_mut(&mut self, real: T::SimdRealField) {
         self.apply(|e| *e = e.clone().simd_unscale(real.clone()))
     }
 
-    /// Multiplies each component of the complex matrix `self` by the given real.
+    /// Multiplies each element by a real scalar in-place.
+    ///
+    /// This is the in-place version of [`scale`](#method.scale).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2, Complex};
+    /// let mut m = Matrix2::new(
+    ///     Complex::new(1.0, 2.0), Complex::new(3.0, 4.0),
+    ///     Complex::new(5.0, 6.0), Complex::new(7.0, 8.0)
+    /// );
+    ///
+    /// m.scale_mut(2.0);
+    /// assert_eq!(m[(0, 0)], Complex::new(2.0, 4.0));
+    /// assert_eq!(m[(1, 1)], Complex::new(14.0, 16.0));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`scale`](#method.scale) - Non-mutating version
+    /// - [`unscale_mut`](#method.unscale_mut) - Divide by a scalar
     #[inline]
     pub fn scale_mut(&mut self, real: T::SimdRealField) {
         self.apply(|e| *e = e.clone().simd_scale(real.clone()))
@@ -1532,7 +2945,39 @@ impl<T: SimdComplexField, D: Dim, S: RawStorageMut<T, D, D>> Matrix<T, D, D, S> 
         self.adjoint_mut()
     }
 
-    /// Sets `self` to its adjoint (aka. conjugate-transpose).
+    /// Computes the adjoint (conjugate transpose) of a square matrix in-place.
+    ///
+    /// This method transposes the matrix and conjugates each element, without allocating
+    /// new memory. It combines the effects of [`transpose_mut`](#method.transpose_mut)
+    /// and [`conjugate_mut`](#method.conjugate_mut).
+    ///
+    /// # Panics
+    ///
+    /// Panics if the matrix is not square.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2, Complex};
+    /// let mut m = Matrix2::new(
+    ///     Complex::new(1.0, 2.0), Complex::new(3.0, 4.0),
+    ///     Complex::new(5.0, 6.0), Complex::new(7.0, 8.0)
+    /// );
+    ///
+    /// m.adjoint_mut();
+    ///
+    /// // Transposed and conjugated
+    /// assert_eq!(m[(0, 0)], Complex::new(1.0, -2.0));
+    /// assert_eq!(m[(0, 1)], Complex::new(5.0, -6.0));
+    /// assert_eq!(m[(1, 0)], Complex::new(3.0, -4.0));
+    /// assert_eq!(m[(1, 1)], Complex::new(7.0, -8.0));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`adjoint`](#method.adjoint) - Returns a new adjoint matrix
+    /// - [`transpose_mut`](#method.transpose_mut) - In-place transpose without conjugation
+    /// - [`conjugate_mut`](#method.conjugate_mut) - In-place conjugation without transpose
     pub fn adjoint_mut(&mut self) {
         assert!(
             self.is_square(),
@@ -1562,7 +3007,24 @@ impl<T: SimdComplexField, D: Dim, S: RawStorageMut<T, D, D>> Matrix<T, D, D, S> 
 }
 
 impl<T: Scalar, D: Dim, S: RawStorage<T, D, D>> SquareMatrix<T, D, S> {
-    /// The diagonal of this matrix.
+    /// Extracts the diagonal of the matrix as a column vector.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix3, Vector3};
+    /// let m = Matrix3::new(1, 2, 3,
+    ///                      4, 5, 6,
+    ///                      7, 8, 9);
+    ///
+    /// let diag = m.diagonal();
+    /// assert_eq!(diag, Vector3::new(1, 5, 9));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`map_diagonal`](#method.map_diagonal) - Transform diagonal elements
+    /// - [`trace`](#method.trace) - Sum of diagonal elements
     #[inline]
     #[must_use]
     pub fn diagonal(&self) -> OVector<T, D>
@@ -1572,10 +3034,26 @@ impl<T: Scalar, D: Dim, S: RawStorage<T, D, D>> SquareMatrix<T, D, S> {
         self.map_diagonal(|e| e)
     }
 
-    /// Apply the given function to this matrix's diagonal and returns it.
+    /// Applies a function to each diagonal element and returns the results as a vector.
     ///
-    /// This is a more efficient version of `self.diagonal().map(f)` since this
-    /// allocates only once.
+    /// This is more efficient than `self.diagonal().map(f)` because it allocates only once.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix3, Vector3};
+    /// let m = Matrix3::new(1, 2, 3,
+    ///                      4, 5, 6,
+    ///                      7, 8, 9);
+    ///
+    /// let diag_squared = m.map_diagonal(|x| x * x);
+    /// assert_eq!(diag_squared, Vector3::new(1, 25, 81));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`diagonal`](#method.diagonal) - Extract diagonal without transformation
+    /// - [`trace`](#method.trace) - Sum of diagonal elements
     #[must_use]
     pub fn map_diagonal<T2: Scalar>(&self, mut f: impl FnMut(T) -> T2) -> OVector<T2, D>
     where
@@ -1601,7 +3079,36 @@ impl<T: Scalar, D: Dim, S: RawStorage<T, D, D>> SquareMatrix<T, D, S> {
         unsafe { res.assume_init() }
     }
 
-    /// Computes a trace of a square matrix, i.e., the sum of its diagonal elements.
+    /// Computes the trace of a square matrix (sum of diagonal elements).
+    ///
+    /// The trace is defined as the sum of all elements on the main diagonal.
+    /// This is an important quantity in linear algebra and appears in many
+    /// formulas and theorems.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the matrix is not square.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::Matrix3;
+    /// let m = Matrix3::new(1, 2, 3,
+    ///                      4, 5, 6,
+    ///                      7, 8, 9);
+    ///
+    /// assert_eq!(m.trace(), 1 + 5 + 9);
+    /// ```
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let identity = Matrix2::<f64>::identity();
+    /// assert_eq!(identity.trace(), 2.0);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`diagonal`](#method.diagonal) - Extract the diagonal as a vector
     #[inline]
     #[must_use]
     pub fn trace(&self) -> T
@@ -1625,7 +3132,33 @@ impl<T: Scalar, D: Dim, S: RawStorage<T, D, D>> SquareMatrix<T, D, S> {
 }
 
 impl<T: SimdComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
-    /// The symmetric part of `self`, i.e., `0.5 * (self + self.transpose())`.
+    /// Computes the symmetric part of the matrix: `0.5 * (self + self.transpose())`.
+    ///
+    /// The symmetric part is the average of the matrix and its transpose. The result
+    /// is always a symmetric matrix. This is useful in mechanics and physics where
+    /// symmetric tensors represent physical quantities.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the matrix is not square.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let m = Matrix2::new(1.0, 2.0,
+    ///                      3.0, 4.0);
+    ///
+    /// let sym = m.symmetric_part();
+    /// // Result: (m + m^T) / 2
+    /// assert_eq!(sym, Matrix2::new(1.0, 2.5,
+    ///                              2.5, 4.0));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`hermitian_part`](#method.hermitian_part) - For complex matrices
+    /// - [`transpose`](#method.transpose) - Matrix transpose
     #[inline]
     #[must_use]
     pub fn symmetric_part(&self) -> OMatrix<T, D, D>
@@ -1642,7 +3175,35 @@ impl<T: SimdComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
         tr
     }
 
-    /// The hermitian part of `self`, i.e., `0.5 * (self + self.adjoint())`.
+    /// Computes the Hermitian part of the matrix: `0.5 * (self + self.adjoint())`.
+    ///
+    /// The Hermitian part is the average of the matrix and its adjoint (conjugate transpose).
+    /// The result is always a Hermitian matrix. For real matrices, this is equivalent to
+    /// [`symmetric_part`](#method.symmetric_part).
+    ///
+    /// # Panics
+    ///
+    /// Panics if the matrix is not square.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2, Complex};
+    /// let m = Matrix2::new(
+    ///     Complex::new(1.0, 0.0), Complex::new(2.0, 3.0),
+    ///     Complex::new(4.0, 5.0), Complex::new(6.0, 0.0)
+    /// );
+    ///
+    /// let herm = m.hermitian_part();
+    /// // Result is Hermitian: h[i,j] = conj(h[j,i])
+    /// assert_eq!(herm[(0, 0)].im, 0.0); // Diagonal is real
+    /// assert_eq!(herm[(1, 1)].im, 0.0); // Diagonal is real
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`symmetric_part`](#method.symmetric_part) - For real matrices
+    /// - [`adjoint`](#method.adjoint) - Conjugate transpose
     #[inline]
     #[must_use]
     pub fn hermitian_part(&self) -> OMatrix<T, D, D>

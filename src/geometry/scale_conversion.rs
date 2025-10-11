@@ -107,6 +107,28 @@ where
     }
 }
 
+/// Converts a scale transformation into a homogeneous transformation matrix.
+///
+/// This is the same as calling [`to_homogeneous()`](Scale::to_homogeneous), but allows
+/// using the convenient `.into()` syntax.
+///
+/// # Examples
+///
+/// ```
+/// # use nalgebra::{Scale3, Matrix4};
+/// let scale = Scale3::new(2.0, 3.0, 4.0);
+///
+/// // Using .into()
+/// let matrix: Matrix4<f64> = scale.into();
+///
+/// // Same as
+/// let matrix2 = scale.to_homogeneous();
+/// assert_eq!(matrix, matrix2);
+/// ```
+///
+/// # See Also
+///
+/// - [`to_homogeneous`](Scale::to_homogeneous) - Explicit conversion method with more documentation
 impl<T: Scalar + Zero + One, const D: usize> From<Scale<T, D>>
     for OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
 where
@@ -121,6 +143,23 @@ where
     }
 }
 
+/// Creates a scale transformation from a vector.
+///
+/// The vector's components become the scale factors for each axis.
+///
+/// # Examples
+///
+/// ```
+/// # use nalgebra::{Scale3, Vector3};
+/// let vec = Vector3::new(2.0, 3.0, 4.0);
+/// let scale: Scale3<f64> = vec.into();
+///
+/// assert_eq!(scale, Scale3::new(2.0, 3.0, 4.0));
+/// ```
+///
+/// # See Also
+///
+/// - [`new`](Scale::new) - Direct constructor
 impl<T: Scalar, const D: usize> From<OVector<T, Const<D>>> for Scale<T, D> {
     #[inline]
     fn from(vector: OVector<T, Const<D>>) -> Self {
@@ -128,6 +167,47 @@ impl<T: Scalar, const D: usize> From<OVector<T, Const<D>>> for Scale<T, D> {
     }
 }
 
+/// Creates a scale transformation from an array of scale factors.
+///
+/// This is a convenient way to create a scale when you have an array of values.
+/// The array elements become the scale factors for each axis in order.
+///
+/// # Examples
+///
+/// ## 2D scale from array
+/// ```
+/// # use nalgebra::Scale2;
+/// let factors = [2.0, 3.0];
+/// let scale: Scale2<f64> = factors.into();
+///
+/// assert_eq!(scale, Scale2::new(2.0, 3.0));
+/// ```
+///
+/// ## 3D scale from array
+/// ```
+/// # use nalgebra::Scale3;
+/// let scale = Scale3::from([1.5, 2.5, 3.5]);
+/// assert_eq!(scale, Scale3::new(1.5, 2.5, 3.5));
+/// ```
+///
+/// ## Use case: loading from configuration
+/// ```
+/// # use nalgebra::{Scale2, Point2};
+/// // Imagine loading scale factors from a config file
+/// fn get_sprite_scale_from_config() -> [f32; 2] {
+///     [1.5, 2.0]  // width and height multipliers
+/// }
+///
+/// let scale: Scale2<f32> = get_sprite_scale_from_config().into();
+/// let sprite_size = Point2::new(32.0, 32.0);
+/// let scaled_size = scale.transform_point(&sprite_size);
+///
+/// assert_eq!(scaled_size, Point2::new(48.0, 64.0));
+/// ```
+///
+/// # See Also
+///
+/// - [`new`](Scale::new) - Direct constructor with individual parameters
 impl<T: Scalar, const D: usize> From<[T; D]> for Scale<T, D> {
     #[inline]
     fn from(coords: [T; D]) -> Self {
@@ -137,6 +217,37 @@ impl<T: Scalar, const D: usize> From<[T; D]> for Scale<T, D> {
     }
 }
 
+/// Creates a scale transformation from a point's coordinates.
+///
+/// The point's coordinates become the scale factors for each axis. This can be useful
+/// when you want to use point coordinates directly as scale factors.
+///
+/// # Examples
+///
+/// ```
+/// # use nalgebra::{Scale3, Point3};
+/// let point = Point3::new(2.0, 3.0, 4.0);
+/// let scale: Scale3<f64> = point.into();
+///
+/// assert_eq!(scale, Scale3::new(2.0, 3.0, 4.0));
+/// ```
+///
+/// ## Use case: proportional scaling
+/// ```
+/// # use nalgebra::{Scale2, Point2};
+/// // Use one point's coordinates to scale another
+/// let reference_size = Point2::new(2.0, 1.5);  // 2x width, 1.5x height
+/// let scale = Scale2::from(reference_size);
+///
+/// let original = Point2::new(10.0, 20.0);
+/// let scaled = scale.transform_point(&original);
+///
+/// assert_eq!(scaled, Point2::new(20.0, 30.0));
+/// ```
+///
+/// # See Also
+///
+/// - [`new`](Scale::new) - Direct constructor
 impl<T: Scalar, const D: usize> From<Point<T, D>> for Scale<T, D> {
     #[inline]
     fn from(pt: Point<T, D>) -> Self {
@@ -144,6 +255,37 @@ impl<T: Scalar, const D: usize> From<Point<T, D>> for Scale<T, D> {
     }
 }
 
+/// Converts a scale transformation into an array of scale factors.
+///
+/// This extracts the scale factors as an array, which can be useful for serialization,
+/// storage, or interfacing with APIs that expect arrays.
+///
+/// # Examples
+///
+/// ```
+/// # use nalgebra::Scale3;
+/// let scale = Scale3::new(2.0, 3.0, 4.0);
+/// let factors: [f64; 3] = scale.into();
+///
+/// assert_eq!(factors, [2.0, 3.0, 4.0]);
+/// ```
+///
+/// ## Use case: saving to configuration
+/// ```
+/// # use nalgebra::Scale2;
+/// let scale = Scale2::new(1.5, 2.0);
+///
+/// // Convert to array for saving
+/// let config_values: [f32; 2] = scale.into();
+///
+/// // Later, reconstruct the scale
+/// let loaded_scale = Scale2::from(config_values);
+/// assert_eq!(loaded_scale, scale);
+/// ```
+///
+/// # See Also
+///
+/// - [`From<[T; D]>`](From) - Create a scale from an array
 impl<T: Scalar, const D: usize> From<Scale<T, D>> for [T; D] {
     #[inline]
     fn from(t: Scale<T, D>) -> Self {
@@ -151,6 +293,19 @@ impl<T: Scalar, const D: usize> From<Scale<T, D>> for [T; D] {
     }
 }
 
+/// Converts an array of 2 scales into a SIMD scale (for vectorized operations).
+///
+/// This is used internally for SIMD (Single Instruction, Multiple Data) optimizations,
+/// allowing multiple scale operations to be performed in parallel.
+///
+/// # Advanced Usage
+///
+/// This is typically used with SIMD types like `f32x2` from the `simba` crate for
+/// performance-critical code. Most users won't need to use this directly.
+///
+/// # See Also
+///
+/// - [SIMD documentation](https://docs.rs/simba) for more on vectorized operations
 impl<T: Scalar + PrimitiveSimdValue, const D: usize> From<[Scale<T::Element, D>; 2]> for Scale<T, D>
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 2]>,
@@ -165,6 +320,14 @@ where
     }
 }
 
+/// Converts an array of 4 scales into a SIMD scale (for vectorized operations).
+///
+/// This is used for SIMD optimizations with 4-wide vector types like `f32x4`.
+/// Most users won't need this directly; it's used internally for performance.
+///
+/// # See Also
+///
+/// - [SIMD documentation](https://docs.rs/simba) for more on vectorized operations
 impl<T: Scalar + PrimitiveSimdValue, const D: usize> From<[Scale<T::Element, D>; 4]> for Scale<T, D>
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 4]>,
@@ -181,6 +344,14 @@ where
     }
 }
 
+/// Converts an array of 8 scales into a SIMD scale (for vectorized operations).
+///
+/// This is used for SIMD optimizations with 8-wide vector types like `f32x8`.
+/// Most users won't need this directly; it's used internally for performance.
+///
+/// # See Also
+///
+/// - [SIMD documentation](https://docs.rs/simba) for more on vectorized operations
 impl<T: Scalar + PrimitiveSimdValue, const D: usize> From<[Scale<T::Element, D>; 8]> for Scale<T, D>
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 8]>,
@@ -201,6 +372,14 @@ where
     }
 }
 
+/// Converts an array of 16 scales into a SIMD scale (for vectorized operations).
+///
+/// This is used for SIMD optimizations with 16-wide vector types like `f32x16`.
+/// Most users won't need this directly; it's used internally for performance.
+///
+/// # See Also
+///
+/// - [SIMD documentation](https://docs.rs/simba) for more on vectorized operations
 impl<T: Scalar + PrimitiveSimdValue, const D: usize> From<[Scale<T::Element, D>; 16]>
     for Scale<T, D>
 where

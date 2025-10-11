@@ -108,7 +108,33 @@ macro_rules! view_storage_impl (
         where
             Self: RawStorage<T, R, C> + IsContiguous
         {
-            /// Extracts the original slice from this storage.
+            /// Extracts the underlying data slice from this contiguous matrix view storage.
+            ///
+            /// This method consumes the view storage and returns a reference to the underlying
+            /// contiguous slice of data. This is only available for contiguous matrix views,
+            /// where the matrix elements are stored sequentially in memory without gaps.
+            ///
+            /// A matrix view is contiguous when its elements are laid out in column-major order
+            /// without any stride gaps (i.e., elements in each column are consecutive in memory).
+            ///
+            /// # Returns
+            /// A slice containing all the matrix elements in column-major order.
+            ///
+            /// # Example
+            /// ```
+            /// use nalgebra::Matrix3x2;
+            ///
+            /// let m = Matrix3x2::new(
+            ///     1.0, 4.0,
+            ///     2.0, 5.0,
+            ///     3.0, 6.0,
+            /// );
+            ///
+            /// let view = m.view((0, 0), (3, 2));
+            /// let slice = view.data.into_slice();
+            /// // Elements are in column-major order
+            /// assert_eq!(slice, &[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]);
+            /// ```
             pub fn into_slice(self) -> &'a [T] {
                 let (nrows, ncols) = self.shape();
                 if nrows.value() != 0 && ncols.value() != 0 {
@@ -150,7 +176,37 @@ impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
 where
     Self: RawStorageMut<T, R, C> + IsContiguous,
 {
-    /// Extracts the original slice from this storage
+    /// Extracts the underlying mutable data slice from this contiguous matrix view storage.
+    ///
+    /// This method consumes the mutable view storage and returns a mutable reference to the
+    /// underlying contiguous slice of data. This is only available for contiguous matrix views,
+    /// where the matrix elements are stored sequentially in memory without gaps.
+    ///
+    /// A matrix view is contiguous when its elements are laid out in column-major order
+    /// without any stride gaps (i.e., elements in each column are consecutive in memory).
+    ///
+    /// # Returns
+    /// A mutable slice containing all the matrix elements in column-major order.
+    ///
+    /// # Example
+    /// ```
+    /// use nalgebra::Matrix3x2;
+    ///
+    /// let mut m = Matrix3x2::new(
+    ///     1.0, 4.0,
+    ///     2.0, 5.0,
+    ///     3.0, 6.0,
+    /// );
+    ///
+    /// let mut view = m.view_mut((0, 0), (3, 2));
+    /// let slice = view.data.into_slice_mut();
+    /// // Modify elements through the slice (in column-major order)
+    /// slice[0] = 10.0;
+    /// assert_eq!(slice, &[10.0, 2.0, 3.0, 4.0, 5.0, 6.0]);
+    /// ```
+    ///
+    /// # See Also
+    /// - [`into_slice`](ViewStorage::into_slice) - Immutable version
     pub fn into_slice_mut(self) -> &'a mut [T] {
         let (nrows, ncols) = self.shape();
         if nrows.value() != 0 && ncols.value() != 0 {
@@ -330,18 +386,121 @@ macro_rules! matrix_view_impl (
          *
          */
         /// Returns a view containing the i-th row of this matrix.
+        ///
+        /// A matrix view (also called a slice) is a lightweight reference to a portion of a matrix.
+        /// Unlike creating a new matrix, a view doesn't copy any data - it simply provides a window
+        /// into the original matrix's memory. This makes views very efficient for working with
+        /// sub-portions of matrices.
+        ///
+        /// # Parameters
+        /// - `i`: The zero-based index of the row to extract.
+        ///
+        /// # Panics
+        /// Panics if `i` is greater than or equal to the number of rows in the matrix.
+        ///
+        /// # Example
+        /// ```
+        /// use nalgebra::Matrix3x4;
+        ///
+        /// let m = Matrix3x4::new(
+        ///     1.0, 2.0, 3.0, 4.0,
+        ///     5.0, 6.0, 7.0, 8.0,
+        ///     9.0, 10.0, 11.0, 12.0,
+        /// );
+        ///
+        /// // Get the second row (index 1)
+        /// let row = m.row(1);
+        /// assert_eq!(row, nalgebra::RowVector4::new(5.0, 6.0, 7.0, 8.0));
+        ///
+        /// // Views don't copy data - they reference the original matrix
+        /// assert_eq!(row[0], 5.0);
+        /// assert_eq!(row[3], 8.0);
+        /// ```
+        ///
+        /// # See Also
+        /// - [`row_part`](Self::row_part) - Extract only part of a row
+        /// - [`rows`](Self::rows) - Extract multiple consecutive rows
+        /// - [`column`](Self::column) - Extract a single column
         #[inline]
         pub fn $row($me: $Me, i: usize) -> $MatrixView<'_, T, U1, C, S::RStride, S::CStride> {
             $me.$fixed_rows::<1>(i)
         }
 
-        /// Returns a view containing the `n` first elements of the i-th row of this matrix.
+        /// Returns a view containing the first `n` elements of the i-th row of this matrix.
+        ///
+        /// This is useful when you need to work with only a portion of a row. The view provides
+        /// a window into the original matrix data without copying.
+        ///
+        /// # Parameters
+        /// - `i`: The zero-based index of the row to extract from.
+        /// - `n`: The number of elements to include from the beginning of the row.
+        ///
+        /// # Panics
+        /// Panics if `i >= nrows` or if `n > ncols`.
+        ///
+        /// # Example
+        /// ```
+        /// use nalgebra::Matrix3x4;
+        ///
+        /// let m = Matrix3x4::new(
+        ///     1.0, 2.0, 3.0, 4.0,
+        ///     5.0, 6.0, 7.0, 8.0,
+        ///     9.0, 10.0, 11.0, 12.0,
+        /// );
+        ///
+        /// // Get only the first 2 elements of the second row
+        /// let partial_row = m.row_part(1, 2);
+        /// assert_eq!(partial_row.len(), 2);
+        /// assert_eq!(partial_row[0], 5.0);
+        /// assert_eq!(partial_row[1], 6.0);
+        /// ```
+        ///
+        /// # See Also
+        /// - [`row`](Self::row) - Extract a complete row
+        /// - [`column_part`](Self::column_part) - Extract part of a column
+        /// - [`view`](Self::view) - Create a view of an arbitrary sub-matrix
         #[inline]
         pub fn $row_part($me: $Me, i: usize, n: usize) -> $MatrixView<'_, T, U1, Dyn, S::RStride, S::CStride> {
             $me.$generic_view((i, 0), (Const::<1>, Dyn(n)))
         }
 
-        /// Extracts from this matrix a set of consecutive rows.
+        /// Extracts a view containing a set of consecutive rows from this matrix.
+        ///
+        /// Matrix views are lightweight references that don't copy data. This function creates
+        /// a view of multiple consecutive rows, which is useful for operations on horizontal
+        /// bands of a matrix.
+        ///
+        /// # Parameters
+        /// - `first_row`: The zero-based index of the first row to include.
+        /// - `nrows`: The number of consecutive rows to include.
+        ///
+        /// # Panics
+        /// Panics if `first_row + nrows` exceeds the number of rows in the matrix.
+        ///
+        /// # Example
+        /// ```
+        /// use nalgebra::Matrix4x3;
+        ///
+        /// let m = Matrix4x3::new(
+        ///     1.0, 2.0, 3.0,
+        ///     4.0, 5.0, 6.0,
+        ///     7.0, 8.0, 9.0,
+        ///     10.0, 11.0, 12.0,
+        /// );
+        ///
+        /// // Extract rows 1 and 2 (the middle two rows)
+        /// let middle_rows = m.rows(1, 2);
+        /// assert_eq!(middle_rows.nrows(), 2);
+        /// assert_eq!(middle_rows.ncols(), 3);
+        /// assert_eq!(middle_rows[(0, 0)], 4.0);
+        /// assert_eq!(middle_rows[(1, 2)], 9.0);
+        /// ```
+        ///
+        /// # See Also
+        /// - [`row`](Self::row) - Extract a single row
+        /// - [`rows_with_step`](Self::rows_with_step) - Extract rows with gaps
+        /// - [`fixed_rows`](Self::fixed_rows) - Extract rows with compile-time size
+        /// - [`columns`](Self::columns) - Extract consecutive columns
         #[inline]
         pub fn $rows($me: $Me, first_row: usize, nrows: usize)
             -> $MatrixView<'_, T, Dyn, C, S::RStride, S::CStride> {
@@ -349,7 +508,45 @@ macro_rules! matrix_view_impl (
             $me.$rows_generic(first_row, Dyn(nrows))
         }
 
-        /// Extracts from this matrix a set of consecutive rows regularly skipping `step` rows.
+        /// Extracts a view of rows from this matrix, regularly skipping `step` rows between each selected row.
+        ///
+        /// This creates a strided view that samples rows at regular intervals. For example, with
+        /// `step = 1`, every other row is selected (rows 0, 2, 4, ...). With `step = 2`, every
+        /// third row is selected (rows 0, 3, 6, ...).
+        ///
+        /// # Parameters
+        /// - `first_row`: The zero-based index of the first row to include.
+        /// - `nrows`: The number of rows to include in the view.
+        /// - `step`: The number of rows to skip between each selected row (0 means consecutive).
+        ///
+        /// # Panics
+        /// Panics if the selected rows would exceed the matrix bounds.
+        ///
+        /// # Example
+        /// ```
+        /// use nalgebra::Matrix6x2;
+        ///
+        /// let m = Matrix6x2::new(
+        ///     1.0, 2.0,
+        ///     3.0, 4.0,
+        ///     5.0, 6.0,
+        ///     7.0, 8.0,
+        ///     9.0, 10.0,
+        ///     11.0, 12.0,
+        /// );
+        ///
+        /// // Select 3 rows starting at row 0, skipping 1 row each time (rows 0, 2, 4)
+        /// let strided = m.rows_with_step(0, 3, 1);
+        /// assert_eq!(strided.nrows(), 3);
+        /// assert_eq!(strided[(0, 0)], 1.0);  // Row 0
+        /// assert_eq!(strided[(1, 0)], 5.0);  // Row 2
+        /// assert_eq!(strided[(2, 0)], 9.0);  // Row 4
+        /// ```
+        ///
+        /// # See Also
+        /// - [`rows`](Self::rows) - Extract consecutive rows
+        /// - [`fixed_rows_with_step`](Self::fixed_rows_with_step) - Strided rows with compile-time size
+        /// - [`columns_with_step`](Self::columns_with_step) - Strided column extraction
         #[inline]
         pub fn $rows_with_step($me: $Me, first_row: usize, nrows: usize, step: usize)
             -> $MatrixView<'_, T, Dyn, C, Dyn, S::CStride> {
@@ -357,7 +554,44 @@ macro_rules! matrix_view_impl (
             $me.$rows_generic_with_step(first_row, Dyn(nrows), step)
         }
 
-        /// Extracts a compile-time number of consecutive rows from this matrix.
+        /// Extracts a view containing a compile-time number of consecutive rows from this matrix.
+        ///
+        /// This is similar to [`rows`](Self::rows), but the number of rows is known at compile time,
+        /// which can enable better compiler optimizations and type checking. The size is specified
+        /// as a const generic parameter `RVIEW`.
+        ///
+        /// # Parameters
+        /// - `first_row`: The zero-based index of the first row to include.
+        ///
+        /// # Type Parameters
+        /// - `RVIEW`: The number of rows to extract (known at compile time).
+        ///
+        /// # Panics
+        /// Panics if `first_row + RVIEW` exceeds the number of rows in the matrix.
+        ///
+        /// # Example
+        /// ```
+        /// use nalgebra::Matrix5x3;
+        ///
+        /// let m = Matrix5x3::new(
+        ///     1.0, 2.0, 3.0,
+        ///     4.0, 5.0, 6.0,
+        ///     7.0, 8.0, 9.0,
+        ///     10.0, 11.0, 12.0,
+        ///     13.0, 14.0, 15.0,
+        /// );
+        ///
+        /// // Extract exactly 2 rows starting at row 1
+        /// let two_rows = m.fixed_rows::<2>(1);
+        /// assert_eq!(two_rows.nrows(), 2);
+        /// assert_eq!(two_rows[(0, 0)], 4.0);
+        /// assert_eq!(two_rows[(1, 0)], 7.0);
+        /// ```
+        ///
+        /// # See Also
+        /// - [`rows`](Self::rows) - Extract rows with runtime size
+        /// - [`fixed_rows_with_step`](Self::fixed_rows_with_step) - Fixed-size strided rows
+        /// - [`fixed_columns`](Self::fixed_columns) - Extract compile-time columns
         #[inline]
         pub fn $fixed_rows<const RVIEW: usize>($me: $Me, first_row: usize)
             -> $MatrixView<'_, T, Const<RVIEW>, C, S::RStride, S::CStride> {
@@ -365,8 +599,46 @@ macro_rules! matrix_view_impl (
             $me.$rows_generic(first_row, Const::<RVIEW>)
         }
 
-        /// Extracts from this matrix a compile-time number of rows regularly skipping `step`
-        /// rows.
+        /// Extracts a compile-time number of rows from this matrix, regularly skipping `step` rows.
+        ///
+        /// This combines the benefits of compile-time sizing with strided access. The number of
+        /// rows is known at compile time (specified by `RVIEW`), while the stride is a runtime
+        /// parameter.
+        ///
+        /// # Parameters
+        /// - `first_row`: The zero-based index of the first row to include.
+        /// - `step`: The number of rows to skip between each selected row (0 means consecutive).
+        ///
+        /// # Type Parameters
+        /// - `RVIEW`: The number of rows to extract (known at compile time).
+        ///
+        /// # Panics
+        /// Panics if the selected rows would exceed the matrix bounds.
+        ///
+        /// # Example
+        /// ```
+        /// use nalgebra::Matrix6x2;
+        ///
+        /// let m = Matrix6x2::new(
+        ///     1.0, 2.0,
+        ///     3.0, 4.0,
+        ///     5.0, 6.0,
+        ///     7.0, 8.0,
+        ///     9.0, 10.0,
+        ///     11.0, 12.0,
+        /// );
+        ///
+        /// // Extract exactly 2 rows starting at row 1, skipping 1 row each time
+        /// let strided = m.fixed_rows_with_step::<2>(1, 1);
+        /// assert_eq!(strided.nrows(), 2);
+        /// assert_eq!(strided[(0, 0)], 3.0);  // Row 1
+        /// assert_eq!(strided[(1, 0)], 7.0);  // Row 3
+        /// ```
+        ///
+        /// # See Also
+        /// - [`fixed_rows`](Self::fixed_rows) - Consecutive compile-time rows
+        /// - [`rows_with_step`](Self::rows_with_step) - Strided rows with runtime size
+        /// - [`fixed_columns_with_step`](Self::fixed_columns_with_step) - Strided compile-time columns
         #[inline]
         pub fn $fixed_rows_with_step<const RVIEW: usize>($me: $Me, first_row: usize, step: usize)
             -> $MatrixView<'_, T, Const<RVIEW>, C, Dyn, S::CStride> {
@@ -374,8 +646,47 @@ macro_rules! matrix_view_impl (
             $me.$rows_generic_with_step(first_row, Const::<RVIEW>, step)
         }
 
-        /// Extracts from this matrix `nrows` rows regularly skipping `step` rows. Both
-        /// argument may or may not be values known at compile-time.
+        /// Extracts a view of `nrows` consecutive rows from this matrix.
+        ///
+        /// This is the most generic row extraction method. The number of rows can be specified
+        /// either at compile time (using `Const<N>`) or at runtime (using `Dyn`). This function
+        /// is typically used internally by other more convenient methods like [`rows`](Self::rows)
+        /// and [`fixed_rows`](Self::fixed_rows).
+        ///
+        /// # Parameters
+        /// - `row_start`: The zero-based index of the first row to include.
+        /// - `nrows`: The number of rows to extract (can be compile-time or runtime dimension).
+        ///
+        /// # Type Parameters
+        /// - `RView`: A dimension type (either `Const<N>` or `Dyn`) specifying the number of rows.
+        ///
+        /// # Panics
+        /// Panics if `row_start + nrows` exceeds the number of rows in the matrix.
+        ///
+        /// # Example
+        /// ```
+        /// use nalgebra::{Matrix4x3, Dyn, Const};
+        ///
+        /// let m = Matrix4x3::new(
+        ///     1.0, 2.0, 3.0,
+        ///     4.0, 5.0, 6.0,
+        ///     7.0, 8.0, 9.0,
+        ///     10.0, 11.0, 12.0,
+        /// );
+        ///
+        /// // Using runtime dimension
+        /// let dynamic_rows = m.rows_generic(1, Dyn(2));
+        /// assert_eq!(dynamic_rows.nrows(), 2);
+        ///
+        /// // Using compile-time dimension
+        /// let static_rows = m.rows_generic(1, Const::<2>);
+        /// assert_eq!(static_rows.nrows(), 2);
+        /// ```
+        ///
+        /// # See Also
+        /// - [`rows`](Self::rows) - Simpler interface for runtime-sized extraction
+        /// - [`fixed_rows`](Self::fixed_rows) - Simpler interface for compile-time-sized extraction
+        /// - [`rows_generic_with_step`](Self::rows_generic_with_step) - Generic strided row extraction
         #[inline]
         pub fn $rows_generic<RView: Dim>($me: $Me, row_start: usize, nrows: RView)
             -> $MatrixView<'_, T, RView, C, S::RStride, S::CStride> {
@@ -391,8 +702,51 @@ macro_rules! matrix_view_impl (
             }
         }
 
-        /// Extracts from this matrix `nrows` rows regularly skipping `step` rows. Both
-        /// argument may or may not be values known at compile-time.
+        /// Extracts a view of `nrows` rows from this matrix, regularly skipping `step` rows.
+        ///
+        /// This is the most generic strided row extraction method. The number of rows can be
+        /// specified either at compile time (using `Const<N>`) or at runtime (using `Dyn`).
+        /// This function is typically used internally by other methods like
+        /// [`rows_with_step`](Self::rows_with_step) and [`fixed_rows_with_step`](Self::fixed_rows_with_step).
+        ///
+        /// # Parameters
+        /// - `row_start`: The zero-based index of the first row to include.
+        /// - `nrows`: The number of rows to extract (can be compile-time or runtime dimension).
+        /// - `step`: The number of rows to skip between each selected row (0 means consecutive).
+        ///
+        /// # Type Parameters
+        /// - `RView`: A dimension type (either `Const<N>` or `Dyn`) specifying the number of rows.
+        ///
+        /// # Panics
+        /// Panics if the selected rows would exceed the matrix bounds.
+        ///
+        /// # Example
+        /// ```
+        /// use nalgebra::{Matrix6x2, Dyn, Const};
+        ///
+        /// let m = Matrix6x2::new(
+        ///     1.0, 2.0,
+        ///     3.0, 4.0,
+        ///     5.0, 6.0,
+        ///     7.0, 8.0,
+        ///     9.0, 10.0,
+        ///     11.0, 12.0,
+        /// );
+        ///
+        /// // Using runtime dimension: select 3 rows with step 1 (rows 0, 2, 4)
+        /// let dynamic_strided = m.rows_generic_with_step(0, Dyn(3), 1);
+        /// assert_eq!(dynamic_strided[(0, 0)], 1.0);
+        /// assert_eq!(dynamic_strided[(1, 0)], 5.0);
+        ///
+        /// // Using compile-time dimension
+        /// let static_strided = m.rows_generic_with_step(0, Const::<3>, 1);
+        /// assert_eq!(static_strided[(2, 0)], 9.0);
+        /// ```
+        ///
+        /// # See Also
+        /// - [`rows_with_step`](Self::rows_with_step) - Simpler interface for runtime-sized strided extraction
+        /// - [`fixed_rows_with_step`](Self::fixed_rows_with_step) - Simpler interface for compile-time strided extraction
+        /// - [`rows_generic`](Self::rows_generic) - Generic consecutive row extraction
         #[inline]
         pub fn $rows_generic_with_step<RView>($me: $Me, row_start: usize, nrows: RView, step: usize)
             -> $MatrixView<'_, T, RView, C, Dyn, S::CStride>
@@ -417,18 +771,119 @@ macro_rules! matrix_view_impl (
          *
          */
         /// Returns a view containing the i-th column of this matrix.
+        ///
+        /// A matrix view is a lightweight, non-copying reference to a portion of the matrix.
+        /// This function extracts a single column as a column vector view.
+        ///
+        /// # Parameters
+        /// - `i`: The zero-based index of the column to extract.
+        ///
+        /// # Panics
+        /// Panics if `i` is greater than or equal to the number of columns in the matrix.
+        ///
+        /// # Example
+        /// ```
+        /// use nalgebra::Matrix3x4;
+        ///
+        /// let m = Matrix3x4::new(
+        ///     1.0, 2.0, 3.0, 4.0,
+        ///     5.0, 6.0, 7.0, 8.0,
+        ///     9.0, 10.0, 11.0, 12.0,
+        /// );
+        ///
+        /// // Get the third column (index 2)
+        /// let col = m.column(2);
+        /// assert_eq!(col, nalgebra::Vector3::new(3.0, 7.0, 11.0));
+        ///
+        /// // Column views reference the original matrix data
+        /// assert_eq!(col[0], 3.0);
+        /// assert_eq!(col[2], 11.0);
+        /// ```
+        ///
+        /// # See Also
+        /// - [`column_part`](Self::column_part) - Extract only part of a column
+        /// - [`columns`](Self::columns) - Extract multiple consecutive columns
+        /// - [`row`](Self::row) - Extract a single row
         #[inline]
         pub fn $column($me: $Me, i: usize) -> $MatrixView<'_, T, R, U1, S::RStride, S::CStride> {
             $me.$fixed_columns::<1>(i)
         }
 
-        /// Returns a view containing the `n` first elements of the i-th column of this matrix.
+        /// Returns a view containing the first `n` elements of the i-th column of this matrix.
+        ///
+        /// This extracts a partial column view, useful when you only need to work with the
+        /// beginning portion of a column vector.
+        ///
+        /// # Parameters
+        /// - `i`: The zero-based index of the column to extract from.
+        /// - `n`: The number of elements to include from the beginning of the column.
+        ///
+        /// # Panics
+        /// Panics if `i >= ncols` or if `n > nrows`.
+        ///
+        /// # Example
+        /// ```
+        /// use nalgebra::Matrix4x3;
+        ///
+        /// let m = Matrix4x3::new(
+        ///     1.0, 2.0, 3.0,
+        ///     4.0, 5.0, 6.0,
+        ///     7.0, 8.0, 9.0,
+        ///     10.0, 11.0, 12.0,
+        /// );
+        ///
+        /// // Get only the first 2 elements of the second column
+        /// let partial_col = m.column_part(1, 2);
+        /// assert_eq!(partial_col.len(), 2);
+        /// assert_eq!(partial_col[0], 2.0);
+        /// assert_eq!(partial_col[1], 5.0);
+        /// ```
+        ///
+        /// # See Also
+        /// - [`column`](Self::column) - Extract a complete column
+        /// - [`row_part`](Self::row_part) - Extract part of a row
+        /// - [`view`](Self::view) - Create a view of an arbitrary sub-matrix
         #[inline]
         pub fn $column_part($me: $Me, i: usize, n: usize) -> $MatrixView<'_, T, Dyn, U1, S::RStride, S::CStride> {
             $me.$generic_view((0, i), (Dyn(n), Const::<1>))
         }
 
-        /// Extracts from this matrix a set of consecutive columns.
+        /// Extracts a view containing a set of consecutive columns from this matrix.
+        ///
+        /// Matrix views are lightweight references that don't copy data. This function creates
+        /// a view of multiple consecutive columns, which is useful for operations on vertical
+        /// bands of a matrix.
+        ///
+        /// # Parameters
+        /// - `first_col`: The zero-based index of the first column to include.
+        /// - `ncols`: The number of consecutive columns to include.
+        ///
+        /// # Panics
+        /// Panics if `first_col + ncols` exceeds the number of columns in the matrix.
+        ///
+        /// # Example
+        /// ```
+        /// use nalgebra::Matrix3x5;
+        ///
+        /// let m = Matrix3x5::new(
+        ///     1.0, 2.0, 3.0, 4.0, 5.0,
+        ///     6.0, 7.0, 8.0, 9.0, 10.0,
+        ///     11.0, 12.0, 13.0, 14.0, 15.0,
+        /// );
+        ///
+        /// // Extract columns 1, 2, and 3 (indices 1-3)
+        /// let middle_cols = m.columns(1, 3);
+        /// assert_eq!(middle_cols.nrows(), 3);
+        /// assert_eq!(middle_cols.ncols(), 3);
+        /// assert_eq!(middle_cols[(0, 0)], 2.0);
+        /// assert_eq!(middle_cols[(2, 2)], 13.0);
+        /// ```
+        ///
+        /// # See Also
+        /// - [`column`](Self::column) - Extract a single column
+        /// - [`columns_with_step`](Self::columns_with_step) - Extract columns with gaps
+        /// - [`fixed_columns`](Self::fixed_columns) - Extract columns with compile-time size
+        /// - [`rows`](Self::rows) - Extract consecutive rows
         #[inline]
         pub fn $columns($me: $Me, first_col: usize, ncols: usize)
             -> $MatrixView<'_, T, R, Dyn, S::RStride, S::CStride> {
@@ -436,8 +891,42 @@ macro_rules! matrix_view_impl (
             $me.$columns_generic(first_col, Dyn(ncols))
         }
 
-        /// Extracts from this matrix a set of consecutive columns regularly skipping `step`
-        /// columns.
+        /// Extracts a view of columns from this matrix, regularly skipping `step` columns between each selected column.
+        ///
+        /// This creates a strided view that samples columns at regular intervals. For example, with
+        /// `step = 1`, every other column is selected (columns 0, 2, 4, ...). With `step = 2`, every
+        /// third column is selected (columns 0, 3, 6, ...).
+        ///
+        /// # Parameters
+        /// - `first_col`: The zero-based index of the first column to include.
+        /// - `ncols`: The number of columns to include in the view.
+        /// - `step`: The number of columns to skip between each selected column (0 means consecutive).
+        ///
+        /// # Panics
+        /// Panics if the selected columns would exceed the matrix bounds.
+        ///
+        /// # Example
+        /// ```
+        /// use nalgebra::Matrix3x6;
+        ///
+        /// let m = Matrix3x6::new(
+        ///     1.0, 2.0, 3.0, 4.0, 5.0, 6.0,
+        ///     7.0, 8.0, 9.0, 10.0, 11.0, 12.0,
+        ///     13.0, 14.0, 15.0, 16.0, 17.0, 18.0,
+        /// );
+        ///
+        /// // Select 3 columns starting at column 0, skipping 1 column each time (columns 0, 2, 4)
+        /// let strided = m.columns_with_step(0, 3, 1);
+        /// assert_eq!(strided.ncols(), 3);
+        /// assert_eq!(strided[(0, 0)], 1.0);  // Column 0
+        /// assert_eq!(strided[(0, 1)], 3.0);  // Column 2
+        /// assert_eq!(strided[(0, 2)], 5.0);  // Column 4
+        /// ```
+        ///
+        /// # See Also
+        /// - [`columns`](Self::columns) - Extract consecutive columns
+        /// - [`fixed_columns_with_step`](Self::fixed_columns_with_step) - Strided columns with compile-time size
+        /// - [`rows_with_step`](Self::rows_with_step) - Strided row extraction
         #[inline]
         pub fn $columns_with_step($me: $Me, first_col: usize, ncols: usize, step: usize)
             -> $MatrixView<'_, T, R, Dyn, S::RStride, Dyn> {
@@ -445,7 +934,42 @@ macro_rules! matrix_view_impl (
             $me.$columns_generic_with_step(first_col, Dyn(ncols), step)
         }
 
-        /// Extracts a compile-time number of consecutive columns from this matrix.
+        /// Extracts a view containing a compile-time number of consecutive columns from this matrix.
+        ///
+        /// This is similar to [`columns`](Self::columns), but the number of columns is known at compile time,
+        /// which can enable better compiler optimizations and type checking. The size is specified
+        /// as a const generic parameter `CVIEW`.
+        ///
+        /// # Parameters
+        /// - `first_col`: The zero-based index of the first column to include.
+        ///
+        /// # Type Parameters
+        /// - `CVIEW`: The number of columns to extract (known at compile time).
+        ///
+        /// # Panics
+        /// Panics if `first_col + CVIEW` exceeds the number of columns in the matrix.
+        ///
+        /// # Example
+        /// ```
+        /// use nalgebra::Matrix3x5;
+        ///
+        /// let m = Matrix3x5::new(
+        ///     1.0, 2.0, 3.0, 4.0, 5.0,
+        ///     6.0, 7.0, 8.0, 9.0, 10.0,
+        ///     11.0, 12.0, 13.0, 14.0, 15.0,
+        /// );
+        ///
+        /// // Extract exactly 2 columns starting at column 1
+        /// let two_cols = m.fixed_columns::<2>(1);
+        /// assert_eq!(two_cols.ncols(), 2);
+        /// assert_eq!(two_cols[(0, 0)], 2.0);
+        /// assert_eq!(two_cols[(0, 1)], 3.0);
+        /// ```
+        ///
+        /// # See Also
+        /// - [`columns`](Self::columns) - Extract columns with runtime size
+        /// - [`fixed_columns_with_step`](Self::fixed_columns_with_step) - Fixed-size strided columns
+        /// - [`fixed_rows`](Self::fixed_rows) - Extract compile-time rows
         #[inline]
         pub fn $fixed_columns<const CVIEW: usize>($me: $Me, first_col: usize)
             -> $MatrixView<'_, T, R, Const<CVIEW>, S::RStride, S::CStride> {
@@ -453,8 +977,43 @@ macro_rules! matrix_view_impl (
             $me.$columns_generic(first_col, Const::<CVIEW>)
         }
 
-        /// Extracts from this matrix a compile-time number of columns regularly skipping
-        /// `step` columns.
+        /// Extracts a compile-time number of columns from this matrix, regularly skipping `step` columns.
+        ///
+        /// This combines the benefits of compile-time sizing with strided access. The number of
+        /// columns is known at compile time (specified by `CVIEW`), while the stride is a runtime
+        /// parameter.
+        ///
+        /// # Parameters
+        /// - `first_col`: The zero-based index of the first column to include.
+        /// - `step`: The number of columns to skip between each selected column (0 means consecutive).
+        ///
+        /// # Type Parameters
+        /// - `CVIEW`: The number of columns to extract (known at compile time).
+        ///
+        /// # Panics
+        /// Panics if the selected columns would exceed the matrix bounds.
+        ///
+        /// # Example
+        /// ```
+        /// use nalgebra::Matrix3x6;
+        ///
+        /// let m = Matrix3x6::new(
+        ///     1.0, 2.0, 3.0, 4.0, 5.0, 6.0,
+        ///     7.0, 8.0, 9.0, 10.0, 11.0, 12.0,
+        ///     13.0, 14.0, 15.0, 16.0, 17.0, 18.0,
+        /// );
+        ///
+        /// // Extract exactly 2 columns starting at column 1, skipping 1 column each time
+        /// let strided = m.fixed_columns_with_step::<2>(1, 1);
+        /// assert_eq!(strided.ncols(), 2);
+        /// assert_eq!(strided[(0, 0)], 2.0);  // Column 1
+        /// assert_eq!(strided[(0, 1)], 4.0);  // Column 3
+        /// ```
+        ///
+        /// # See Also
+        /// - [`fixed_columns`](Self::fixed_columns) - Consecutive compile-time columns
+        /// - [`columns_with_step`](Self::columns_with_step) - Strided columns with runtime size
+        /// - [`fixed_rows_with_step`](Self::fixed_rows_with_step) - Strided compile-time rows
         #[inline]
         pub fn $fixed_columns_with_step<const CVIEW: usize>($me: $Me, first_col: usize, step: usize)
             -> $MatrixView<'_, T, R, Const<CVIEW>, S::RStride, Dyn> {
@@ -462,8 +1021,46 @@ macro_rules! matrix_view_impl (
             $me.$columns_generic_with_step(first_col, Const::<CVIEW>, step)
         }
 
-        /// Extracts from this matrix `ncols` columns. The number of columns may or may not be
-        /// known at compile-time.
+        /// Extracts a view of `ncols` consecutive columns from this matrix.
+        ///
+        /// This is the most generic column extraction method. The number of columns can be specified
+        /// either at compile time (using `Const<N>`) or at runtime (using `Dyn`). This function
+        /// is typically used internally by other more convenient methods like [`columns`](Self::columns)
+        /// and [`fixed_columns`](Self::fixed_columns).
+        ///
+        /// # Parameters
+        /// - `first_col`: The zero-based index of the first column to include.
+        /// - `ncols`: The number of columns to extract (can be compile-time or runtime dimension).
+        ///
+        /// # Type Parameters
+        /// - `CView`: A dimension type (either `Const<N>` or `Dyn`) specifying the number of columns.
+        ///
+        /// # Panics
+        /// Panics if `first_col + ncols` exceeds the number of columns in the matrix.
+        ///
+        /// # Example
+        /// ```
+        /// use nalgebra::{Matrix3x5, Dyn, Const};
+        ///
+        /// let m = Matrix3x5::new(
+        ///     1.0, 2.0, 3.0, 4.0, 5.0,
+        ///     6.0, 7.0, 8.0, 9.0, 10.0,
+        ///     11.0, 12.0, 13.0, 14.0, 15.0,
+        /// );
+        ///
+        /// // Using runtime dimension
+        /// let dynamic_cols = m.columns_generic(1, Dyn(2));
+        /// assert_eq!(dynamic_cols.ncols(), 2);
+        ///
+        /// // Using compile-time dimension
+        /// let static_cols = m.columns_generic(1, Const::<2>);
+        /// assert_eq!(static_cols.ncols(), 2);
+        /// ```
+        ///
+        /// # See Also
+        /// - [`columns`](Self::columns) - Simpler interface for runtime-sized extraction
+        /// - [`fixed_columns`](Self::fixed_columns) - Simpler interface for compile-time-sized extraction
+        /// - [`columns_generic_with_step`](Self::columns_generic_with_step) - Generic strided column extraction
         #[inline]
         pub fn $columns_generic<CView: Dim>($me: $Me, first_col: usize, ncols: CView)
             -> $MatrixView<'_, T, R, CView, S::RStride, S::CStride> {
@@ -479,8 +1076,48 @@ macro_rules! matrix_view_impl (
         }
 
 
-        /// Extracts from this matrix `ncols` columns skipping `step` columns. Both argument may
-        /// or may not be values known at compile-time.
+        /// Extracts a view of `ncols` columns from this matrix, regularly skipping `step` columns.
+        ///
+        /// This is the most generic strided column extraction method. The number of columns can be
+        /// specified either at compile time (using `Const<N>`) or at runtime (using `Dyn`).
+        /// This function is typically used internally by other methods like
+        /// [`columns_with_step`](Self::columns_with_step) and [`fixed_columns_with_step`](Self::fixed_columns_with_step).
+        ///
+        /// # Parameters
+        /// - `first_col`: The zero-based index of the first column to include.
+        /// - `ncols`: The number of columns to extract (can be compile-time or runtime dimension).
+        /// - `step`: The number of columns to skip between each selected column (0 means consecutive).
+        ///
+        /// # Type Parameters
+        /// - `CView`: A dimension type (either `Const<N>` or `Dyn`) specifying the number of columns.
+        ///
+        /// # Panics
+        /// Panics if the selected columns would exceed the matrix bounds.
+        ///
+        /// # Example
+        /// ```
+        /// use nalgebra::{Matrix3x6, Dyn, Const};
+        ///
+        /// let m = Matrix3x6::new(
+        ///     1.0, 2.0, 3.0, 4.0, 5.0, 6.0,
+        ///     7.0, 8.0, 9.0, 10.0, 11.0, 12.0,
+        ///     13.0, 14.0, 15.0, 16.0, 17.0, 18.0,
+        /// );
+        ///
+        /// // Using runtime dimension: select 3 columns with step 1 (columns 0, 2, 4)
+        /// let dynamic_strided = m.columns_generic_with_step(0, Dyn(3), 1);
+        /// assert_eq!(dynamic_strided[(0, 0)], 1.0);
+        /// assert_eq!(dynamic_strided[(0, 1)], 3.0);
+        ///
+        /// // Using compile-time dimension
+        /// let static_strided = m.columns_generic_with_step(0, Const::<3>, 1);
+        /// assert_eq!(static_strided[(0, 2)], 5.0);
+        /// ```
+        ///
+        /// # See Also
+        /// - [`columns_with_step`](Self::columns_with_step) - Simpler interface for runtime-sized strided extraction
+        /// - [`fixed_columns_with_step`](Self::fixed_columns_with_step) - Simpler interface for compile-time strided extraction
+        /// - [`columns_generic`](Self::columns_generic) - Generic consecutive column extraction
         #[inline]
         pub fn $columns_generic_with_step<CView: Dim>($me: $Me, first_col: usize, ncols: CView, step: usize)
             -> $MatrixView<'_, T, R, CView, S::RStride, Dyn> {
@@ -513,8 +1150,43 @@ macro_rules! matrix_view_impl (
             $me.$view(start, shape)
         }
 
-        /// Return a view of this matrix starting at its component `(irow, icol)` and with `(nrows, ncols)`
-        /// consecutive elements.
+        /// Returns a view of a rectangular sub-matrix of this matrix.
+        ///
+        /// A matrix view (or slice) is a non-copying reference to a portion of the matrix.
+        /// This is one of the most general and commonly used view creation methods, allowing
+        /// you to extract an arbitrary rectangular region from the matrix.
+        ///
+        /// # Parameters
+        /// - `start`: A tuple `(row, col)` specifying the top-left corner of the sub-matrix (zero-based).
+        /// - `shape`: A tuple `(nrows, ncols)` specifying the size of the sub-matrix.
+        ///
+        /// # Panics
+        /// Panics if the specified region extends beyond the matrix bounds.
+        ///
+        /// # Example
+        /// ```
+        /// use nalgebra::Matrix4x5;
+        ///
+        /// let m = Matrix4x5::new(
+        ///     1.0, 2.0, 3.0, 4.0, 5.0,
+        ///     6.0, 7.0, 8.0, 9.0, 10.0,
+        ///     11.0, 12.0, 13.0, 14.0, 15.0,
+        ///     16.0, 17.0, 18.0, 19.0, 20.0,
+        /// );
+        ///
+        /// // Extract a 2x3 sub-matrix starting at position (1, 1)
+        /// let sub = m.view((1, 1), (2, 3));
+        /// assert_eq!(sub.nrows(), 2);
+        /// assert_eq!(sub.ncols(), 3);
+        /// assert_eq!(sub[(0, 0)], 7.0);
+        /// assert_eq!(sub[(1, 2)], 14.0);
+        /// ```
+        ///
+        /// # See Also
+        /// - [`fixed_view`](Self::fixed_view) - Extract a view with compile-time dimensions
+        /// - [`view_with_steps`](Self::view_with_steps) - Extract a strided view
+        /// - [`rows`](Self::rows) - Extract complete rows
+        /// - [`columns`](Self::columns) - Extract complete columns
         #[inline]
         pub fn $view($me: $Me, start: (usize, usize), shape: (usize, usize))
             -> $MatrixView<'_, T, Dyn, Dyn, S::RStride, S::CStride> {
@@ -539,10 +1211,46 @@ macro_rules! matrix_view_impl (
             $me.$view_with_steps(start, shape, steps)
         }
 
-        /// Return a view of this matrix starting at its component `(start.0, start.1)` and with
-        /// `(shape.0, shape.1)` components. Each row (resp. column) of the matrix view is
-        /// separated by `steps.0` (resp. `steps.1`) ignored rows (resp. columns) of the
-        /// original matrix.
+        /// Returns a strided view of this matrix with both row and column gaps.
+        ///
+        /// This creates a view that samples the matrix at regular row and column intervals,
+        /// allowing you to extract non-contiguous sub-matrices. The `steps` parameter controls
+        /// how many elements to skip between each selected row or column.
+        ///
+        /// # Parameters
+        /// - `start`: A tuple `(row, col)` specifying the top-left corner (zero-based).
+        /// - `shape`: A tuple `(nrows, ncols)` specifying the size of the view.
+        /// - `steps`: A tuple `(row_step, col_step)` specifying gaps between selected elements.
+        ///   A step of 0 means consecutive elements, 1 means skip one element, etc.
+        ///
+        /// # Panics
+        /// Panics if the selected region would exceed the matrix bounds.
+        ///
+        /// # Example
+        /// ```
+        /// use nalgebra::Matrix6;
+        ///
+        /// let m = Matrix6::new(
+        ///     1.0, 2.0, 3.0, 4.0, 5.0, 6.0,
+        ///     7.0, 8.0, 9.0, 10.0, 11.0, 12.0,
+        ///     13.0, 14.0, 15.0, 16.0, 17.0, 18.0,
+        ///     19.0, 20.0, 21.0, 22.0, 23.0, 24.0,
+        ///     25.0, 26.0, 27.0, 28.0, 29.0, 30.0,
+        ///     31.0, 32.0, 33.0, 34.0, 35.0, 36.0,
+        /// );
+        ///
+        /// // Extract a 2x2 view starting at (0,0), skipping 1 row and 1 column each time
+        /// let strided = m.view_with_steps((0, 0), (2, 2), (1, 1));
+        /// assert_eq!(strided[(0, 0)], 1.0);   // Row 0, Col 0
+        /// assert_eq!(strided[(0, 1)], 3.0);   // Row 0, Col 2
+        /// assert_eq!(strided[(1, 0)], 13.0);  // Row 2, Col 0
+        /// assert_eq!(strided[(1, 1)], 15.0);  // Row 2, Col 2
+        /// ```
+        ///
+        /// # See Also
+        /// - [`view`](Self::view) - Extract a contiguous view
+        /// - [`rows_with_step`](Self::rows_with_step) - Strided row extraction
+        /// - [`columns_with_step`](Self::columns_with_step) - Strided column extraction
         #[inline]
         pub fn $view_with_steps($me: $Me, start: (usize, usize), shape: (usize, usize), steps: (usize, usize))
             -> $MatrixView<'_, T, Dyn, Dyn, Dyn, Dyn> {
@@ -559,8 +1267,47 @@ macro_rules! matrix_view_impl (
             $me.$fixed_view(irow, icol)
         }
 
-        /// Return a view of this matrix starting at its component `(irow, icol)` and with
-        /// `(RVIEW, CVIEW)` consecutive components.
+        /// Returns a view of a rectangular sub-matrix with compile-time dimensions.
+        ///
+        /// This is similar to [`view`](Self::view), but the size of the sub-matrix is known at
+        /// compile time, which can enable better compiler optimizations and type checking.
+        ///
+        /// # Parameters
+        /// - `irow`: The zero-based row index of the top-left corner.
+        /// - `icol`: The zero-based column index of the top-left corner.
+        ///
+        /// # Type Parameters
+        /// - `RVIEW`: The number of rows in the view (known at compile time).
+        /// - `CVIEW`: The number of columns in the view (known at compile time).
+        ///
+        /// # Panics
+        /// Panics if the specified region extends beyond the matrix bounds.
+        ///
+        /// # Example
+        /// ```
+        /// use nalgebra::Matrix5;
+        ///
+        /// let m = Matrix5::new(
+        ///     1.0, 2.0, 3.0, 4.0, 5.0,
+        ///     6.0, 7.0, 8.0, 9.0, 10.0,
+        ///     11.0, 12.0, 13.0, 14.0, 15.0,
+        ///     16.0, 17.0, 18.0, 19.0, 20.0,
+        ///     21.0, 22.0, 23.0, 24.0, 25.0,
+        /// );
+        ///
+        /// // Extract a 2x3 sub-matrix starting at position (1, 1)
+        /// let sub = m.fixed_view::<2, 3>(1, 1);
+        /// assert_eq!(sub.nrows(), 2);
+        /// assert_eq!(sub.ncols(), 3);
+        /// assert_eq!(sub[(0, 0)], 7.0);
+        /// assert_eq!(sub[(1, 2)], 14.0);
+        /// ```
+        ///
+        /// # See Also
+        /// - [`view`](Self::view) - Extract a view with runtime dimensions
+        /// - [`fixed_view_with_steps`](Self::fixed_view_with_steps) - Extract a fixed-size strided view
+        /// - [`fixed_rows`](Self::fixed_rows) - Extract complete rows with compile-time size
+        /// - [`fixed_columns`](Self::fixed_columns) - Extract complete columns with compile-time size
         #[inline]
         pub fn $fixed_view<const RVIEW: usize, const CVIEW: usize>($me: $Me, irow: usize, icol: usize)
             -> $MatrixView<'_, T, Const<RVIEW>, Const<CVIEW>, S::RStride, S::CStride> {
@@ -585,10 +1332,45 @@ macro_rules! matrix_view_impl (
             $me.$fixed_view_with_steps(start, steps)
         }
 
-        /// Returns a view of this matrix starting at its component `(start.0, start.1)` and with
-        /// `(RVIEW, CVIEW)` components. Each row (resp. column) of the matrix view
-        /// is separated by `steps.0` (resp. `steps.1`) ignored rows (resp. columns) of
-        /// the original matrix.
+        /// Returns a strided view with compile-time dimensions and runtime strides.
+        ///
+        /// This combines compile-time sizing with runtime-specified strides, allowing you to
+        /// extract a fixed-size sub-matrix with gaps between rows and/or columns.
+        ///
+        /// # Parameters
+        /// - `start`: A tuple `(row, col)` specifying the top-left corner (zero-based).
+        /// - `steps`: A tuple `(row_step, col_step)` specifying gaps between selected elements.
+        ///
+        /// # Type Parameters
+        /// - `RVIEW`: The number of rows in the view (known at compile time).
+        /// - `CVIEW`: The number of columns in the view (known at compile time).
+        ///
+        /// # Panics
+        /// Panics if the selected region would exceed the matrix bounds.
+        ///
+        /// # Example
+        /// ```
+        /// use nalgebra::Matrix6;
+        ///
+        /// let m = Matrix6::new(
+        ///     1.0, 2.0, 3.0, 4.0, 5.0, 6.0,
+        ///     7.0, 8.0, 9.0, 10.0, 11.0, 12.0,
+        ///     13.0, 14.0, 15.0, 16.0, 17.0, 18.0,
+        ///     19.0, 20.0, 21.0, 22.0, 23.0, 24.0,
+        ///     25.0, 26.0, 27.0, 28.0, 29.0, 30.0,
+        ///     31.0, 32.0, 33.0, 34.0, 35.0, 36.0,
+        /// );
+        ///
+        /// // Extract a 2x2 view starting at (0,0), skipping 1 row and 1 column
+        /// let strided = m.fixed_view_with_steps::<2, 2>((0, 0), (1, 1));
+        /// assert_eq!(strided[(0, 0)], 1.0);   // Row 0, Col 0
+        /// assert_eq!(strided[(0, 1)], 3.0);   // Row 0, Col 2
+        /// assert_eq!(strided[(1, 0)], 13.0);  // Row 2, Col 0
+        /// ```
+        ///
+        /// # See Also
+        /// - [`fixed_view`](Self::fixed_view) - Extract a contiguous fixed-size view
+        /// - [`view_with_steps`](Self::view_with_steps) - Extract a strided view with runtime dimensions
         #[inline]
         pub fn $fixed_view_with_steps<const RVIEW: usize, const CVIEW: usize>($me: $Me, start: (usize, usize), steps: (usize, usize))
             -> $MatrixView<'_, T, Const<RVIEW>, Const<CVIEW>, Dyn, Dyn> {
@@ -606,7 +1388,43 @@ macro_rules! matrix_view_impl (
             $me.$generic_view(start, shape)
         }
 
-        /// Creates a matrix view that may or may not have a fixed size and stride.
+        /// Creates a matrix view with generic (compile-time or runtime) dimensions.
+        ///
+        /// This is the most generic view creation method. Both the starting position and the
+        /// size can be specified using either compile-time dimensions (`Const<N>`) or runtime
+        /// dimensions (`Dyn`). This method is typically used internally by other more convenient
+        /// methods like [`view`](Self::view) and [`fixed_view`](Self::fixed_view).
+        ///
+        /// # Parameters
+        /// - `start`: A tuple `(row, col)` specifying the top-left corner (zero-based).
+        /// - `shape`: A tuple of dimension types specifying the view size.
+        ///
+        /// # Type Parameters
+        /// - `RView`: The row dimension type (`Const<N>` or `Dyn`).
+        /// - `CView`: The column dimension type (`Const<N>` or `Dyn`).
+        ///
+        /// # Panics
+        /// Panics if the specified region extends beyond the matrix bounds.
+        ///
+        /// # Example
+        /// ```
+        /// use nalgebra::{Matrix5, Dyn, Const};
+        ///
+        /// let m = Matrix5::identity();
+        ///
+        /// // Using runtime dimensions
+        /// let dynamic_view = m.generic_view((1, 1), (Dyn(2), Dyn(2)));
+        /// assert_eq!(dynamic_view.nrows(), 2);
+        ///
+        /// // Using compile-time dimensions
+        /// let static_view = m.generic_view((1, 1), (Const::<2>, Const::<2>));
+        /// assert_eq!(static_view.nrows(), 2);
+        /// ```
+        ///
+        /// # See Also
+        /// - [`view`](Self::view) - Simpler interface for runtime dimensions
+        /// - [`fixed_view`](Self::fixed_view) - Simpler interface for compile-time dimensions
+        /// - [`generic_view_with_steps`](Self::generic_view_with_steps) - Generic strided view
         #[inline]
         pub fn $generic_view<RView, CView>($me: $Me, start: (usize, usize), shape: (RView, CView))
             -> $MatrixView<'_, T, RView, CView, S::RStride, S::CStride>
@@ -634,7 +1452,45 @@ macro_rules! matrix_view_impl (
             $me.$generic_view_with_steps(start, shape, steps)
         }
 
-        /// Creates a matrix view that may or may not have a fixed size and stride.
+        /// Creates a strided matrix view with generic (compile-time or runtime) dimensions.
+        ///
+        /// This is the most generic strided view creation method. The size can be specified using
+        /// either compile-time dimensions (`Const<N>`) or runtime dimensions (`Dyn`), while strides
+        /// are always runtime parameters. This method is typically used internally by other methods
+        /// like [`view_with_steps`](Self::view_with_steps) and [`fixed_view_with_steps`](Self::fixed_view_with_steps).
+        ///
+        /// # Parameters
+        /// - `start`: A tuple `(row, col)` specifying the top-left corner (zero-based).
+        /// - `shape`: A tuple of dimension types specifying the view size.
+        /// - `steps`: A tuple `(row_step, col_step)` specifying gaps between selected elements.
+        ///
+        /// # Type Parameters
+        /// - `RView`: The row dimension type (`Const<N>` or `Dyn`).
+        /// - `CView`: The column dimension type (`Const<N>` or `Dyn`).
+        ///
+        /// # Panics
+        /// Panics if the selected region would exceed the matrix bounds.
+        ///
+        /// # Example
+        /// ```
+        /// use nalgebra::{Matrix6, Dyn, Const};
+        ///
+        /// let m = Matrix6::from_fn(|i, j| (i * 6 + j + 1) as f64);
+        ///
+        /// // Using runtime dimensions
+        /// let dynamic_view = m.generic_view_with_steps((0, 0), (Dyn(2), Dyn(2)), (1, 1));
+        /// assert_eq!(dynamic_view[(0, 0)], 1.0);
+        /// assert_eq!(dynamic_view[(1, 1)], 15.0);
+        ///
+        /// // Using compile-time dimensions
+        /// let static_view = m.generic_view_with_steps((0, 0), (Const::<2>, Const::<2>), (1, 1));
+        /// assert_eq!(static_view[(0, 0)], 1.0);
+        /// ```
+        ///
+        /// # See Also
+        /// - [`generic_view`](Self::generic_view) - Generic contiguous view
+        /// - [`view_with_steps`](Self::view_with_steps) - Simpler interface for runtime dimensions
+        /// - [`fixed_view_with_steps`](Self::fixed_view_with_steps) - Simpler interface for compile-time dimensions
         #[inline]
         pub fn $generic_view_with_steps<RView, CView>($me: $Me,
                                                          start: (usize, usize),
@@ -661,9 +1517,46 @@ macro_rules! matrix_view_impl (
          * Splitting.
          *
          */
-        /// Splits this `NxM` matrix into two parts delimited by two ranges.
+        /// Splits this matrix into two row views using non-overlapping row ranges.
         ///
-        /// Panics if the ranges overlap or if the first range is empty.
+        /// This is useful for simultaneously accessing two different sets of rows from the same
+        /// matrix. The ranges must not overlap, as this would violate Rust's aliasing rules.
+        /// However, the ranges don't need to be adjacent or cover all rows.
+        ///
+        /// # Parameters
+        /// - `r1`: The first row range (can be a `usize`, `Range`, `RangeFrom`, `RangeTo`, or `RangeFull`).
+        /// - `r2`: The second row range (same types as `r1`).
+        ///
+        /// # Returns
+        /// A tuple of two matrix views `(view1, view2)` corresponding to the two row ranges.
+        ///
+        /// # Panics
+        /// - Panics if the ranges overlap.
+        /// - Panics if either range extends beyond the matrix bounds.
+        ///
+        /// # Example
+        /// ```
+        /// use nalgebra::Matrix5x3;
+        ///
+        /// let m = Matrix5x3::new(
+        ///     1.0, 2.0, 3.0,
+        ///     4.0, 5.0, 6.0,
+        ///     7.0, 8.0, 9.0,
+        ///     10.0, 11.0, 12.0,
+        ///     13.0, 14.0, 15.0,
+        /// );
+        ///
+        /// // Split into rows 0-1 and rows 3-4
+        /// let (top, bottom) = m.rows_range_pair(0..2, 3..5);
+        /// assert_eq!(top.nrows(), 2);
+        /// assert_eq!(bottom.nrows(), 2);
+        /// assert_eq!(top[(0, 0)], 1.0);
+        /// assert_eq!(bottom[(0, 0)], 10.0);
+        /// ```
+        ///
+        /// # See Also
+        /// - [`columns_range_pair`](Self::columns_range_pair) - Split by column ranges
+        /// - [`rows_range`](Self::rows_range) - Extract a single row range
         #[inline]
         pub fn $rows_range_pair<Range1: DimRange<R>, Range2: DimRange<R>>($me: $Me, r1: Range1, r2: Range2)
             -> ($MatrixView<'_, T, Range1::Size, C, S::RStride, S::CStride>,
@@ -697,9 +1590,44 @@ macro_rules! matrix_view_impl (
             }
         }
 
-        /// Splits this `NxM` matrix into two parts delimited by two ranges.
+        /// Splits this matrix into two column views using non-overlapping column ranges.
         ///
-        /// Panics if the ranges overlap or if the first range is empty.
+        /// This is useful for simultaneously accessing two different sets of columns from the same
+        /// matrix. The ranges must not overlap, as this would violate Rust's aliasing rules.
+        /// However, the ranges don't need to be adjacent or cover all columns.
+        ///
+        /// # Parameters
+        /// - `r1`: The first column range (can be a `usize`, `Range`, `RangeFrom`, `RangeTo`, or `RangeFull`).
+        /// - `r2`: The second column range (same types as `r1`).
+        ///
+        /// # Returns
+        /// A tuple of two matrix views `(view1, view2)` corresponding to the two column ranges.
+        ///
+        /// # Panics
+        /// - Panics if the ranges overlap.
+        /// - Panics if either range extends beyond the matrix bounds.
+        ///
+        /// # Example
+        /// ```
+        /// use nalgebra::Matrix3x5;
+        ///
+        /// let m = Matrix3x5::new(
+        ///     1.0, 2.0, 3.0, 4.0, 5.0,
+        ///     6.0, 7.0, 8.0, 9.0, 10.0,
+        ///     11.0, 12.0, 13.0, 14.0, 15.0,
+        /// );
+        ///
+        /// // Split into columns 0-1 and columns 3-4
+        /// let (left, right) = m.columns_range_pair(0..2, 3..5);
+        /// assert_eq!(left.ncols(), 2);
+        /// assert_eq!(right.ncols(), 2);
+        /// assert_eq!(left[(0, 0)], 1.0);
+        /// assert_eq!(right[(0, 0)], 4.0);
+        /// ```
+        ///
+        /// # See Also
+        /// - [`rows_range_pair`](Self::rows_range_pair) - Split by row ranges
+        /// - [`columns_range`](Self::columns_range) - Extract a single column range
         #[inline]
         pub fn $columns_range_pair<Range1: DimRange<C>, Range2: DimRange<C>>($me: $Me, r1: Range1, r2: Range2)
             -> ($MatrixView<'_, T, R, Range1::Size, S::RStride, S::CStride>,
@@ -990,8 +1918,50 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         )
     }
 
-    /// Returns a view containing the rows indexed by the range `rows` and the columns indexed
-    /// by the range `cols`.
+    /// Returns a view containing the rows and columns indexed by the given ranges.
+    ///
+    /// This provides a convenient way to extract a rectangular sub-matrix using Rust's
+    /// range syntax. You can use various range types including `start..end`, `start..`,
+    /// `..end`, `..`, or even single indices.
+    ///
+    /// # Parameters
+    /// - `rows`: A range specifying which rows to include (e.g., `1..4`, `2..`, `..3`, or `..`).
+    /// - `cols`: A range specifying which columns to include (same syntax as rows).
+    ///
+    /// # Returns
+    /// A matrix view referencing the specified sub-matrix.
+    ///
+    /// # Panics
+    /// Panics if either range extends beyond the matrix bounds.
+    ///
+    /// # Example
+    /// ```
+    /// use nalgebra::Matrix5;
+    ///
+    /// let m = Matrix5::new(
+    ///     1.0, 2.0, 3.0, 4.0, 5.0,
+    ///     6.0, 7.0, 8.0, 9.0, 10.0,
+    ///     11.0, 12.0, 13.0, 14.0, 15.0,
+    ///     16.0, 17.0, 18.0, 19.0, 20.0,
+    ///     21.0, 22.0, 23.0, 24.0, 25.0,
+    /// );
+    ///
+    /// // Extract rows 1-2 (inclusive of 1, exclusive of 3) and columns 2-4
+    /// let sub = m.view_range(1..3, 2..5);
+    /// assert_eq!(sub.nrows(), 2);
+    /// assert_eq!(sub.ncols(), 3);
+    /// assert_eq!(sub[(0, 0)], 8.0);
+    ///
+    /// // Use open-ended ranges
+    /// let bottom_right = m.view_range(3.., 3..);
+    /// assert_eq!(bottom_right.nrows(), 2);
+    /// assert_eq!(bottom_right[(0, 0)], 19.0);
+    /// ```
+    ///
+    /// # See Also
+    /// - [`view`](Self::view) - Extract a view using explicit start position and size
+    /// - [`rows_range`](Self::rows_range) - Extract only specific rows (all columns)
+    /// - [`columns_range`](Self::columns_range) - Extract only specific columns (all rows)
     #[inline]
     #[must_use]
     pub fn view_range<RowRange, ColRange>(
@@ -1010,7 +1980,49 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         )
     }
 
-    /// View containing all the rows indexed by the range `rows`.
+    /// Returns a view containing all rows indexed by the given range.
+    ///
+    /// This extracts a horizontal band from the matrix, including all columns but only
+    /// the rows specified by the range. It's a convenient shorthand for
+    /// `view_range(rows, ..)`.
+    ///
+    /// # Parameters
+    /// - `rows`: A range specifying which rows to include (e.g., `1..4`, `2..`, `..3`, or `..`).
+    ///
+    /// # Returns
+    /// A matrix view containing the specified rows and all columns.
+    ///
+    /// # Panics
+    /// Panics if the range extends beyond the number of rows in the matrix.
+    ///
+    /// # Example
+    /// ```
+    /// use nalgebra::Matrix5x3;
+    ///
+    /// let m = Matrix5x3::new(
+    ///     1.0, 2.0, 3.0,
+    ///     4.0, 5.0, 6.0,
+    ///     7.0, 8.0, 9.0,
+    ///     10.0, 11.0, 12.0,
+    ///     13.0, 14.0, 15.0,
+    /// );
+    ///
+    /// // Extract rows 1-3
+    /// let middle = m.rows_range(1..4);
+    /// assert_eq!(middle.nrows(), 3);
+    /// assert_eq!(middle.ncols(), 3);
+    /// assert_eq!(middle[(0, 0)], 4.0);
+    /// assert_eq!(middle[(2, 2)], 12.0);
+    ///
+    /// // Extract from row 3 to the end
+    /// let bottom = m.rows_range(3..);
+    /// assert_eq!(bottom.nrows(), 2);
+    /// ```
+    ///
+    /// # See Also
+    /// - [`rows`](Self::rows) - Extract rows using explicit start and count
+    /// - [`columns_range`](Self::columns_range) - Extract columns by range
+    /// - [`view_range`](Self::view_range) - Extract both rows and columns by range
     #[inline]
     #[must_use]
     pub fn rows_range<RowRange: DimRange<R>>(
@@ -1020,7 +2032,47 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         self.view_range(rows, ..)
     }
 
-    /// View containing all the columns indexed by the range `rows`.
+    /// Returns a view containing all columns indexed by the given range.
+    ///
+    /// This extracts a vertical band from the matrix, including all rows but only
+    /// the columns specified by the range. It's a convenient shorthand for
+    /// `view_range(.., cols)`.
+    ///
+    /// # Parameters
+    /// - `cols`: A range specifying which columns to include (e.g., `1..4`, `2..`, `..3`, or `..`).
+    ///
+    /// # Returns
+    /// A matrix view containing all rows and the specified columns.
+    ///
+    /// # Panics
+    /// Panics if the range extends beyond the number of columns in the matrix.
+    ///
+    /// # Example
+    /// ```
+    /// use nalgebra::Matrix3x5;
+    ///
+    /// let m = Matrix3x5::new(
+    ///     1.0, 2.0, 3.0, 4.0, 5.0,
+    ///     6.0, 7.0, 8.0, 9.0, 10.0,
+    ///     11.0, 12.0, 13.0, 14.0, 15.0,
+    /// );
+    ///
+    /// // Extract columns 1-3
+    /// let middle = m.columns_range(1..4);
+    /// assert_eq!(middle.nrows(), 3);
+    /// assert_eq!(middle.ncols(), 3);
+    /// assert_eq!(middle[(0, 0)], 2.0);
+    /// assert_eq!(middle[(2, 2)], 14.0);
+    ///
+    /// // Extract the first 2 columns
+    /// let left = m.columns_range(..2);
+    /// assert_eq!(left.ncols(), 2);
+    /// ```
+    ///
+    /// # See Also
+    /// - [`columns`](Self::columns) - Extract columns using explicit start and count
+    /// - [`rows_range`](Self::rows_range) - Extract rows by range
+    /// - [`view_range`](Self::view_range) - Extract both rows and columns by range
     #[inline]
     #[must_use]
     pub fn columns_range<ColRange: DimRange<C>>(
@@ -1049,8 +2101,46 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
         self.view_range_mut(rows, cols)
     }
 
-    /// Return a mutable view containing the rows indexed by the range `rows` and the columns
-    /// indexed by the range `cols`.
+    /// Returns a mutable view containing the rows and columns indexed by the given ranges.
+    ///
+    /// This is the mutable version of [`view_range`](Self::view_range). It provides a way to
+    /// extract and modify a rectangular sub-matrix using Rust's range syntax.
+    ///
+    /// # Parameters
+    /// - `rows`: A range specifying which rows to include (e.g., `1..4`, `2..`, `..3`, or `..`).
+    /// - `cols`: A range specifying which columns to include (same syntax as rows).
+    ///
+    /// # Returns
+    /// A mutable matrix view referencing the specified sub-matrix.
+    ///
+    /// # Panics
+    /// Panics if either range extends beyond the matrix bounds.
+    ///
+    /// # Example
+    /// ```
+    /// use nalgebra::Matrix5;
+    ///
+    /// let mut m = Matrix5::new(
+    ///     1.0, 2.0, 3.0, 4.0, 5.0,
+    ///     6.0, 7.0, 8.0, 9.0, 10.0,
+    ///     11.0, 12.0, 13.0, 14.0, 15.0,
+    ///     16.0, 17.0, 18.0, 19.0, 20.0,
+    ///     21.0, 22.0, 23.0, 24.0, 25.0,
+    /// );
+    ///
+    /// // Extract and modify a 2x3 sub-matrix
+    /// let mut sub = m.view_range_mut(1..3, 2..5);
+    /// sub[(0, 0)] = 100.0;
+    ///
+    /// // The change is reflected in the original matrix
+    /// assert_eq!(m[(1, 2)], 100.0);
+    /// ```
+    ///
+    /// # See Also
+    /// - [`view_range`](Self::view_range) - Immutable version
+    /// - [`view_mut`](Self::view_mut) - Extract a mutable view using explicit coordinates
+    /// - [`rows_range_mut`](Self::rows_range_mut) - Extract mutable rows by range
+    /// - [`columns_range_mut`](Self::columns_range_mut) - Extract mutable columns by range
     pub fn view_range_mut<RowRange, ColRange>(
         &mut self,
         rows: RowRange,
@@ -1067,7 +2157,41 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
         )
     }
 
-    /// Mutable view containing all the rows indexed by the range `rows`.
+    /// Returns a mutable view containing all rows indexed by the given range.
+    ///
+    /// This is the mutable version of [`rows_range`](Self::rows_range). It extracts a
+    /// horizontal band from the matrix that can be modified.
+    ///
+    /// # Parameters
+    /// - `rows`: A range specifying which rows to include (e.g., `1..4`, `2..`, `..3`, or `..`).
+    ///
+    /// # Returns
+    /// A mutable matrix view containing the specified rows and all columns.
+    ///
+    /// # Panics
+    /// Panics if the range extends beyond the number of rows in the matrix.
+    ///
+    /// # Example
+    /// ```
+    /// use nalgebra::Matrix5x3;
+    ///
+    /// let mut m = Matrix5x3::zeros();
+    ///
+    /// // Modify rows 1-3
+    /// let mut middle = m.rows_range_mut(1..4);
+    /// middle.fill(5.0);
+    ///
+    /// // Verify the changes
+    /// assert_eq!(m[(0, 0)], 0.0);  // Row 0 unchanged
+    /// assert_eq!(m[(1, 0)], 5.0);  // Row 1 modified
+    /// assert_eq!(m[(3, 0)], 5.0);  // Row 3 modified
+    /// assert_eq!(m[(4, 0)], 0.0);  // Row 4 unchanged
+    /// ```
+    ///
+    /// # See Also
+    /// - [`rows_range`](Self::rows_range) - Immutable version
+    /// - [`rows_mut`](Self::rows_mut) - Extract mutable rows using explicit start and count
+    /// - [`columns_range_mut`](Self::columns_range_mut) - Extract mutable columns by range
     #[inline]
     pub fn rows_range_mut<RowRange: DimRange<R>>(
         &mut self,
@@ -1076,7 +2200,40 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
         self.view_range_mut(rows, ..)
     }
 
-    /// Mutable view containing all the columns indexed by the range `cols`.
+    /// Returns a mutable view containing all columns indexed by the given range.
+    ///
+    /// This is the mutable version of [`columns_range`](Self::columns_range). It extracts a
+    /// vertical band from the matrix that can be modified.
+    ///
+    /// # Parameters
+    /// - `cols`: A range specifying which columns to include (e.g., `1..4`, `2..`, `..3`, or `..`).
+    ///
+    /// # Returns
+    /// A mutable matrix view containing all rows and the specified columns.
+    ///
+    /// # Panics
+    /// Panics if the range extends beyond the number of columns in the matrix.
+    ///
+    /// # Example
+    /// ```
+    /// use nalgebra::Matrix3x5;
+    ///
+    /// let mut m = Matrix3x5::zeros();
+    ///
+    /// // Modify columns 2-4
+    /// let mut middle = m.columns_range_mut(2..5);
+    /// middle.fill(7.0);
+    ///
+    /// // Verify the changes
+    /// assert_eq!(m[(0, 1)], 0.0);  // Column 1 unchanged
+    /// assert_eq!(m[(0, 2)], 7.0);  // Column 2 modified
+    /// assert_eq!(m[(2, 4)], 7.0);  // Column 4 modified
+    /// ```
+    ///
+    /// # See Also
+    /// - [`columns_range`](Self::columns_range) - Immutable version
+    /// - [`columns_mut`](Self::columns_mut) - Extract mutable columns using explicit start and count
+    /// - [`rows_range_mut`](Self::rows_range_mut) - Extract mutable rows by range
     #[inline]
     pub fn columns_range_mut<ColRange: DimRange<C>>(
         &mut self,

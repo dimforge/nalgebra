@@ -118,19 +118,141 @@ impl<T: Scalar, R: Dim, C: Dim> CsVecStorage<T, R, C>
 where
     DefaultAllocator: Allocator<C>,
 {
-    /// The value buffer of this storage.
+    /// Returns a reference to the value buffer containing all non-zero elements.
+    ///
+    /// In a Compressed Sparse Column (CSC) matrix, only non-zero values are stored.
+    /// This method returns a slice containing all these stored values in column-major order.
+    /// The values are organized such that for each column, its non-zero elements appear
+    /// consecutively in this buffer.
+    ///
+    /// # Understanding Sparse Storage
+    ///
+    /// Unlike dense matrices that store every element (including zeros), sparse matrices
+    /// only store non-zero values along with their positions. For a matrix with millions
+    /// of elements but only thousands of non-zeros, this saves enormous amounts of memory.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use nalgebra::CsMatrix;
+    /// use nalgebra::Dyn;
+    ///
+    /// // Create a 3x3 sparse matrix from triplet format (row, col, value)
+    /// let triplets = vec![
+    ///     (0, 0, 1.0),
+    ///     (1, 1, 2.0),
+    ///     (2, 2, 3.0),
+    /// ];
+    ///
+    /// let m = CsMatrix::<f64, Dyn, Dyn>::from_triplet(3, 3, &triplets);
+    ///
+    /// // Get the values buffer - contains only non-zero elements
+    /// let values = m.data.values();
+    /// assert_eq!(values.len(), 3); // Only 3 non-zero values stored
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`CsVecStorage::i`] - Returns the row indices corresponding to these values
+    /// - [`CsVecStorage::p`] - Returns column pointer offsets to locate values by column
     #[must_use]
     pub fn values(&self) -> &[T] {
         &self.vals
     }
 
-    /// The column shifts buffer.
+    /// Returns the column pointer buffer for the compressed storage format.
+    ///
+    /// In Compressed Sparse Column (CSC) format, the column pointer array indicates where
+    /// each column's data begins in the values and row indices arrays. Specifically, for column `j`:
+    /// - `p[j]` gives the starting index in the values/row indices arrays
+    /// - `p[j+1]` gives the ending index (exclusive)
+    /// - Thus, column `j` has `p[j+1] - p[j]` non-zero elements
+    ///
+    /// # Format Details
+    ///
+    /// - Length: `ncols` (number of columns)
+    /// - `p[j]` ≤ `p[j+1]` for all valid `j` (monotonically increasing)
+    /// - The values and row indices for column `j` are in ranges `[p[j]..p[j+1]]`
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use nalgebra::CsMatrix;
+    /// use nalgebra::Dyn;
+    ///
+    /// // Create a sparse matrix:
+    /// // [1.0  0.0  2.0]
+    /// // [0.0  3.0  0.0]
+    /// // [0.0  0.0  4.0]
+    /// let triplets = vec![
+    ///     (0, 0, 1.0),
+    ///     (1, 1, 3.0),
+    ///     (0, 2, 2.0),
+    ///     (2, 2, 4.0),
+    /// ];
+    ///
+    /// let m = CsMatrix::<f64, Dyn, Dyn>::from_triplet(3, 3, &triplets);
+    ///
+    /// // Column pointers tell us where each column's data starts
+    /// let p = m.data.p();
+    /// // Column 0: indices p[0]..p[1] (1 element)
+    /// // Column 1: indices p[1]..p[2] (1 element)
+    /// // Column 2: indices p[2]..p[3] (2 elements)
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`CsVecStorage::i`] - Returns the row indices for each stored value
+    /// - [`CsVecStorage::values`] - Returns the actual non-zero values
     #[must_use]
     pub fn p(&self) -> &[usize] {
         self.p.as_slice()
     }
 
-    /// The row index buffers.
+    /// Returns the row index buffer for the compressed storage format.
+    ///
+    /// This array stores the row indices of each non-zero element in the matrix.
+    /// For each value in the values buffer, there's a corresponding entry in this
+    /// array indicating which row that value belongs to.
+    ///
+    /// # Format Details
+    ///
+    /// - Length: Same as the values buffer (number of non-zero elements)
+    /// - For column `j`, the row indices are in the range `[p[j]..p[j+1]]`
+    /// - Within each column, row indices are sorted in ascending order
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use nalgebra::CsMatrix;
+    /// use nalgebra::Dyn;
+    ///
+    /// // Create a sparse matrix:
+    /// // [1.0  0.0]
+    /// // [2.0  0.0]
+    /// // [0.0  3.0]
+    /// let triplets = vec![
+    ///     (0, 0, 1.0),
+    ///     (1, 0, 2.0),
+    ///     (2, 1, 3.0),
+    /// ];
+    ///
+    /// let m = CsMatrix::<f64, Dyn, Dyn>::from_triplet(3, 2, &triplets);
+    ///
+    /// // Row indices tell us which row each value belongs to
+    /// let row_indices = m.data.i();
+    /// let values = m.data.values();
+    ///
+    /// // The non-zero elements with their row indices:
+    /// // values[0]=1.0 is in row row_indices[0]=0
+    /// // values[1]=2.0 is in row row_indices[1]=1
+    /// // values[2]=3.0 is in row row_indices[2]=2
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`CsVecStorage::p`] - Returns column pointers to segment this array by column
+    /// - [`CsVecStorage::values`] - Returns the values corresponding to these row indices
     #[must_use]
     pub fn i(&self) -> &[usize] {
         &self.i
@@ -259,8 +381,57 @@ impl<T: Scalar, R: Dim, C: Dim> CsMatrix<T, R, C>
 where
     DefaultAllocator: Allocator<C>,
 {
-    /// Creates a new compressed sparse column matrix with the specified dimension and
-    /// `nvals` possible non-zero values.
+    /// Creates a new uninitialized compressed sparse column matrix with pre-allocated storage.
+    ///
+    /// This method allocates storage for a sparse matrix with the given dimensions and
+    /// a specified capacity for non-zero values. The storage is uninitialized, meaning
+    /// the values and row indices are not set to any particular values.
+    ///
+    /// # Parameters
+    ///
+    /// - `nrows`: Number of rows in the matrix
+    /// - `ncols`: Number of columns in the matrix
+    /// - `nvals`: Capacity for non-zero values (pre-allocates storage)
+    ///
+    /// # Understanding the Parameters
+    ///
+    /// The `nvals` parameter is crucial for performance. If you know approximately how many
+    /// non-zero elements your matrix will contain, pre-allocating this space avoids
+    /// expensive reallocations later. For example, a 1000×1000 tridiagonal matrix has
+    /// approximately 3000 non-zero values.
+    ///
+    /// # Safety Note
+    ///
+    /// This method creates uninitialized storage. The matrix should be properly filled
+    /// before use. This is typically used internally by other construction methods.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use nalgebra::{CsMatrix, Dyn};
+    ///
+    /// // Create a sparse matrix structure for a 100x100 matrix
+    /// // with space for approximately 500 non-zero elements
+    /// let matrix = CsMatrix::<f64, Dyn, Dyn>::new_uninitialized_generic(
+    ///     Dyn(100),
+    ///     Dyn(100),
+    ///     500
+    /// );
+    ///
+    /// assert_eq!(matrix.nrows(), 100);
+    /// assert_eq!(matrix.ncols(), 100);
+    /// ```
+    ///
+    /// # Typical Use Cases
+    ///
+    /// - **Finite Element Assembly**: Pre-allocate for the expected number of entries
+    ///   per element times the number of elements
+    /// - **Graph Adjacency Matrices**: Allocate for the number of edges in the graph
+    /// - **Sparse Matrix Construction**: Used internally by conversion methods
+    ///
+    /// # See Also
+    ///
+    /// - [`CsMatrix::from_triplet`] - Higher-level method to create a sparse matrix from data
     pub fn new_uninitialized_generic(nrows: R, ncols: C, nvals: usize) -> Self {
         let mut i = Vec::with_capacity(nvals);
         unsafe {
@@ -358,47 +529,238 @@ impl<T: Scalar, R: Dim, C: Dim, S: CsStorage<T, R, C>> CsMatrix<T, R, C, S> {
         }
     }
 
-    /// The size of the data buffer.
+    /// Returns the number of stored non-zero elements in this sparse matrix.
+    ///
+    /// This is the length of the internal storage buffers, representing how many
+    /// non-zero values are currently stored. This is different from the total
+    /// number of elements in the matrix (which would be `nrows() * ncols()`).
+    ///
+    /// # Sparse vs Dense Storage
+    ///
+    /// For a sparse matrix, `len()` typically returns a much smaller number than
+    /// `nrows() * ncols()`. This is the key memory advantage of sparse storage:
+    /// only non-zero elements are stored.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use nalgebra::CsMatrix;
+    /// use nalgebra::Dyn;
+    ///
+    /// // Create a 1000x1000 identity matrix (sparse)
+    /// let triplets: Vec<_> = (0..1000).map(|i| (i, i, 1.0)).collect();
+    /// let identity = CsMatrix::<f64, Dyn, Dyn>::from_triplet(1000, 1000, &triplets);
+    ///
+    /// // Only 1000 non-zero elements stored
+    /// assert_eq!(identity.len(), 1000);
+    ///
+    /// // But the matrix represents 1,000,000 elements total
+    /// assert_eq!(identity.nrows() * identity.ncols(), 1_000_000);
+    /// ```
+    ///
+    /// # Applications
+    ///
+    /// - **Memory Estimation**: `len() * size_of::<T>()` gives approximate memory usage
+    /// - **Sparsity Analysis**: Compare `len()` to `nrows() * ncols()` to measure sparsity
+    /// - **Performance Hints**: Operations scale with `len()`, not matrix dimensions
+    ///
+    /// # See Also
+    ///
+    /// - [`CsMatrix::nrows`] - Returns the number of rows
+    /// - [`CsMatrix::ncols`] - Returns the number of columns
+    /// - [`CsMatrix::shape`] - Returns both dimensions as a tuple
     #[must_use]
     pub fn len(&self) -> usize {
         self.data.len()
     }
 
-    /// The number of rows of this matrix.
+    /// Returns the number of rows in this sparse matrix.
+    ///
+    /// This returns the logical number of rows, not the number of stored elements.
+    /// A sparse matrix can have many rows even if most elements are zero.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use nalgebra::CsMatrix;
+    /// use nalgebra::Dyn;
+    ///
+    /// // Create a sparse 100x50 matrix
+    /// let triplets = vec![
+    ///     (0, 0, 1.0),
+    ///     (99, 49, 2.0),
+    /// ];
+    /// let m = CsMatrix::<f64, Dyn, Dyn>::from_triplet(100, 50, &triplets);
+    ///
+    /// assert_eq!(m.nrows(), 100);
+    /// assert_eq!(m.ncols(), 50);
+    /// assert_eq!(m.len(), 2); // Only 2 non-zero elements stored
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`CsMatrix::ncols`] - Returns the number of columns
+    /// - [`CsMatrix::shape`] - Returns both dimensions
+    /// - [`CsMatrix::is_square`] - Checks if nrows equals ncols
     #[must_use]
     pub fn nrows(&self) -> usize {
         self.data.shape().0.value()
     }
 
-    /// The number of rows of this matrix.
+    /// Returns the number of columns in this sparse matrix.
+    ///
+    /// This returns the logical number of columns, not the number of stored elements.
+    /// In CSC format, each column may contain zero or more non-zero elements.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use nalgebra::CsMatrix;
+    /// use nalgebra::Dyn;
+    ///
+    /// // Create a sparse tridiagonal matrix (useful for differential equations)
+    /// let mut triplets = vec![];
+    /// for i in 0..100 {
+    ///     triplets.push((i, i, 2.0)); // diagonal
+    ///     if i > 0 {
+    ///         triplets.push((i, i-1, -1.0)); // lower diagonal
+    ///     }
+    ///     if i < 99 {
+    ///         triplets.push((i, i+1, -1.0)); // upper diagonal
+    ///     }
+    /// }
+    /// let m = CsMatrix::<f64, Dyn, Dyn>::from_triplet(100, 100, &triplets);
+    ///
+    /// assert_eq!(m.ncols(), 100);
+    /// assert_eq!(m.nrows(), 100);
+    /// assert_eq!(m.len(), 298); // 100 + 99 + 99 non-zeros
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`CsMatrix::nrows`] - Returns the number of rows
+    /// - [`CsMatrix::shape`] - Returns both dimensions
     #[must_use]
     pub fn ncols(&self) -> usize {
         self.data.shape().1.value()
     }
 
-    /// The shape of this matrix.
+    /// Returns the shape of this sparse matrix as a tuple `(nrows, ncols)`.
+    ///
+    /// This is a convenience method that returns both dimensions at once.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use nalgebra::CsMatrix;
+    /// use nalgebra::Dyn;
+    ///
+    /// // Create a rectangular sparse matrix
+    /// let triplets = vec![(5, 10, 1.0), (8, 15, 2.0)];
+    /// let m = CsMatrix::<f64, Dyn, Dyn>::from_triplet(20, 30, &triplets);
+    ///
+    /// let (nrows, ncols) = m.shape();
+    /// assert_eq!(nrows, 20);
+    /// assert_eq!(ncols, 30);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`CsMatrix::nrows`] - Returns just the number of rows
+    /// - [`CsMatrix::ncols`] - Returns just the number of columns
     #[must_use]
     pub fn shape(&self) -> (usize, usize) {
         let (nrows, ncols) = self.data.shape();
         (nrows.value(), ncols.value())
     }
 
-    /// Whether this matrix is square or not.
+    /// Checks whether this matrix is square (has the same number of rows and columns).
+    ///
+    /// Many linear algebra operations, such as matrix decompositions and eigenvalue
+    /// computations, require square matrices. This method provides a quick check.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use nalgebra::CsMatrix;
+    /// use nalgebra::Dyn;
+    ///
+    /// // Square matrix
+    /// let square = CsMatrix::<f64, Dyn, Dyn>::from_triplet(
+    ///     10, 10,
+    ///     &[(0, 0, 1.0)]
+    /// );
+    /// assert!(square.is_square());
+    ///
+    /// // Rectangular matrix
+    /// let rect = CsMatrix::<f64, Dyn, Dyn>::from_triplet(
+    ///     10, 20,
+    ///     &[(0, 0, 1.0)]
+    /// );
+    /// assert!(!rect.is_square());
+    /// ```
+    ///
+    /// # Use Cases
+    ///
+    /// - **Precondition Checking**: Before calling operations that require square matrices
+    /// - **Matrix Decompositions**: LU, Cholesky, and eigenvalue methods need square matrices
+    /// - **Linear Systems**: Square matrices are needed for solving Ax = b
+    ///
+    /// # See Also
+    ///
+    /// - [`CsMatrix::nrows`] - Returns the number of rows
+    /// - [`CsMatrix::ncols`] - Returns the number of columns
     #[must_use]
     pub fn is_square(&self) -> bool {
         let (nrows, ncols) = self.data.shape();
         nrows.value() == ncols.value()
     }
 
-    /// Should always return `true`.
+    /// Verifies that row indices within each column are sorted in ascending order.
     ///
-    /// This method is generally used for debugging and should typically not be called in user code.
-    /// This checks that the row inner indices of this matrix are sorted. It takes `O(n)` time,
-    /// where n` is `self.len()`.
-    /// All operations of CSC matrices on nalgebra assume, and will return, sorted indices.
-    /// If at any time this `is_sorted` method returns `false`, then, something went wrong
-    /// and an issue should be open on the nalgebra repository with details on how to reproduce
-    /// this.
+    /// This is a debugging method that checks the internal consistency of the sparse
+    /// matrix structure. In the CSC (Compressed Sparse Column) format, row indices
+    /// within each column must be sorted for correct operation of algorithms.
+    ///
+    /// # When to Use
+    ///
+    /// This method is primarily for debugging and testing. All standard operations
+    /// in nalgebra maintain the sorted property automatically, so this should always
+    /// return `true` in normal usage. If it returns `false`, there's likely a bug
+    /// in the library or in custom code that modifies the matrix structure directly.
+    ///
+    /// # Performance
+    ///
+    /// This method takes O(n) time where n is `self.len()` (number of stored elements).
+    /// It should not be called in performance-critical code.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use nalgebra::CsMatrix;
+    /// use nalgebra::Dyn;
+    ///
+    /// // Create a sparse matrix using standard methods
+    /// let triplets = vec![
+    ///     (5, 0, 1.0),
+    ///     (1, 0, 2.0),
+    ///     (3, 1, 3.0),
+    /// ];
+    /// let m = CsMatrix::<f64, Dyn, Dyn>::from_triplet(10, 5, &triplets);
+    ///
+    /// // Row indices should always be sorted within columns
+    /// assert!(m.is_sorted());
+    /// ```
+    ///
+    /// # Implementation Note
+    ///
+    /// All nalgebra operations that construct or modify sparse matrices maintain
+    /// the sorted invariant. If this method ever returns `false` for a matrix
+    /// created using standard nalgebra operations, please report it as a bug.
+    ///
+    /// # See Also
+    ///
+    /// - [`CsMatrix::len`] - Returns the number of stored elements
     #[must_use]
     pub fn is_sorted(&self) -> bool {
         for j in 0..self.ncols() {
@@ -417,7 +779,82 @@ impl<T: Scalar, R: Dim, C: Dim, S: CsStorage<T, R, C>> CsMatrix<T, R, C, S> {
         true
     }
 
-    /// Computes the transpose of this sparse matrix.
+    /// Computes the transpose of this sparse matrix, swapping rows and columns.
+    ///
+    /// The transpose operation flips a matrix over its diagonal, converting rows to
+    /// columns and columns to rows. For a sparse matrix, this also converts between
+    /// CSC (Compressed Sparse Column) and CSR (Compressed Sparse Row) format.
+    ///
+    /// # Algorithm
+    ///
+    /// The implementation uses a counting-based algorithm that:
+    /// 1. Counts non-zeros in each row to determine column pointers for the result
+    /// 2. Redistributes values from column-major to row-major order
+    /// 3. Maintains sorted row indices within each output column
+    ///
+    /// Time complexity: O(n + m) where n is the number of non-zeros and m is the number of rows.
+    ///
+    /// # Examples
+    ///
+    /// ## Basic Transpose
+    ///
+    /// ```
+    /// use nalgebra::CsMatrix;
+    /// use nalgebra::Dyn;
+    ///
+    /// // Create a 2x3 sparse matrix:
+    /// // [1.0  0.0  2.0]
+    /// // [0.0  3.0  0.0]
+    /// let triplets = vec![
+    ///     (0, 0, 1.0),
+    ///     (1, 1, 3.0),
+    ///     (0, 2, 2.0),
+    /// ];
+    /// let m = CsMatrix::<f64, Dyn, Dyn>::from_triplet(2, 3, &triplets);
+    ///
+    /// // Transpose to get 3x2 matrix:
+    /// // [1.0  0.0]
+    /// // [0.0  3.0]
+    /// // [2.0  0.0]
+    /// let mt = m.transpose();
+    ///
+    /// assert_eq!(mt.nrows(), 3);
+    /// assert_eq!(mt.ncols(), 2);
+    /// assert_eq!(mt.len(), 3);
+    /// ```
+    ///
+    /// ## Symmetric Matrix Operations
+    ///
+    /// For symmetric matrices (common in finite element analysis), the transpose
+    /// equals the original, but you still need to compute it to convert storage format:
+    ///
+    /// ```
+    /// use nalgebra::CsMatrix;
+    /// use nalgebra::Dyn;
+    ///
+    /// // Create a symmetric graph adjacency matrix
+    /// let triplets = vec![
+    ///     (0, 1, 1.0), (1, 0, 1.0),  // edge 0-1
+    ///     (1, 2, 1.0), (2, 1, 1.0),  // edge 1-2
+    ///     (0, 2, 1.0), (2, 0, 1.0),  // edge 0-2
+    /// ];
+    /// let graph = CsMatrix::<f64, Dyn, Dyn>::from_triplet(3, 3, &triplets);
+    /// let graph_t = graph.transpose();
+    ///
+    /// // Same logical matrix, but different storage format
+    /// assert_eq!(graph.len(), graph_t.len());
+    /// ```
+    ///
+    /// # Applications
+    ///
+    /// - **Linear Algebra**: Computing A^T A or A A^T for normal equations
+    /// - **Graph Algorithms**: Converting from outgoing to incoming edge representation
+    /// - **Optimization**: Some algorithms prefer CSR format, others CSC
+    /// - **Numerical Methods**: Many algorithms need both A and A^T
+    ///
+    /// # See Also
+    ///
+    /// - [`CsMatrix::shape`] - The transpose swaps the dimensions
     #[must_use = "This function does not mutate the matrix. Consider using the return value or removing the function call. There's also transpose_mut() for square matrices."]
     pub fn transpose(&self) -> CsMatrix<T, C, R>
     where
@@ -453,7 +890,94 @@ impl<T: Scalar, R: Dim, C: Dim, S: CsStorage<T, R, C>> CsMatrix<T, R, C, S> {
 }
 
 impl<T: Scalar, R: Dim, C: Dim, S: CsStorageMut<T, R, C>> CsMatrix<T, R, C, S> {
-    /// Iterator through all the mutable values of this sparse matrix.
+    /// Returns a mutable iterator over all non-zero values in this sparse matrix.
+    ///
+    /// This allows you to modify the stored values in-place without changing the
+    /// sparsity pattern (which elements are non-zero). The iteration order follows
+    /// the internal storage order: column by column, with elements within each
+    /// column ordered by increasing row index.
+    ///
+    /// # Use Cases
+    ///
+    /// - **Scaling**: Multiply all elements by a constant
+    /// - **Thresholding**: Set small values to zero (without removing them from storage)
+    /// - **Value Updates**: Modify matrix entries while preserving structure
+    /// - **In-place Operations**: Apply functions to each element
+    ///
+    /// # Important Notes
+    ///
+    /// - This does NOT allow changing which elements are non-zero
+    /// - Setting values to zero still keeps them in storage (they remain explicit zeros)
+    /// - To actually remove zeros from storage, reconstruction is required
+    /// - The sparsity pattern (positions of non-zeros) remains unchanged
+    ///
+    /// # Examples
+    ///
+    /// ## Scale All Values
+    ///
+    /// ```
+    /// use nalgebra::CsMatrix;
+    /// use nalgebra::Dyn;
+    ///
+    /// let triplets = vec![
+    ///     (0, 0, 1.0),
+    ///     (1, 1, 2.0),
+    ///     (2, 2, 3.0),
+    /// ];
+    /// let mut m = CsMatrix::<f64, Dyn, Dyn>::from_triplet(3, 3, &triplets);
+    ///
+    /// // Scale all values by 2.0
+    /// for value in m.values_mut() {
+    ///     *value *= 2.0;
+    /// }
+    /// ```
+    ///
+    /// ## Apply Threshold
+    ///
+    /// ```
+    /// use nalgebra::CsMatrix;
+    /// use nalgebra::Dyn;
+    ///
+    /// let triplets = vec![
+    ///     (0, 0, 1.0),
+    ///     (1, 1, 0.001),
+    ///     (2, 2, 5.0),
+    /// ];
+    /// let mut m = CsMatrix::<f64, Dyn, Dyn>::from_triplet(3, 3, &triplets);
+    ///
+    /// // Set small values to zero (they remain in storage as explicit zeros)
+    /// let threshold = 0.01;
+    /// for value in m.values_mut() {
+    ///     if value.abs() < threshold {
+    ///         *value = 0.0;
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// ## Numerical Damping
+    ///
+    /// Common in iterative solvers - add damping to diagonal elements:
+    ///
+    /// ```
+    /// use nalgebra::CsMatrix;
+    /// use nalgebra::Dyn;
+    ///
+    /// let triplets = vec![
+    ///     (0, 0, 4.0),
+    ///     (1, 1, 6.0),
+    ///     (2, 2, 8.0),
+    /// ];
+    /// let mut m = CsMatrix::<f64, Dyn, Dyn>::from_triplet(3, 3, &triplets);
+    ///
+    /// // Add regularization/damping (in practice you'd identify diagonal elements)
+    /// for value in m.values_mut() {
+    ///     *value += 0.1;
+    /// }
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`CsVecStorage::values`] - Immutable access to values
     #[inline]
     pub fn values_mut(&mut self) -> impl Iterator<Item = &mut T> {
         self.data.values_mut()

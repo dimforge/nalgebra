@@ -22,20 +22,68 @@ impl<T: Scalar + Zero, const D: usize> Default for Translation<T, D> {
 }
 
 impl<T: Scalar, const D: usize> Translation<T, D> {
-    /// Creates a new identity translation.
+    /// Creates a new identity translation that doesn't move points.
     ///
-    /// # Example
+    /// The identity translation is the neutral element for translation composition - it leaves
+    /// all points unchanged when applied. It's equivalent to a translation with zero offset
+    /// in all dimensions.
+    ///
+    /// This is useful as a starting point or default value when you need a translation that
+    /// does nothing, similar to how multiplying by 1 or adding 0 doesn't change a number.
+    ///
+    /// # Returns
+    ///
+    /// A translation with zero displacement in all dimensions.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage in 2D:
     /// ```
-    /// # use nalgebra::{Point2, Point3, Translation2, Translation3};
+    /// # use nalgebra::{Translation2, Point2};
     /// let t = Translation2::identity();
-    /// let p = Point2::new(1.0, 2.0);
-    /// assert_eq!(t * p, p);
+    /// let point = Point2::new(1.0, 2.0);
     ///
-    /// // Works in all dimensions.
+    /// // Identity translation doesn't move the point
+    /// assert_eq!(t * point, point);
+    /// ```
+    ///
+    /// Works in 3D and other dimensions:
+    /// ```
+    /// # use nalgebra::{Translation3, Point3};
     /// let t = Translation3::identity();
     /// let p = Point3::new(1.0, 2.0, 3.0);
     /// assert_eq!(t * p, p);
     /// ```
+    ///
+    /// Identity is neutral for composition:
+    /// ```
+    /// # use nalgebra::Translation2;
+    /// let t = Translation2::new(5.0, 10.0);
+    /// let identity = Translation2::identity();
+    ///
+    /// // Composing with identity doesn't change the translation
+    /// assert_eq!(t * identity, t);
+    /// assert_eq!(identity * t, t);
+    /// ```
+    ///
+    /// Using as a default value:
+    /// ```
+    /// # use nalgebra::{Translation3, Point3};
+    /// // Initialize camera with no offset
+    /// let mut camera_offset = Translation3::identity();
+    ///
+    /// let point = Point3::new(10.0, 20.0, 30.0);
+    /// assert_eq!(camera_offset * point, point);
+    ///
+    /// // Later, update the offset
+    /// camera_offset = Translation3::new(5.0, 0.0, 0.0);
+    /// assert_eq!(camera_offset * point, Point3::new(15.0, 20.0, 30.0));
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`Translation::new`] - Create a translation with specific offsets
+    /// * [`One::one`] - Trait implementation that returns identity
     #[inline]
     pub fn identity() -> Translation<T, D>
     where
@@ -44,15 +92,51 @@ impl<T: Scalar, const D: usize> Translation<T, D> {
         Self::from(SVector::<T, D>::from_element(T::zero()))
     }
 
-    /// Cast the components of `self` to another type.
+    /// Converts the scalar type of this translation's components to another type.
     ///
-    /// # Example
+    /// This method allows you to convert between different numeric types, such as from
+    /// `f64` to `f32`, or from `f32` to `f64`. This is useful when interfacing with
+    /// APIs that require specific precision or when optimizing for performance vs. accuracy.
+    ///
+    /// # Type Parameters
+    ///
+    /// * `To` - The target scalar type for the translation components
+    ///
+    /// # Returns
+    ///
+    /// A new translation with the same geometric meaning but with components of type `To`.
+    ///
+    /// # Examples
+    ///
+    /// Converting from double to single precision:
     /// ```
     /// # use nalgebra::Translation2;
-    /// let tra = Translation2::new(1.0f64, 2.0);
-    /// let tra2 = tra.cast::<f32>();
-    /// assert_eq!(tra2, Translation2::new(1.0f32, 2.0));
+    /// let t_f64 = Translation2::new(1.0f64, 2.0);
+    /// let t_f32 = t_f64.cast::<f32>();
+    /// assert_eq!(t_f32, Translation2::new(1.0f32, 2.0));
     /// ```
+    ///
+    /// Converting from single to double precision:
+    /// ```
+    /// # use nalgebra::Translation3;
+    /// let t_f32 = Translation3::new(1.5f32, 2.5, 3.5);
+    /// let t_f64 = t_f32.cast::<f64>();
+    /// assert_eq!(t_f64, Translation3::new(1.5f64, 2.5, 3.5));
+    /// ```
+    ///
+    /// Practical use - interfacing with a graphics API:
+    /// ```
+    /// # use nalgebra::Translation2;
+    /// // Calculate in high precision
+    /// let precise_offset = Translation2::new(1.0f64 / 3.0, 2.0 / 3.0);
+    ///
+    /// // Convert to GPU-friendly format
+    /// let gpu_offset = precise_offset.cast::<f32>();
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`Translation::from`] - Create translations from other types
     pub fn cast<To: Scalar>(self) -> Translation<To, D>
     where
         Translation<To, D>: SupersetOf<Self>,
@@ -101,10 +185,21 @@ macro_rules! componentwise_constructors_impl(
     ($($doc: expr_2021; $D: expr_2021, $($args: ident:$irow: expr_2021),*);* $(;)*) => {$(
         impl<T> Translation<T, $D>
              {
-            #[doc = "Initializes this translation from its components."]
-            #[doc = "# Example\n```"]
+            #[doc = "Creates a new translation from its individual components.\n\n"]
+            #[doc = "A translation represents a shift or displacement in space. This constructor\n"]
+            #[doc = "allows you to specify the displacement amount in each dimension directly.\n\n"]
+            #[doc = "# Arguments\n\n"]
+            #[doc = "Each argument represents the displacement in one dimension:\n"]
+            #[doc = "- For 2D: `x` (horizontal), `y` (vertical)\n"]
+            #[doc = "- For 3D: `x` (horizontal), `y` (vertical), `z` (depth)\n\n"]
+            #[doc = "Positive values move in the positive direction of that axis.\n\n"]
+            #[doc = "# Examples\n\n"]
+            #[doc = "Basic usage:\n```"]
             #[doc = $doc]
-            #[doc = "```"]
+            #[doc = "```\n\n"]
+            #[doc = "# See Also\n\n"]
+            #[doc = "* [`Translation::identity`] - Create a translation with zero offset\n"]
+            #[doc = "* [`Translation::from`] - Create from a vector or other types"]
             #[inline]
             pub const fn new($($args: T),*) -> Self {
                 Self { vector: SVector::<T, $D>::new($($args),*) }

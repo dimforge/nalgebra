@@ -70,6 +70,25 @@ impl<T: SimdRealField> AsMut<[T; 8]> for DualQuaternion<T> {
     }
 }
 
+/// Indexes the dual quaternion by component.
+///
+/// Indices 0-3 access the real quaternion, indices 4-7 access the dual quaternion.
+/// - `0-2`: Real quaternion vector part (i, j, k)
+/// - `3`: Real quaternion scalar part
+/// - `4-6`: Dual quaternion vector part
+/// - `7`: Dual quaternion scalar part
+///
+/// # Example
+/// ```
+/// # use nalgebra::DualQuaternion;
+/// let dq = DualQuaternion::from_real_and_dual(
+///     nalgebra::Quaternion::new(1.0, 2.0, 3.0, 4.0),
+///     nalgebra::Quaternion::new(5.0, 6.0, 7.0, 8.0)
+/// );
+/// assert_eq!(dq[0], 2.0); // Real i
+/// assert_eq!(dq[3], 1.0); // Real scalar
+/// assert_eq!(dq[4], 6.0); // Dual i
+/// ```
 impl<T: SimdRealField> Index<usize> for DualQuaternion<T> {
     type Output = T;
 
@@ -86,6 +105,21 @@ impl<T: SimdRealField> IndexMut<usize> for DualQuaternion<T> {
     }
 }
 
+/// Negates both the real and dual parts of the dual quaternion.
+///
+/// This operation negates all eight components of the dual quaternion.
+///
+/// # Example
+/// ```
+/// # use nalgebra::{DualQuaternion, Quaternion};
+/// let dq = DualQuaternion::from_real_and_dual(
+///     Quaternion::new(1.0, 2.0, 3.0, 4.0),
+///     Quaternion::new(5.0, 6.0, 7.0, 8.0)
+/// );
+/// let neg_dq = -dq;
+/// assert_eq!(neg_dq.real, -Quaternion::new(1.0, 2.0, 3.0, 4.0));
+/// assert_eq!(neg_dq.dual, -Quaternion::new(5.0, 6.0, 7.0, 8.0));
+/// ```
 impl<T: SimdRealField> Neg for DualQuaternion<T>
 where
     T::Element: SimdRealField,
@@ -110,6 +144,26 @@ where
     }
 }
 
+/// Negates a unit dual quaternion.
+///
+/// For unit dual quaternions representing rigid transformations, negation produces
+/// the same transformation. Both `dq` and `-dq` represent identical rotations and translations.
+///
+/// # Example
+/// ```
+/// # use nalgebra::{UnitDualQuaternion, Vector3, UnitQuaternion};
+/// let rotation = UnitQuaternion::from_euler_angles(0.1, 0.2, 0.3);
+/// let translation = Vector3::new(1.0, 2.0, 3.0);
+/// let dq = UnitDualQuaternion::from_parts(
+///     nalgebra::Translation3::from(translation),
+///     rotation
+/// );
+///
+/// let neg_dq = -&dq;
+/// // Both represent the same transformation
+/// let point = Vector3::new(1.0, 0.0, 0.0);
+/// assert_relative_eq!(dq.transform_point(&point.into()), neg_dq.transform_point(&point.into()), epsilon = 1.0e-6);
+/// ```
 impl<T: SimdRealField> Neg for UnitDualQuaternion<T>
 where
     T::Element: SimdRealField,
@@ -324,6 +378,41 @@ dual_quaternion_op_impl!(
     { self * rhs.inverse().dual_quaternion() };);
 
 // UnitDualQuaternion × UnitDualQuaternion
+/// Composes two rigid transformations (rotation + translation) in 3D.
+///
+/// Dual quaternions provide a compact and efficient way to represent and compose
+/// rigid body transformations. The multiplication order is: `self * rhs` means
+/// "first apply `rhs`, then apply `self`".
+///
+/// # Example
+/// ```
+/// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Translation3, Vector3, Point3};
+/// # use std::f64::consts::PI;
+///
+/// // First transformation: translate by (1, 0, 0)
+/// let trans1 = UnitDualQuaternion::from_parts(
+///     Translation3::new(1.0, 0.0, 0.0),
+///     UnitQuaternion::identity()
+/// );
+///
+/// // Second transformation: rotate 90° around z-axis
+/// let trans2 = UnitDualQuaternion::from_parts(
+///     Translation3::identity(),
+///     UnitQuaternion::from_axis_angle(&Vector3::z_axis(), PI / 2.0)
+/// );
+///
+/// // Compose: first translate, then rotate
+/// let combined = trans2 * trans1;
+///
+/// // Apply to a point
+/// let point = Point3::new(0.0, 0.0, 0.0);
+/// let result = combined.transform_point(&point);
+/// assert_relative_eq!(result, Point3::new(0.0, 1.0, 0.0), epsilon = 1.0e-6);
+/// ```
+///
+/// # See Also
+/// - [`UnitDualQuaternion::div`]: For computing relative transformations
+/// - [`Isometry::mul`]: Alternative representation for rigid transformations
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U4, U1);
@@ -855,6 +944,34 @@ dual_quaternion_op_impl!(
     &self * &rhs; );
 
 // UnitDualQuaternion × Point
+/// Transforms a 3D point using this dual quaternion (applies rotation and translation).
+///
+/// This operation applies the full rigid body transformation represented by the dual quaternion,
+/// combining both the rotation and translation components. It's equivalent to
+/// an isometry transformation but computed using dual quaternion algebra.
+///
+/// # Example
+/// ```
+/// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Translation3, Vector3, Point3};
+/// # use std::f64::consts::PI;
+///
+/// // Create a transformation: 90° rotation around z-axis + translation by (1, 2, 3)
+/// let transformation = UnitDualQuaternion::from_parts(
+///     Translation3::new(1.0, 2.0, 3.0),
+///     UnitQuaternion::from_axis_angle(&Vector3::z_axis(), PI / 2.0)
+/// );
+///
+/// // Transform a point: first rotate, then translate
+/// let point = Point3::new(1.0, 0.0, 0.0);
+/// let transformed = transformation * point;
+///
+/// // The point is rotated to (0, 1, 0) then translated
+/// assert_relative_eq!(transformed, Point3::new(1.0, 3.0, 3.0), epsilon = 1.0e-6);
+/// ```
+///
+/// # See Also
+/// - [`UnitDualQuaternion::transform_vector`]: For transforming vectors (rotation only, no translation)
+/// - [`Isometry::transform_point`]: Alternative using isometry representation
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U3, U1);

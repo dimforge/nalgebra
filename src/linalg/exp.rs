@@ -1,4 +1,43 @@
-//! This module provides the matrix exponent (exp) function to square matrices.
+//! Matrix exponential computation for square matrices.
+//!
+//! This module provides the matrix exponential function, which is a fundamental operation
+//! in numerical linear algebra with applications in:
+//!
+//! - **Differential Equations**: Solving systems of linear ODEs
+//! - **Control Theory**: State-space analysis and system evolution
+//! - **Lie Groups**: Mapping from Lie algebras to Lie groups (e.g., angular velocities to rotations)
+//! - **Quantum Mechanics**: Time evolution of quantum states
+//! - **Markov Chains**: Computing long-term state probabilities
+//!
+//! The matrix exponential of a square matrix **A** is defined as:
+//!
+//! exp(**A**) = **I** + **A** + **A**²/2! + **A**³/3! + **A**⁴/4! + ...
+//!
+//! where **I** is the identity matrix.
+//!
+//! # Implementation
+//!
+//! This module uses the scaling and squaring method with Padé approximation, which is
+//! numerically stable and efficient. The implementation automatically selects the optimal
+//! approximation order based on the matrix norm.
+//!
+//! # Feature Requirements
+//!
+//! This module requires the `std` feature to be enabled.
+//!
+//! # Example
+//!
+//! ```
+//! use nalgebra::Matrix2;
+//!
+//! let a = Matrix2::new(
+//!     0.0, 1.0,
+//!     -1.0, 0.0,
+//! );
+//!
+//! // Compute the matrix exponential
+//! let exp_a = a.exp();
+//! ```
 //!
 use crate::{
     ComplexField, OMatrix, RealField,
@@ -481,7 +520,181 @@ where
         + Allocator<D>
         + Allocator<D, D>,
 {
-    /// Computes exponential of this matrix
+    /// Computes the matrix exponential of this square matrix.
+    ///
+    /// # What is the Matrix Exponential?
+    ///
+    /// The matrix exponential is defined by the infinite series:
+    ///
+    /// exp(A) = I + A + A²/2! + A³/3! + A⁴/4! + ...
+    ///
+    /// where I is the identity matrix and n! denotes the factorial of n.
+    ///
+    /// Think of it as the matrix equivalent of the scalar exponential function e^x.
+    /// Just as e^x appears naturally when solving differential equations like dy/dt = x*y,
+    /// the matrix exponential exp(A) appears when solving systems of linear differential
+    /// equations like d**y**/dt = A***y**.
+    ///
+    /// # Key Properties
+    ///
+    /// - exp(0) = I (the identity matrix)
+    /// - exp(A + B) = exp(A) * exp(B) only if A and B commute (AB = BA)
+    /// - exp(A) is always invertible, and its inverse is exp(-A)
+    /// - If A is diagonal with entries a₁, a₂, ..., then exp(A) is diagonal with entries e^(a₁), e^(a₂), ...
+    ///
+    /// # Implementation Details
+    ///
+    /// This implementation uses the scaling and squaring algorithm with Padé approximation,
+    /// which is numerically stable and efficient for general matrices. The algorithm automatically
+    /// selects the appropriate order of Padé approximant (3, 5, 7, 9, or 13) based on the matrix norm.
+    ///
+    /// # Examples
+    ///
+    /// ## Basic Example: Diagonal Matrix
+    ///
+    /// For diagonal matrices, the exponential is computed element-wise:
+    ///
+    /// ```
+    /// use nalgebra::Matrix2;
+    /// use approx::assert_relative_eq;
+    ///
+    /// let a = Matrix2::new(
+    ///     1.0, 0.0,
+    ///     0.0, 2.0,
+    /// );
+    ///
+    /// let exp_a = a.exp();
+    ///
+    /// // For a diagonal matrix, exp(A) has e^(aᵢᵢ) on the diagonal
+    /// let expected = Matrix2::new(
+    ///     1.0_f64.exp(), 0.0,
+    ///     0.0,           2.0_f64.exp(),
+    /// );
+    ///
+    /// assert_relative_eq!(exp_a, expected, epsilon = 1e-10);
+    /// ```
+    ///
+    /// ## Solving Systems of Ordinary Differential Equations (ODEs)
+    ///
+    /// The matrix exponential is fundamental for solving linear ODEs. Consider the system:
+    /// d**x**/dt = A***x** with initial condition **x**(0) = **x**₀
+    ///
+    /// The solution is: **x**(t) = exp(tA) * **x**₀
+    ///
+    /// ```
+    /// use nalgebra::{Matrix2, Vector2};
+    /// use approx::assert_relative_eq;
+    ///
+    /// // System: dx/dt = -x + 2y,  dy/dt = -2x - y
+    /// let a = Matrix2::new(
+    ///     -1.0,  2.0,
+    ///     -2.0, -1.0,
+    /// );
+    ///
+    /// // Initial condition
+    /// let x0 = Vector2::new(1.0, 0.0);
+    ///
+    /// // Solve for t = 0.5
+    /// let t = 0.5;
+    /// let exp_ta = (a * t).exp();
+    /// let x_t = exp_ta * x0;
+    ///
+    /// // The solution represents the state at time t
+    /// println!("State at t=0.5: {:?}", x_t);
+    /// ```
+    ///
+    /// ## Lie Groups and Robotics
+    ///
+    /// In robotics and computer vision, the matrix exponential maps elements from a Lie algebra
+    /// to a Lie group. For example, it maps skew-symmetric matrices (representing angular velocities)
+    /// to rotation matrices.
+    ///
+    /// ```
+    /// use nalgebra::Matrix3;
+    /// use approx::assert_relative_eq;
+    ///
+    /// // A skew-symmetric matrix representing rotation around the z-axis
+    /// // with angular velocity ω
+    /// let omega = 1.0; // rad/s
+    /// let skew = Matrix3::new(
+    ///      0.0,    -omega,  0.0,
+    ///      omega,   0.0,    0.0,
+    ///      0.0,     0.0,    0.0,
+    /// );
+    ///
+    /// // The exponential gives us the rotation matrix
+    /// let rotation = skew.exp();
+    ///
+    /// // This should be a rotation matrix (orthogonal with determinant 1)
+    /// let det = rotation.determinant();
+    /// assert_relative_eq!(det, 1.0, epsilon = 1e-10);
+    ///
+    /// // R^T * R should equal identity
+    /// let should_be_identity = rotation.transpose() * rotation;
+    /// assert_relative_eq!(should_be_identity, Matrix3::identity(), epsilon = 1e-10);
+    /// ```
+    ///
+    /// ## Quantum Mechanics: Time Evolution
+    ///
+    /// In quantum mechanics, the time evolution operator is given by exp(-iHt/ℏ),
+    /// where H is the Hamiltonian. Here's a simplified example with a 2-level system:
+    ///
+    /// ```
+    /// use nalgebra::{Complex, Matrix2, Vector2};
+    /// use approx::assert_relative_eq;
+    ///
+    /// // Simplified Hamiltonian for a 2-level quantum system
+    /// // Using real numbers for simplicity (imaginary unit handled separately)
+    /// let h = Matrix2::new(
+    ///     1.0,  0.5,
+    ///     0.5,  1.0,
+    /// );
+    ///
+    /// // Time evolution: exp(-iHt) with t = 1, ℏ = 1
+    /// // For this example, we compute exp(-H) in real space
+    /// let neg_h = -h;
+    /// let time_evolution = neg_h.exp();
+    ///
+    /// // Initial state
+    /// let psi_0 = Vector2::new(1.0, 0.0);
+    ///
+    /// // Evolved state
+    /// let psi_t = time_evolution * psi_0;
+    ///
+    /// println!("Initial state: {:?}", psi_0);
+    /// println!("Evolved state: {:?}", psi_t);
+    /// ```
+    ///
+    /// ## Zero Matrix and Identity
+    ///
+    /// ```
+    /// use nalgebra::Matrix3;
+    /// use approx::assert_relative_eq;
+    ///
+    /// // exp(0) = I (identity matrix)
+    /// let zero = Matrix3::<f64>::zeros();
+    /// let exp_zero = zero.exp();
+    /// assert_relative_eq!(exp_zero, Matrix3::identity(), epsilon = 1e-10);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`pow`](crate::Matrix::pow) - Raises a matrix to an integer power using repeated multiplication
+    /// - [`ln`] - Matrix logarithm (inverse operation of exp)
+    /// - [`sqrt`] - Matrix square root
+    /// - [`svd`](crate::Matrix::svd) - Singular value decomposition, useful for matrix functions
+    /// - [`eigenvalues`](crate::Matrix::eigenvalues) - Computing eigenvalues, another approach for matrix exponentials
+    ///
+    /// # Panics
+    ///
+    /// This function requires the matrix to be square. It will panic during the internal
+    /// LU decomposition if the matrix is severely ill-conditioned.
+    ///
+    /// # Performance
+    ///
+    /// The computational complexity is O(n³) where n is the matrix dimension. For large
+    /// matrices or repeated computations, consider caching the result or using
+    /// problem-specific optimizations (e.g., if your matrix is diagonal or has special structure).
     #[must_use]
     pub fn exp(&self) -> Self {
         // Simple case

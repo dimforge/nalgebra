@@ -137,6 +137,34 @@ macro_rules! isometry_binop_assign_impl_all(
 );
 
 // Isometry × Isometry
+/// Composes two isometries (rigid body transformations).
+///
+/// An isometry combines a rotation and a translation, representing a rigid body transformation
+/// that preserves distances and angles. The multiplication order is: `iso1 * iso2` means
+/// "first apply `iso2`, then apply `iso1`".
+///
+/// # Example
+/// ```
+/// # use nalgebra::{Isometry3, Vector3, UnitQuaternion};
+/// # use std::f64::consts::PI;
+/// // First transformation: translate by (1, 0, 0)
+/// let trans1 = Isometry3::translation(1.0, 0.0, 0.0);
+///
+/// // Second transformation: rotate 90° around z-axis
+/// let trans2 = Isometry3::rotation(Vector3::new(0.0, 0.0, PI / 2.0));
+///
+/// // Compose: first rotate, then translate
+/// let combined = trans1 * trans2;
+///
+/// // Apply to origin - it gets rotated (stays at origin), then translated
+/// let point = nalgebra::Point3::origin();
+/// let result = combined * point;
+/// assert_relative_eq!(result, nalgebra::Point3::new(1.0, 0.0, 0.0), epsilon = 1.0e-6);
+/// ```
+///
+/// # See Also
+/// - [`Isometry::div`]: For computing relative transformations
+/// - [`Similarity::mul`]: For transformations that include scaling
 // Isometry ÷ Isometry
 isometry_binop_impl_all!(
     Mul, mul;
@@ -253,6 +281,29 @@ md_assign_impl_all!(
 );
 
 // Isometry × Point
+/// Transforms a point using this isometry (applies rotation then translation).
+///
+/// This is the fundamental operation for transforming geometry in space. The point is
+/// first rotated around the origin, then translated.
+///
+/// # Example
+/// ```
+/// # use nalgebra::{Isometry2, Point2, Vector2};
+/// # use std::f64::consts::PI;
+/// // Create an isometry: 90° rotation + translation by (1, 2)
+/// let iso = Isometry2::new(Vector2::new(1.0, 2.0), PI / 2.0);
+///
+/// // Transform a point
+/// let point = Point2::new(1.0, 0.0);
+/// let transformed = iso * point;
+///
+/// // Point (1,0) is rotated to (0,1), then translated by (1,2) to get (1,3)
+/// assert_relative_eq!(transformed, Point2::new(1.0, 3.0), epsilon = 1.0e-6);
+/// ```
+///
+/// # See Also
+/// - [`Isometry::transform_vector`]: For transforming vectors (rotation only, no translation)
+/// - [`Similarity::transform_point`]: For transformations that include scaling
 isometry_binop_impl_all!(
     Mul, mul;
     self: Isometry<T, R, D>, right: Point<T, D>, Output = Point<T, D>;
@@ -263,6 +314,30 @@ isometry_binop_impl_all!(
 );
 
 // Isometry × Vector
+/// Transforms a vector using this isometry (applies rotation only).
+///
+/// Unlike points, vectors represent directions or displacements, so they are only
+/// affected by the rotation component of the isometry. The translation has no effect.
+///
+/// # Example
+/// ```
+/// # use nalgebra::{Isometry2, Vector2};
+/// # use std::f64::consts::PI;
+/// // Create an isometry: 90° rotation + translation by (10, 20)
+/// let iso = Isometry2::new(Vector2::new(10.0, 20.0), PI / 2.0);
+///
+/// // Transform a vector - only rotation is applied
+/// let vec = Vector2::new(1.0, 0.0);
+/// let rotated = iso * vec;
+///
+/// // Vector is rotated 90°, translation is ignored
+/// assert_relative_eq!(rotated, Vector2::new(0.0, 1.0), epsilon = 1.0e-6);
+/// ```
+///
+/// # See Also
+/// - [`Isometry::transform_point`]: For transforming points (includes translation)
+// TODO: because of `transform_vector`, we cant use a generic storage type for the rhs vector,
+// i.e., right: Vector<T, D, S> where S: Storage<T, D>.
 isometry_binop_impl_all!(
     Mul, mul;
     // TODO: because of `transform_vector`, we cant use a generic storage type for the rhs vector,

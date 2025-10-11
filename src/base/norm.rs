@@ -159,7 +159,35 @@ impl<T: SimdComplexField> Norm<T> for UniformNorm {
 
 /// # Magnitude and norms
 impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
-    /// The squared L2 norm of this vector.
+    /// Computes the squared L2 norm (Euclidean norm) of this matrix or vector.
+    ///
+    /// This is more efficient than [`norm()`](Self::norm) since it avoids the square root computation.
+    /// It's useful when you only need to compare magnitudes or when the actual norm value isn't needed.
+    ///
+    /// For a vector, this computes the sum of the squares of all components.
+    /// For a matrix, this computes the Frobenius norm squared.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use nalgebra::{Vector3, Matrix2};
+    ///
+    /// let v = Vector3::new(1.0, 2.0, 3.0);
+    /// // 1² + 2² + 3² = 14
+    /// assert_eq!(v.norm_squared(), 14.0);
+    ///
+    /// // Useful for comparing distances without sqrt
+    /// let v1 = Vector3::new(1.0, 0.0, 0.0);
+    /// let v2 = Vector3::new(2.0, 0.0, 0.0);
+    /// let v3 = Vector3::new(3.0, 0.0, 0.0);
+    /// assert!(v1.norm_squared() < v2.norm_squared());
+    /// assert!(v2.norm_squared() < v3.norm_squared());
+    ///
+    /// // Matrix example
+    /// let m = Matrix2::new(1.0, 2.0,
+    ///                      3.0, 4.0);
+    /// assert_eq!(m.norm_squared(), 30.0);  // 1² + 2² + 3² + 4² = 30
+    /// ```
     #[inline]
     #[must_use]
     pub fn norm_squared(&self) -> T::SimdRealField
@@ -176,9 +204,42 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         res
     }
 
-    /// The L2 norm of this matrix.
+    /// Computes the L2 norm (Euclidean norm / magnitude / length) of this matrix or vector.
     ///
-    /// Use `.apply_norm` to apply a custom norm.
+    /// For vectors, this is the standard Euclidean length: `sqrt(x² + y² + z² + ...)`.
+    /// For matrices, this computes the Frobenius norm (square root of sum of squared elements).
+    ///
+    /// This is equivalent to [`magnitude()`](Self::magnitude).
+    /// Use [`.apply_norm()`](Self::apply_norm) to apply a custom norm (L1, L-infinity, etc.).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use nalgebra::{Vector2, Vector3, Matrix2};
+    ///
+    /// // 2D vector: Pythagorean theorem
+    /// let v = Vector2::new(3.0, 4.0);
+    /// assert_eq!(v.norm(), 5.0);  // 3-4-5 triangle
+    ///
+    /// // 3D vector
+    /// let v = Vector3::new(1.0, 2.0, 2.0);
+    /// assert_eq!(v.norm(), 3.0);  // sqrt(1 + 4 + 4) = 3
+    ///
+    /// // Unit vectors have norm 1
+    /// let unit_x = Vector3::x();
+    /// assert_eq!(unit_x.norm(), 1.0);
+    ///
+    /// // Matrix Frobenius norm
+    /// let m = Matrix2::new(1.0, 0.0,
+    ///                      0.0, 1.0);
+    /// assert!((m.norm() - 1.414213).abs() < 1e-5);  // sqrt(2)
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`norm_squared()`](Self::norm_squared) - More efficient when you don't need the actual value
+    /// * [`magnitude()`](Self::magnitude) - Alias for `norm()`
+    /// * [`normalize()`](Self::normalize) - Get a unit vector in the same direction
     #[inline]
     #[must_use]
     pub fn norm(&self) -> T::SimdRealField
@@ -295,7 +356,45 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         self.scale_mut(magnitude / n)
     }
 
-    /// Returns a normalized version of this matrix.
+    /// Returns a normalized (unit length) version of this vector.
+    ///
+    /// A normalized vector has the same direction but a magnitude (length) of 1.
+    /// This is also called a "unit vector". This is useful in computer graphics
+    /// and physics when you need a direction but not a specific magnitude.
+    ///
+    /// This method returns a new vector; see [`normalize_mut()`](Self::normalize_mut) for in-place normalization.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the norm is zero (you cannot normalize a zero vector).
+    /// Use [`try_normalize()`](Self::try_normalize) for a safe alternative.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use nalgebra::{Vector2, Vector3};
+    ///
+    /// let v = Vector2::new(3.0, 4.0);
+    /// let normalized = v.normalize();
+    /// // Direction preserved, but length is now 1
+    /// assert_eq!(normalized, Vector2::new(0.6, 0.8));
+    /// assert!((normalized.norm() - 1.0).abs() < 1e-10);
+    ///
+    /// // Common use: get direction between two points
+    /// let from = Vector3::new(0.0, 0.0, 0.0);
+    /// let to = Vector3::new(10.0, 0.0, 0.0);
+    /// let direction = (to - from).normalize();
+    /// assert_eq!(direction, Vector3::x());  // Points along +X axis
+    ///
+    /// // Original vector unchanged (this isn't in-place)
+    /// assert_eq!(v.norm(), 5.0);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`normalize_mut()`](Self::normalize_mut) - In-place version
+    /// * [`try_normalize()`](Self::try_normalize) - Safe version that returns `Option`
+    /// * [`norm()`](Self::norm) - Get the length
     #[inline]
     #[must_use = "Did you mean to use normalize_mut()?"]
     pub fn normalize(&self) -> OMatrix<T, R, C>
@@ -382,9 +481,49 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         scaled.select(use_scaled, self.clone_owned())
     }
 
-    /// Returns a normalized version of this matrix unless its norm as smaller or equal to `eps`.
+    /// Attempts to normalize this vector, returning `None` if the norm is too small.
     ///
-    /// The components of this matrix cannot be SIMD types (see `simd_try_normalize`) instead.
+    /// This is the safe version of [`normalize()`](Self::normalize) that returns `None` instead
+    /// of panicking or producing invalid results when the vector is too small to normalize.
+    ///
+    /// A vector with a norm smaller than or equal to `min_norm` cannot be meaningfully normalized,
+    /// so this function returns `None` in that case.
+    ///
+    /// # Arguments
+    ///
+    /// * `min_norm` - The minimum acceptable norm. Vectors with smaller norms return `None`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use nalgebra::Vector3;
+    ///
+    /// // Normal vector normalizes successfully
+    /// let v = Vector3::new(3.0, 4.0, 0.0);
+    /// let normalized = v.try_normalize(1e-6);
+    /// assert!(normalized.is_some());
+    /// assert!((normalized.unwrap().norm() - 1.0).abs() < 1e-10);
+    ///
+    /// // Zero vector cannot be normalized
+    /// let zero = Vector3::new(0.0, 0.0, 0.0);
+    /// assert_eq!(zero.try_normalize(1e-6), None);
+    ///
+    /// // Very small vector also returns None
+    /// let tiny = Vector3::new(1e-10, 1e-10, 1e-10);
+    /// assert_eq!(tiny.try_normalize(1e-6), None);
+    ///
+    /// // Use this for safety when normalizing user input
+    /// let user_vector = Vector3::new(1.0, 0.0, 0.0);
+    /// if let Some(dir) = user_vector.try_normalize(1e-6) {
+    ///     // Safe to use as a direction
+    ///     println!("Direction: {}", dir);
+    /// }
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`normalize()`](Self::normalize) - Panics if norm is zero
+    /// * [`try_normalize_mut()`](Self::try_normalize_mut) - In-place version
     #[inline]
     #[must_use = "Did you mean to use try_normalize_mut()?"]
     pub fn try_normalize(&self, min_norm: T::RealField) -> Option<OMatrix<T, R, C>>
@@ -404,9 +543,41 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
 /// # In-place normalization
 impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
-    /// Normalizes this matrix in-place and returns its norm.
+    /// Normalizes this vector in-place (modifying it) and returns its original norm.
     ///
-    /// The components of the matrix cannot be SIMD types (see `simd_try_normalize_mut` instead).
+    /// This is the in-place version of [`normalize()`](Self::normalize). It modifies
+    /// the vector directly instead of creating a new one, which can be more efficient.
+    ///
+    /// After calling this method, the vector will have a magnitude of 1 (be a unit vector).
+    /// The return value is the norm the vector had before normalization.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the norm is zero. Use [`try_normalize_mut()`](Self::try_normalize_mut) for a safe alternative.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use nalgebra::Vector3;
+    ///
+    /// let mut v = Vector3::new(3.0, 4.0, 0.0);
+    /// let old_norm = v.normalize_mut();
+    ///
+    /// // Vector is now normalized
+    /// assert_eq!(old_norm, 5.0);
+    /// assert!((v.norm() - 1.0).abs() < 1e-10);
+    /// assert_eq!(v, Vector3::new(0.6, 0.8, 0.0));
+    ///
+    /// // In-place normalization is more efficient than creating a new vector
+    /// let mut direction = Vector3::new(1.0, 1.0, 1.0);
+    /// direction.normalize_mut();
+    /// // direction is now a unit vector
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// * [`normalize()`](Self::normalize) - Returns a new normalized vector
+    /// * [`try_normalize_mut()`](Self::try_normalize_mut) - Safe version that returns `Option`
     #[inline]
     pub fn normalize_mut(&mut self) -> T::SimdRealField
     where

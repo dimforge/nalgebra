@@ -19,6 +19,28 @@ use simba::scalar::{ClosedNeg, RealField};
 
 /// A dual quaternion.
 ///
+/// # What are Dual Quaternions?
+///
+/// Dual quaternions are a mathematical representation that can efficiently encode both
+/// rotation and translation in 3D space. They are particularly useful in computer graphics,
+/// robotics, and physics simulations because they:
+///
+/// - Represent rigid body transformations (rotation + translation) compactly
+/// - Allow smooth interpolation between transformations (important for animation)
+/// - Avoid gimbal lock issues present in Euler angles
+/// - Are more efficient than 4x4 transformation matrices for certain operations
+///
+/// A dual quaternion consists of two quaternions: a "real" part and a "dual" part.
+/// For representing rigid body transformations, the real part encodes the rotation,
+/// while the dual part encodes the translation.
+///
+/// # Common Use Cases
+///
+/// - **Character Skinning**: Smooth blending between bone transformations in skeletal animation
+/// - **Rigid Body Physics**: Representing the position and orientation of objects
+/// - **Robotics**: Describing robot joint configurations and end-effector poses
+/// - **Camera Animation**: Smoothly interpolating between camera positions
+///
 /// # Indexing
 ///
 /// `DualQuaternions` are stored as \[..real, ..dual\].
@@ -87,20 +109,63 @@ impl<T: SimdRealField> DualQuaternion<T>
 where
     T::Element: SimdRealField,
 {
-    /// Normalizes this quaternion.
+    /// Normalizes this dual quaternion.
+    ///
+    /// Normalization ensures that the real part of the dual quaternion has unit length.
+    /// This is important for dual quaternions representing rigid body transformations,
+    /// as only normalized dual quaternions correctly represent rotations and translations.
+    ///
+    /// The normalization divides both the real and dual parts by the norm of the real part.
+    /// After normalization, the real part will have a norm of 1.0.
+    ///
+    /// # Returns
+    ///
+    /// A new normalized dual quaternion. This method does not modify the original.
     ///
     /// # Example
+    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{DualQuaternion, Quaternion};
+    /// // Create a dual quaternion with non-unit real part
     /// let real = Quaternion::new(1.0, 2.0, 3.0, 4.0);
     /// let dual = Quaternion::new(5.0, 6.0, 7.0, 8.0);
     /// let dq = DualQuaternion::from_real_and_dual(real, dual);
     ///
+    /// // Normalize it
     /// let dq_normalized = dq.normalize();
     ///
+    /// // The real part now has unit length
     /// assert_relative_eq!(dq_normalized.real.norm(), 1.0);
     /// ```
+    ///
+    /// # Use Case: Character Animation
+    ///
+    /// ```
+    /// # use nalgebra::{DualQuaternion, UnitDualQuaternion, UnitQuaternion, Vector3};
+    /// // When blending between bone transformations in character skinning,
+    /// // the result needs to be normalized
+    /// let bone1 = UnitDualQuaternion::from_parts(
+    ///     Vector3::new(1.0, 0.0, 0.0).into(),
+    ///     UnitQuaternion::from_euler_angles(0.5, 0.0, 0.0)
+    /// );
+    /// let bone2 = UnitDualQuaternion::from_parts(
+    ///     Vector3::new(2.0, 0.0, 0.0).into(),
+    ///     UnitQuaternion::from_euler_angles(1.0, 0.0, 0.0)
+    /// );
+    ///
+    /// // Blend between transformations (linear interpolation)
+    /// let weight = 0.5;
+    /// let blended = bone1.lerp(&bone2, weight);
+    ///
+    /// // Normalize the result for use
+    /// let blended_normalized = blended.normalize();
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`normalize_mut`](Self::normalize_mut) - In-place version of this method
+    /// - [`UnitDualQuaternion::new_normalize`] - Creates a unit dual quaternion by normalizing
     #[inline]
     #[must_use = "Did you mean to use normalize_mut()?"]
     pub fn normalize(&self) -> Self {
@@ -112,9 +177,21 @@ where
         )
     }
 
-    /// Normalizes this quaternion.
+    /// Normalizes this dual quaternion in-place.
+    ///
+    /// This method modifies the dual quaternion directly, dividing both the real and dual
+    /// parts by the norm of the real part. After normalization, the real part will have
+    /// a norm of 1.0.
+    ///
+    /// This is more efficient than [`normalize`](Self::normalize) when you don't need
+    /// to keep the original unnormalized value.
+    ///
+    /// # Returns
+    ///
+    /// The norm of the real part before normalization.
     ///
     /// # Example
+    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{DualQuaternion, Quaternion};
@@ -122,10 +199,40 @@ where
     /// let dual = Quaternion::new(5.0, 6.0, 7.0, 8.0);
     /// let mut dq = DualQuaternion::from_real_and_dual(real, dual);
     ///
-    /// dq.normalize_mut();
+    /// let old_norm = dq.normalize_mut();
     ///
     /// assert_relative_eq!(dq.real.norm(), 1.0);
+    /// assert_relative_eq!(old_norm, 5.477226); // sqrt(1^2 + 2^2 + 3^2 + 4^2)
     /// ```
+    ///
+    /// # Use Case: Accumulating Transformations
+    ///
+    /// ```
+    /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3, DualQuaternion};
+    /// // In a physics simulation, you might accumulate small transformations
+    /// // and periodically normalize to prevent numerical drift
+    /// let mut current_transform = UnitDualQuaternion::identity();
+    ///
+    /// for _ in 0..100 {
+    ///     // Apply small incremental transformation
+    ///     let delta = UnitDualQuaternion::from_parts(
+    ///         Vector3::new(0.01, 0.0, 0.0).into(),
+    ///         UnitQuaternion::from_euler_angles(0.01, 0.0, 0.0)
+    ///     );
+    ///
+    ///     // Multiply transformations
+    ///     let mut new_transform = (current_transform * delta).into_inner();
+    ///
+    ///     // Normalize in-place to prevent drift
+    ///     new_transform.normalize_mut();
+    ///     current_transform = UnitDualQuaternion::new_unchecked(new_transform);
+    /// }
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`normalize`](Self::normalize) - Non-mutating version that returns a new dual quaternion
+    /// - [`UnitDualQuaternion::new_normalize`] - Creates a unit dual quaternion by normalizing
     #[inline]
     pub fn normalize_mut(&mut self) -> T {
         let real_norm = self.real.norm();
@@ -134,10 +241,21 @@ where
         real_norm
     }
 
-    /// The conjugate of this dual quaternion, containing the conjugate of
-    /// the real and imaginary parts..
+    /// The conjugate of this dual quaternion.
+    ///
+    /// The conjugate negates the vector (imaginary) parts of both the real and dual
+    /// quaternions while keeping the scalar (real) parts unchanged. For a quaternion
+    /// q = w + xi + yj + zk, its conjugate is q* = w - xi - yj - zk.
+    ///
+    /// For a unit dual quaternion representing a rigid body transformation, the conjugate
+    /// represents the inverse transformation (rotation and translation reversed).
+    ///
+    /// # Returns
+    ///
+    /// A new dual quaternion with conjugated real and dual parts.
     ///
     /// # Example
+    ///
     /// ```
     /// # use nalgebra::{DualQuaternion, Quaternion};
     /// let real = Quaternion::new(1.0, 2.0, 3.0, 4.0);
@@ -145,20 +263,59 @@ where
     /// let dq = DualQuaternion::from_real_and_dual(real, dual);
     ///
     /// let conj = dq.conjugate();
+    ///
+    /// // Vector parts are negated
     /// assert!(conj.real.i == -2.0 && conj.real.j == -3.0 && conj.real.k == -4.0);
+    /// // Scalar parts remain the same
     /// assert!(conj.real.w == 1.0);
     /// assert!(conj.dual.i == -6.0 && conj.dual.j == -7.0 && conj.dual.k == -8.0);
     /// assert!(conj.dual.w == 5.0);
     /// ```
+    ///
+    /// # Use Case: Inverse Transformation
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3, Point3};
+    /// // Create a transformation
+    /// let transform = UnitDualQuaternion::from_parts(
+    ///     Vector3::new(1.0, 2.0, 3.0).into(),
+    ///     UnitQuaternion::from_euler_angles(0.5, 0.0, 0.0)
+    /// );
+    ///
+    /// // Apply transformation to a point
+    /// let point = Point3::new(1.0, 0.0, 0.0);
+    /// let transformed = transform * point;
+    ///
+    /// // Use conjugate to reverse the transformation
+    /// let conjugated = transform.conjugate();
+    /// let reversed = conjugated * transformed;
+    ///
+    /// // We get back the original point
+    /// assert_relative_eq!(reversed, point, epsilon = 1.0e-6);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`conjugate_mut`](Self::conjugate_mut) - In-place version of this method
+    /// - [`inverse`](UnitDualQuaternion::inverse) - For unit dual quaternions, provides the proper inverse
+    /// - [`try_inverse`](Self::try_inverse) - Safe inverse that handles non-unit dual quaternions
     #[inline]
     #[must_use = "Did you mean to use conjugate_mut()?"]
     pub fn conjugate(&self) -> Self {
         Self::from_real_and_dual(self.real.conjugate(), self.dual.conjugate())
     }
 
-    /// Replaces this quaternion by its conjugate.
+    /// Replaces this dual quaternion by its conjugate in-place.
+    ///
+    /// This method modifies the dual quaternion directly, negating the vector (imaginary)
+    /// parts of both the real and dual quaternions while keeping the scalar parts unchanged.
+    ///
+    /// This is more efficient than [`conjugate`](Self::conjugate) when you don't need
+    /// to keep the original value.
     ///
     /// # Example
+    ///
     /// ```
     /// # use nalgebra::{DualQuaternion, Quaternion};
     /// let real = Quaternion::new(1.0, 2.0, 3.0, 4.0);
@@ -166,11 +323,19 @@ where
     /// let mut dq = DualQuaternion::from_real_and_dual(real, dual);
     ///
     /// dq.conjugate_mut();
+    ///
+    /// // Vector parts are negated
     /// assert!(dq.real.i == -2.0 && dq.real.j == -3.0 && dq.real.k == -4.0);
+    /// // Scalar parts remain the same
     /// assert!(dq.real.w == 1.0);
     /// assert!(dq.dual.i == -6.0 && dq.dual.j == -7.0 && dq.dual.k == -8.0);
     /// assert!(dq.dual.w == 5.0);
     /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`conjugate`](Self::conjugate) - Non-mutating version that returns a new dual quaternion
+    /// - [`inverse_mut`](UnitDualQuaternion::inverse_mut) - In-place inverse for unit dual quaternions
     #[inline]
     pub fn conjugate_mut(&mut self) {
         self.real.conjugate_mut();
@@ -179,10 +344,25 @@ where
 
     /// Inverts this dual quaternion if it is not zero.
     ///
+    /// The inverse of a dual quaternion dq is computed such that `dq * dq.inverse() = identity`.
+    /// For a dual quaternion representing a rigid body transformation, the inverse represents
+    /// the opposite transformation (moving back to the original position and orientation).
+    ///
+    /// A dual quaternion can be inverted only if its real part is non-zero. If the real part
+    /// is zero (or very close to zero), the dual quaternion cannot be inverted and this
+    /// method returns `None`.
+    ///
+    /// # Returns
+    ///
+    /// - `Some(inverse)` if the dual quaternion can be inverted
+    /// - `None` if the real part is zero (non-invertible case)
+    ///
     /// # Example
+    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{DualQuaternion, Quaternion};
+    /// // Invertible dual quaternion
     /// let real = Quaternion::new(1.0, 2.0, 3.0, 4.0);
     /// let dual = Quaternion::new(5.0, 6.0, 7.0, 8.0);
     /// let dq = DualQuaternion::from_real_and_dual(real, dual);
@@ -191,13 +371,38 @@ where
     /// assert!(inverse.is_some());
     /// assert_relative_eq!(inverse.unwrap() * dq, DualQuaternion::identity());
     ///
-    /// //Non-invertible case
+    /// // Non-invertible case: zero dual quaternion
     /// let zero = Quaternion::new(0.0, 0.0, 0.0, 0.0);
     /// let dq = DualQuaternion::from_real_and_dual(zero, zero);
     /// let inverse = dq.try_inverse();
     ///
     /// assert!(inverse.is_none());
     /// ```
+    ///
+    /// # Use Case: Robotic Arm Inverse Kinematics
+    ///
+    /// ```
+    /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3, Point3};
+    /// // In robotics, you might need to find the inverse of a joint transformation
+    /// // to convert from end-effector pose back to joint configuration
+    /// let joint_transform = UnitDualQuaternion::from_parts(
+    ///     Vector3::new(0.0, 0.0, 1.0).into(), // Joint position
+    ///     UnitQuaternion::from_euler_angles(0.0, 0.0, 1.57) // Joint rotation
+    /// );
+    ///
+    /// // Compute the inverse to transform world coordinates to joint-local coordinates
+    /// let inverse_transform = joint_transform.inverse();
+    ///
+    /// // Transform a point from world space to joint-local space
+    /// let world_point = Point3::new(1.0, 1.0, 1.0);
+    /// let local_point = inverse_transform * world_point;
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`try_inverse_mut`](Self::try_inverse_mut) - In-place version of this method
+    /// - [`inverse`](UnitDualQuaternion::inverse) - Infallible inverse for unit dual quaternions
+    /// - [`conjugate`](Self::conjugate) - For unit dual quaternions, conjugate equals inverse
     #[inline]
     #[must_use = "Did you mean to use try_inverse_mut()?"]
     pub fn try_inverse(&self) -> Option<Self>
@@ -214,23 +419,41 @@ where
 
     /// Inverts this dual quaternion in-place if it is not zero.
     ///
+    /// This method modifies the dual quaternion directly, computing its inverse.
+    /// This is more efficient than [`try_inverse`](Self::try_inverse) when you don't
+    /// need to keep the original value.
+    ///
+    /// # Returns
+    ///
+    /// - `true` if the inversion was successful
+    /// - `false` if the dual quaternion cannot be inverted (real part is zero)
+    ///
     /// # Example
+    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{DualQuaternion, Quaternion};
+    /// // Invertible case
     /// let real = Quaternion::new(1.0, 2.0, 3.0, 4.0);
     /// let dual = Quaternion::new(5.0, 6.0, 7.0, 8.0);
     /// let dq = DualQuaternion::from_real_and_dual(real, dual);
     /// let mut dq_inverse = dq;
-    /// dq_inverse.try_inverse_mut();
+    /// let success = dq_inverse.try_inverse_mut();
     ///
+    /// assert!(success);
     /// assert_relative_eq!(dq_inverse * dq, DualQuaternion::identity());
     ///
-    /// //Non-invertible case
+    /// // Non-invertible case
     /// let zero = Quaternion::new(0.0, 0.0, 0.0, 0.0);
     /// let mut dq = DualQuaternion::from_real_and_dual(zero, zero);
-    /// assert!(!dq.try_inverse_mut());
+    /// let success = dq.try_inverse_mut();
+    /// assert!(!success);
     /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`try_inverse`](Self::try_inverse) - Non-mutating version that returns an Option
+    /// - [`inverse_mut`](UnitDualQuaternion::inverse_mut) - In-place inverse for unit dual quaternions
     #[inline]
     pub fn try_inverse_mut(&mut self) -> bool
     where
@@ -247,9 +470,23 @@ where
 
     /// Linear interpolation between two dual quaternions.
     ///
-    /// Computes `self * (1 - t) + other * t`.
+    /// Computes `self * (1 - t) + other * t`, performing component-wise linear interpolation
+    /// between the two dual quaternions. The parameter `t` controls the interpolation:
+    /// - When `t = 0.0`, returns a value equal to `self`
+    /// - When `t = 1.0`, returns a value equal to `other`
+    /// - When `t = 0.5`, returns the midpoint between `self` and `other`
+    ///
+    /// **Note**: The result is NOT normalized. For unit dual quaternions representing
+    /// transformations, you should use [`nlerp`](UnitDualQuaternion::nlerp) or
+    /// [`sclerp`](UnitDualQuaternion::sclerp) instead.
+    ///
+    /// # Arguments
+    ///
+    /// - `other`: The target dual quaternion to interpolate toward
+    /// - `t`: The interpolation parameter, typically between 0.0 and 1.0
     ///
     /// # Example
+    ///
     /// ```
     /// # use nalgebra::{DualQuaternion, Quaternion};
     /// let dq1 = DualQuaternion::from_real_and_dual(
@@ -260,11 +497,20 @@ where
     ///     Quaternion::new(2.0, 0.0, 1.0, 0.0),
     ///     Quaternion::new(0.0, 2.0, 0.0, 0.0)
     /// );
-    /// assert_eq!(dq1.lerp(&dq2, 0.25), DualQuaternion::from_real_and_dual(
+    ///
+    /// // Interpolate 25% of the way from dq1 to dq2
+    /// let result = dq1.lerp(&dq2, 0.25);
+    ///
+    /// assert_eq!(result, DualQuaternion::from_real_and_dual(
     ///     Quaternion::new(1.25, 0.0, 0.25, 3.0),
     ///     Quaternion::new(0.0, 2.0, 0.0, 0.0)
     /// ));
     /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`nlerp`](UnitDualQuaternion::nlerp) - Normalized linear interpolation for unit dual quaternions
+    /// - [`sclerp`](UnitDualQuaternion::sclerp) - Screw linear interpolation, providing smooth constant-velocity motion
     #[inline]
     #[must_use]
     pub fn lerp(&self, other: &Self, t: T) -> Self {
@@ -377,8 +623,57 @@ impl<T: RealField + UlpsEq<Epsilon = T>> UlpsEq for DualQuaternion<T> {
     }
 }
 
-/// A unit dual quaternion. May be used to represent a rotation followed by a
-/// translation.
+/// A unit dual quaternion representing a rigid body transformation.
+///
+/// A unit dual quaternion is a dual quaternion whose real part has unit length (norm = 1).
+/// This type is specifically designed to represent 3D rigid body transformations, which
+/// consist of a rotation followed by a translation (also known as an isometry or SE(3)
+/// transformation).
+///
+/// # Why Use Unit Dual Quaternions?
+///
+/// Unit dual quaternions offer several advantages for representing rigid transformations:
+///
+/// - **Compact**: Only 8 numbers (compared to 16 for a 4x4 matrix)
+/// - **Smooth Interpolation**: Enable natural blending between poses (crucial for animation)
+/// - **No Gimbal Lock**: Avoid singularities present in Euler angle representations
+/// - **Efficient**: Faster than matrices for composing and applying transformations
+/// - **Numerically Stable**: Less prone to drift than matrices when accumulated
+///
+/// # Relationship to Screw Theory
+///
+/// Unit dual quaternions naturally represent "screw motions" - simultaneous rotation
+/// around and translation along an axis. This makes them particularly useful in robotics
+/// where joint motions often follow screw patterns.
+///
+/// # Common Applications
+///
+/// - **Character Animation**: Smooth bone interpolation in skeletal animation (skinning)
+/// - **Robotics**: Representing robot poses and end-effector transformations
+/// - **Physics Simulation**: Tracking rigid body positions and orientations
+/// - **Camera Control**: Smooth camera movements and transitions
+/// - **Motion Planning**: Interpolating between waypoints in 3D space
+///
+/// # Example: Basic Transformation
+///
+/// ```
+/// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3, Point3};
+/// // Create a transformation: rotate 90° around Z-axis, then translate
+/// let transform = UnitDualQuaternion::from_parts(
+///     Vector3::new(1.0, 2.0, 0.0).into(),
+///     UnitQuaternion::from_euler_angles(0.0, 0.0, std::f32::consts::FRAC_PI_2)
+/// );
+///
+/// // Apply to a point
+/// let point = Point3::new(1.0, 0.0, 0.0);
+/// let transformed = transform * point;
+/// ```
+///
+/// # See Also
+///
+/// - [`DualQuaternion`] - The underlying non-unit dual quaternion type
+/// - [`Isometry3`] - Alternative representation using matrix + translation vector
+/// - [`UnitQuaternion`] - Represents rotation only (no translation)
 pub type UnitDualQuaternion<T> = Unit<DualQuaternion<T>>;
 
 impl<T: Scalar + ClosedNeg + PartialEq + SimdRealField> PartialEq for UnitDualQuaternion<T> {
@@ -420,19 +715,31 @@ impl<T: SimdRealField> UnitDualQuaternion<T>
 where
     T::Element: SimdRealField,
 {
-    /// The underlying dual quaternion.
+    /// Returns a reference to the underlying dual quaternion.
     ///
-    /// Same as `self.as_ref()`.
+    /// This provides access to the raw dual quaternion data without consuming the
+    /// `UnitDualQuaternion` wrapper. This is equivalent to calling `self.as_ref()`.
+    ///
+    /// # Returns
+    ///
+    /// A reference to the inner `DualQuaternion<T>`.
     ///
     /// # Example
+    ///
     /// ```
     /// # use nalgebra::{DualQuaternion, UnitDualQuaternion, Quaternion};
     /// let id = UnitDualQuaternion::identity();
-    /// assert_eq!(*id.dual_quaternion(), DualQuaternion::from_real_and_dual(
+    /// let inner = id.dual_quaternion();
+    ///
+    /// assert_eq!(*inner, DualQuaternion::from_real_and_dual(
     ///     Quaternion::new(1.0, 0.0, 0.0, 0.0),
     ///     Quaternion::new(0.0, 0.0, 0.0, 0.0)
     /// ));
     /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`into_inner`](Unit::into_inner) - Consumes the wrapper and returns the inner value
     #[inline]
     #[must_use]
     pub fn dual_quaternion(&self) -> &DualQuaternion<T> {
@@ -525,11 +832,24 @@ where
         quat.dual = -quat.real.clone() * quat.dual.clone() * quat.real.clone();
     }
 
-    /// The unit dual quaternion needed to make `self` and `other` coincide.
+    /// Computes the transformation needed to transform `self` into `other`.
     ///
-    /// The result is such that: `self.isometry_to(other) * self == other`.
+    /// This returns the relative transformation (isometry) that, when applied to `self`,
+    /// produces `other`. In other words: `self.isometry_to(other) * self == other`.
+    ///
+    /// This is useful for computing the difference between two poses or for finding
+    /// the transformation needed to move from one configuration to another.
+    ///
+    /// # Arguments
+    ///
+    /// - `other`: The target transformation we want to reach
+    ///
+    /// # Returns
+    ///
+    /// The transformation delta from `self` to `other`.
     ///
     /// # Example
+    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{UnitDualQuaternion, DualQuaternion, Quaternion};
@@ -537,9 +857,40 @@ where
     /// let qd = Quaternion::new(5.0, 6.0, 7.0, 8.0);
     /// let dq1 = UnitDualQuaternion::new_normalize(DualQuaternion::from_real_and_dual(qr, qd));
     /// let dq2 = UnitDualQuaternion::new_normalize(DualQuaternion::from_real_and_dual(qd, qr));
-    /// let dq_to = dq1.isometry_to(&dq2);
-    /// assert_relative_eq!(dq_to * dq1, dq2, epsilon = 1.0e-6);
+    ///
+    /// // Compute the transformation from dq1 to dq2
+    /// let delta = dq1.isometry_to(&dq2);
+    ///
+    /// // Verify that applying delta to dq1 gives us dq2
+    /// assert_relative_eq!(delta * dq1, dq2, epsilon = 1.0e-6);
     /// ```
+    ///
+    /// # Use Case: Motion Planning
+    ///
+    /// ```
+    /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3};
+    /// // Current robot end-effector pose
+    /// let current_pose = UnitDualQuaternion::from_parts(
+    ///     Vector3::new(0.0, 0.0, 0.5).into(),
+    ///     UnitQuaternion::identity()
+    /// );
+    ///
+    /// // Desired target pose
+    /// let target_pose = UnitDualQuaternion::from_parts(
+    ///     Vector3::new(0.5, 0.5, 0.5).into(),
+    ///     UnitQuaternion::from_euler_angles(0.0, 0.0, 1.57)
+    /// );
+    ///
+    /// // Compute the required motion
+    /// let required_motion = current_pose.isometry_to(&target_pose);
+    ///
+    /// // Can now plan a trajectory to execute this motion
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`inverse`](Self::inverse) - Computes the inverse transformation
+    /// - [`sclerp`](Self::sclerp) - Smooth interpolation between transformations
     #[inline]
     #[must_use]
     pub fn isometry_to(&self, other: &Self) -> Self {
@@ -579,11 +930,25 @@ where
         self.as_ref().lerp(other.as_ref(), t)
     }
 
-    /// Normalized linear interpolation between two unit quaternions.
+    /// Normalized linear interpolation between two unit dual quaternions.
     ///
-    /// This is the same as `self.lerp` except that the result is normalized.
+    /// NLERP (Normalized Linear Interpolation) performs linear interpolation and then
+    /// normalizes the result. It's faster than [`sclerp`](Self::sclerp) but doesn't
+    /// provide constant angular velocity. This is often good enough for many applications,
+    /// especially when interpolating between nearby poses.
+    ///
+    /// The parameter `t` controls the interpolation:
+    /// - When `t = 0.0`, returns `self`
+    /// - When `t = 1.0`, returns `other`
+    /// - When `t = 0.5`, returns approximately halfway between
+    ///
+    /// # Arguments
+    ///
+    /// - `other`: The target transformation to interpolate toward
+    /// - `t`: The interpolation parameter, typically between 0.0 and 1.0
     ///
     /// # Example
+    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{UnitDualQuaternion, DualQuaternion, Quaternion};
@@ -595,13 +960,54 @@ where
     ///     Quaternion::new(0.5, 0.0, 0.0, 0.5),
     ///     Quaternion::new(0.5, 0.0, 0.5, 0.0)
     /// ));
-    /// assert_relative_eq!(dq1.nlerp(&dq2, 0.2), UnitDualQuaternion::new_normalize(
+    ///
+    /// // Interpolate 20% of the way from dq1 to dq2
+    /// let result = dq1.nlerp(&dq2, 0.2);
+    ///
+    /// assert_relative_eq!(result, UnitDualQuaternion::new_normalize(
     ///     DualQuaternion::from_real_and_dual(
     ///         Quaternion::new(0.5, 0.0, 0.4, 0.1),
     ///         Quaternion::new(0.1, 0.4, 0.1, 0.4)
     ///     )
     /// ), epsilon = 1.0e-6);
     /// ```
+    ///
+    /// # Use Case: Character Animation
+    ///
+    /// ```
+    /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3};
+    /// // Blend between two bone transformations for character skinning
+    /// let bone_pose_a = UnitDualQuaternion::from_parts(
+    ///     Vector3::new(1.0, 0.0, 0.0).into(),
+    ///     UnitQuaternion::from_euler_angles(0.0, 0.0, 0.0)
+    /// );
+    /// let bone_pose_b = UnitDualQuaternion::from_parts(
+    ///     Vector3::new(1.5, 0.5, 0.0).into(),
+    ///     UnitQuaternion::from_euler_angles(0.0, 0.0, 0.5)
+    /// );
+    ///
+    /// // Blend based on animation time (e.g., 0.0 to 1.0)
+    /// let animation_time = 0.3;
+    /// let blended_pose = bone_pose_a.nlerp(&bone_pose_b, animation_time);
+    /// ```
+    ///
+    /// # Performance Note
+    ///
+    /// NLERP is faster than SCLERP but doesn't guarantee constant angular velocity.
+    /// Use NLERP when:
+    /// - Performance is critical
+    /// - Interpolating between nearby poses
+    /// - Constant velocity is not required
+    ///
+    /// Use SCLERP when:
+    /// - Smooth, constant-velocity motion is needed
+    /// - Interpolating across large angular distances
+    ///
+    /// # See Also
+    ///
+    /// - [`sclerp`](Self::sclerp) - Screw linear interpolation with constant velocity
+    /// - [`lerp`](Self::lerp) - Linear interpolation without normalization
+    /// - [`try_sclerp`](Self::try_sclerp) - Safe version of sclerp that handles edge cases
     #[inline]
     #[must_use]
     pub fn nlerp(&self, other: &Self, t: T) -> Self {
@@ -611,18 +1017,40 @@ where
         Self::new_unchecked(res)
     }
 
-    /// Screw linear interpolation between two unit quaternions. This creates a
-    /// smooth arc from one dual-quaternion to another.
+    /// Screw linear interpolation between two unit dual quaternions.
     ///
-    /// Panics if the angle between both quaternion is 180 degrees (in which
-    /// case the interpolation is not well-defined). Use `.try_sclerp`
-    /// instead to avoid the panic.
+    /// SCLERP (Screw Linear Interpolation) creates a smooth arc from one transformation
+    /// to another with constant velocity. This is based on screw theory, where any rigid
+    /// body motion can be represented as a rotation around and translation along a single
+    /// axis (called a screw axis).
+    ///
+    /// SCLERP provides the most natural and smooth interpolation for rigid body motion,
+    /// making it ideal for:
+    /// - Camera animations requiring smooth motion
+    /// - Robot trajectory planning with constant velocity
+    /// - High-quality character animation
+    ///
+    /// The parameter `t` controls the interpolation:
+    /// - When `t = 0.0`, returns `self`
+    /// - When `t = 1.0`, returns `other`
+    /// - Values between create smooth, constant-velocity motion
+    ///
+    /// # Arguments
+    ///
+    /// - `other`: The target transformation to interpolate toward
+    /// - `t`: The interpolation parameter, typically between 0.0 and 1.0
+    ///
+    /// # Panics
+    ///
+    /// Panics if the angle between both quaternions is 180 degrees (in which case the
+    /// interpolation is not well-defined). Use [`try_sclerp`](Self::try_sclerp) to
+    /// handle this case gracefully.
     ///
     /// # Example
+    ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # use nalgebra::{UnitDualQuaternion, DualQuaternion, UnitQuaternion, Vector3};
-    ///
+    /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3};
     /// let dq1 = UnitDualQuaternion::from_parts(
     ///     Vector3::new(0.0, 3.0, 0.0).into(),
     ///     UnitQuaternion::from_euler_angles(std::f32::consts::FRAC_PI_4, 0.0, 0.0),
@@ -633,6 +1061,7 @@ where
     ///     UnitQuaternion::from_euler_angles(-std::f32::consts::PI, 0.0, 0.0),
     /// );
     ///
+    /// // Interpolate 1/3 of the way with constant velocity
     /// let dq = dq1.sclerp(&dq2, 1.0 / 3.0);
     ///
     /// assert_relative_eq!(
@@ -640,6 +1069,37 @@ where
     /// );
     /// assert_relative_eq!(dq.translation().vector.y, 3.0, epsilon = 1.0e-6);
     /// ```
+    ///
+    /// # Use Case: Smooth Camera Movement
+    ///
+    /// ```
+    /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3, Point3};
+    /// // Camera at starting position
+    /// let camera_start = UnitDualQuaternion::from_parts(
+    ///     Vector3::new(0.0, 0.0, 5.0).into(),
+    ///     UnitQuaternion::from_euler_angles(0.0, 0.0, 0.0)
+    /// );
+    ///
+    /// // Camera at ending position (moved and rotated)
+    /// let camera_end = UnitDualQuaternion::from_parts(
+    ///     Vector3::new(5.0, 0.0, 0.0).into(),
+    ///     UnitQuaternion::from_euler_angles(0.0, std::f32::consts::FRAC_PI_2, 0.0)
+    /// );
+    ///
+    /// // Animate camera with smooth constant velocity
+    /// let num_frames = 60;
+    /// for frame in 0..=num_frames {
+    ///     let t = frame as f32 / num_frames as f32;
+    ///     let camera_pose = camera_start.sclerp(&camera_end, t);
+    ///     // Use camera_pose to render frame...
+    /// }
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`try_sclerp`](Self::try_sclerp) - Safe version that returns `None` for ambiguous cases
+    /// - [`nlerp`](Self::nlerp) - Faster but non-constant velocity interpolation
+    /// - [`lerp`](Self::lerp) - Basic linear interpolation without normalization
     #[inline]
     #[must_use]
     pub fn sclerp(&self, other: &Self, t: T) -> Self
@@ -650,16 +1110,72 @@ where
             .expect("DualQuaternion sclerp: ambiguous configuration.")
     }
 
-    /// Computes the screw-linear interpolation between two unit quaternions or
-    /// returns `None` if both quaternions are approximately 180 degrees
-    /// apart (in which case the interpolation is not well-defined).
+    /// Computes the screw-linear interpolation between two unit dual quaternions or
+    /// returns `None` if both quaternions are approximately 180 degrees apart.
+    ///
+    /// This is the safe version of [`sclerp`](Self::sclerp) that handles the ambiguous
+    /// case where the two transformations are exactly opposite (180 degrees apart).
+    /// In such cases, there are infinitely many valid interpolation paths, so this
+    /// method returns `None`.
+    ///
+    /// SCLERP (Screw Linear Interpolation) provides smooth, constant-velocity motion
+    /// based on screw theory. It's the highest quality interpolation method for rigid
+    /// body transformations.
     ///
     /// # Arguments
-    /// * `self`: the first quaternion to interpolate from.
-    /// * `other`: the second quaternion to interpolate toward.
-    /// * `t`: the interpolation parameter. Should be between 0 and 1.
-    /// * `epsilon`: the value below which the sinus of the angle separating
-    ///   both quaternion must be to return `None`.
+    ///
+    /// * `self`: The starting transformation to interpolate from
+    /// * `other`: The target transformation to interpolate toward
+    /// * `t`: The interpolation parameter, typically between 0.0 and 1.0
+    /// * `epsilon`: The tolerance below which the sine of the angle separating both
+    ///   quaternions must be to return `None` (handles the 180-degree case)
+    ///
+    /// # Returns
+    ///
+    /// - `Some(interpolated)` if the interpolation is well-defined
+    /// - `None` if the quaternions are approximately 180 degrees apart
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3};
+    /// let dq1 = UnitDualQuaternion::from_parts(
+    ///     Vector3::new(0.0, 0.0, 0.0).into(),
+    ///     UnitQuaternion::from_euler_angles(0.0, 0.0, 0.0)
+    /// );
+    /// let dq2 = UnitDualQuaternion::from_parts(
+    ///     Vector3::new(1.0, 0.0, 0.0).into(),
+    ///     UnitQuaternion::from_euler_angles(0.0, 0.0, 1.0)
+    /// );
+    ///
+    /// let result = dq1.try_sclerp(&dq2, 0.5, 1.0e-6);
+    /// assert!(result.is_some());
+    /// ```
+    ///
+    /// # Use Case: Robust Animation System
+    ///
+    /// ```
+    /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3};
+    /// fn interpolate_poses(
+    ///     start: &UnitDualQuaternion<f32>,
+    ///     end: &UnitDualQuaternion<f32>,
+    ///     t: f32
+    /// ) -> UnitDualQuaternion<f32> {
+    ///     // Try sclerp first (best quality)
+    ///     if let Some(result) = start.try_sclerp(end, t, 1.0e-6) {
+    ///         result
+    ///     } else {
+    ///         // Fall back to nlerp if sclerp is ambiguous
+    ///         start.nlerp(end, t)
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`sclerp`](Self::sclerp) - Panicking version for when you know the interpolation is valid
+    /// - [`nlerp`](Self::nlerp) - Faster alternative that works in all cases
+    /// - [`lerp`](Self::lerp) - Basic linear interpolation
     #[inline]
     #[must_use]
     pub fn try_sclerp(&self, other: &Self, t: T, epsilon: T) -> Option<Self>
@@ -727,9 +1243,18 @@ where
         )
     }
 
-    /// Return the rotation part of this unit dual quaternion.
+    /// Extracts the rotation component of this unit dual quaternion.
+    ///
+    /// A unit dual quaternion represents a rigid body transformation consisting of
+    /// a rotation followed by a translation. This method returns only the rotation
+    /// part as a `UnitQuaternion`, discarding the translation.
+    ///
+    /// # Returns
+    ///
+    /// The rotation component as a `UnitQuaternion<T>`.
     ///
     /// # Example
+    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3};
@@ -738,19 +1263,51 @@ where
     ///     UnitQuaternion::from_euler_angles(std::f32::consts::FRAC_PI_4, 0.0, 0.0)
     /// );
     ///
+    /// let rotation = dq.rotation();
     /// assert_relative_eq!(
-    ///     dq.rotation().angle(), std::f32::consts::FRAC_PI_4, epsilon = 1.0e-6
+    ///     rotation.angle(), std::f32::consts::FRAC_PI_4, epsilon = 1.0e-6
     /// );
     /// ```
+    ///
+    /// # Use Case: Extracting Orientation from Robot Pose
+    ///
+    /// ```
+    /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3};
+    /// // Robot end-effector pose (position + orientation)
+    /// let end_effector_pose = UnitDualQuaternion::from_parts(
+    ///     Vector3::new(1.0, 2.0, 0.5).into(),
+    ///     UnitQuaternion::from_euler_angles(0.0, 0.0, 1.57)
+    /// );
+    ///
+    /// // Extract just the orientation for a gripper
+    /// let gripper_orientation = end_effector_pose.rotation();
+    ///
+    /// // Can now use this to control gripper rotation independently
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`translation`](Self::translation) - Extracts the translation component
+    /// - [`to_isometry`](Self::to_isometry) - Converts to an `Isometry3` with both components
+    /// - [`from_rotation`](Self::from_rotation) - Creates a dual quaternion from just a rotation
     #[inline]
     #[must_use]
     pub fn rotation(&self) -> UnitQuaternion<T> {
         Unit::new_unchecked(self.as_ref().real.clone())
     }
 
-    /// Return the translation part of this unit dual quaternion.
+    /// Extracts the translation component of this unit dual quaternion.
+    ///
+    /// A unit dual quaternion represents a rigid body transformation consisting of
+    /// a rotation followed by a translation. This method returns only the translation
+    /// part as a `Translation3`, discarding the rotation.
+    ///
+    /// # Returns
+    ///
+    /// The translation component as a `Translation3<T>`.
     ///
     /// # Example
+    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3};
@@ -759,10 +1316,32 @@ where
     ///     UnitQuaternion::from_euler_angles(std::f32::consts::FRAC_PI_4, 0.0, 0.0)
     /// );
     ///
+    /// let translation = dq.translation();
     /// assert_relative_eq!(
-    ///     dq.translation().vector, Vector3::new(0.0, 3.0, 0.0), epsilon = 1.0e-6
+    ///     translation.vector, Vector3::new(0.0, 3.0, 0.0), epsilon = 1.0e-6
     /// );
     /// ```
+    ///
+    /// # Use Case: Extracting Position from Camera Pose
+    ///
+    /// ```
+    /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3};
+    /// // Camera pose (position + orientation)
+    /// let camera_pose = UnitDualQuaternion::from_parts(
+    ///     Vector3::new(10.0, 5.0, 2.0).into(),
+    ///     UnitQuaternion::from_euler_angles(0.0, 0.5, 0.0)
+    /// );
+    ///
+    /// // Extract just the position
+    /// let camera_position = camera_pose.translation();
+    /// println!("Camera is at: {:?}", camera_position.vector);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`rotation`](Self::rotation) - Extracts the rotation component
+    /// - [`to_isometry`](Self::to_isometry) - Converts to an `Isometry3` with both components
+    /// - [`from_parts`](Self::from_parts) - Creates a dual quaternion from translation and rotation
     #[inline]
     #[must_use]
     pub fn translation(&self) -> Translation3<T> {
@@ -774,9 +1353,22 @@ where
         )
     }
 
-    /// Builds an isometry from this unit dual quaternion.
+    /// Converts this unit dual quaternion into an isometry.
+    ///
+    /// An `Isometry3` represents a 3D rigid body transformation using a separate
+    /// rotation quaternion and translation vector. This method extracts these components
+    /// from the dual quaternion representation.
+    ///
+    /// This is useful when you need to interface with code that works with isometries
+    /// rather than dual quaternions, or when you want to separately access and manipulate
+    /// the rotation and translation components.
+    ///
+    /// # Returns
+    ///
+    /// An `Isometry3<T>` with the same transformation.
     ///
     /// # Example
+    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3};
@@ -786,23 +1378,62 @@ where
     ///     translation.into(),
     ///     rotation
     /// );
+    ///
+    /// // Convert to isometry
     /// let iso = dq.to_isometry();
     ///
     /// assert_relative_eq!(iso.rotation.angle(), std::f32::consts::PI, epsilon = 1.0e-6);
     /// assert_relative_eq!(iso.translation.vector, translation, epsilon = 1.0e-6);
     /// ```
+    ///
+    /// # Use Case: Interfacing with Physics Engines
+    ///
+    /// ```
+    /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3, Isometry3};
+    /// // Animation system uses dual quaternions for smooth interpolation
+    /// let start = UnitDualQuaternion::from_parts(
+    ///     Vector3::new(0.0, 0.0, 0.0).into(),
+    ///     UnitQuaternion::identity()
+    /// );
+    /// let end = UnitDualQuaternion::from_parts(
+    ///     Vector3::new(1.0, 0.0, 0.0).into(),
+    ///     UnitQuaternion::from_euler_angles(0.0, 0.0, 1.0)
+    /// );
+    /// let interpolated = start.sclerp(&end, 0.5);
+    ///
+    /// // Convert to isometry for physics engine
+    /// let physics_transform: Isometry3<f32> = interpolated.to_isometry();
+    /// // Set physics body transform...
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`from_isometry`](Self::from_isometry) - Creates from an isometry
+    /// - [`to_homogeneous`](Self::to_homogeneous) - Converts to a 4x4 matrix
+    /// - `From<UnitDualQuaternion<T>> for Isometry3<T>` - Conversion trait implementation
     #[inline]
     #[must_use]
     pub fn to_isometry(self) -> Isometry3<T> {
         Isometry3::from_parts(self.translation(), self.rotation())
     }
 
-    /// Rotate and translate a point by this unit dual quaternion interpreted
-    /// as an isometry.
+    /// Transforms a point by this unit dual quaternion.
     ///
-    /// This is the same as the multiplication `self * pt`.
+    /// This applies the full rigid body transformation (rotation + translation) to the point.
+    /// The transformation is applied in the order: first rotate, then translate.
+    ///
+    /// This is equivalent to the multiplication `self * pt` but may be more readable.
+    ///
+    /// # Arguments
+    ///
+    /// - `pt`: The point to transform
+    ///
+    /// # Returns
+    ///
+    /// The transformed point in 3D space.
     ///
     /// # Example
+    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3, Point3};
@@ -812,47 +1443,121 @@ where
     /// );
     /// let point = Point3::new(1.0, 2.0, 3.0);
     ///
+    /// let transformed = dq.transform_point(&point);
     /// assert_relative_eq!(
-    ///     dq.transform_point(&point), Point3::new(1.0, 0.0, 2.0), epsilon = 1.0e-6
+    ///     transformed, Point3::new(1.0, 0.0, 2.0), epsilon = 1.0e-6
     /// );
     /// ```
+    ///
+    /// # Use Case: Applying Robot Transformation
+    ///
+    /// ```
+    /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3, Point3};
+    /// // Robot base transformation
+    /// let robot_pose = UnitDualQuaternion::from_parts(
+    ///     Vector3::new(1.0, 0.0, 0.0).into(),
+    ///     UnitQuaternion::from_euler_angles(0.0, 0.0, std::f32::consts::FRAC_PI_2)
+    /// );
+    ///
+    /// // Point in robot's local coordinate system
+    /// let local_point = Point3::new(0.5, 0.0, 0.0);
+    ///
+    /// // Transform to world coordinates
+    /// let world_point = robot_pose.transform_point(&local_point);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`inverse_transform_point`](Self::inverse_transform_point) - Applies the inverse transformation
+    /// - [`transform_vector`](Self::transform_vector) - Transforms a vector (no translation)
+    /// - Operator `*` - Alternative syntax: `transform * point`
     #[inline]
     #[must_use]
     pub fn transform_point(&self, pt: &Point3<T>) -> Point3<T> {
         self * pt
     }
 
-    /// Rotate a vector by this unit dual quaternion, ignoring the translational
-    /// component.
+    /// Transforms a vector by this unit dual quaternion, ignoring translation.
     ///
-    /// This is the same as the multiplication `self * v`.
+    /// This applies only the rotation part of the transformation to the vector.
+    /// Unlike [`transform_point`](Self::transform_point), the translation component
+    /// is ignored because vectors represent directions, not positions.
+    ///
+    /// This is useful for transforming directions like surface normals or velocity vectors.
+    ///
+    /// This is equivalent to the multiplication `self * v` but may be more readable.
+    ///
+    /// # Arguments
+    ///
+    /// - `v`: The vector to rotate
+    ///
+    /// # Returns
+    ///
+    /// The rotated vector (translation is not applied).
     ///
     /// # Example
+    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3};
     /// let dq = UnitDualQuaternion::from_parts(
-    ///     Vector3::new(0.0, 3.0, 0.0).into(),
+    ///     Vector3::new(0.0, 3.0, 0.0).into(),  // Translation (ignored for vectors)
     ///     UnitQuaternion::from_euler_angles(std::f32::consts::FRAC_PI_2, 0.0, 0.0)
     /// );
     /// let vector = Vector3::new(1.0, 2.0, 3.0);
     ///
+    /// let rotated = dq.transform_vector(&vector);
     /// assert_relative_eq!(
-    ///     dq.transform_vector(&vector), Vector3::new(1.0, -3.0, 2.0), epsilon = 1.0e-6
+    ///     rotated, Vector3::new(1.0, -3.0, 2.0), epsilon = 1.0e-6
     /// );
     /// ```
+    ///
+    /// # Use Case: Transforming Surface Normals
+    ///
+    /// ```
+    /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3};
+    /// // Object transformation
+    /// let object_transform = UnitDualQuaternion::from_parts(
+    ///     Vector3::new(5.0, 0.0, 0.0).into(),
+    ///     UnitQuaternion::from_euler_angles(0.0, std::f32::consts::FRAC_PI_4, 0.0)
+    /// );
+    ///
+    /// // Surface normal in object's local space
+    /// let local_normal = Vector3::new(0.0, 1.0, 0.0);
+    ///
+    /// // Transform to world space (only rotation applied, translation ignored)
+    /// let world_normal = object_transform.transform_vector(&local_normal);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`transform_point`](Self::transform_point) - Transforms a point (includes translation)
+    /// - [`inverse_transform_vector`](Self::inverse_transform_vector) - Applies the inverse rotation
+    /// - [`rotation`](Self::rotation) - Extracts just the rotation component
     #[inline]
     #[must_use]
     pub fn transform_vector(&self, v: &Vector3<T>) -> Vector3<T> {
         self * v
     }
 
-    /// Rotate and translate a point by the inverse of this unit quaternion.
+    /// Transforms a point by the inverse of this unit dual quaternion.
     ///
-    /// This may be cheaper than inverting the unit dual quaternion and
-    /// transforming the point.
+    /// This applies the inverse transformation (reverse rotation and translation) to the point.
+    /// It's equivalent to computing `self.inverse() * pt` but may be more efficient
+    /// as it doesn't require explicitly computing the inverse first.
+    ///
+    /// This is useful when you need to transform from world space to local space.
+    ///
+    /// # Arguments
+    ///
+    /// - `pt`: The point to transform
+    ///
+    /// # Returns
+    ///
+    /// The point transformed by the inverse transformation.
     ///
     /// # Example
+    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3, Point3};
@@ -862,23 +1567,59 @@ where
     /// );
     /// let point = Point3::new(1.0, 2.0, 3.0);
     ///
+    /// let inverse_transformed = dq.inverse_transform_point(&point);
     /// assert_relative_eq!(
-    ///     dq.inverse_transform_point(&point), Point3::new(1.0, 3.0, 1.0), epsilon = 1.0e-6
+    ///     inverse_transformed, Point3::new(1.0, 3.0, 1.0), epsilon = 1.0e-6
     /// );
     /// ```
+    ///
+    /// # Use Case: World to Local Space Conversion
+    ///
+    /// ```
+    /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3, Point3};
+    /// // Camera transformation in world space
+    /// let camera_transform = UnitDualQuaternion::from_parts(
+    ///     Vector3::new(0.0, 5.0, 10.0).into(),
+    ///     UnitQuaternion::from_euler_angles(0.0, 0.0, 0.0)
+    /// );
+    ///
+    /// // World space point
+    /// let world_point = Point3::new(5.0, 5.0, 5.0);
+    ///
+    /// // Convert to camera-local space
+    /// let camera_local = camera_transform.inverse_transform_point(&world_point);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`transform_point`](Self::transform_point) - Applies the forward transformation
+    /// - [`inverse`](Self::inverse) - Computes the inverse transformation
+    /// - [`inverse_transform_vector`](Self::inverse_transform_vector) - For vectors (no translation)
     #[inline]
     #[must_use]
     pub fn inverse_transform_point(&self, pt: &Point3<T>) -> Point3<T> {
         self.inverse() * pt
     }
 
-    /// Rotate a vector by the inverse of this unit quaternion, ignoring the
-    /// translational component.
+    /// Transforms a vector by the inverse rotation, ignoring translation.
     ///
-    /// This may be cheaper than inverting the unit dual quaternion and
-    /// transforming the vector.
+    /// This applies only the inverse rotation to the vector, with the translation
+    /// component ignored. It's equivalent to computing `self.inverse() * v` but
+    /// may be more efficient as it doesn't require explicitly computing the full inverse.
+    ///
+    /// This is useful for transforming directions (like normals or velocities) from
+    /// world space to local space.
+    ///
+    /// # Arguments
+    ///
+    /// - `v`: The vector to transform
+    ///
+    /// # Returns
+    ///
+    /// The vector transformed by the inverse rotation (translation not applied).
     ///
     /// # Example
+    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3};
@@ -888,22 +1629,59 @@ where
     /// );
     /// let vector = Vector3::new(1.0, 2.0, 3.0);
     ///
+    /// let inverse_rotated = dq.inverse_transform_vector(&vector);
     /// assert_relative_eq!(
-    ///     dq.inverse_transform_vector(&vector), Vector3::new(1.0, 3.0, -2.0), epsilon = 1.0e-6
+    ///     inverse_rotated, Vector3::new(1.0, 3.0, -2.0), epsilon = 1.0e-6
     /// );
     /// ```
+    ///
+    /// # Use Case: Converting Normals to Local Space
+    ///
+    /// ```
+    /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3};
+    /// // Object transformation in world space
+    /// let object_transform = UnitDualQuaternion::from_parts(
+    ///     Vector3::new(5.0, 0.0, 0.0).into(),
+    ///     UnitQuaternion::from_euler_angles(0.0, 0.0, std::f32::consts::FRAC_PI_2)
+    /// );
+    ///
+    /// // Surface normal in world space
+    /// let world_normal = Vector3::new(0.0, 1.0, 0.0);
+    ///
+    /// // Convert to object-local space (only rotation matters)
+    /// let local_normal = object_transform.inverse_transform_vector(&world_normal);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`transform_vector`](Self::transform_vector) - Applies the forward rotation
+    /// - [`inverse_transform_point`](Self::inverse_transform_point) - For points (includes translation)
+    /// - [`inverse_transform_unit_vector`](Self::inverse_transform_unit_vector) - For unit vectors
     #[inline]
     #[must_use]
     pub fn inverse_transform_vector(&self, v: &Vector3<T>) -> Vector3<T> {
         self.inverse() * v
     }
 
-    /// Rotate a unit vector by the inverse of this unit quaternion, ignoring
-    /// the translational component. This may be
-    /// cheaper than inverting the unit dual quaternion and transforming the
-    /// vector.
+    /// Transforms a unit vector by the inverse rotation, ignoring translation.
+    ///
+    /// This is a specialized version of [`inverse_transform_vector`](Self::inverse_transform_vector)
+    /// for unit-length vectors. Since rotation preserves length, the result is guaranteed
+    /// to remain a unit vector, so this returns a `Unit<Vector3<T>>` instead of a plain vector.
+    ///
+    /// This may be more efficient than computing the full inverse transformation and is
+    /// particularly useful for transforming normalized directions like axis vectors or normals.
+    ///
+    /// # Arguments
+    ///
+    /// - `v`: The unit vector to transform
+    ///
+    /// # Returns
+    ///
+    /// The unit vector transformed by the inverse rotation (translation not applied).
     ///
     /// # Example
+    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Unit, Vector3};
@@ -911,14 +1689,38 @@ where
     ///     Vector3::new(0.0, 3.0, 0.0).into(),
     ///     UnitQuaternion::from_euler_angles(std::f32::consts::FRAC_PI_2, 0.0, 0.0)
     /// );
-    /// let vector = Unit::new_unchecked(Vector3::new(0.0, 1.0, 0.0));
+    /// let unit_vector = Unit::new_unchecked(Vector3::new(0.0, 1.0, 0.0));
     ///
+    /// let inverse_rotated = dq.inverse_transform_unit_vector(&unit_vector);
     /// assert_relative_eq!(
-    ///     dq.inverse_transform_unit_vector(&vector),
+    ///     inverse_rotated,
     ///     Unit::new_unchecked(Vector3::new(0.0, 0.0, -1.0)),
     ///     epsilon = 1.0e-6
     /// );
     /// ```
+    ///
+    /// # Use Case: Coordinate System Conversion
+    ///
+    /// ```
+    /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Unit, Vector3};
+    /// // Object's coordinate system in world space
+    /// let object_transform = UnitDualQuaternion::from_parts(
+    ///     Vector3::new(5.0, 0.0, 0.0).into(),
+    ///     UnitQuaternion::from_euler_angles(0.0, 1.57, 0.0)
+    /// );
+    ///
+    /// // World-space up vector
+    /// let world_up = Vector3::y_axis();
+    ///
+    /// // What direction is "up" in the object's local space?
+    /// let local_up = object_transform.inverse_transform_unit_vector(&world_up);
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`inverse_transform_vector`](Self::inverse_transform_vector) - For non-unit vectors
+    /// - [`transform_vector`](Self::transform_vector) - Applies the forward rotation
+    /// - [`inverse_transform_point`](Self::inverse_transform_point) - For points (includes translation)
     #[inline]
     #[must_use]
     pub fn inverse_transform_unit_vector(&self, v: &Unit<Vector3<T>>) -> Unit<Vector3<T>> {
@@ -930,10 +1732,28 @@ impl<T: SimdRealField + RealField> UnitDualQuaternion<T>
 where
     T::Element: SimdRealField,
 {
-    /// Converts this unit dual quaternion interpreted as an isometry
-    /// into its equivalent homogeneous transformation matrix.
+    /// Converts this unit dual quaternion into a 4x4 homogeneous transformation matrix.
+    ///
+    /// A homogeneous transformation matrix is a 4x4 matrix commonly used in computer graphics
+    /// and robotics to represent rigid body transformations. The resulting matrix combines
+    /// the rotation and translation into a single matrix that can be used with homogeneous
+    /// coordinates.
+    ///
+    /// The matrix has the form:
+    /// ```text
+    /// [ R  R  R  tx ]
+    /// [ R  R  R  ty ]
+    /// [ R  R  R  tz ]
+    /// [ 0  0  0  1  ]
+    /// ```
+    /// where R is the 3x3 rotation matrix and (tx, ty, tz) is the translation vector.
+    ///
+    /// # Returns
+    ///
+    /// A 4x4 homogeneous transformation matrix.
     ///
     /// # Example
+    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{Matrix4, UnitDualQuaternion, UnitQuaternion, Vector3};
@@ -941,13 +1761,41 @@ where
     ///     Vector3::new(1.0, 3.0, 2.0).into(),
     ///     UnitQuaternion::from_axis_angle(&Vector3::z_axis(), std::f32::consts::FRAC_PI_6)
     /// );
-    /// let expected = Matrix4::new(0.8660254, -0.5,      0.0, 1.0,
-    ///                             0.5,       0.8660254, 0.0, 3.0,
-    ///                             0.0,       0.0,       1.0, 2.0,
-    ///                             0.0,       0.0,       0.0, 1.0);
     ///
-    /// assert_relative_eq!(dq.to_homogeneous(), expected, epsilon = 1.0e-6);
+    /// let matrix = dq.to_homogeneous();
+    ///
+    /// let expected = Matrix4::new(
+    ///     0.8660254, -0.5,      0.0, 1.0,
+    ///     0.5,       0.8660254, 0.0, 3.0,
+    ///     0.0,       0.0,       1.0, 2.0,
+    ///     0.0,       0.0,       0.0, 1.0
+    /// );
+    ///
+    /// assert_relative_eq!(matrix, expected, epsilon = 1.0e-6);
     /// ```
+    ///
+    /// # Use Case: Integration with Graphics Pipeline
+    ///
+    /// ```
+    /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3, Matrix4, Point3};
+    /// // Object transformation
+    /// let object_transform = UnitDualQuaternion::from_parts(
+    ///     Vector3::new(2.0, 0.0, 1.0).into(),
+    ///     UnitQuaternion::from_euler_angles(0.0, 0.0, 0.5)
+    /// );
+    ///
+    /// // Convert to matrix for use with graphics APIs (OpenGL, WebGPU, etc.)
+    /// let model_matrix: Matrix4<f32> = object_transform.to_homogeneous();
+    ///
+    /// // Can now send model_matrix to GPU as a uniform
+    /// // uniform mat4 model_matrix;
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`to_isometry`](Self::to_isometry) - Converts to an `Isometry3` (more efficient representation)
+    /// - [`from_isometry`](Self::from_isometry) - Creates from an `Isometry3`
+    /// - `From<UnitDualQuaternion<T>> for Matrix4<T>` - Conversion trait implementation
     #[inline]
     #[must_use]
     pub fn to_homogeneous(self) -> Matrix4<T> {

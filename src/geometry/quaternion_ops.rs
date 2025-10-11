@@ -64,6 +64,23 @@ use crate::base::{Const, Scalar, Unit, Vector, Vector3};
 
 use crate::geometry::{Point3, Quaternion, Rotation, UnitQuaternion};
 
+/// Indexes the quaternion by component.
+///
+/// Allows accessing quaternion components using `q[i]` syntax, where:
+/// - `i = 0`: x (i component)
+/// - `i = 1`: y (j component)
+/// - `i = 2`: z (k component)
+/// - `i = 3`: w (scalar component)
+///
+/// # Example
+/// ```
+/// # use nalgebra::Quaternion;
+/// let q = Quaternion::new(4.0, 1.0, 2.0, 3.0);
+/// assert_eq!(q[0], 1.0); // x component (i)
+/// assert_eq!(q[1], 2.0); // y component (j)
+/// assert_eq!(q[2], 3.0); // z component (k)
+/// assert_eq!(q[3], 4.0); // w component (scalar)
+/// ```
 impl<T: Scalar> Index<usize> for Quaternion<T> {
     type Output = T;
 
@@ -73,6 +90,17 @@ impl<T: Scalar> Index<usize> for Quaternion<T> {
     }
 }
 
+/// Mutably indexes the quaternion by component.
+///
+/// Allows modifying quaternion components using `q[i]` syntax.
+///
+/// # Example
+/// ```
+/// # use nalgebra::Quaternion;
+/// let mut q = Quaternion::new(1.0, 0.0, 0.0, 0.0);
+/// q[0] = 5.0; // Modify x component
+/// assert_eq!(q[0], 5.0);
+/// ```
 impl<T: Scalar> IndexMut<usize> for Quaternion<T> {
     #[inline]
     fn index_mut(&mut self, i: usize) -> &mut T {
@@ -98,6 +126,22 @@ macro_rules! quaternion_op_impl(
 );
 
 // Quaternion + Quaternion
+/// Adds two quaternions component-wise.
+///
+/// This operation is **not** the same as quaternion multiplication. It simply adds
+/// the corresponding components together: `(w1+w2, x1+x2, y1+y2, z1+z2)`.
+///
+/// # Example
+/// ```
+/// # use nalgebra::Quaternion;
+/// let q1 = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+/// let q2 = Quaternion::new(5.0, 6.0, 7.0, 8.0);
+/// let result = q1 + q2;
+/// assert_eq!(result, Quaternion::new(6.0, 8.0, 10.0, 12.0));
+/// ```
+///
+/// # See Also
+/// - [`Quaternion::mul`]: For quaternion multiplication (composition of rotations)
 quaternion_op_impl!(
     Add, add;
     ;
@@ -126,6 +170,19 @@ quaternion_op_impl!(
     Quaternion::from(self.coords + rhs.coords); );
 
 // Quaternion - Quaternion
+/// Subtracts two quaternions component-wise.
+///
+/// This operation is **not** the same as quaternion division. It simply subtracts
+/// the corresponding components: `(w1-w2, x1-x2, y1-y2, z1-z2)`.
+///
+/// # Example
+/// ```
+/// # use nalgebra::Quaternion;
+/// let q1 = Quaternion::new(5.0, 6.0, 7.0, 8.0);
+/// let q2 = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+/// let result = q1 - q2;
+/// assert_eq!(result, Quaternion::new(4.0, 4.0, 4.0, 4.0));
+/// ```
 quaternion_op_impl!(
     Sub, sub;
     ;
@@ -154,6 +211,22 @@ quaternion_op_impl!(
     Quaternion::from(self.coords - rhs.coords); );
 
 // Quaternion × Quaternion
+/// Multiplies two quaternions using the Hamilton product.
+///
+/// Quaternion multiplication is **not commutative**: `q1 * q2` is generally different from `q2 * q1`.
+/// The result represents the composition of the two rotations (if the quaternions are unit quaternions).
+///
+/// # Example
+/// ```
+/// # use nalgebra::Quaternion;
+/// let q1 = Quaternion::new(1.0, 0.0, 0.0, 0.0); // Identity rotation
+/// let q2 = Quaternion::new(0.0, 1.0, 0.0, 0.0); // 180° rotation around x-axis
+/// let result = q1 * q2;
+/// // The result combines both rotations
+/// ```
+///
+/// # See Also
+/// - [`UnitQuaternion::mul`]: For composing rotations represented as unit quaternions
 quaternion_op_impl!(
     Mul, mul;
     ;
@@ -186,6 +259,32 @@ quaternion_op_impl!(
     &self * &rhs; );
 
 // UnitQuaternion × UnitQuaternion
+/// Composes two 3D rotations by multiplying two unit quaternions.
+///
+/// This operation combines two rotations into a single rotation. The order matters:
+/// `q1 * q2` means "first apply rotation `q2`, then apply rotation `q1`".
+///
+/// # Example
+/// ```
+/// # use nalgebra::{UnitQuaternion, Vector3};
+/// # use std::f32::consts::PI;
+/// // 90° rotation around the z-axis
+/// let rot_z = UnitQuaternion::from_axis_angle(&Vector3::z_axis(), PI / 2.0);
+/// // 90° rotation around the x-axis
+/// let rot_x = UnitQuaternion::from_axis_angle(&Vector3::x_axis(), PI / 2.0);
+///
+/// // Compose rotations: first rotate around z, then around x
+/// let combined = rot_x * rot_z;
+///
+/// // This is equivalent to applying rot_z first, then rot_x
+/// let point = Vector3::new(1.0, 0.0, 0.0);
+/// let result1 = combined * point;
+/// let result2 = rot_x * (rot_z * point);
+/// assert_eq!(result1, result2);
+/// ```
+///
+/// # See Also
+/// - [`UnitQuaternion::div`]: For computing the relative rotation between two orientations
 quaternion_op_impl!(
     Mul, mul;
     ;
@@ -214,6 +313,27 @@ quaternion_op_impl!(
     &self * &rhs; );
 
 // UnitQuaternion ÷ UnitQuaternion
+/// Computes the relative rotation from `rhs` to `self`.
+///
+/// This operation returns the rotation that, when applied after `rhs`, gives `self`.
+/// Mathematically: `self / rhs = self * rhs.inverse()`.
+///
+/// # Example
+/// ```
+/// # use nalgebra::{UnitQuaternion, Vector3};
+/// # use std::f32::consts::PI;
+/// let rot1 = UnitQuaternion::from_axis_angle(&Vector3::z_axis(), PI / 2.0);
+/// let rot2 = UnitQuaternion::from_axis_angle(&Vector3::z_axis(), PI / 4.0);
+///
+/// // Compute the rotation that takes rot2 to rot1
+/// let diff = rot1 / rot2;
+///
+/// // Verify: rot2 * diff should equal rot1
+/// assert_relative_eq!(rot2 * diff, rot1, epsilon = 1.0e-6);
+/// ```
+///
+/// # See Also
+/// - [`UnitQuaternion::rotation_to`]: For computing the shortest rotation between two orientations
 quaternion_op_impl!(
     Div, div;
     ;
@@ -374,6 +494,28 @@ quaternion_op_impl!(
     UnitQuaternion::<T>::from_rotation_matrix(&self) / rhs; );
 
 // UnitQuaternion × Vector
+/// Rotates a 3D vector using this unit quaternion.
+///
+/// This operation applies the 3D rotation represented by the unit quaternion to the input vector.
+/// It's an efficient way to transform vectors without converting to a rotation matrix.
+///
+/// # Example
+/// ```
+/// # use nalgebra::{UnitQuaternion, Vector3};
+/// # use std::f32::consts::PI;
+/// // 90° rotation around the z-axis
+/// let rotation = UnitQuaternion::from_axis_angle(&Vector3::z_axis(), PI / 2.0);
+///
+/// // Rotate the x-axis vector
+/// let v = Vector3::new(1.0, 0.0, 0.0);
+/// let rotated = rotation * v;
+///
+/// // The x-axis should now point along the y-axis
+/// assert_relative_eq!(rotated, Vector3::new(0.0, 1.0, 0.0), epsilon = 1.0e-6);
+/// ```
+///
+/// # See Also
+/// - [`UnitQuaternion::transform_point`]: For rotating points in 3D space
 quaternion_op_impl!(
     Mul, mul;
     SB: Storage<T, Const<3>> ;
@@ -412,6 +554,28 @@ quaternion_op_impl!(
     &self * &rhs; );
 
 // UnitQuaternion × Point
+/// Rotates a 3D point using this unit quaternion.
+///
+/// This operation applies the 3D rotation to a point in space. Note that quaternions
+/// only represent rotations (not translations), so the origin remains fixed.
+///
+/// # Example
+/// ```
+/// # use nalgebra::{UnitQuaternion, Point3, Vector3};
+/// # use std::f32::consts::PI;
+/// // 180° rotation around the z-axis
+/// let rotation = UnitQuaternion::from_axis_angle(&Vector3::z_axis(), PI);
+///
+/// // Rotate a point
+/// let point = Point3::new(1.0, 2.0, 3.0);
+/// let rotated = rotation * point;
+///
+/// // x and y are negated, z unchanged
+/// assert_relative_eq!(rotated, Point3::new(-1.0, -2.0, 3.0), epsilon = 1.0e-6);
+/// ```
+///
+/// # See Also
+/// - [`Isometry::transform_point`]: For combining rotation and translation
 quaternion_op_impl!(
     Mul, mul;
     ;
@@ -537,6 +701,18 @@ macro_rules! left_scalar_mul_impl(
 
 left_scalar_mul_impl!(f32, f64);
 
+/// Negates all components of the quaternion.
+///
+/// For a unit quaternion, negation represents the same rotation. This is because
+/// both `q` and `-q` represent the same 3D rotation.
+///
+/// # Example
+/// ```
+/// # use nalgebra::Quaternion;
+/// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+/// let neg_q = -q;
+/// assert_eq!(neg_q, Quaternion::new(-1.0, -2.0, -3.0, -4.0));
+/// ```
 impl<T: SimdRealField> Neg for Quaternion<T>
 where
     T::Element: SimdRealField,

@@ -30,15 +30,248 @@ impl<T: RealField, D: Dim> CsCholesky<T, D>
 where
     DefaultAllocator: Allocator<D> + Allocator<D>,
 {
-    /// Computes the cholesky decomposition of the sparse matrix `m`.
+    /// Computes the Cholesky decomposition of a sparse symmetric positive-definite matrix.
+    ///
+    /// The Cholesky decomposition factors a symmetric positive-definite matrix A into
+    /// the form A = L L^T, where L is a lower-triangular matrix. For sparse matrices,
+    /// this is particularly valuable because L often remains sparse even though A^(-1)
+    /// would be dense.
+    ///
+    /// # Requirements
+    ///
+    /// The input matrix must be:
+    /// - **Square**: Same number of rows and columns
+    /// - **Symmetric**: A = A^T (only upper or lower triangle is used)
+    /// - **Positive-Definite**: All eigenvalues are positive
+    ///
+    /// If these conditions are not met, the decomposition will fail (check with `l()`).
+    ///
+    /// # Algorithm
+    ///
+    /// This uses a left-looking sparse Cholesky factorization algorithm:
+    /// 1. Symbolic analysis determines the non-zero pattern of L
+    /// 2. Numerical factorization computes the values of L
+    ///
+    /// # Examples
+    ///
+    /// ## Basic Decomposition
+    ///
+    /// ```
+    /// use nalgebra::{CsMatrix, CsCholesky, Dyn};
+    ///
+    /// // Create a symmetric positive-definite matrix:
+    /// // [4.0  2.0  0.0]
+    /// // [2.0  5.0  1.0]
+    /// // [0.0  1.0  3.0]
+    /// let triplets = vec![
+    ///     (0, 0, 4.0), (0, 1, 2.0),
+    ///     (1, 0, 2.0), (1, 1, 5.0), (1, 2, 1.0),
+    ///     (2, 1, 1.0), (2, 2, 3.0),
+    /// ];
+    /// let m = CsMatrix::<f64, Dyn, Dyn>::from_triplet(3, 3, &triplets);
+    ///
+    /// // Compute Cholesky decomposition
+    /// let chol = CsCholesky::new(&m);
+    ///
+    /// // Check if decomposition succeeded
+    /// assert!(chol.l().is_some());
+    /// ```
+    ///
+    /// ## Solving Linear Systems
+    ///
+    /// Cholesky decomposition is efficient for solving A x = b:
+    ///
+    /// ```
+    /// use nalgebra::{CsMatrix, CsCholesky, DVector, Dyn};
+    ///
+    /// // Symmetric positive-definite matrix (tridiagonal)
+    /// let mut triplets = vec![];
+    /// for i in 0..5 {
+    ///     triplets.push((i, i, 2.0));
+    ///     if i > 0 {
+    ///         triplets.push((i, i-1, -1.0));
+    ///         triplets.push((i-1, i, -1.0));
+    ///     }
+    /// }
+    /// let a = CsMatrix::<f64, Dyn, Dyn>::from_triplet(5, 5, &triplets);
+    ///
+    /// let chol = CsCholesky::new(&a);
+    /// assert!(chol.l().is_some());
+    ///
+    /// // Now can efficiently solve A x = b for many right-hand sides
+    /// ```
+    ///
+    /// ## Finite Element Analysis
+    ///
+    /// Typical use in structural analysis:
+    ///
+    /// ```
+    /// use nalgebra::{CsMatrix, CsCholesky, Dyn};
+    ///
+    /// // Stiffness matrix from finite element assembly (symmetric positive-definite)
+    /// let k = CsMatrix::<f64, Dyn, Dyn>::from_triplet(4, 4, &[
+    ///     (0, 0, 3.0), (0, 1, -1.0),
+    ///     (1, 0, -1.0), (1, 1, 4.0), (1, 2, -1.0),
+    ///     (2, 1, -1.0), (2, 2, 4.0), (2, 3, -1.0),
+    ///     (3, 2, -1.0), (3, 3, 3.0),
+    /// ]);
+    ///
+    /// // Factor once, solve many times (for different load cases)
+    /// let chol = CsCholesky::new(&k);
+    /// assert!(chol.l().is_some());
+    /// ```
+    ///
+    /// # Performance
+    ///
+    /// - Symbolic analysis: O(n^2) in worst case, often much better for sparse matrices
+    /// - Numerical factorization: Depends on sparsity pattern
+    /// - For many sparse structures (e.g., arising from 2D/3D meshes), remains sparse
+    ///
+    /// # Applications
+    ///
+    /// - **Linear System Solving**: Fast solution of A x = b
+    /// - **Least Squares**: Solving normal equations A^T A x = A^T b
+    /// - **Optimization**: Newton methods with positive-definite Hessians
+    /// - **Finite Element Analysis**: Structural mechanics, heat transfer
+    /// - **Statistics**: Computing with covariance matrices
+    ///
+    /// # See Also
+    ///
+    /// - [`CsCholesky::new_symbolic`] - Perform only symbolic analysis
+    /// - [`CsCholesky::l`] - Access the lower-triangular factor
+    /// - [`CsCholesky::decompose_left_looking`] - Refactor with new values
     pub fn new(m: &CsMatrix<T, D, D>) -> Self {
         let mut me = Self::new_symbolic(m);
         let _ = me.decompose_left_looking(&m.data.vals);
         me
     }
-    /// Perform symbolic analysis for the given matrix.
+    /// Performs symbolic analysis to determine the structure of the Cholesky factor.
     ///
-    /// This does not access the numerical values of `m`.
+    /// This method analyzes the sparsity pattern of the input matrix to determine
+    /// which entries of the lower-triangular factor L will be non-zero. Importantly,
+    /// it does NOT use the numerical values - only the positions of non-zeros matter.
+    ///
+    /// # Why Symbolic Analysis?
+    ///
+    /// Separating symbolic and numeric phases allows efficient refactorization:
+    /// - Symbolic phase: Expensive, determines the non-zero pattern of L
+    /// - Numeric phase: Cheaper, fills in the values of L
+    ///
+    /// If you need to factor many matrices with the same sparsity pattern (common
+    /// in time-stepping, optimization, or parametric studies), you can perform
+    /// symbolic analysis once and reuse it.
+    ///
+    /// # Algorithm
+    ///
+    /// Uses elimination tree and reachability analysis to predict fill-in
+    /// (new non-zeros that appear in L even though they're zero in A).
+    ///
+    /// # Examples
+    ///
+    /// ## Symbolic Analysis and Reuse
+    ///
+    /// ```
+    /// use nalgebra::{CsMatrix, CsCholesky, Dyn};
+    ///
+    /// // Create a tridiagonal matrix structure
+    /// let mut triplets1 = vec![];
+    /// for i in 0..100 {
+    ///     triplets1.push((i, i, 2.0));
+    ///     if i > 0 {
+    ///         triplets1.push((i, i-1, -1.0));
+    ///         triplets1.push((i-1, i, -1.0));
+    ///     }
+    /// }
+    /// let m1 = CsMatrix::<f64, Dyn, Dyn>::from_triplet(100, 100, &triplets1);
+    ///
+    /// // Perform symbolic analysis once
+    /// let mut chol = CsCholesky::new_symbolic(&m1);
+    ///
+    /// // Now factorize numerically
+    /// let success = chol.decompose_left_looking(&m1.data.values());
+    /// assert!(success);
+    /// ```
+    ///
+    /// ## Time-Stepping Problems
+    ///
+    /// Many time integration schemes solve systems with the same structure:
+    ///
+    /// ```
+    /// use nalgebra::{CsMatrix, CsCholesky, Dyn};
+    ///
+    /// // Mass matrix (constant sparsity pattern)
+    /// let mass_pattern = vec![
+    ///     (0, 0, 1.0), (1, 1, 1.0), (2, 2, 1.0),
+    /// ];
+    /// let m = CsMatrix::<f64, Dyn, Dyn>::from_triplet(3, 3, &mass_pattern);
+    ///
+    /// // Perform symbolic analysis once
+    /// let mut chol = CsCholesky::new_symbolic(&m);
+    ///
+    /// // Time stepping: each step has different values but same structure
+    /// for _time_step in 0..10 {
+    ///     // Create effective stiffness: K_eff = M + dt * K
+    ///     // (would have same sparsity pattern as mass matrix in this example)
+    ///     let k_eff_values = vec![2.0, 2.5, 2.1]; // New values each step
+    ///
+    ///     // Reuse symbolic structure, just update values
+    ///     chol.decompose_left_looking(&k_eff_values);
+    ///
+    ///     // Solve system for this time step
+    ///     // ... (solution code)
+    /// }
+    /// ```
+    ///
+    /// ## Parametric Studies
+    ///
+    /// When studying how solutions vary with parameters:
+    ///
+    /// ```
+    /// use nalgebra::{CsMatrix, CsCholesky, Dyn};
+    ///
+    /// // Initial stiffness matrix structure
+    /// let k0 = CsMatrix::<f64, Dyn, Dyn>::from_triplet(3, 3, &[
+    ///     (0, 0, 4.0), (0, 1, -2.0),
+    ///     (1, 0, -2.0), (1, 1, 4.0), (1, 2, -2.0),
+    ///     (2, 1, -2.0), (2, 2, 4.0),
+    /// ]);
+    ///
+    /// // Symbolic analysis once
+    /// let mut chol = CsCholesky::new_symbolic(&k0);
+    ///
+    /// // Study different material parameters
+    /// for stiffness_param in [1.0, 2.0, 3.0, 4.0] {
+    ///     // Create new values (same positions, different magnitudes)
+    ///     let values: Vec<f64> = k0.data.values()
+    ///         .iter()
+    ///         .map(|v| v * stiffness_param)
+    ///         .collect();
+    ///
+    ///     // Refactor with new parameter values
+    ///     chol.decompose_left_looking(&values);
+    ///
+    ///     // Solve and analyze results
+    /// }
+    /// ```
+    ///
+    /// # Performance
+    ///
+    /// - Symbolic analysis: O(n^2) worst case, often O(n) for typical sparse patterns
+    /// - Only depends on structure, not values
+    /// - Much faster than full factorization for large matrices
+    ///
+    /// # Applications
+    ///
+    /// - **Time Integration**: Same structure each time step
+    /// - **Parametric Studies**: Varying parameters, fixed structure
+    /// - **Optimization**: Many iterations with similar Hessian structure
+    /// - **Sensitivity Analysis**: Repeated solves with perturbed matrices
+    ///
+    /// # See Also
+    ///
+    /// - [`CsCholesky::new`] - Combined symbolic + numeric factorization
+    /// - [`CsCholesky::decompose_left_looking`] - Numeric refactorization
+    /// - [`CsCholesky::decompose_up_looking`] - Alternative numeric algorithm
     pub fn new_symbolic(m: &CsMatrix<T, D, D>) -> Self {
         assert!(
             m.is_square(),
@@ -64,19 +297,208 @@ where
         }
     }
 
-    /// The lower-triangular matrix of the cholesky decomposition.
+    /// Returns a reference to the lower-triangular Cholesky factor L.
+    ///
+    /// If the decomposition was successful, this returns `Some(&L)` where L satisfies
+    /// A = L L^T. If the decomposition failed (matrix not positive-definite), returns `None`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use nalgebra::{CsMatrix, CsCholesky, Dyn};
+    ///
+    /// // Positive-definite matrix
+    /// let m = CsMatrix::<f64, Dyn, Dyn>::from_triplet(2, 2, &[
+    ///     (0, 0, 4.0), (0, 1, 2.0),
+    ///     (1, 0, 2.0), (1, 1, 3.0),
+    /// ]);
+    ///
+    /// let chol = CsCholesky::new(&m);
+    ///
+    /// if let Some(l) = chol.l() {
+    ///     println!("Decomposition succeeded");
+    ///     println!("L has {} non-zeros", l.len());
+    /// } else {
+    ///     println!("Decomposition failed - matrix not positive-definite");
+    /// }
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`CsCholesky::unwrap_l`] - Extracts L by consuming self
     #[must_use]
     pub fn l(&self) -> Option<&CsMatrix<T, D, D>> {
         if self.ok { Some(&self.l) } else { None }
     }
 
-    /// Extracts the lower-triangular matrix of the cholesky decomposition.
+    /// Extracts and returns the lower-triangular Cholesky factor L by consuming self.
+    ///
+    /// If the decomposition was successful, this returns `Some(L)` where L satisfies
+    /// A = L L^T. If the decomposition failed, returns `None`.
+    ///
+    /// This method is useful when you want to take ownership of L rather than just
+    /// borrowing it.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use nalgebra::{CsMatrix, CsCholesky, Dyn};
+    ///
+    /// let m = CsMatrix::<f64, Dyn, Dyn>::from_triplet(3, 3, &[
+    ///     (0, 0, 4.0),
+    ///     (1, 1, 5.0),
+    ///     (2, 2, 6.0),
+    /// ]);
+    ///
+    /// let chol = CsCholesky::new(&m);
+    ///
+    /// // Take ownership of L
+    /// if let Some(l) = chol.unwrap_l() {
+    ///     // Can now use l without borrowing from chol
+    ///     let l_squared = &l * &l.transpose();
+    /// }
+    /// ```
+    ///
+    /// # See Also
+    ///
+    /// - [`CsCholesky::l`] - Borrows L without consuming self
     pub fn unwrap_l(self) -> Option<CsMatrix<T, D, D>> {
         if self.ok { Some(self.l) } else { None }
     }
 
-    /// Perform a numerical left-looking cholesky decomposition of a matrix with the same structure as the
-    /// one used to initialize `self`, but with different non-zero values provided by `values`.
+    /// Performs numerical Cholesky factorization using the left-looking algorithm.
+    ///
+    /// This method computes the numerical values of the Cholesky factor L for a matrix
+    /// with the same sparsity pattern as the one used in symbolic analysis, but with
+    /// different numerical values. This is efficient for refactorization when you need
+    /// to factor many matrices with the same structure.
+    ///
+    /// # Parameters
+    ///
+    /// - `values`: Array of non-zero values in the same order as the original matrix
+    ///
+    /// # Returns
+    ///
+    /// - `true` if factorization succeeded (matrix is positive-definite)
+    /// - `false` if factorization failed (matrix is not positive-definite or has numerical issues)
+    ///
+    /// # Left-Looking Algorithm
+    ///
+    /// The left-looking algorithm processes columns from left to right. For each column j:
+    /// 1. Gathers contributions from all previous columns that affect column j
+    /// 2. Computes the new entries of column j of L
+    ///
+    /// This approach is cache-friendly and works well for many sparse patterns.
+    ///
+    /// # Examples
+    ///
+    /// ## Basic Refactorization
+    ///
+    /// ```
+    /// use nalgebra::{CsMatrix, CsCholesky, Dyn};
+    ///
+    /// // Original matrix
+    /// let m1 = CsMatrix::<f64, Dyn, Dyn>::from_triplet(3, 3, &[
+    ///     (0, 0, 4.0), (1, 1, 5.0), (2, 2, 6.0),
+    /// ]);
+    ///
+    /// // Symbolic analysis
+    /// let mut chol = CsCholesky::new_symbolic(&m1);
+    ///
+    /// // First factorization
+    /// let success = chol.decompose_left_looking(&m1.data.values());
+    /// assert!(success);
+    ///
+    /// // New values, same structure
+    /// let new_values = vec![9.0, 16.0, 25.0]; // Different diagonal values
+    /// let success2 = chol.decompose_left_looking(&new_values);
+    /// assert!(success2);
+    /// ```
+    ///
+    /// ## Time-Dependent Problems
+    ///
+    /// Solving heat equation with implicit time stepping:
+    ///
+    /// ```
+    /// use nalgebra::{CsMatrix, CsCholesky, Dyn};
+    ///
+    /// // Spatial discretization matrix (Laplacian)
+    /// let laplacian = CsMatrix::<f64, Dyn, Dyn>::from_triplet(3, 3, &[
+    ///     (0, 0, 2.0), (0, 1, -1.0),
+    ///     (1, 0, -1.0), (1, 1, 2.0), (1, 2, -1.0),
+    ///     (2, 1, -1.0), (2, 2, 2.0),
+    /// ]);
+    ///
+    /// // Initial symbolic analysis
+    /// let mut chol = CsCholesky::new_symbolic(&laplacian);
+    ///
+    /// let dt = 0.01; // time step
+    /// for step in 0..10 {
+    ///     // System matrix: I + dt * Laplacian
+    ///     // (in practice, would compute this more efficiently)
+    ///     let sys_values: Vec<f64> = laplacian.data.values()
+    ///         .iter()
+    ///         .enumerate()
+    ///         .map(|(i, &v)| {
+    ///             // Add identity contribution to diagonal
+    ///             if i % 3 == 0 { v + 1.0/dt } else { v }
+    ///         })
+    ///         .collect();
+    ///
+    ///     // Refactor for this time step
+    ///     let ok = chol.decompose_left_looking(&sys_values);
+    ///     assert!(ok);
+    ///
+    ///     // Solve system for this step...
+    /// }
+    /// ```
+    ///
+    /// ## Newton's Method
+    ///
+    /// Nonlinear solver with changing Jacobian:
+    ///
+    /// ```
+    /// use nalgebra::{CsMatrix, CsCholesky, Dyn};
+    ///
+    /// // Initial Jacobian structure
+    /// let j0 = CsMatrix::<f64, Dyn, Dyn>::from_triplet(3, 3, &[
+    ///     (0, 0, 1.0), (1, 1, 1.0), (2, 2, 1.0),
+    /// ]);
+    ///
+    /// let mut chol = CsCholesky::new_symbolic(&j0);
+    ///
+    /// // Newton iterations
+    /// for _iter in 0..5 {
+    ///     // Compute new Jacobian values at current iterate
+    ///     // (same sparsity, different values)
+    ///     let jacobian_values = vec![1.5, 2.0, 1.8];
+    ///
+    ///     if chol.decompose_left_looking(&jacobian_values) {
+    ///         // Solve Newton step...
+    ///     } else {
+    ///         println!("Jacobian not positive-definite, may need regularization");
+    ///         break;
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// # Performance
+    ///
+    /// - Much faster than full factorization (symbolic + numeric)
+    /// - Efficiency depends on sparsity pattern
+    /// - For matrices from 2D/3D meshes, typically very efficient
+    ///
+    /// # Failure Cases
+    ///
+    /// Returns `false` if:
+    /// - Matrix is not positive-definite (negative or zero pivot encountered)
+    /// - Numerical issues (very small pivots, near-singular matrix)
+    ///
+    /// # See Also
+    ///
+    /// - [`CsCholesky::decompose_up_looking`] - Alternative algorithm
+    /// - [`CsCholesky::new_symbolic`] - Required before calling this method
+    /// - [`CsCholesky::l`] - Access the computed factor
     pub fn decompose_left_looking(&mut self, values: &[T]) -> bool {
         assert!(
             values.len() >= self.original_i.len(),
@@ -146,8 +568,96 @@ where
         true
     }
 
-    /// Perform a numerical up-looking cholesky decomposition of a matrix with the same structure as the
-    /// one used to initialize `self`, but with different non-zero values provided by `values`.
+    /// Performs numerical Cholesky factorization using the up-looking algorithm.
+    ///
+    /// This is an alternative algorithm to `decompose_left_looking` that computes the
+    /// Cholesky factor L. While mathematically equivalent, it processes the matrix
+    /// differently and may have different performance characteristics depending on the
+    /// sparsity pattern.
+    ///
+    /// # Parameters
+    ///
+    /// - `values`: Array of non-zero values in the same order as the original matrix
+    ///
+    /// # Returns
+    ///
+    /// - `true` if factorization succeeded (matrix is positive-definite)
+    /// - `false` if factorization failed (matrix is not positive-definite)
+    ///
+    /// # Up-Looking Algorithm
+    ///
+    /// The up-looking algorithm also processes columns left to right, but for each column j:
+    /// 1. Performs a triangular solve with the already-computed part of L
+    /// 2. Updates the diagonal entry
+    ///
+    /// This can be more efficient for certain sparsity patterns, particularly those
+    /// arising from nested dissection orderings.
+    ///
+    /// # Algorithm Choice
+    ///
+    /// Choose between `decompose_left_looking` and `decompose_up_looking` based on:
+    /// - **Left-looking**: Better for natural orderings, simpler access patterns
+    /// - **Up-looking**: Can be faster for sophisticated orderings, more triangular solves
+    ///
+    /// For most applications, left-looking is a good default choice.
+    ///
+    /// # Examples
+    ///
+    /// ## Basic Usage
+    ///
+    /// ```
+    /// use nalgebra::{CsMatrix, CsCholesky, Dyn};
+    ///
+    /// let m = CsMatrix::<f64, Dyn, Dyn>::from_triplet(3, 3, &[
+    ///     (0, 0, 4.0),
+    ///     (1, 1, 5.0),
+    ///     (2, 2, 6.0),
+    /// ]);
+    ///
+    /// let mut chol = CsCholesky::new_symbolic(&m);
+    ///
+    /// // Use up-looking algorithm
+    /// let success = chol.decompose_up_looking(&m.data.values());
+    /// assert!(success);
+    /// ```
+    ///
+    /// ## Comparing Algorithms
+    ///
+    /// Both algorithms produce the same result:
+    ///
+    /// ```
+    /// use nalgebra::{CsMatrix, CsCholesky, Dyn};
+    ///
+    /// let m = CsMatrix::<f64, Dyn, Dyn>::from_triplet(4, 4, &[
+    ///     (0, 0, 4.0), (0, 1, -1.0),
+    ///     (1, 0, -1.0), (1, 1, 4.0), (1, 2, -1.0),
+    ///     (2, 1, -1.0), (2, 2, 4.0), (2, 3, -1.0),
+    ///     (3, 2, -1.0), (3, 3, 4.0),
+    /// ]);
+    ///
+    /// // Left-looking
+    /// let mut chol1 = CsCholesky::new_symbolic(&m);
+    /// chol1.decompose_left_looking(&m.data.values());
+    ///
+    /// // Up-looking
+    /// let mut chol2 = CsCholesky::new_symbolic(&m);
+    /// chol2.decompose_up_looking(&m.data.values());
+    ///
+    /// // Both produce valid Cholesky factors
+    /// assert!(chol1.l().is_some());
+    /// assert!(chol2.l().is_some());
+    /// ```
+    ///
+    /// # Performance
+    ///
+    /// - Complexity similar to left-looking for most matrices
+    /// - Can be faster with reordered matrices (nested dissection, minimum degree)
+    /// - More opportunities for BLAS-style optimizations in dense subblocks
+    ///
+    /// # See Also
+    ///
+    /// - [`CsCholesky::decompose_left_looking`] - Alternative algorithm
+    /// - [`CsCholesky::new_symbolic`] - Required before calling this method
     pub fn decompose_up_looking(&mut self, values: &[T]) -> bool {
         assert!(
             values.len() >= self.original_i.len(),

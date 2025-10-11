@@ -8,11 +8,124 @@ use crate::base::{DefaultAllocator, OMatrix, SquareMatrix};
 use crate::linalg::lu;
 
 impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
-    /// Attempts to invert this square matrix.
+    /// Attempts to invert this square matrix, returning a new matrix.
+    ///
+    /// # What is Matrix Inversion?
+    ///
+    /// Matrix inversion is the process of finding a matrix **A⁻¹** such that when you multiply
+    /// it by the original matrix **A**, you get the identity matrix: **A × A⁻¹ = I**.
+    ///
+    /// Think of it like finding the reciprocal of a number: just as `5 × (1/5) = 1`, matrix
+    /// inversion finds the "reciprocal" of a matrix. Not all matrices have inverses - only
+    /// square matrices with non-zero determinants can be inverted (called "non-singular" or
+    /// "invertible" matrices).
+    ///
+    /// # Common Use Cases
+    ///
+    /// - **Solving linear equations**: If `A × x = b`, then `x = A⁻¹ × b`
+    /// - **Undoing transformations**: Invert a transformation matrix to reverse its effect
+    /// - **Coordinate system conversions**: Convert between different coordinate frames
+    /// - **Computer graphics**: Invert camera or model matrices for rendering
+    ///
+    /// # Return Value
+    ///
+    /// Returns `Some(inverted_matrix)` if the matrix is invertible, or `None` if the matrix
+    /// is singular (determinant is zero or numerically close to zero).
+    ///
+    /// This method consumes the original matrix and returns a new one. If you want to invert
+    /// a matrix in-place to save memory, use [`try_inverse_mut`](Self::try_inverse_mut) instead.
+    ///
+    /// # Examples
+    ///
+    /// ## Basic 2×2 Matrix Inversion
+    ///
+    /// ```
+    /// use nalgebra::Matrix2;
+    ///
+    /// let m = Matrix2::new(1.0, 2.0,
+    ///                      3.0, 4.0);
+    ///
+    /// let inv = m.try_inverse().expect("Matrix should be invertible");
+    ///
+    /// // Verify that m * inv = identity
+    /// let identity = m * inv;
+    /// let expected_identity = Matrix2::identity();
+    ///
+    /// assert!((identity - expected_identity).norm() < 1e-10);
+    /// ```
+    ///
+    /// ## Solving a System of Linear Equations
+    ///
+    /// Given the system: `2x + 3y = 8` and `4x + 5y = 14`, solve for x and y.
+    ///
+    /// ```
+    /// use nalgebra::{Matrix2, Vector2};
+    ///
+    /// // Coefficient matrix A
+    /// let a = Matrix2::new(2.0, 3.0,
+    ///                      4.0, 5.0);
+    ///
+    /// // Right-hand side vector b
+    /// let b = Vector2::new(8.0, 14.0);
+    ///
+    /// // Solve A*x = b using x = A⁻¹ * b
+    /// if let Some(a_inv) = a.try_inverse() {
+    ///     let x = a_inv * b;
+    ///     println!("x = {}, y = {}", x[0], x[1]); // x = 1.0, y = 2.0
+    ///
+    ///     // Verify the solution
+    ///     assert!((a * x - b).norm() < 1e-10);
+    /// }
+    /// ```
+    ///
+    /// ## Handling Singular (Non-Invertible) Matrices
+    ///
+    /// ```
+    /// use nalgebra::Matrix2;
+    ///
+    /// // This matrix has determinant = 0, so it's singular
+    /// let singular = Matrix2::new(1.0, 2.0,
+    ///                             2.0, 4.0);  // Second row is 2× the first row
+    ///
+    /// assert!(singular.try_inverse().is_none());
+    /// ```
+    ///
+    /// ## Undoing a Transformation
+    ///
+    /// ```
+    /// use nalgebra::{Matrix3, Vector3};
+    ///
+    /// // A transformation matrix (rotation + scaling)
+    /// let transform = Matrix3::new(2.0,  0.0, 0.0,
+    ///                              0.0,  3.0, 0.0,
+    ///                              0.0,  0.0, 1.0);
+    ///
+    /// // Apply transformation to a point
+    /// let point = Vector3::new(1.0, 1.0, 1.0);
+    /// let transformed = transform * point;
+    ///
+    /// // Undo the transformation using the inverse
+    /// if let Some(inverse) = transform.try_inverse() {
+    ///     let original = inverse * transformed;
+    ///     assert!((original - point).norm() < 1e-10);
+    /// }
+    /// ```
+    ///
+    /// # Performance Notes
+    ///
+    /// The implementation is optimized for different matrix sizes:
+    /// - Dimensions 1-4: Uses specialized, unrolled formulas (very fast)
+    /// - Dimension 5+: Uses LU decomposition (general-purpose algorithm)
     ///
     /// # Panics
     ///
-    /// Panics if `self` isn’t a square matrix.
+    /// Panics if `self` isn't a square matrix.
+    ///
+    /// # See Also
+    ///
+    /// * [`try_inverse_mut`](Self::try_inverse_mut) - In-place version that modifies the matrix
+    /// * [`pseudo_inverse`](crate::Matrix::pseudo_inverse) - Generalized inverse for non-square matrices
+    /// * [`SVD::solve`](crate::linalg::SVD::solve) - Alternative approach for solving linear systems
     #[inline]
     #[must_use = "Did you mean to use try_inverse_mut()?"]
     pub fn try_inverse(self) -> Option<OMatrix<T, D, D>>
@@ -25,22 +138,168 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
 }
 
 impl<T: ComplexField, D: Dim, S: StorageMut<T, D, D>> SquareMatrix<T, D, S> {
-    /// Attempts to invert this square matrix in-place.
+    /// Attempts to invert this square matrix in-place, modifying the original matrix.
     ///
-    /// Returns `true` if the inversion succeeded, `false` otherwise.
+    /// # What is Matrix Inversion?
+    ///
+    /// Matrix inversion is the process of finding a matrix **A⁻¹** such that when you multiply
+    /// it by the original matrix **A**, you get the identity matrix: **A × A⁻¹ = I**.
+    ///
+    /// Think of it like finding the reciprocal of a number: just as `5 × (1/5) = 1`, matrix
+    /// inversion finds the "reciprocal" of a matrix. This method performs the inversion
+    /// in-place, replacing the original matrix with its inverse to save memory.
+    ///
+    /// # Common Use Cases
+    ///
+    /// - **Memory-efficient inversion**: When you don't need the original matrix anymore
+    /// - **Solving linear equations**: Transform `A × x = b` into `x = A⁻¹ × b`
+    /// - **Coordinate transformations**: Reverse coordinate system changes efficiently
+    /// - **Real-time applications**: Minimize memory allocations in performance-critical code
+    ///
+    /// # Return Value
+    ///
+    /// Returns `true` if the inversion succeeded (matrix was invertible), or `false` if the
+    /// matrix is singular (determinant is zero or numerically close to zero).
+    ///
+    /// **Important**: When the function returns `true`, the matrix has been replaced with its
+    /// inverse. When it returns `false`, the matrix content depends on its size (see Behavior below).
     ///
     /// # Behavior
     ///
-    /// - For small dimensions (`n < 5`), the matrix is left unchanged if the inversion fails.
-    /// - For dimensions `n >= 5`, the matrix may be **partially modified** even if the inversion fails,
-    ///   because LU decomposition is used and it modifies the matrix in-place.
+    /// The behavior when inversion fails depends on the matrix dimension:
+    ///
+    /// - **For small dimensions (`n < 5`)**: The matrix is left **unchanged** if inversion fails.
+    ///   You can safely retry or use the original values.
+    ///
+    /// - **For dimensions `n >= 5`**: The matrix may be **partially modified** even if inversion
+    ///   fails, because LU decomposition is used and it modifies the matrix in-place during
+    ///   computation.
     ///
     /// If you need to preserve the original matrix regardless of success or failure,
-    /// consider using [`Self::try_inverse`] instead.
+    /// consider using [`try_inverse`](Self::try_inverse) instead, which returns a new matrix
+    /// and leaves the original untouched.
+    ///
+    /// # Examples
+    ///
+    /// ## Basic In-Place Matrix Inversion
+    ///
+    /// ```
+    /// use nalgebra::Matrix2;
+    ///
+    /// let mut m = Matrix2::new(1.0, 2.0,
+    ///                          3.0, 4.0);
+    ///
+    /// let original = m.clone();
+    ///
+    /// // Invert the matrix in-place
+    /// let success = m.try_inverse_mut();
+    /// assert!(success);
+    ///
+    /// // Verify that original * m = identity
+    /// let identity = original * m;
+    /// let expected = Matrix2::identity();
+    /// assert!((identity - expected).norm() < 1e-10);
+    /// ```
+    ///
+    /// ## Memory-Efficient Solving of Linear Systems
+    ///
+    /// ```
+    /// use nalgebra::{Matrix3, Vector3};
+    ///
+    /// // Solve A*x = b for a 3×3 system
+    /// let mut a = Matrix3::new(2.0, 1.0, 1.0,
+    ///                          1.0, 3.0, 2.0,
+    ///                          1.0, 0.0, 0.0);
+    ///
+    /// let b = Vector3::new(4.0, 5.0, 6.0);
+    ///
+    /// // Invert A in-place to save memory
+    /// if a.try_inverse_mut() {
+    ///     let x = a * b;  // a is now A⁻¹
+    ///     println!("Solution: x = {:?}", x);
+    /// } else {
+    ///     println!("System has no unique solution");
+    /// }
+    /// ```
+    ///
+    /// ## Handling Singular Matrices (Small Dimensions)
+    ///
+    /// ```
+    /// use nalgebra::Matrix2;
+    ///
+    /// // This matrix has determinant = 0, so it's singular
+    /// let mut singular = Matrix2::new(1.0, 2.0,
+    ///                                 2.0, 4.0);
+    /// let original = singular.clone();
+    ///
+    /// // Try to invert - will fail
+    /// let success = singular.try_inverse_mut();
+    /// assert!(!success);
+    ///
+    /// // For small matrices (< 5×5), original is preserved on failure
+    /// assert_eq!(singular, original);
+    /// ```
+    ///
+    /// ## Batch Processing Multiple Matrices
+    ///
+    /// ```
+    /// use nalgebra::Matrix3;
+    ///
+    /// let mut matrices = vec![
+    ///     Matrix3::new(1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0),
+    ///     Matrix3::new(2.0, 0.0, 0.0,  0.0, 2.0, 0.0,  0.0, 0.0, 2.0),
+    ///     Matrix3::new(1.0, 2.0, 3.0,  0.0, 1.0, 4.0,  0.0, 0.0, 1.0),
+    /// ];
+    ///
+    /// // Invert all matrices in-place
+    /// for matrix in matrices.iter_mut() {
+    ///     if !matrix.try_inverse_mut() {
+    ///         println!("Warning: Found a singular matrix!");
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// ## Coordinate System Transformation
+    ///
+    /// ```
+    /// use nalgebra::{Matrix4, Vector4};
+    ///
+    /// // Transform matrix (e.g., from camera space to world space)
+    /// let mut camera_to_world = Matrix4::new(
+    ///     1.0, 0.0, 0.0, 10.0,
+    ///     0.0, 1.0, 0.0, 5.0,
+    ///     0.0, 0.0, 1.0, 2.0,
+    ///     0.0, 0.0, 0.0, 1.0,
+    /// );
+    ///
+    /// // Invert to get world-to-camera transform in-place
+    /// if camera_to_world.try_inverse_mut() {
+    ///     // camera_to_world is now world_to_camera
+    ///     let world_point = Vector4::new(15.0, 8.0, 4.0, 1.0);
+    ///     let camera_point = camera_to_world * world_point;
+    ///     println!("Point in camera space: {:?}", camera_point);
+    /// }
+    /// ```
+    ///
+    /// # Performance Notes
+    ///
+    /// The implementation is optimized for different matrix sizes:
+    /// - **Dimensions 1-4**: Uses specialized, unrolled formulas (very fast, no allocations)
+    /// - **Dimension 5+**: Uses LU decomposition (general-purpose, some internal allocations)
+    ///
+    /// This method is more memory-efficient than [`try_inverse`](Self::try_inverse) because it
+    /// doesn't allocate a new matrix, making it ideal for performance-critical applications.
     ///
     /// # Panics
     ///
-    /// Panics if `self` isn’t a square matrix.
+    /// Panics if `self` isn't a square matrix.
+    ///
+    /// # See Also
+    ///
+    /// * [`try_inverse`](Self::try_inverse) - Non-mutating version that returns a new matrix
+    /// * [`pseudo_inverse`](crate::Matrix::pseudo_inverse) - Generalized inverse for non-square matrices
+    /// * [`LU::try_inverse`](crate::linalg::LU::try_inverse) - Inverse computation using pre-computed LU decomposition
+    /// * [`SVD::solve`](crate::linalg::SVD::solve) - Alternative for solving linear systems
     #[inline]
     pub fn try_inverse_mut(&mut self) -> bool
     where
