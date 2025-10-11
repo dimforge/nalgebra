@@ -57,12 +57,12 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     #[must_use]
     pub fn max(&self) -> T
     where
-        T: SimdPartialOrd + Zero,
+        T: SimdPartialOrd + Zero + Float,
     {
-        self.fold_with(
-            |e| e.cloned().unwrap_or_else(T::zero),
-            |a, b| a.simd_max(b.clone()),
-        )
+        // Remove NaN values before computing the maximum.
+        self.iter().filter(|x| !x.is_nan()).cloned().collect::<Vec<_>>()
+            .into_iter()
+            .fold(T::neg_infinity(), |a, b| a.simd_max(b))
     }
 
     /// Returns the absolute value of the component with the smallest absolute value.
@@ -120,8 +120,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     #[must_use]
     pub fn min(&self) -> T
     where
-        T: SimdPartialOrd + Zero + std::fmt::Debug + Float,
-        S: std::fmt::Debug,
+        T: SimdPartialOrd + Zero + Float,
     {
         // Remove NaN values before computing the minimum.
         self.iter().filter(|x| !x.is_nan()).cloned().collect::<Vec<_>>()

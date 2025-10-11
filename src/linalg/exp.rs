@@ -1,5 +1,7 @@
 //! This module provides the matrix exponent (exp) function to square matrices.
 //!
+use num::Float;
+
 use crate::{
     ComplexField, OMatrix, RealField,
     base::{
@@ -364,8 +366,8 @@ where
         self.calc_a4();
         self.calc_a6();
         let mb2 = self.a2.as_ref().unwrap() * convert::<f64, T>(2.0_f64.powf(-2.0 * s));
-        let mb4 = self.a4.as_ref().unwrap() * convert::<f64, T>(2.0.powf(-4.0 * s));
-        let mb6 = self.a6.as_ref().unwrap() * convert::<f64, T>(2.0.powf(-6.0 * s));
+        let mb4 = self.a4.as_ref().unwrap() * convert::<f64, T>(2.0_f64.powf(-4.0 * s));
+        let mb6 = self.a6.as_ref().unwrap() * convert::<f64, T>(2.0_f64.powf(-6.0 * s));
 
         let u2 = &mb6 * (&mb6 * b[13].clone() + &mb4 * b[11].clone() + &mb2 * b[9].clone());
         let u = &mb
@@ -396,7 +398,7 @@ fn factorial(n: usize) -> u128 {
 /// Compute the 1-norm of a non-negative integer power of a non-negative matrix.
 fn onenorm_matrix_power_nonm<T, D>(a: &OMatrix<T, D, D>, p: usize) -> T
 where
-    T: RealField,
+    T: ComplexField + Float + RealField,
     D: Dim,
     DefaultAllocator: Allocator<D, D> + Allocator<D>,
 {
@@ -414,6 +416,7 @@ where
 fn ell<T, D>(a: &OMatrix<T, D, D>, m: usize) -> u64
 where
     T: ComplexField,
+    T::RealField: Float,
     D: Dim,
     DefaultAllocator: Allocator<D, D> + Allocator<D> + Allocator<D> + Allocator<D, D>,
 {
@@ -474,6 +477,7 @@ where
 
 impl<T: ComplexField, D> OMatrix<T, D, D>
 where
+    T::RealField: Float,
     D: DimMin<D, Output = D>,
     DefaultAllocator: Allocator<D, D>
         + Allocator<DimMinimum<D, D>>
@@ -483,27 +487,30 @@ where
 {
     /// Computes exponential of this matrix
     #[must_use]
-    pub fn exp(&self) -> Self {
+    pub fn exp(&self) -> Self
+        where 
+            T: Float + RealField + ComplexField,
+     {
         // Simple case
         if self.nrows() == 1 {
-            return self.map(|v| v.exp());
+            return self.map(|v| <T as ComplexField>::exp(v));
         }
 
         let mut helper = ExpmPadeHelper::new(self.clone(), true);
 
-        let eta_1 = T::RealField::max(helper.d4_loose(), helper.d6_loose());
+        let eta_1 = <T as RealField>::max(helper.d4_loose(), helper.d6_loose());
         if eta_1 < convert(1.495_585_217_958_292e-2) && ell(&helper.a, 3) == 0 {
             let (u, v) = helper.pade3();
             return solve_p_q(u, v);
         }
 
-        let eta_2 = T::RealField::max(helper.d4_tight(), helper.d6_loose());
+        let eta_2 = <T as RealField>::max(helper.d4_tight(), helper.d6_loose());
         if eta_2 < convert(2.539_398_330_063_23e-1) && ell(&helper.a, 5) == 0 {
             let (u, v) = helper.pade5();
             return solve_p_q(u, v);
         }
 
-        let eta_3 = T::RealField::max(helper.d6_tight(), helper.d8_loose());
+        let eta_3 = <T as RealField>::max(helper.d6_tight(), helper.d8_loose());
         if eta_3 < convert(9.504_178_996_162_932e-1) && ell(&helper.a, 7) == 0 {
             let (u, v) = helper.pade7();
             return solve_p_q(u, v);
@@ -513,14 +520,14 @@ where
             return solve_p_q(u, v);
         }
 
-        let eta_4 = T::RealField::max(helper.d8_loose(), helper.d10_loose());
-        let eta_5 = T::RealField::min(eta_3, eta_4);
+        let eta_4 = <T as RealField>::max(helper.d8_loose(), helper.d10_loose());
+        let eta_5 = <T as RealField>::min(eta_3, eta_4);
         let theta_13 = convert(4.25);
 
         let mut s = if eta_5 == T::RealField::zero() {
             0
         } else {
-            let l2 = try_convert::<_, f64>((eta_5 / theta_13).log2().ceil()).unwrap();
+            let l2 = try_convert::<_, f64>(<T as ComplexField>::log2(eta_5 / theta_13)).unwrap().ceil();
 
             if l2 < 0.0 { 0 } else { l2 as u64 }
         };

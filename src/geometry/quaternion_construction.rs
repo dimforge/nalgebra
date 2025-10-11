@@ -11,7 +11,7 @@ use rand::{
     distr::{Distribution, OpenClosed01, StandardUniform, Uniform, uniform::SampleUniform},
 };
 
-use num::{One, Zero};
+use num::{Float, One, Zero};
 
 use simba::scalar::{RealField, SupersetOf};
 use simba::simd::SimdBool;
@@ -830,7 +830,7 @@ where
     #[inline]
     pub fn mean_of(unit_quaternions: impl IntoIterator<Item = Self>) -> Self
     where
-        T: RealField,
+        T: RealField + Float,
     {
         let quaternions_matrix: Matrix4<T> = unit_quaternions
             .into_iter()
