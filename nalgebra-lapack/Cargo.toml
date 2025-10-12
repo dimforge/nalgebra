@@ -4,7 +4,6 @@ version = "0.26.0"
 authors = ["Sébastien Crozet <developer@crozet.re>", "Andrew Straw <strawman@astraw.com>"]
 
 description = "Matrix decompositions using nalgebra matrices and Lapack bindings."
-documentation = "https://www.nalgebra.rs/docs"
 homepage = "https://nalgebra.rs"
 repository = "https://github.com/dimforge/nalgebra"
 readme = "../README.md"
@@ -17,17 +16,22 @@ edition = "2024"
 maintenance = { status = "actively-developed" }
 
 [features]
+default = ["lapack-netlib"]
 serde-serialize = ["serde", "nalgebra/serde-serialize"]
 proptest-support = ["nalgebra/proptest-support"]
 arbitrary = ["nalgebra/arbitrary"]
 slow-tests = []
 
 # For BLAS/LAPACK
-default = ["netlib"]
-openblas = ["lapack-src/openblas"]
-netlib = ["lapack-src/netlib"]
-accelerate = ["lapack-src/accelerate"]
-intel-mkl = ["lapack-src/intel-mkl"]
+lapack-openblas = ["lapack-src/openblas"]
+lapack-netlib = ["lapack-src/netlib"]
+lapack-accelerate = ["lapack-src/accelerate"]
+lapack-mkl = ["lapack-mkl-static-seq"]
+lapack-mkl-static-seq = ["lapack-src/intel-mkl-static-sequential"]
+lapack-mkl-static-par = ["lapack-src/intel-mkl-static-parallel"]
+lapack-mkl-dynamic-seq = ["lapack-src/intel-mkl-dynamic-sequential"]
+lapack-mkl-dynamic-par = ["lapack-src/intel-mkl-dynamic-parallel"]
+lapack-custom = []
 
 [dependencies]
 nalgebra = { version = "0.34", path = ".." }
@@ -35,8 +39,9 @@ num-traits = "0.2"
 num-complex = { version = "0.4", default-features = false }
 simba = "0.9"
 serde = { version = "1.0", features = ["derive"], optional = true }
-lapack = { version = "0.19", default-features = false }
-lapack-src = { version = "0.8", default-features = false }
+lapack = { version = "0.20", default-features = false }
+lapack-src = { version = "0.13", optional = true}
+thiserror = "1.0"
 # clippy = "*"
 
 [dev-dependencies]
@@ -45,4 +50,3 @@ proptest = { version = "1", default-features = false, features = ["std"] }
 quickcheck = "1"
 approx = "0.5"
 rand = "0.8"
-
