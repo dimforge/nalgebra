@@ -311,25 +311,25 @@ pub fn partial_cmp<T: PartialOrd>(a: &T, b: &T) -> Option<Ordering> {
     a.partial_cmp(b)
 }
 
-/// Returns `true` iff `a` and `b` are comparable and `a < b`.
+/// Returns `true` if `a` and `b` are comparable and `a < b`.
 #[inline]
 pub fn partial_lt<T: PartialOrd>(a: &T, b: &T) -> bool {
     a.lt(b)
 }
 
-/// Returns `true` iff `a` and `b` are comparable and `a <= b`.
+/// Returns `true` if `a` and `b` are comparable and `a <= b`.
 #[inline]
 pub fn partial_le<T: PartialOrd>(a: &T, b: &T) -> bool {
     a.le(b)
 }
 
-/// Returns `true` iff `a` and `b` are comparable and `a > b`.
+/// Returns `true` if `a` and `b` are comparable and `a > b`.
 #[inline]
 pub fn partial_gt<T: PartialOrd>(a: &T, b: &T) -> bool {
     a.gt(b)
 }
 
-/// Returns `true` iff `a` and `b` are comparable and `a >= b`.
+/// Returns `true` if `a` and `b` are comparable and `a >= b`.
 #[inline]
 pub fn partial_ge<T: PartialOrd>(a: &T, b: &T) -> bool {
     a.ge(b)
