@@ -1,4 +1,5 @@
 mod cholesky;
+mod colpiv_qr;
 mod complex_eigen;
 mod generalized_eigenvalues;
 mod lu;

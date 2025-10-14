@@ -5,18 +5,8 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased
-
-### Added
-
-
-
-### Changed
-
-
-### Fixed
-
-- Overhauled benchmark suite to prevent compiler from optimizing out benches, see [#1549](https://github.com/dimforge/nalgebra/pull/1549)
+**nalgebra-lapack change log** is found [here](https://github.com/dimforge/nalgebra/blob/main/nalgebra-lapack/CHANGELOG.md)
+starting with `nalgebra-lapack` version `0.27.0`.
 
 ## [0.34.1] (20 Sept. 2025)
 
