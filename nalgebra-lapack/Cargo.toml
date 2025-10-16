@@ -23,14 +23,14 @@ arbitrary = ["nalgebra/arbitrary"]
 slow-tests = []
 
 # For BLAS/LAPACK
-lapack-openblas = ["lapack-src/openblas"]
-lapack-netlib = ["lapack-src/netlib"]
-lapack-accelerate = ["lapack-src/accelerate"]
-lapack-mkl = ["lapack-mkl-static-seq"]
-lapack-mkl-static-seq = ["lapack-src/intel-mkl-static-sequential"]
-lapack-mkl-static-par = ["lapack-src/intel-mkl-static-parallel"]
-lapack-mkl-dynamic-seq = ["lapack-src/intel-mkl-dynamic-sequential"]
-lapack-mkl-dynamic-par = ["lapack-src/intel-mkl-dynamic-parallel"]
+lapack-openblas = ["lapack-src/openblas", "blas-src/openblas"]
+lapack-netlib = ["lapack-src/netlib", "blas-src/netlib"]
+lapack-accelerate = ["lapack-src/accelerate", "blas-src/accelerate"]
+lapack-mkl = ["lapack-mkl-static-seq", "lapack-mkl-static-seq"]
+lapack-mkl-static-seq = ["lapack-src/intel-mkl-static-sequential", "blas-src/intel-mkl-static-sequential"]
+lapack-mkl-static-par = ["lapack-src/intel-mkl-static-parallel", "blas-src/intel-mkl-static-parallel"]
+lapack-mkl-dynamic-seq = ["lapack-src/intel-mkl-dynamic-sequential", "blas-src/intel-mkl-dynamic-sequential"]
+lapack-mkl-dynamic-par = ["lapack-src/intel-mkl-dynamic-parallel", "blas-src/intel-mkl-dynamic-parallel"]
 lapack-custom = []
 
 [dependencies]
@@ -40,9 +40,9 @@ num-complex = { version = "0.4", default-features = false }
 simba = "0.9"
 serde = { version = "1.0", features = ["derive"], optional = true }
 lapack = { version = "0.20", default-features = false }
-lapack-src = { version = "0.13", optional = true}
+lapack-src = { version = "0.13", optional = true }
+blas-src = { version = "0.14", optional = true }
 thiserror = "1.0"
-# clippy = "*"
 
 [dev-dependencies]
 nalgebra = { version = "0.34", features = ["arbitrary", "rand"], path = ".." }
