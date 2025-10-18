@@ -1,5 +1,5 @@
 use crate::{
-    Side, Transposition,
+    DiagonalKind, Side, Transposition, TriangularStructure,
     colpiv_qr::{ColPivQrReal, error::LapackErrorCode},
 };
 use na::{
@@ -7,12 +7,21 @@ use na::{
 };
 use num::Zero;
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, PartialEq, thiserror::Error)]
+/// error type
 pub enum Error {
     #[error("incorrect matrix dimensions")]
+    /// incorrect matrix dims
     Dimensions,
     #[error("Lapack returned with error: {0}")]
+    /// lapack backend returned error
     Lapack(#[from] LapackErrorCode),
+    #[error("QR decomposition for underdetermined systems not supported")]
+    /// underdetermined system
+    Underdetermined,
+    #[error("Matrix has rank zero")]
+    /// matrix has zero rank
+    ZeroRank,
 }
 
 /// Thin wrapper around certain invokation of `multiply_q_mut`, where:
@@ -149,6 +158,86 @@ where
     }
     // SAFETY: matrix has the correct dimensions for operation B Q^T
     unsafe { multiply_q_mut(qr, tau, b, Side::Right, Transposition::Transpose)? }
+    Ok(())
+}
+
+/// this factors out solving a the A X = B in a least squares sense, given a
+/// lapack qr decomposition of matrix A (in qr, tau). This also needs an explicit
+/// rank for the matrix, which should be set to full rank for unpivoted QR.
+///
+/// This solver does not do the final row permutation necessary for col-pivoted
+/// qr. For unpivoted QR, no extra permutation is necessary anyways.
+pub(crate) fn qr_solve_mut_with_rank_unpermuted<T, R1, C1, S1, C2: Dim, S3, S2, S4>(
+    qr: &Matrix<T, R1, C1, S1>,
+    tau: &Vector<T, DimMinimum<R1, C1>, S4>,
+    rank: u16,
+    x: &mut Matrix<T, C1, C2, S2>,
+    mut b: Matrix<T, R1, C2, S3>,
+) -> Result<(), Error>
+where
+    T: ColPivQrReal + Zero + RealField,
+    R1: DimMin<C1>,
+    C1: Dim,
+    S1: RawStorage<T, R1, C1> + IsContiguous,
+    S3: RawStorageMut<T, R1, C2> + IsContiguous,
+    S2: RawStorageMut<T, C1, C2> + IsContiguous,
+    S4: RawStorage<T, <R1 as DimMin<C1>>::Output> + IsContiguous,
+{
+    if b.nrows() != qr.nrows() {
+        return Err(Error::Dimensions);
+    }
+
+    if qr.nrows() < qr.ncols() || qr.nrows() == 0 || qr.ncols() == 0 {
+        return Err(Error::Underdetermined);
+    }
+
+    if x.ncols() != b.ncols() || x.nrows() != qr.ncols() {
+        return Err(Error::Dimensions);
+    }
+
+    q_tr_mul_mut(qr, tau, &mut b)?;
+
+    if rank == 0 {
+        return Err(Error::ZeroRank);
+    }
+
+    debug_assert!(rank as usize <= qr.ncols().min(qr.nrows()));
+
+    if (rank as usize) < qr.ncols() {
+        x.view_mut((rank as usize, 0), (x.nrows() - rank as usize, x.ncols()))
+            .iter_mut()
+            .for_each(|val| val.set_zero());
+    }
+
+    let x_cols = x.ncols();
+    x.view_mut((0, 0), (rank as usize, x_cols))
+        .copy_from(&b.view((0, 0), (rank as usize, x_cols)));
+
+    let ldb: i32 = x
+        .nrows()
+        .try_into()
+        .expect("integer dimensions out of bounds");
+
+    // SAFETY: input and dimensions according to lapack spec, see
+    // https://www.netlib.org/lapack/explore-html/d4/dc1/group__trtrs_gab0b6a7438a7eb98fe2ab28e6c4d84b21.html#gab0b6a7438a7eb98fe2ab28e6c4d84b21
+    unsafe {
+        T::xtrtrs(
+            TriangularStructure::Upper,
+            Transposition::No,
+            DiagonalKind::NonUnit,
+            rank.try_into().expect("rank out of bounds"),
+            x.ncols()
+                .try_into()
+                .expect("integer dimensions out of bounds"),
+            qr.as_slice(),
+            qr.nrows()
+                .try_into()
+                .expect("integer dimensions out of bounds"),
+            x.as_mut_slice(),
+            ldb,
+        )?;
+    }
+
     Ok(())
 }
 

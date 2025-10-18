@@ -238,69 +238,15 @@ where
     pub fn solve_mut<C2: Dim, S, S2>(
         &self,
         x: &mut Matrix<T, C, C2, S2>,
-        mut b: Matrix<T, R, C2, S>,
+        b: Matrix<T, R, C2, S>,
     ) -> Result<(), Error>
     where
         S: RawStorageMut<T, R, C2> + IsContiguous,
         S2: RawStorageMut<T, C, C2> + IsContiguous,
         T: Zero,
     {
-        if b.nrows() != self.nrows() {
-            return Err(Error::Dimensions);
-        }
-
-        if self.nrows() < self.ncols() || self.nrows() == 0 || self.ncols() == 0 {
-            return Err(Error::Underdetermined);
-        }
-
-        if x.ncols() != b.ncols() || x.nrows() != self.ncols() {
-            return Err(Error::Dimensions);
-        }
-
-        self.q_tr_mul_mut(&mut b)?;
-
         let rank = self.rank();
-
-        if rank == 0 {
-            return Err(Error::ZeroRank);
-        }
-
-        if (rank as usize) < self.ncols() {
-            x.view_mut((rank as usize, 0), (x.nrows() - rank as usize, x.ncols()))
-                .iter_mut()
-                .for_each(|val| val.set_zero());
-        }
-
-        let x_cols = x.ncols();
-        x.view_mut((0, 0), (rank as usize, x_cols))
-            .copy_from(&b.view((0, 0), (rank as usize, x_cols)));
-
-        let ldb: i32 = x
-            .nrows()
-            .try_into()
-            .expect("integer dimensions out of bounds");
-
-        // SAFETY: input and dimensions according to lapack spec, see
-        // https://www.netlib.org/lapack/explore-html/d4/dc1/group__trtrs_gab0b6a7438a7eb98fe2ab28e6c4d84b21.html#gab0b6a7438a7eb98fe2ab28e6c4d84b21
-        unsafe {
-            T::xtrtrs(
-                TriangularStructure::Upper,
-                Transposition::No,
-                DiagonalKind::NonUnit,
-                rank.try_into().expect("rank out of bounds"),
-                x.ncols()
-                    .try_into()
-                    .expect("integer dimensions out of bounds"),
-                self.qr.as_slice(),
-                self.qr
-                    .nrows()
-                    .try_into()
-                    .expect("integer dimensions out of bounds"),
-                x.as_mut_slice(),
-                ldb,
-            )?;
-        }
-
+        qr_util::qr_solve_mut_with_rank_unpermuted(&self.qr, &self.tau, rank, x, b)?;
         self.p().permute_rows_mut(x)?;
         Ok(())
     }

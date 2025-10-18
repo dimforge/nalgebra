@@ -1,30 +1,6 @@
 use crate::qr_util;
 
-#[derive(Debug, PartialEq, thiserror::Error)]
-/// error cases during QR decomposition and linear system solving
-pub enum Error {
-    #[error("Error in lapack backend (code: {0})")]
-    /// error in the lapack backend
-    Backend(#[from] LapackErrorCode),
-    #[error("Wrong matrix dimensions")]
-    /// wrong dimensions for a matrix operation
-    Dimensions,
-    #[error("QR decomposition for underdetermined systems not supported")]
-    /// underdetermined system
-    Underdetermined,
-    #[error("Matrix has rank zero")]
-    /// matrix has zero rank
-    ZeroRank,
-}
-
-impl From<qr_util::Error> for Error {
-    fn from(error: qr_util::Error) -> Self {
-        match error {
-            qr_util::Error::Dimensions => Self::Dimensions,
-            qr_util::Error::Lapack(lapack_error_code) => Self::Backend(lapack_error_code),
-        }
-    }
-}
+pub use qr_util::Error;
 
 /// newtype for a lapack error code
 #[derive(Debug, Copy, Clone, PartialEq, Eq, thiserror::Error)]
