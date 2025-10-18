@@ -1,4 +1,4 @@
-use super::qr::{QRReal, QrScalar};
+use super::qr::{QrReal, QrScalar};
 use crate::sealed::Sealed;
 use crate::{ComplexHelper, DiagonalKind, Side, Transposition, TriangularStructure, qr_util};
 use crate::{LapackErrorCode, lapack_error::check_lapack_info};
@@ -283,7 +283,6 @@ where
             .generic_view((0, 0), (nrows, min_nrows_ncols))
             .into_owned();
 
-        let mut info = 0;
         let nrows = nrows.value() as i32;
 
         let lwork = T::xorgqr_work_size(
@@ -293,10 +292,8 @@ where
             q.as_mut_slice(),
             nrows,
             self.tau.as_slice(),
-            &mut info,
-        );
-
-        assert_eq!(check_lapack_info(info), Ok(()), "error in lapack backend");
+        )
+        .expect("unexpected error in lapack backend");
 
         let mut work = vec![T::zero(); lwork as usize];
 
@@ -309,10 +306,8 @@ where
             self.tau.as_slice(),
             &mut work,
             lwork,
-            &mut info,
-        );
-
-        assert_eq!(check_lapack_info(info), Ok(()), "error in lapack backend");
+        )
+        .expect("unexpected error in lapack backend");
 
         q
     }
@@ -522,7 +517,7 @@ colpiv_qr_scalar_impl!(
 // without pivoting. I'm not 100% sure that we can't abstract over real and
 // complex behavior in the scalar trait, but I'll keep it like this for now.
 #[allow(missing_docs)]
-pub trait ColPivQrReal: ColPivQrScalar + QRReal {
+pub trait ColPivQrReal: ColPivQrScalar + QrReal {
     unsafe fn xormqr(
         side: Side,
         trans: Transposition,
