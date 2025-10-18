@@ -40,7 +40,7 @@ where
 {
 }
 
-impl<T: QRScalar + Zero, R: DimMin<C>, C: Dim> QR<T, R, C>
+impl<T: QrScalar + Zero, R: DimMin<C>, C: Dim> QR<T, R, C>
 where
     DefaultAllocator: Allocator<R, C>
         + Allocator<R, DimMinimum<R, C>>
@@ -164,7 +164,7 @@ where
 /// Trait implemented by scalar types for which Lapack function exist to compute the
 /// QR decomposition.
 #[allow(missing_docs)]
-pub trait QRScalar: Scalar + Copy {
+pub trait QrScalar: Scalar + Copy {
     fn xgeqrf(
         m: i32,
         n: i32,
@@ -188,7 +188,7 @@ pub trait QRScalar: Scalar + Copy {
 
 /// Trait implemented by reals for which Lapack function exist to compute the
 /// QR decomposition.
-pub trait QRReal: QRScalar {
+pub trait QRReal: QrScalar {
     #[allow(missing_docs)]
     fn xorgqr(
         m: i32,
@@ -216,7 +216,7 @@ pub trait QRReal: QRScalar {
 
 macro_rules! qr_scalar_impl(
     ($N: ty, $xgeqrf: path) => (
-        impl QRScalar for $N {
+        impl QrScalar for $N {
             #[inline]
             fn xgeqrf(m: i32, n: i32, a: &mut [Self], lda: i32, tau: &mut [Self],
                       work: &mut [Self], lwork: i32, info: &mut i32) {

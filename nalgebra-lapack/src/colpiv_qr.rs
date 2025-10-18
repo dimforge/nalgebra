@@ -1,4 +1,4 @@
-use super::qr::{QRReal, QRScalar};
+use super::qr::{QRReal, QrScalar};
 use crate::sealed::Sealed;
 use crate::{ComplexHelper, DiagonalKind, Side, Transposition, TriangularStructure, qr_util};
 use error::Error;
@@ -339,7 +339,7 @@ where
 /// Utility trait to add a thin abstraction layer over lapack functionality for
 /// column pivoted QR decomposition.
 #[allow(missing_docs)]
-pub trait ColPivQrScalar: ComplexField + QRScalar + Sealed {
+pub trait ColPivQrScalar: ComplexField + QrScalar + Sealed {
     /// routine for column pivoting QR decomposition using level 3 BLAS,
     /// see <https://www.netlib.org/lapack/lug/node42.html>
     /// or <https://www.intel.com/content/www/us/en/docs/onemkl/developer-reference-c/2023-0/geqp3.html>
