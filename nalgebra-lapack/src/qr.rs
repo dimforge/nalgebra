@@ -1,4 +1,4 @@
-use crate::{ComplexHelper, DiagonalKind, Side, Transposition, TriangularStructure, qr_util};
+use crate::{ComplexHelper, DiagonalKind, Side, Transposition, TriangularStructure};
 use crate::{LapackErrorCode, lapack_error::check_lapack_info};
 use lapack;
 use na::allocator::Allocator;
@@ -244,32 +244,6 @@ pub trait QrScalar: ComplexField + Scalar + Copy {
     ) -> Result<(), LapackErrorCode>;
 }
 
-/// Trait implemented by reals for which Lapack function exist to compute the
-/// QR decomposition.
-pub trait QrReal: QrScalar {
-    #[allow(missing_docs)]
-    unsafe fn xorgqr(
-        m: i32,
-        n: i32,
-        k: i32,
-        a: &mut [Self],
-        lda: i32,
-        tau: &[Self],
-        work: &mut [Self],
-        lwork: i32,
-    ) -> Result<(), LapackErrorCode>;
-
-    #[allow(missing_docs)]
-    unsafe fn xorgqr_work_size(
-        m: i32,
-        n: i32,
-        k: i32,
-        a: &mut [Self],
-        lda: i32,
-        tau: &[Self],
-    ) -> Result<i32, LapackErrorCode>;
-}
-
 macro_rules! qr_scalar_impl(
     ($type:ty,
         xgeqrf = $xgeqrf: path,
@@ -398,8 +372,64 @@ macro_rules! qr_scalar_impl(
     )
 );
 
+/// Trait implemented by reals for which Lapack function exist to compute the
+/// QR decomposition.
+pub trait QrReal: QrScalar {
+    #[allow(missing_docs)]
+    unsafe fn xorgqr(
+        m: i32,
+        n: i32,
+        k: i32,
+        a: &mut [Self],
+        lda: i32,
+        tau: &[Self],
+        work: &mut [Self],
+        lwork: i32,
+    ) -> Result<(), LapackErrorCode>;
+
+    #[allow(missing_docs)]
+    unsafe fn xorgqr_work_size(
+        m: i32,
+        n: i32,
+        k: i32,
+        a: &mut [Self],
+        lda: i32,
+        tau: &[Self],
+    ) -> Result<i32, LapackErrorCode>;
+
+    #[allow(missing_docs)]
+    unsafe fn xormqr(
+        side: Side,
+        trans: Transposition,
+        m: i32,
+        n: i32,
+        k: i32,
+        a: &[Self],
+        lda: i32,
+        tau: &[Self],
+        c: &mut [Self],
+        ldc: i32,
+        work: &mut [Self],
+        lwork: i32,
+    ) -> Result<(), LapackErrorCode>;
+
+    #[allow(missing_docs)]
+    unsafe fn xormqr_work_size(
+        side: Side,
+        trans: Transposition,
+        m: i32,
+        n: i32,
+        k: i32,
+        a: &[Self],
+        lda: i32,
+        tau: &[Self],
+        c: &mut [Self],
+        ldc: i32,
+    ) -> Result<i32, LapackErrorCode>;
+}
+
 macro_rules! qr_real_impl(
-    ($type:ty, xorgqr = $xorgqr:path) => (
+    ($type:ty, xorgqr = $xorgqr:path, xormqr = $xormqr:path) => (
         impl QrReal for $type {
             #[inline]
             unsafe fn xorgqr(m: i32, n: i32, k: i32, a: &mut [Self], lda: i32, tau: &[Self],
@@ -417,6 +447,70 @@ macro_rules! qr_real_impl(
 
                 unsafe { $xorgqr(m, n, k, a, lda, tau, &mut work, lwork, &mut info); }
                 check_lapack_info(info)?;
+                Ok(ComplexHelper::real_part(work[0]) as i32)
+            }
+
+            unsafe fn xormqr(
+                side: Side,
+                trans: Transposition,
+                m: i32,
+                n: i32,
+                k: i32,
+                a: &[Self],
+                lda: i32,
+                tau: &[Self],
+                c: &mut [Self],
+                ldc: i32,
+                work: &mut [Self],
+                lwork: i32,
+            ) -> Result<(), LapackErrorCode> {
+                let mut info = 0;
+                let side = side.into_lapack_side_character();
+
+                // this would be different for complex numbers!
+                let trans = match trans {
+                    Transposition::No => b'N',
+                    Transposition::Transpose => b'T',
+                };
+
+                unsafe {
+                    $xormqr(
+                        side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, &mut info,
+                    );
+                }
+                check_lapack_info(info)
+            }
+
+            unsafe fn xormqr_work_size(
+                side: Side,
+                trans: Transposition,
+                m: i32,
+                n: i32,
+                k: i32,
+                a: &[Self],
+                lda: i32,
+                tau: &[Self],
+                c: &mut [Self],
+                ldc: i32,
+            ) -> Result<i32, LapackErrorCode> {
+                let mut info = 0;
+                let side = side.into_lapack_side_character();
+
+                // this would be different for complex numbers!
+                let trans = match trans {
+                    Transposition::No => b'N',
+                    Transposition::Transpose => b'T',
+                };
+
+                let mut work = [Zero::zero()];
+                let lwork = -1 as i32;
+                unsafe {
+                    $xormqr(
+                        side, trans, m, n, k, a, lda, tau, c, ldc, &mut work, lwork, &mut info,
+                    );
+                }
+                check_lapack_info(info)?;
+                // for complex numbers: real part
                 Ok(ComplexHelper::real_part(work[0]) as i32)
             }
         }
@@ -444,5 +538,5 @@ qr_scalar_impl!(
 // qr_scalar_impl!(Complex<f32>, lapack::cgeqrf);
 // qr_scalar_impl!(Complex<f64>, lapack::zgeqrf);
 
-qr_real_impl!(f32, xorgqr = lapack::sorgqr);
-qr_real_impl!(f64, xorgqr = lapack::dorgqr);
+qr_real_impl!(f32, xorgqr = lapack::sorgqr, xormqr = lapack::sormqr);
+qr_real_impl!(f64, xorgqr = lapack::dorgqr, xormqr = lapack::dormqr);

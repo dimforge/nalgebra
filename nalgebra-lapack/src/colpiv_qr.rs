@@ -1,7 +1,5 @@
 use super::qr::{QrReal, QrScalar};
-use crate::sealed::Sealed;
-use crate::{ComplexHelper, DiagonalKind, Side, Transposition, TriangularStructure, qr_util};
-use crate::{LapackErrorCode, lapack_error::check_lapack_info};
+use crate::{DiagonalKind, Side, TriangularStructure, qr_util};
 use na::{ComplexField, Const, IsContiguous, Matrix, OVector, RealField, Storage, Vector};
 use nalgebra::storage::RawStorageMut;
 use nalgebra::{DefaultAllocator, Dim, DimMin, DimMinimum, OMatrix, Scalar, allocator::Allocator};
@@ -153,7 +151,7 @@ where
 impl<T, R, C> ColPivQR<T, R, C>
 where
     DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>> + Allocator<C>,
-    T: ColPivQrReal + Zero + RealField,
+    T: QrReal + Zero + RealField,
     R: DimMin<C>,
     C: Dim,
 {
@@ -269,7 +267,7 @@ where
     pub fn q(&self) -> OMatrix<T, R, DimMinimum<R, C>>
     where
         DefaultAllocator: Allocator<R, <R as DimMin<C>>::Output>,
-        T: ColPivQrReal + Zero + ComplexField,
+        T: QrReal + Zero + ComplexField,
     {
         let (nrows, ncols) = self.qr.shape_generic();
         let min_nrows_ncols = nrows.min(ncols);
@@ -331,115 +329,3 @@ where
         m.upper_triangle()
     }
 }
-
-/// Trait implemented by reals for which Lapack function exist to compute the
-/// column-pivoted QR decomposition.
-// @note(geo-ant) This mirrors the behavior in the existing QR implementation
-// without pivoting. I'm not 100% sure that we can't abstract over real and
-// complex behavior in the scalar trait, but I'll keep it like this for now.
-#[allow(missing_docs)]
-pub trait ColPivQrReal: QrReal {
-    unsafe fn xormqr(
-        side: Side,
-        trans: Transposition,
-        m: i32,
-        n: i32,
-        k: i32,
-        a: &[Self],
-        lda: i32,
-        tau: &[Self],
-        c: &mut [Self],
-        ldc: i32,
-        work: &mut [Self],
-        lwork: i32,
-    ) -> Result<(), LapackErrorCode>;
-
-    unsafe fn xormqr_work_size(
-        side: Side,
-        trans: Transposition,
-        m: i32,
-        n: i32,
-        k: i32,
-        a: &[Self],
-        lda: i32,
-        tau: &[Self],
-        c: &mut [Self],
-        ldc: i32,
-    ) -> Result<i32, LapackErrorCode>;
-}
-
-macro_rules! colpiv_qr_real_impl {
-    (
-        $type:ty,
-        xormqr = $xormqr:path $(,)?
-    ) => {
-        impl ColPivQrReal for $type {
-            unsafe fn xormqr(
-                side: Side,
-                trans: Transposition,
-                m: i32,
-                n: i32,
-                k: i32,
-                a: &[Self],
-                lda: i32,
-                tau: &[Self],
-                c: &mut [Self],
-                ldc: i32,
-                work: &mut [Self],
-                lwork: i32,
-            ) -> Result<(), LapackErrorCode> {
-                let mut info = 0;
-                let side = side.into_lapack_side_character();
-
-                // this would be different for complex numbers!
-                let trans = match trans {
-                    Transposition::No => b'N',
-                    Transposition::Transpose => b'T',
-                };
-
-                unsafe {
-                    $xormqr(
-                        side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, &mut info,
-                    );
-                }
-                check_lapack_info(info)
-            }
-
-            unsafe fn xormqr_work_size(
-                side: Side,
-                trans: Transposition,
-                m: i32,
-                n: i32,
-                k: i32,
-                a: &[Self],
-                lda: i32,
-                tau: &[Self],
-                c: &mut [Self],
-                ldc: i32,
-            ) -> Result<i32, LapackErrorCode> {
-                let mut info = 0;
-                let side = side.into_lapack_side_character();
-
-                // this would be different for complex numbers!
-                let trans = match trans {
-                    Transposition::No => b'N',
-                    Transposition::Transpose => b'T',
-                };
-
-                let mut work = [Zero::zero()];
-                let lwork = -1 as i32;
-                unsafe {
-                    $xormqr(
-                        side, trans, m, n, k, a, lda, tau, c, ldc, &mut work, lwork, &mut info,
-                    );
-                }
-                check_lapack_info(info)?;
-                // for complex numbers: real part
-                Ok(ComplexHelper::real_part(work[0]) as i32)
-            }
-        }
-    };
-}
-
-colpiv_qr_real_impl!(f32, xormqr = lapack::sormqr);
-colpiv_qr_real_impl!(f64, xormqr = lapack::dormqr);

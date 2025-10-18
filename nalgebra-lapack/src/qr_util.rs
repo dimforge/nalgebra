@@ -1,7 +1,4 @@
-use crate::{
-    DiagonalKind, LapackErrorCode, Side, Transposition, TriangularStructure,
-    colpiv_qr::ColPivQrReal,
-};
+use crate::{DiagonalKind, LapackErrorCode, Side, Transposition, TriangularStructure, qr::QrReal};
 use na::{
     Dim, DimMin, DimMinimum, IsContiguous, Matrix, RawStorage, RawStorageMut, RealField, Vector,
 };
@@ -39,7 +36,7 @@ pub(crate) fn q_mul_mut<T, R1, C1, S1, C2, S2, S3>(
     b: &mut Matrix<T, R1, C2, S2>,
 ) -> Result<(), Error>
 where
-    T: ColPivQrReal + Zero + RealField,
+    T: QrReal + Zero + RealField,
     R1: DimMin<C1>,
     C1: Dim,
     S1: RawStorage<T, R1, C1> + IsContiguous,
@@ -73,7 +70,7 @@ pub(crate) fn q_tr_mul_mut<T, R1, C1, S1, C2, S2, S3>(
     b: &mut Matrix<T, R1, C2, S2>,
 ) -> Result<(), Error>
 where
-    T: ColPivQrReal + Zero + RealField,
+    T: QrReal + Zero + RealField,
     R1: DimMin<C1>,
     C1: Dim,
     S1: RawStorage<T, R1, C1> + IsContiguous,
@@ -108,7 +105,7 @@ pub(crate) fn mul_q_mut<T, R1, C1, S1, R2, S2, S3>(
     b: &mut Matrix<T, R2, R1, S2>,
 ) -> Result<(), Error>
 where
-    T: ColPivQrReal + Zero + RealField,
+    T: QrReal + Zero + RealField,
     R1: DimMin<C1>,
     C1: Dim,
     S1: RawStorage<T, R1, C1> + IsContiguous,
@@ -142,7 +139,7 @@ pub(crate) fn mul_q_tr_mut<T, R1, C1, S1, R2, S2, S3>(
     b: &mut Matrix<T, R2, R1, S2>,
 ) -> Result<(), Error>
 where
-    T: ColPivQrReal + Zero + RealField,
+    T: QrReal + Zero + RealField,
     R1: DimMin<C1>,
     C1: Dim,
     S1: RawStorage<T, R1, C1> + IsContiguous,
@@ -175,7 +172,7 @@ pub(crate) fn qr_solve_mut_with_rank_unpermuted<T, R1, C1, S1, C2: Dim, S3, S2, 
     mut b: Matrix<T, R1, C2, S3>,
 ) -> Result<(), Error>
 where
-    T: ColPivQrReal + Zero + RealField,
+    T: QrReal + Zero + RealField,
     R1: DimMin<C1>,
     C1: Dim,
     S1: RawStorage<T, R1, C1> + IsContiguous,
@@ -260,7 +257,7 @@ unsafe fn multiply_q_mut<T, R1, C1, S1, R2, C2, S2, S3>(
     transpose: Transposition,
 ) -> Result<(), LapackErrorCode>
 where
-    T: ColPivQrReal,
+    T: QrReal,
     R1: DimMin<C1>,
     C1: Dim,
     S2: RawStorageMut<T, R2, C2> + IsContiguous,

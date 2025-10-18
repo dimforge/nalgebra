@@ -1,4 +1,5 @@
 #[doc(hidden)]
+#[allow(dead_code)]
 /// helps to seal traits to this crate
 pub trait Sealed {}
 
