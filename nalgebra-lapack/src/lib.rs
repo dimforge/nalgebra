@@ -148,13 +148,17 @@ use num_complex::Complex;
 /// utility module that defines some common terms that lapack uses
 mod lapack_terminology;
 
+/// utility module for lapack error codes and error checking
+mod lapack_error;
+
+pub use lapack_error::LapackErrorCode;
 pub use lapack_terminology::DiagonalKind;
 pub use lapack_terminology::Side;
 pub use lapack_terminology::Transposition;
 pub use lapack_terminology::TriangularStructure;
 
 pub use self::cholesky::{Cholesky, CholeskyScalar};
-pub use self::colpiv_qr::{ColPivQR, error::Error as ColPivQrError};
+pub use self::colpiv_qr::ColPivQR;
 pub use self::eigen::Eigen;
 pub use self::generalized_eigenvalues::GeneralizedEigen;
 pub use self::hessenberg::Hessenberg;

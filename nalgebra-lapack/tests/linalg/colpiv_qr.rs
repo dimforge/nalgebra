@@ -95,7 +95,7 @@ proptest! {
             },
             Err(err) => {
                 prop_assert!(rank == 0);
-                prop_assert!(err == nl::ColPivQrError::ZeroRank);
+                prop_assert!(err == nl::colpiv_qr::Error::ZeroRank);
             },
         }
     }
@@ -115,7 +115,7 @@ proptest! {
             },
             Err(err) => {
                 prop_assert!(rank == 0);
-                prop_assert!(err == nl::ColPivQrError::ZeroRank);
+                prop_assert!(err == nl::colpiv_qr::Error::ZeroRank);
             },
         }
     }

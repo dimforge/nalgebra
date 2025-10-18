@@ -1,8 +1,7 @@
 use super::qr::{QRReal, QrScalar};
 use crate::sealed::Sealed;
 use crate::{ComplexHelper, DiagonalKind, Side, Transposition, TriangularStructure, qr_util};
-use error::Error;
-use error::{LapackErrorCode, check_lapack_info};
+use crate::{LapackErrorCode, lapack_error::check_lapack_info};
 use na::{ComplexField, Const, IsContiguous, Matrix, OVector, RealField, Storage, Vector};
 use nalgebra::storage::RawStorageMut;
 use nalgebra::{DefaultAllocator, Dim, DimMin, DimMinimum, OMatrix, Scalar, allocator::Allocator};
@@ -10,9 +9,7 @@ use num::float::TotalOrder;
 use num::{Float, Zero};
 use rank::{RankDeterminationAlgorithm, calculate_rank};
 
-/// error type for the column pivoting QR decomposition
-pub mod error;
-
+pub use qr_util::Error;
 mod permutation;
 #[cfg(test)]
 mod test;

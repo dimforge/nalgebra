@@ -1,6 +1,6 @@
 use crate::{
-    DiagonalKind, Side, Transposition, TriangularStructure,
-    colpiv_qr::{ColPivQrReal, error::LapackErrorCode},
+    DiagonalKind, LapackErrorCode, Side, Transposition, TriangularStructure,
+    colpiv_qr::ColPivQrReal,
 };
 use na::{
     Dim, DimMin, DimMinimum, IsContiguous, Matrix, RawStorage, RawStorageMut, RealField, Vector,
