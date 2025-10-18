@@ -309,13 +309,17 @@ where
 /// left. The ?TRMM functions also allow scaling with a factor alpha, which
 /// we always set to 1 and they allow the matrix to be upper or lower triangular,
 /// we always use upper triangular.
+///
+/// # Safety
+///
+/// The dimensions of the matrices must be correct such that the multiplication
+/// can be performed.
 #[inline]
-unsafe fn multiply_r_mut<T, R1, C1, S1, R2, C2, S2, S3>(
-    qr: &Matrix<T, R1, C1, S1>,
-    tau: &Vector<T, DimMinimum<R1, C1>, S3>,
-    mat: &mut Matrix<T, R2, C2, S2>,
+unsafe fn multiply_r_mut<T, R1, C1, S1, R2, C2, S2>(
+    r: &Matrix<T, R1, C1, S1>,
     side: Side,
     transpose: Transposition,
+    mat: &mut Matrix<T, R2, C2, S2>,
 ) -> Result<(), LapackErrorCode>
 where
     T: QrReal,
@@ -325,7 +329,6 @@ where
     R2: Dim,
     C2: Dim,
     S1: IsContiguous + RawStorage<T, R1, C1>,
-    S3: RawStorage<T, <R1 as DimMin<C1>>::Output> + IsContiguous,
 {
     todo!()
 }
