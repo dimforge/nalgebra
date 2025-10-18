@@ -11,7 +11,6 @@ pub use qr_util::Error;
 mod permutation;
 #[cfg(test)]
 mod test;
-mod utility;
 pub use permutation::Permutation;
 /// utility functionality to calculate the rank of matrices
 mod rank;

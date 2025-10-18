@@ -303,3 +303,29 @@ where
     }
     Ok(())
 }
+
+/// thin-ish wrapper around the lapack function [?TRMM](https://www.netlib.org/lapack/explore-html/dd/dab/group__trmm.html)
+/// for multiplying a triangular matrix to another matrix B from the right or
+/// left. The ?TRMM functions also allow scaling with a factor alpha, which
+/// we always set to 1 and they allow the matrix to be upper or lower triangular,
+/// we always use upper triangular.
+#[inline]
+unsafe fn multiply_r_mut<T, R1, C1, S1, R2, C2, S2, S3>(
+    qr: &Matrix<T, R1, C1, S1>,
+    tau: &Vector<T, DimMinimum<R1, C1>, S3>,
+    mat: &mut Matrix<T, R2, C2, S2>,
+    side: Side,
+    transpose: Transposition,
+) -> Result<(), LapackErrorCode>
+where
+    T: QrReal,
+    R1: DimMin<C1>,
+    C1: Dim,
+    S2: RawStorageMut<T, R2, C2> + IsContiguous,
+    R2: Dim,
+    C2: Dim,
+    S1: IsContiguous + RawStorage<T, R1, C1>,
+    S3: RawStorage<T, <R1 as DimMin<C1>>::Output> + IsContiguous,
+{
+    todo!()
+}
