@@ -46,7 +46,7 @@ where
 impl<T, R, C> ColPivQR<T, R, C>
 where
     DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>> + Allocator<C>,
-    T: ColPivQrScalar + Zero + RealField + TotalOrder + Float,
+    T: QrScalar + Zero + RealField + TotalOrder + Float,
     R: DimMin<C>,
     C: Dim,
 {
@@ -119,7 +119,7 @@ where
 impl<T, R, C> ColPivQR<T, R, C>
 where
     DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>> + Allocator<C>,
-    T: ColPivQrScalar + Zero + RealField,
+    T: QrScalar + Zero + RealField,
     R: DimMin<C>,
     C: Dim,
 {
@@ -285,28 +285,32 @@ where
 
         let nrows = nrows.value() as i32;
 
-        let lwork = T::xorgqr_work_size(
-            nrows,
-            min_nrows_ncols.value() as i32,
-            self.tau.len() as i32,
-            q.as_mut_slice(),
-            nrows,
-            self.tau.as_slice(),
-        )
+        let lwork = unsafe {
+            T::xorgqr_work_size(
+                nrows,
+                min_nrows_ncols.value() as i32,
+                self.tau.len() as i32,
+                q.as_mut_slice(),
+                nrows,
+                self.tau.as_slice(),
+            )
+        }
         .expect("unexpected error in lapack backend");
 
         let mut work = vec![T::zero(); lwork as usize];
 
-        T::xorgqr(
-            nrows,
-            min_nrows_ncols.value() as i32,
-            self.tau.len() as i32,
-            q.as_mut_slice(),
-            nrows,
-            self.tau.as_slice(),
-            &mut work,
-            lwork,
-        )
+        unsafe {
+            T::xorgqr(
+                nrows,
+                min_nrows_ncols.value() as i32,
+                self.tau.len() as i32,
+                q.as_mut_slice(),
+                nrows,
+                self.tau.as_slice(),
+                &mut work,
+                lwork,
+            )
+        }
         .expect("unexpected error in lapack backend");
 
         q
@@ -328,196 +332,13 @@ where
     }
 }
 
-/// Utility trait to add a thin abstraction layer over lapack functionality for
-/// column pivoted QR decomposition.
-#[allow(missing_docs)]
-pub trait ColPivQrScalar: ComplexField + QrScalar + Sealed {
-    /// routine for column pivoting QR decomposition using level 3 BLAS,
-    /// see <https://www.netlib.org/lapack/lug/node42.html>
-    /// or <https://www.intel.com/content/www/us/en/docs/onemkl/developer-reference-c/2023-0/geqp3.html>
-    unsafe fn xgeqp3(
-        m: i32,
-        n: i32,
-        a: &mut [Self],
-        lda: i32,
-        jpvt: &mut [i32],
-        tau: &mut [Self],
-        work: &mut [Self],
-        lwork: i32,
-    ) -> Result<(), LapackErrorCode>;
-
-    unsafe fn xgeqp3_work_size(
-        m: i32,
-        n: i32,
-        a: &mut [Self],
-        lda: i32,
-        jpvt: &mut [i32],
-        tau: &mut [Self],
-    ) -> Result<i32, LapackErrorCode>;
-
-    unsafe fn xtrtrs(
-        uplo: TriangularStructure,
-        trans: Transposition,
-        diag: DiagonalKind,
-        n: i32,
-        nrhs: i32,
-        a: &[Self],
-        lda: i32,
-        b: &mut [Self],
-        ldb: i32,
-    ) -> Result<(), LapackErrorCode>;
-
-    unsafe fn xlapmt(
-        forwrd: bool,
-        m: i32,
-        n: i32,
-        x: &mut [Self],
-        ldx: i32,
-        k: &mut [i32],
-    ) -> Result<(), LapackErrorCode>;
-
-    unsafe fn xlapmr(
-        forwrd: bool,
-        m: i32,
-        n: i32,
-        x: &mut [Self],
-        ldx: i32,
-        k: &mut [i32],
-    ) -> Result<(), LapackErrorCode>;
-}
-
-macro_rules! colpiv_qr_scalar_impl {
-    (
-        $type:ty,
-        xgeqp3=$xgeqp3:path,
-        xtrtrs=$xtrtrs:path,
-        xlapmt=$xlapmt:path,
-        xlapmr=$xlapmr:path $(,)?
-    ) => {
-        impl Sealed for $type {}
-        impl ColPivQrScalar for $type {
-            unsafe fn xgeqp3(
-                m: i32,
-                n: i32,
-                a: &mut [Self],
-                lda: i32,
-                jpvt: &mut [i32],
-                tau: &mut [Self],
-                work: &mut [Self],
-                lwork: i32,
-            ) -> Result<(), LapackErrorCode> {
-                let mut info = 0;
-                unsafe { $xgeqp3(m, n, a, lda, jpvt, tau, work, lwork, &mut info) };
-                check_lapack_info(info)
-            }
-
-            unsafe fn xgeqp3_work_size(
-                m: i32,
-                n: i32,
-                a: &mut [Self],
-                lda: i32,
-                jpvt: &mut [i32],
-                tau: &mut [Self],
-            ) -> Result<i32, LapackErrorCode> {
-                let mut work = [Zero::zero()];
-                let lwork = -1 as i32;
-                let mut info = 0;
-                unsafe { $xgeqp3(m, n, a, lda, jpvt, tau, &mut work, lwork, &mut info) };
-                check_lapack_info(info)?;
-                Ok(work[0] as i32)
-            }
-
-            unsafe fn xtrtrs(
-                uplo: TriangularStructure,
-                trans: Transposition,
-                diag: DiagonalKind,
-                n: i32,
-                nrhs: i32,
-                a: &[Self],
-                lda: i32,
-                b: &mut [Self],
-                ldb: i32,
-            ) -> Result<(), LapackErrorCode> {
-                let mut info = 0;
-                let trans = match trans {
-                    Transposition::No => b'N',
-                    Transposition::Transpose => b'T',
-                };
-
-                unsafe {
-                    $xtrtrs(
-                        uplo.into_lapack_uplo_character(),
-                        trans,
-                        diag.into_lapack_diag_character(),
-                        n,
-                        nrhs,
-                        a,
-                        lda,
-                        b,
-                        ldb,
-                        &mut info,
-                    );
-                }
-
-                check_lapack_info(info)
-            }
-
-            unsafe fn xlapmt(
-                forwrd: bool,
-                m: i32,
-                n: i32,
-                x: &mut [Self],
-                ldx: i32,
-                k: &mut [i32],
-            ) -> Result<(), LapackErrorCode> {
-                debug_assert_eq!(k.len(), n as usize);
-
-                let forward: [i32; 1] = [forwrd.then_some(1).unwrap_or(0)];
-                unsafe { $xlapmt(forward.as_slice(), m, n, x, ldx, k) }
-                Ok(())
-            }
-
-            unsafe fn xlapmr(
-                forwrd: bool,
-                m: i32,
-                n: i32,
-                x: &mut [Self],
-                ldx: i32,
-                k: &mut [i32],
-            ) -> Result<(), LapackErrorCode> {
-                debug_assert_eq!(k.len(), m as usize);
-
-                let forward: [i32; 1] = [forwrd.then_some(1).unwrap_or(0)];
-                unsafe { $xlapmr(forward.as_slice(), m, n, x, ldx, k) }
-                Ok(())
-            }
-        }
-    };
-}
-
-colpiv_qr_scalar_impl!(
-    f32,
-    xgeqp3 = lapack::sgeqp3,
-    xtrtrs = lapack::strtrs,
-    xlapmt = lapack::slapmt,
-    xlapmr = lapack::slapmr
-);
-
-colpiv_qr_scalar_impl!(
-    f64,
-    xgeqp3 = lapack::dgeqp3,
-    xtrtrs = lapack::dtrtrs,
-    xlapmt = lapack::dlapmt,
-    xlapmr = lapack::dlapmr
-);
-
 /// Trait implemented by reals for which Lapack function exist to compute the
 /// column-pivoted QR decomposition.
 // @note(geo-ant) This mirrors the behavior in the existing QR implementation
 // without pivoting. I'm not 100% sure that we can't abstract over real and
 // complex behavior in the scalar trait, but I'll keep it like this for now.
 #[allow(missing_docs)]
-pub trait ColPivQrReal: ColPivQrScalar + QrReal {
+pub trait ColPivQrReal: QrReal {
     unsafe fn xormqr(
         side: Side,
         trans: Transposition,
