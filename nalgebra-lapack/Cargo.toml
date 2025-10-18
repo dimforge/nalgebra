@@ -40,6 +40,7 @@ num-complex = { version = "0.4", default-features = false }
 simba = "0.9"
 serde = { version = "1.0", features = ["derive"], optional = true }
 lapack = { version = "0.20", default-features = false }
+blas = { version = "0.23", default-features = false }
 lapack-src = { version = "0.13", optional = true }
 blas-src = { version = "0.14", optional = true }
 thiserror = "1.0"

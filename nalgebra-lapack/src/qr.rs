@@ -549,10 +549,25 @@ pub trait QrReal: QrScalar {
         c: &mut [Self],
         ldc: i32,
     ) -> Result<i32, LapackErrorCode>;
+
+    /// wraps BLAS function [?TRMM](https://www.netlib.org/lapack/explore-html/dd/dab/group__trmm_ga4d2f76d6726f53c69031a2fe7f999add.html#ga4d2f76d6726f53c69031a2fe7f999add)
+    unsafe fn xtrmm(
+        side: Side,
+        uplo: TriangularStructure,
+        transa: Transposition,
+        diag: DiagonalKind,
+        m: i32,
+        n: i32,
+        alpha: Self,
+        a: &[Self],
+        lda: i32,
+        b: &mut [Self],
+        ldb: i32,
+    );
 }
 
 macro_rules! qr_real_impl(
-    ($type:ty, xorgqr = $xorgqr:path, xormqr = $xormqr:path) => (
+    ($type:ty, xorgqr = $xorgqr:path, xormqr = $xormqr:path, xtrmm = $xtrmm:path) => (
         impl QrReal for $type {
             #[inline]
             unsafe fn xorgqr(m: i32, n: i32, k: i32, a: &mut [Self], lda: i32, tau: &[Self],
@@ -636,6 +651,40 @@ macro_rules! qr_real_impl(
                 // for complex numbers: real part
                 Ok(ComplexHelper::real_part(work[0]) as i32)
             }
+
+            unsafe fn xtrmm(
+                side: Side,
+                uplo: TriangularStructure,
+                transa: Transposition,
+                diag: DiagonalKind,
+                m: i32,
+                n: i32,
+                alpha: Self,
+                a: &[Self],
+                lda: i32,
+                b: &mut [Self],
+                ldb: i32,
+            ) {
+                // this would be different for complex numbers!
+                let transa = match transa {
+                    Transposition::No => b'N',
+                    Transposition::Transpose => b'T',
+                };
+
+                unsafe {$xtrmm(
+                    side.into_lapack_side_character(),
+                    uplo.into_lapack_uplo_character(),
+                    transa,
+                    diag.into_lapack_diag_character(),
+                    m,
+                    n,
+                    alpha,
+                    a,
+                    lda,
+                    b,
+                    ldb
+                )}
+            }
         }
     )
 );
@@ -648,6 +697,7 @@ qr_scalar_impl!(
     xlapmt = lapack::slapmt,
     xlapmr = lapack::slapmr
 );
+
 qr_scalar_impl!(
     f64,
     xgeqrf = lapack::dgeqrf,
@@ -656,10 +706,16 @@ qr_scalar_impl!(
     xlapmt = lapack::dlapmt,
     xlapmr = lapack::dlapmr
 );
-// @todo(geo-ant) maybe re-enable at a later date,
-// but for now: if we ain't testin' it, we ain't implementin' it
-// qr_scalar_impl!(Complex<f32>, lapack::cgeqrf);
-// qr_scalar_impl!(Complex<f64>, lapack::zgeqrf);
 
-qr_real_impl!(f32, xorgqr = lapack::sorgqr, xormqr = lapack::sormqr);
-qr_real_impl!(f64, xorgqr = lapack::dorgqr, xormqr = lapack::dormqr);
+qr_real_impl!(
+    f32,
+    xorgqr = lapack::sorgqr,
+    xormqr = lapack::sormqr,
+    xtrmm = blas::strmm
+);
+qr_real_impl!(
+    f64,
+    xorgqr = lapack::dorgqr,
+    xormqr = lapack::dormqr,
+    xtrmm = blas::dtrmm
+);
