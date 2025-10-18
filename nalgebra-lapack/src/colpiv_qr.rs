@@ -1,6 +1,6 @@
 use super::qr::{QRReal, QRScalar};
-use crate::ComplexHelper;
 use crate::sealed::Sealed;
+use crate::{ComplexHelper, DiagonalKind, Side, Transposition, TriangularStructure, qr_util};
 use error::Error;
 use error::{LapackErrorCode, check_lapack_info};
 use na::{ComplexField, Const, IsContiguous, Matrix, OVector, RealField, Storage, Vector};
@@ -20,45 +20,6 @@ mod utility;
 pub use permutation::Permutation;
 /// utility functionality to calculate the rank of matrices
 mod rank;
-
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-/// Indicates the side from which a matrix multiplication is to be performed.
-pub enum Side {
-    /// perform multiplication from the left
-    Left,
-    /// perform multiplication from the right
-    Right,
-}
-
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-/// Indicates whether or not to transpose a matrix during a matrix
-/// operation.
-// @note(geo-ant) once we add complex, we can refactor this
-// to conjugate transpose (or hermitian transpose).
-pub enum Transposition {
-    /// don't transpose, i.e. leave the matrix as is
-    No,
-    /// transpose the matrix.
-    Transpose,
-}
-
-/// describes the type of a triangular matrix
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum TriangularStructure {
-    /// upper triangular
-    Upper,
-    /// lower triangular
-    Lower,
-}
-
-/// property of the diagonal of a triangular matrix
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum DiagonalKind {
-    /// diagonal entries all have value of 1
-    Unit,
-    /// diagonal elements are arbitrary
-    NonUnit,
-}
 
 /// The column-pivoted QR-decomposition of a rectangular matrix `A ∈ R^(m ⨯ n)`
 /// with `m >= n`.
@@ -208,11 +169,8 @@ where
         C2: Dim,
         S: RawStorageMut<T, R, C2> + IsContiguous,
     {
-        if b.nrows() != self.nrows() {
-            return Err(Error::Dimensions);
-        }
-        // SAFETY: matrix has the correct dimensions for operation Q*B
-        unsafe { self.multiply_q_mut(b, Side::Left, Transposition::No) }
+        qr_util::q_mul_mut(&self.qr, &self.tau, b)?;
+        Ok(())
     }
 
     /// Efficiently calculate the matrix product `Q^T B` of the factor `Q` with a
@@ -224,11 +182,8 @@ where
         C2: Dim,
         S: RawStorageMut<T, R, C2> + IsContiguous,
     {
-        if b.nrows() != self.nrows() {
-            return Err(Error::Dimensions);
-        }
-        // SAFETY: matrix has the correct dimensions for operation Q^T*B
-        unsafe { self.multiply_q_mut(b, Side::Left, Transposition::Transpose) }
+        qr_util::q_tr_mul_mut(&self.qr, &self.tau, b)?;
+        Ok(())
     }
 
     /// Efficiently calculate the matrix product `B Q` of the factor `Q` with a
@@ -240,11 +195,8 @@ where
         R2: Dim,
         S: RawStorageMut<T, R2, R> + IsContiguous,
     {
-        if b.ncols() != self.nrows() {
-            return Err(Error::Dimensions);
-        }
-        // SAFETY: matrix has the correct dimensions for operation B*Q
-        unsafe { self.multiply_q_mut(b, Side::Right, Transposition::No) }
+        qr_util::mul_q_mut(&self.qr, &self.tau, b)?;
+        Ok(())
     }
 
     /// Efficiently calculate the matrix product `B Q^T` of the factor `Q` with a
@@ -256,72 +208,7 @@ where
         R2: Dim,
         S: RawStorageMut<T, R2, R> + IsContiguous,
     {
-        if b.ncols() != self.nrows() {
-            return Err(Error::Dimensions);
-        }
-        // SAFETY: matrix has the correct dimensions for operation B Q^T
-        unsafe { self.multiply_q_mut(b, Side::Right, Transposition::Transpose) }
-    }
-
-    /// Thin-ish wrapper around the LAPACK function
-    /// [?ormqr](https://www.netlib.org/lapack/explore-html/d7/d50/group__unmqr.html),
-    /// which allows us to calculate either Q*B, Q^T*B, B*Q, B*Q^T for appropriately
-    /// shaped matrices B, without having to explicitly form Q. In this calculation
-    /// Q is constructed as if it were a square matrix of appropriate dimension.
-    ///
-    /// # Safety
-    ///
-    /// The dimensions of the matrices must be correct such that the multiplication
-    /// can be performed.
-    #[inline]
-    unsafe fn multiply_q_mut<R2, C2, S2>(
-        &self,
-        mat: &mut Matrix<T, R2, C2, S2>,
-        side: Side,
-        transpose: Transposition,
-    ) -> Result<(), Error>
-    where
-        S2: RawStorageMut<T, R2, C2> + IsContiguous,
-        R2: Dim,
-        C2: Dim,
-    {
-        let a = self.qr.as_slice();
-        let lda = self
-            .qr
-            .nrows()
-            .try_into()
-            .expect("integer dimension out of range");
-        let m = mat
-            .nrows()
-            .try_into()
-            .expect("integer dimension out of range");
-        let n = mat
-            .ncols()
-            .try_into()
-            .expect("integer dimension out of range");
-        let k = self
-            .tau
-            .len()
-            .try_into()
-            .expect("integer dimension out of range");
-        let ldc = mat
-            .nrows()
-            .try_into()
-            .expect("integer dimension out of range");
-        let c = mat.as_mut_slice();
-        let trans = transpose;
-        let tau = self.tau.as_slice();
-
-        // SAFETY: the containing function is unsafe and requires the correct
-        // matrix dimensions as input
-        let lwork = unsafe { T::xormqr_work_size(side, transpose, m, n, k, a, lda, tau, c, ldc)? };
-        let mut work = vec![T::zero(); lwork as usize];
-
-        // SAFETY: the containing function is unsafe and requires the correct
-        // matrix dimensions as input
-        unsafe {
-            T::xormqr(side, trans, m, n, k, a, lda, tau, c, ldc, &mut work, lwork)?;
-        }
+        qr_util::mul_q_tr_mut(&self.qr, &self.tau, b)?;
         Ok(())
     }
 

@@ -1,15 +1,11 @@
-#[cfg(feature = "serde-serialize")]
-use serde::{Deserialize, Serialize};
-
-use num::Zero;
-use num_complex::Complex;
-
 use crate::ComplexHelper;
+use lapack;
 use na::allocator::Allocator;
 use na::dimension::{Const, Dim, DimMin, DimMinimum};
 use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
-
-use lapack;
+use num::Zero;
+#[cfg(feature = "serde-serialize")]
+use serde::{Deserialize, Serialize};
 
 /// The QR decomposition of a general matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
@@ -167,6 +163,7 @@ where
  */
 /// Trait implemented by scalar types for which Lapack function exist to compute the
 /// QR decomposition.
+#[allow(missing_docs)]
 pub trait QRScalar: Scalar + Copy {
     fn xgeqrf(
         m: i32,
@@ -263,8 +260,10 @@ macro_rules! qr_real_impl(
 
 qr_scalar_impl!(f32, lapack::sgeqrf);
 qr_scalar_impl!(f64, lapack::dgeqrf);
-qr_scalar_impl!(Complex<f32>, lapack::cgeqrf);
-qr_scalar_impl!(Complex<f64>, lapack::zgeqrf);
+// @todo(geo-ant) maybe re-enable at a later date,
+// but for now: if we ain't testin' it, we ain't implementin' it
+// qr_scalar_impl!(Complex<f32>, lapack::cgeqrf);
+// qr_scalar_impl!(Complex<f64>, lapack::zgeqrf);
 
 qr_real_impl!(f32, lapack::sorgqr);
 qr_real_impl!(f64, lapack::dorgqr);

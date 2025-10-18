@@ -1,3 +1,5 @@
+use crate::qr_util;
+
 #[derive(Debug, PartialEq, thiserror::Error)]
 /// error cases during QR decomposition and linear system solving
 pub enum Error {
@@ -13,6 +15,15 @@ pub enum Error {
     #[error("Matrix has rank zero")]
     /// matrix has zero rank
     ZeroRank,
+}
+
+impl From<qr_util::Error> for Error {
+    fn from(error: qr_util::Error) -> Self {
+        match error {
+            qr_util::Error::Dimensions => Self::Dimensions,
+            qr_util::Error::Lapack(lapack_error_code) => Self::Backend(lapack_error_code),
+        }
+    }
 }
 
 /// newtype for a lapack error code

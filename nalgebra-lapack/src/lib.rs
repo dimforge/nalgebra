@@ -132,16 +132,29 @@ mod eigen;
 mod generalized_eigenvalues;
 mod hessenberg;
 mod lu;
-mod qr;
+/// QR decomposition of a rectangular (or square) matrix
+pub mod qr;
 mod qz;
 mod schur;
 mod svd;
 mod symmetric_eigen;
 
+/// internal utility module that contains functionality that is useful for
+/// both column-pivoted and non-pivoted qr decomposition
+mod qr_util;
+
 use num_complex::Complex;
 
+/// utility module that defines some common terms that lapack uses
+mod lapack_terminology;
+
+pub use lapack_terminology::DiagonalKind;
+pub use lapack_terminology::Side;
+pub use lapack_terminology::Transposition;
+pub use lapack_terminology::TriangularStructure;
+
 pub use self::cholesky::{Cholesky, CholeskyScalar};
-pub use self::colpiv_qr::{ColPivQR, Side, Transposition, error::Error as ColPivQrError};
+pub use self::colpiv_qr::{ColPivQR, error::Error as ColPivQrError};
 pub use self::eigen::Eigen;
 pub use self::generalized_eigenvalues::GeneralizedEigen;
 pub use self::hessenberg::Hessenberg;
