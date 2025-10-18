@@ -45,10 +45,7 @@ where
 
 impl<T: QrScalar + Zero, R: DimMin<C>, C: Dim> QR<T, R, C>
 where
-    DefaultAllocator: Allocator<R, C>
-        + Allocator<R, DimMinimum<R, C>>
-        + Allocator<DimMinimum<R, C>, C>
-        + Allocator<DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>>,
 {
     /// Computes the QR decomposition of the matrix `m`.
     pub fn new(mut m: OMatrix<T, R, C>) -> Result<Self, Error> {
@@ -90,7 +87,10 @@ where
     /// Retrieves the upper trapezoidal submatrix `R` of this decomposition.
     #[inline]
     #[must_use]
-    pub fn r(&self) -> OMatrix<T, DimMinimum<R, C>, C> {
+    pub fn r(&self) -> OMatrix<T, DimMinimum<R, C>, C>
+    where
+        DefaultAllocator: Allocator<DimMinimum<R, C>, C>,
+    {
         let (nrows, ncols) = self.qr.shape_generic();
         self.qr.rows_generic(0, nrows.min(ncols)).upper_triangle()
     }
@@ -98,10 +98,8 @@ where
 
 impl<T: QrReal + Zero, R: DimMin<C>, C: Dim> QR<T, R, C>
 where
-    DefaultAllocator: Allocator<R, C>
-        + Allocator<R, DimMinimum<R, C>>
-        + Allocator<DimMinimum<R, C>, C>
-        + Allocator<DimMinimum<R, C>>,
+    DefaultAllocator:
+        Allocator<R, C> + Allocator<R, DimMinimum<R, C>> + Allocator<DimMinimum<R, C>>,
 {
     /// Retrieves the matrices `(Q, R)` of this decompositions.
     pub fn unpack(
@@ -109,7 +107,10 @@ where
     ) -> (
         OMatrix<T, R, DimMinimum<R, C>>,
         OMatrix<T, DimMinimum<R, C>, C>,
-    ) {
+    )
+    where
+        DefaultAllocator: Allocator<DimMinimum<R, C>, C>,
+    {
         (self.q(), self.r())
     }
 
