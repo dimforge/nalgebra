@@ -15,6 +15,11 @@ pub enum Error {
     Lapack(#[from] LapackErrorCode),
 }
 
+/// Thin wrapper around certain invokation of `multiply_q_mut`, where:
+/// * `qr`: contains the lapack-style qr decomposition of a matrix A
+/// * `tau`: scalar factors of the elementary reflectors
+/// * `b`: matrix B described below
+///
 /// Efficiently calculate the matrix product `Q B` of the factor `Q` with a
 /// given matrix `B`. `Q` acts as if it is a matrix of dimension `m ⨯ m`, so
 /// we require `B ∈ R^(m ⨯ k)`. The product is calculated in place and
@@ -36,11 +41,19 @@ where
     if b.nrows() != qr.nrows() {
         return Err(Error::Dimensions);
     }
+    if qr.ncols().min(qr.nrows()) != tau.len() {
+        return Err(Error::Dimensions);
+    }
     // SAFETY: matrix has the correct dimensions for operation Q*B
     unsafe { multiply_q_mut(qr, tau, b, Side::Left, Transposition::No)? };
     Ok(())
 }
 
+/// Thin wrapper around certain invokation of `multiply_q_mut`, where:
+/// * `qr`: contains the lapack-style qr decomposition of a matrix A
+/// * `tau`: scalar factors of the elementary reflectors
+/// * `b`: matrix B described below
+///
 /// Efficiently calculate the matrix product `Q^T B` of the factor `Q` with a
 /// given matrix `B`. `Q` acts as if it is a matrix of dimension `m ⨯ m`, so
 /// we require `B ∈ R^(m ⨯ k)`. The product is calculated in place and
@@ -63,15 +76,23 @@ where
     if b.nrows() != qr.nrows() {
         return Err(Error::Dimensions);
     }
+    if qr.ncols().min(qr.nrows()) != tau.len() {
+        return Err(Error::Dimensions);
+    }
     // SAFETY: matrix has the correct dimensions for operation Q^T*B
     unsafe { multiply_q_mut(qr, tau, b, Side::Left, Transposition::Transpose)? };
     Ok(())
 }
 
-// /// Efficiently calculate the matrix product `B Q` of the factor `Q` with a
-// /// given matrix `B`. `Q` acts as if it is a matrix of dimension `m ⨯ m`, so
-// /// we require `B ∈ R^(k ⨯ m)`. The product is calculated in place and
-// /// must only be considered valid when the function returns without error.
+/// Thin wrapper around certain invokation of `multiply_q_mut`, where:
+/// * `qr`: contains the lapack-style qr decomposition of a matrix A
+/// * `tau`: scalar factors of the elementary reflectors
+/// * `b`: matrix B described below
+///
+/// Efficiently calculate the matrix product `B Q` of the factor `Q` with a
+/// given matrix `B`. `Q` acts as if it is a matrix of dimension `m ⨯ m`, so
+/// we require `B ∈ R^(k ⨯ m)`. The product is calculated in place and
+/// must only be considered valid when the function returns without error.
 pub(crate) fn mul_q_mut<T, R1, C1, S1, R2, S2, S3>(
     qr: &Matrix<T, R1, C1, S1>,
     tau: &Vector<T, DimMinimum<R1, C1>, S3>,
@@ -89,11 +110,19 @@ where
     if b.ncols() != qr.nrows() {
         return Err(Error::Dimensions);
     }
+    if qr.ncols().min(qr.nrows()) != tau.len() {
+        return Err(Error::Dimensions);
+    }
     // SAFETY: matrix has the correct dimensions for operation B*Q
     unsafe { multiply_q_mut(qr, tau, b, Side::Right, Transposition::No)? };
     Ok(())
 }
 
+/// Thin wrapper around certain invokation of `multiply_q_mut`, where:
+/// * `qr`: contains the lapack-style qr decomposition of a matrix A
+/// * `tau`: scalar factors of the elementary reflectors
+/// * `b`: matrix B described below
+///
 /// Efficiently calculate the matrix product `B Q^T` of the factor `Q` with a
 /// given matrix `B`. `Q` acts as if it is a matrix of dimension `m ⨯ m`, so
 /// we require `B ∈ R^(k ⨯ m)`. The product is calculated in place and
@@ -113,6 +142,9 @@ where
     S3: RawStorage<T, <R1 as DimMin<C1>>::Output> + IsContiguous,
 {
     if b.ncols() != qr.nrows() {
+        return Err(Error::Dimensions);
+    }
+    if qr.ncols().min(qr.nrows()) != tau.len() {
         return Err(Error::Dimensions);
     }
     // SAFETY: matrix has the correct dimensions for operation B Q^T
