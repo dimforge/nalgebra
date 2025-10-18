@@ -226,7 +226,7 @@ where
     /// `B ∈ R^(m ⨯ k)`in a least-squares sense, such that `|| A X -B||^2`
     /// is minimized. The solution is placed into the matrix `X ∈ R^(m ⨯ k)`.
     ///
-    /// Note that QR decomposition _does not_ give the minimum norm solution
+    /// Note that QR decomposition _does not_ typically give the minimum norm solution
     /// for `X`, only the residual is minimized which is typically what we want.
     ///
     /// This function performs a small allocation.

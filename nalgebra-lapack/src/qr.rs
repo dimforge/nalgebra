@@ -1,16 +1,19 @@
-use crate::{ComplexHelper, DiagonalKind, Side, Transposition, TriangularStructure};
+use crate::{ComplexHelper, DiagonalKind, Side, Transposition, TriangularStructure, qr_util};
 use crate::{LapackErrorCode, lapack_error::check_lapack_info};
 use lapack;
 use na::allocator::Allocator;
 use na::dimension::{Const, Dim, DimMin, DimMinimum};
-use na::{ComplexField, DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
+use na::{
+    ComplexField, DefaultAllocator, IsContiguous, Matrix, OMatrix, OVector, RawStorageMut,
+    RealField, Scalar, Storage,
+};
 use num::Zero;
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
 
 pub use crate::qr_util::Error;
 
-/// The QR decomposition of a general matrix.
+/// The QR decomposition of a general matrix `A`, where `A = Q R`.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
@@ -27,9 +30,12 @@ pub use crate::qr_util::Error;
          OVector<T, DimMinimum<R, C>>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
-pub struct QR<T: Scalar, R: DimMin<C>, C: Dim>
+pub struct QR<T, R, C>
 where
     DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>>,
+    T: Scalar,
+    R: DimMin<C>,
+    C: Dim,
 {
     qr: OMatrix<T, R, C>,
     tau: OVector<T, DimMinimum<R, C>>,
@@ -43,12 +49,18 @@ where
 {
 }
 
-impl<T: QrScalar + Zero, R: DimMin<C>, C: Dim> QR<T, R, C>
+impl<T, R, C> QR<T, R, C>
 where
     DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>>,
+    T: Scalar,
+    R: DimMin<C>,
+    C: Dim,
 {
     /// Computes the QR decomposition of the matrix `m`.
-    pub fn new(mut m: OMatrix<T, R, C>) -> Result<Self, Error> {
+    pub fn new(mut m: OMatrix<T, R, C>) -> Result<Self, Error>
+    where
+        T: QrScalar + Zero,
+    {
         let (nrows, ncols) = m.shape_generic();
 
         let mut tau = Matrix::zeros_generic(nrows.min(ncols), Const::<1>);
@@ -90,34 +102,144 @@ where
     pub fn r(&self) -> OMatrix<T, DimMinimum<R, C>, C>
     where
         DefaultAllocator: Allocator<DimMinimum<R, C>, C>,
+        T: Zero,
     {
         let (nrows, ncols) = self.qr.shape_generic();
         self.qr.rows_generic(0, nrows.min(ncols)).upper_triangle()
+    }
+
+    #[inline]
+    /// the number of rows of the original matrix `A`
+    pub fn nrows(&self) -> usize {
+        self.qr.nrows()
+    }
+
+    #[inline]
+    /// the number of columns of the original matrix `A`
+    pub fn ncols(&self) -> usize {
+        self.qr.ncols()
+    }
+}
+
+impl<T, R, C> QR<T, R, C>
+where
+    DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>>,
+    T: Scalar + QrReal + RealField,
+    R: DimMin<C>,
+    C: Dim,
+{
+    /// Efficiently calculate the matrix product `Q B` of the factor `Q` with a
+    /// given matrix `B`. `Q` acts as if it is a matrix of dimension `m ⨯ m`, so
+    /// we require `B ∈ R^(m ⨯ k)`. The product is calculated in place and
+    /// must only be considered valid when the function returns without error.
+    pub fn q_mul_mut<C2, S>(&self, b: &mut Matrix<T, R, C2, S>) -> Result<(), Error>
+    where
+        C2: Dim,
+        S: RawStorageMut<T, R, C2> + IsContiguous,
+    {
+        qr_util::q_mul_mut(&self.qr, &self.tau, b)?;
+        Ok(())
+    }
+
+    /// Efficiently calculate the matrix product `Q^T B` of the factor `Q` with a
+    /// given matrix `B`. `Q` acts as if it is a matrix of dimension `m ⨯ m`, so
+    /// we require `B ∈ R^(m ⨯ k)`. The product is calculated in place and
+    /// must only be considered valid when the function returns without error.
+    pub fn q_tr_mul_mut<C2, S>(&self, b: &mut Matrix<T, R, C2, S>) -> Result<(), Error>
+    where
+        C2: Dim,
+        S: RawStorageMut<T, R, C2> + IsContiguous,
+    {
+        qr_util::q_tr_mul_mut(&self.qr, &self.tau, b)?;
+        Ok(())
+    }
+
+    /// Efficiently calculate the matrix product `B Q` of the factor `Q` with a
+    /// given matrix `B`. `Q` acts as if it is a matrix of dimension `m ⨯ m`, so
+    /// we require `B ∈ R^(k ⨯ m)`. The product is calculated in place and
+    /// must only be considered valid when the function returns without error.
+    pub fn mul_q_mut<R2, S>(&self, b: &mut Matrix<T, R2, R, S>) -> Result<(), Error>
+    where
+        R2: Dim,
+        S: RawStorageMut<T, R2, R> + IsContiguous,
+    {
+        qr_util::mul_q_mut(&self.qr, &self.tau, b)?;
+        Ok(())
+    }
+
+    /// Efficiently calculate the matrix product `B Q^T` of the factor `Q` with a
+    /// given matrix `B`. `Q` acts as if it is a matrix of dimension `m ⨯ m`, so
+    /// we require `B ∈ R^(k ⨯ m)`. The product is calculated in place and
+    /// must only be considered valid when the function returns without error.
+    pub fn mul_q_tr_mut<R2, S>(&self, b: &mut Matrix<T, R2, R, S>) -> Result<(), Error>
+    where
+        R2: Dim,
+        S: RawStorageMut<T, R2, R> + IsContiguous,
+    {
+        qr_util::mul_q_tr_mut(&self.qr, &self.tau, b)?;
+        Ok(())
+    }
+
+    /// Solve the overdetermined linear system with the given right hand side
+    /// in a least squares sense, see the comments on [QR::solve_mut].
+    pub fn solve<C2: Dim, S>(&self, rhs: Matrix<T, R, C2, S>) -> Result<OMatrix<T, C, C2>, Error>
+    where
+        S: RawStorageMut<T, R, C2> + IsContiguous + Storage<T, R, C2>,
+        T: Zero,
+        DefaultAllocator: Allocator<C, C2> + Allocator<R, C2>,
+    {
+        let (_, c2) = rhs.shape_generic();
+        let (_, c) = self.qr.shape_generic();
+        let mut x = OMatrix::zeros_generic(c, c2);
+        self.solve_mut(&mut x, rhs)?;
+        Ok(x)
+    }
+
+    /// Solve the square or overdetermined system in `A X = B`, where `X ∈ R^(n ⨯ k)`,
+    /// `B ∈ R^(m ⨯ k)`in a least-squares sense, such that `|| A X -B||^2`
+    /// is minimized. The solution is placed into the matrix `X ∈ R^(m ⨯ k)`.
+    ///
+    /// Note that QR decomposition _does not_ typically give the minimum norm solution
+    /// for `X`, only the residual is minimized which is typically what we want.
+    ///
+    /// The system must be full rank. For system that are not full rank or very
+    /// ill-conditioned, use the column-pivoted QR decomposition.
+    pub fn solve_mut<C2: Dim, S, S2>(
+        &self,
+        x: &mut Matrix<T, C, C2, S2>,
+        b: Matrix<T, R, C2, S>,
+    ) -> Result<(), Error>
+    where
+        S: RawStorageMut<T, R, C2> + IsContiguous,
+        S2: RawStorageMut<T, C, C2> + IsContiguous,
+        T: Zero,
+    {
+        // since we use QR decomposition without column pivoting, we assume
+        // full rank.
+        let rank = self
+            .nrows()
+            .min(self.ncols())
+            .try_into()
+            .expect("integer dimensions out of bounds");
+        qr_util::qr_solve_mut_with_rank_unpermuted(&self.qr, &self.tau, rank, x, b)?;
+        Ok(())
     }
 }
 
 impl<T: QrReal + Zero, R: DimMin<C>, C: Dim> QR<T, R, C>
 where
-    DefaultAllocator:
-        Allocator<R, C> + Allocator<R, DimMinimum<R, C>> + Allocator<DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>>,
+    // where
+    //     DefaultAllocator:
+    //         Allocator<R, C> + + Allocator<DimMinimum<R, C>>,
 {
-    /// Retrieves the matrices `(Q, R)` of this decompositions.
-    pub fn unpack(
-        self,
-    ) -> (
-        OMatrix<T, R, DimMinimum<R, C>>,
-        OMatrix<T, DimMinimum<R, C>, C>,
-    )
-    where
-        DefaultAllocator: Allocator<DimMinimum<R, C>, C>,
-    {
-        (self.q(), self.r())
-    }
-
     /// Computes the orthogonal matrix `Q` of this decomposition.
     #[inline]
     #[must_use]
-    pub fn q(&self) -> OMatrix<T, R, DimMinimum<R, C>> {
+    pub fn q(&self) -> OMatrix<T, R, DimMinimum<R, C>>
+    where
+        DefaultAllocator: Allocator<R, DimMinimum<R, C>>,
+    {
         let (nrows, ncols) = self.qr.shape_generic();
         let min_nrows_ncols = nrows.min(ncols);
 
