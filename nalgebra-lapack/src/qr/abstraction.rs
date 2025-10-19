@@ -3,7 +3,7 @@ use na::{
     DefaultAllocator, Dim, DimMin, DimMinimum, IsContiguous, Matrix, OMatrix, OVector,
     RawStorageMut, RealField, Scalar, Storage, allocator::Allocator,
 };
-use num::Zero;
+use num::{ConstOne, Zero};
 use qr_util::Error;
 
 /// common functionality for the QR decomposition of a matrix `A` with or
@@ -17,7 +17,7 @@ where
 {
     #[doc(hidden)]
     /// get a reference to the internal represenation of the QR decomposition
-    /// with the output of the lapack QR decomposition
+    /// with the output of the lapack QR decomposition.
     fn __lapack_qr_ref(&self) -> &OMatrix<T, R, C>;
 
     #[doc(hidden)]
@@ -125,6 +125,30 @@ where
     {
         qr_util::mul_q_tr_mut(self.__lapack_qr_ref(), self.__lapack_tau_ref(), b)?;
         Ok(())
+    }
+
+    /// multiply `R*B` and place the result in `B`. The product is calculated
+    /// in place and must only be considered valid when the function returns
+    /// without error.
+    fn r_mul_mut<C2, S2>(&self, b: &mut Matrix<T, C, C2, S2>) -> Result<(), Error>
+    where
+        C2: Dim,
+        S2: RawStorageMut<T, C, C2> + IsContiguous,
+        T: ConstOne,
+    {
+        qr_util::r_mul_mut(self.__lapack_qr_ref(), b)
+    }
+
+    /// multiply `R^T*B` and place the result in `B`. The product is calculated
+    /// in place and must only be considered valid when the function returns
+    /// without error.
+    fn r_tr_mul_mut<C2, S2>(&self, b: &mut Matrix<T, R, C2, S2>) -> Result<(), Error>
+    where
+        C2: Dim,
+        S2: RawStorageMut<T, R, C2> + IsContiguous,
+        T: ConstOne,
+    {
+        qr_util::r_tr_mul_mut(self.__lapack_qr_ref(), b)
     }
 
     /// Computes the orthonormal matrix `Q ∈ R^(m ⨯ n)` of this decomposition.

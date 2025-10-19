@@ -306,18 +306,17 @@ where
 
 /// multiply R*B and place the result in B, where R is the upper triangular matrix
 /// in a qr decomposition as computed by lapack.
-pub fn r_mul_mut<T, R1, C1, S1, R2, C2, S2>(
+pub fn r_mul_mut<T, R1, C1, S1, C2, S2>(
     qr: &Matrix<T, R1, C1, S1>,
-    b: &mut Matrix<T, R2, C2, S2>,
+    b: &mut Matrix<T, C1, C2, S2>,
 ) -> Result<(), Error>
 where
     T: QrReal + ConstOne,
     R1: DimMin<C1>,
     C1: Dim,
-    S2: RawStorageMut<T, R2, C2> + IsContiguous,
-    R2: Dim,
     C2: Dim,
-    S1: IsContiguous + RawStorage<T, R1, C1>,
+    S1: RawStorage<T, R1, C1> + IsContiguous,
+    S2: RawStorageMut<T, C1, C2> + IsContiguous,
 {
     if qr.ncols() != b.nrows() {
         return Err(Error::Dimensions);
@@ -329,17 +328,16 @@ where
 
 /// multiply R^T*B and place the result in B, where R is the upper triangular matrix
 /// in a qr decomposition as computed by lapack.
-pub fn r_tr_mul_mut<T, R1, C1, S1, R2, C2, S2>(
+pub fn r_tr_mul_mut<T, R1, C1, S1, C2, S2>(
     qr: &Matrix<T, R1, C1, S1>,
-    b: &mut Matrix<T, R2, C2, S2>,
+    b: &mut Matrix<T, R1, C2, S2>,
 ) -> Result<(), Error>
 where
     T: QrReal + ConstOne,
     R1: DimMin<C1>,
     C1: Dim,
-    S2: RawStorageMut<T, R2, C2> + IsContiguous,
-    R2: Dim,
     C2: Dim,
+    S2: RawStorageMut<T, R1, C2> + IsContiguous,
     S1: IsContiguous + RawStorage<T, R1, C1>,
 {
     if qr.nrows() != b.nrows() {
