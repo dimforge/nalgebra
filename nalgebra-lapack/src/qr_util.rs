@@ -318,6 +318,14 @@ where
     S1: RawStorage<T, R1, C1> + IsContiguous,
     S2: RawStorageMut<T, C1, C2> + IsContiguous,
 {
+    // looking carefully at the lapack docs, the xTRMM requires
+    // an overdetermined matrix (m>=n), because otherwise R will
+    // be upper trapezoidal and the logic will be different and it
+    // might not actually be useful to multiply the square part.
+    if qr.ncols() < qr.nrows() {
+        return Err(Error::Underdetermined);
+    }
+
     if qr.ncols() != b.nrows() {
         return Err(Error::Dimensions);
     }

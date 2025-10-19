@@ -15,6 +15,7 @@ For the **changes between versions 0.4.0 and 0.27.0** see the main
 * removed untested complex support in QR decomposition
 * remove `Qr::unpack`, since it brings no practical benefit over `(qr.q()`, `.r())`,
   but looks like it would bring an efficiency gain.
+* QR decomposition restricted to m>=n
 
 ## [0.4.0] - 2016-09-07
 
