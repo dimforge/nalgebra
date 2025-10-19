@@ -322,7 +322,7 @@ where
     // an overdetermined matrix (m>=n), because otherwise R will
     // be upper trapezoidal and the logic will be different and it
     // might not actually be useful to multiply the square part.
-    if qr.ncols() < qr.nrows() {
+    if qr.nrows() < qr.ncols() {
         return Err(Error::Underdetermined);
     }
 
