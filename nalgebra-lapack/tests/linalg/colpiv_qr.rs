@@ -31,9 +31,18 @@ fn square_or_overdetermined_dmatrix() -> impl Strategy<Value = DMatrix<f64>> {
     })
 }
 
+/// give us A and B matrices of the system AX = B
 fn linear_system_dynamic() -> impl Strategy<Value = (DMatrix<f64>, DMatrix<f64>)> {
     square_or_overdetermined_dmatrix().prop_flat_map(|a| {
         let b = matrix(PROPTEST_F64, a.nrows(), PROPTEST_MATRIX_DIM);
+        (Just(a), b)
+    })
+}
+
+/// gives us the A and X matrices of the system AX = B
+fn linear_system_dynamic_ax() -> impl Strategy<Value = (DMatrix<f64>, DMatrix<f64>)> {
+    square_or_overdetermined_dmatrix().prop_flat_map(|a| {
+        let b = matrix(PROPTEST_F64, PROPTEST_MATRIX_DIM, a.nrows());
         (Just(a), b)
     })
 }
@@ -118,5 +127,13 @@ proptest! {
                 prop_assert!(err == nl::colpiv_qr::Error::ZeroRank);
             },
         }
+    }
+
+    #[test]
+    fn r_mul_mut((a, mut x) in linear_system_dynamic_ax()) {
+        let qr = ColPivQR::new(a).unwrap();
+        let rx  = qr.r()*&x;
+        qr.r_mul_mut(&mut x).unwrap();
+        prop_assert!(relative_eq!(rx,x,epsilon = 1e-5));
     }
 }
