@@ -164,6 +164,7 @@ pub use self::generalized_eigenvalues::GeneralizedEigen;
 pub use self::hessenberg::Hessenberg;
 pub use self::lu::{LU, LUScalar};
 pub use self::qr::QR;
+pub use self::qr::abstraction::QrDecomposition;
 pub use self::qz::QZ;
 pub use self::schur::Schur;
 pub use self::svd::SVD;
