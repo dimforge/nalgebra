@@ -9,3 +9,4 @@ mod real_eigensystem;
 mod schur;
 mod svd;
 mod symmetric_eigen;
+pub(crate) mod test_util;

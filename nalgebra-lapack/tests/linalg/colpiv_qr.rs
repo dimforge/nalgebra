@@ -1,54 +1,9 @@
-use core::panic;
-
+use super::test_util::*;
 use crate::proptest::*;
-use na::{DMatrix, Dim, Matrix, OMatrix, RawStorage};
+use core::panic;
+use na::{DMatrix, OMatrix};
 use nl::{ColPivQR, qr::QrDecomposition};
-use num_traits::Zero;
 use proptest::prelude::*;
-
-fn is_upper_triangular<T, R, C, S>(mat: &Matrix<T, R, C, S>) -> bool
-where
-    T: Zero + PartialEq,
-    C: Dim,
-    R: Dim,
-    S: RawStorage<T, R, C>,
-{
-    let ncols = mat.ncols();
-    let nrows = mat.nrows();
-
-    let zero = T::zero();
-    for c in 0..ncols {
-        for r in c + 1..nrows {
-            if mat[(r, c)] != zero {
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
-fn square_or_overdetermined_dmatrix() -> impl Strategy<Value = DMatrix<f64>> {
-    PROPTEST_MATRIX_DIM.prop_flat_map(|rows| {
-        (1..=rows).prop_flat_map(move |cols| matrix(PROPTEST_F64, rows..=rows, cols..=cols))
-    })
-}
-
-/// give us A and B matrices of the system AX = B
-fn linear_system_dynamic() -> impl Strategy<Value = (DMatrix<f64>, DMatrix<f64>)> {
-    square_or_overdetermined_dmatrix().prop_flat_map(|a| {
-        let b = matrix(PROPTEST_F64, a.nrows(), PROPTEST_MATRIX_DIM);
-        (Just(a), b)
-    })
-}
-
-/// gives us a matrix A for QR decomposition and a matrix B where R*B can be calculated
-fn square_or_overdetermined_mat_and_r_multipliable()
--> impl Strategy<Value = (DMatrix<f64>, DMatrix<f64>)> {
-    square_or_overdetermined_dmatrix().prop_flat_map(|a| {
-        let b = matrix(PROPTEST_F64, a.ncols(), PROPTEST_MATRIX_DIM);
-        (Just(a), b)
-    })
-}
 
 proptest! {
     #[test]

@@ -6,7 +6,7 @@ use na::allocator::Allocator;
 use na::dimension::{Const, Dim, DimMin, DimMinimum};
 use na::{
     ComplexField, DefaultAllocator, IsContiguous, Matrix, OMatrix, OVector, RawStorageMut,
-    RealField, Scalar, Storage,
+    RealField, Scalar,
 };
 use num::Zero;
 #[cfg(feature = "serde-serialize")]
@@ -67,6 +67,10 @@ where
         let (nrows, ncols) = m.shape_generic();
 
         let mut tau = Matrix::zeros_generic(nrows.min(ncols), Const::<1>);
+
+        if nrows.value() < ncols.value() {
+            return Err(Error::Underdetermined);
+        }
 
         if nrows.value() == 0 || ncols.value() == 0 {
             return Ok(Self { qr: m, tau });
@@ -134,7 +138,8 @@ where
         S2: RawStorageMut<T, C, C2> + IsContiguous,
         T: Zero,
     {
-        if self.nrows() <= self.ncols() {
+        // this is important because a lot of assumptions rest on this
+        if self.nrows() < self.ncols() {
             return Err(Error::Underdetermined);
         }
 
