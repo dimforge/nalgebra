@@ -2,7 +2,7 @@ use crate::{DiagonalKind, LapackErrorCode, Side, Transposition, TriangularStruct
 use na::{
     Dim, DimMin, DimMinimum, IsContiguous, Matrix, RawStorage, RawStorageMut, RealField, Vector,
 };
-use num::Zero;
+use num::{ConstOne, Zero};
 
 #[derive(Debug, PartialEq, thiserror::Error)]
 /// error type
@@ -304,25 +304,14 @@ where
     Ok(())
 }
 
-/// thin-ish wrapper around the lapack function [?TRMM](https://www.netlib.org/lapack/explore-html/dd/dab/group__trmm.html)
-/// for multiplying a triangular matrix to another matrix B from the right or
-/// left. The ?TRMM functions also allow scaling with a factor alpha, which
-/// we always set to 1 and they allow the matrix to be upper or lower triangular,
-/// we always use upper triangular.
-///
-/// # Safety
-///
-/// The dimensions of the matrices must be correct such that the multiplication
-/// can be performed.
-#[inline]
-unsafe fn multiply_r_mut<T, R1, C1, S1, R2, C2, S2>(
-    r: &Matrix<T, R1, C1, S1>,
-    side: Side,
-    transpose: Transposition,
-    mat: &mut Matrix<T, R2, C2, S2>,
-) -> Result<(), LapackErrorCode>
+/// multiply R*B and place the result in B, where R is the upper triangular matrix
+/// in a qr decomposition as computed by lapack.
+pub fn r_mul_mut<T, R1, C1, S1, R2, C2, S2>(
+    qr: &Matrix<T, R1, C1, S1>,
+    b: &mut Matrix<T, R2, C2, S2>,
+) -> Result<(), Error>
 where
-    T: QrReal,
+    T: QrReal + ConstOne,
     R1: DimMin<C1>,
     C1: Dim,
     S2: RawStorageMut<T, R2, C2> + IsContiguous,
@@ -330,5 +319,94 @@ where
     C2: Dim,
     S1: IsContiguous + RawStorage<T, R1, C1>,
 {
-    todo!()
+    if qr.ncols() != b.nrows() {
+        return Err(Error::Dimensions);
+    }
+
+    unsafe { left_multiply_r_mut(qr, Transposition::No, b)? };
+    Ok(())
+}
+
+/// multiply R^T*B and place the result in B, where R is the upper triangular matrix
+/// in a qr decomposition as computed by lapack.
+pub fn r_tr_mul_mut<T, R1, C1, S1, R2, C2, S2>(
+    qr: &Matrix<T, R1, C1, S1>,
+    b: &mut Matrix<T, R2, C2, S2>,
+) -> Result<(), Error>
+where
+    T: QrReal + ConstOne,
+    R1: DimMin<C1>,
+    C1: Dim,
+    S2: RawStorageMut<T, R2, C2> + IsContiguous,
+    R2: Dim,
+    C2: Dim,
+    S1: IsContiguous + RawStorage<T, R1, C1>,
+{
+    if qr.nrows() != b.nrows() {
+        return Err(Error::Dimensions);
+    }
+
+    unsafe { left_multiply_r_mut(qr, Transposition::Transpose, b)? };
+    Ok(())
+}
+
+/// thin-ish wrapper around the lapack function [?TRMM](https://www.netlib.org/lapack/explore-html/dd/dab/group__trmm.html)
+/// for multiplying the upper triangular part R or a QR decomposition with another
+/// matrix.
+///
+/// The ?TRMM functions also allow scaling with a factor alpha, which
+/// we always set to 1 and they allow the matrix to be upper or lower triangular,
+/// we always use upper triangular. They also allow to multiply from right or
+/// left, but the dimension of R in a QR decomposition only allows multiplication
+/// from the left, I think.
+///
+/// # Safety
+///
+/// The dimensions of the matrices must be correct such that the multiplication
+/// can be performed.
+#[inline]
+unsafe fn left_multiply_r_mut<T, R1, C1, S1, R2, C2, S2>(
+    qr: &Matrix<T, R1, C1, S1>,
+    transpose: Transposition,
+    mat: &mut Matrix<T, R2, C2, S2>,
+) -> Result<(), LapackErrorCode>
+where
+    T: QrReal + ConstOne,
+    R1: DimMin<C1>,
+    C1: Dim,
+    S2: RawStorageMut<T, R2, C2> + IsContiguous,
+    R2: Dim,
+    C2: Dim,
+    S1: IsContiguous + RawStorage<T, R1, C1>,
+{
+    let m = qr
+        .nrows()
+        .try_into()
+        .expect("integer dimensions out of bounds");
+    let n = qr
+        .ncols()
+        .try_into()
+        .expect("integer dimensions out of bounds");
+    let lda = m;
+    let ldb = mat
+        .nrows()
+        .try_into()
+        .expect("integer dimensions out of bounds");
+
+    unsafe {
+        T::xtrmm(
+            Side::Left,
+            TriangularStructure::Upper,
+            transpose,
+            DiagonalKind::NonUnit,
+            m,
+            n,
+            T::ONE,
+            qr.as_slice(),
+            lda,
+            mat.as_mut_slice(),
+            ldb,
+        );
+    }
+    Ok(())
 }

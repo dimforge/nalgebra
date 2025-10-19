@@ -152,7 +152,10 @@ where
             .generic_view((0, 0), (nrows, min_nrows_ncols))
             .into_owned();
 
-        let nrows = nrows.value() as i32;
+        let nrows = nrows
+            .value()
+            .try_into()
+            .expect("integer dimensions out of bounds");
 
         let lwork = unsafe {
             T::xorgqr_work_size(
