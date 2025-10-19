@@ -139,18 +139,6 @@ where
         qr_util::r_mul_mut(self.__lapack_qr_ref(), b)
     }
 
-    /// multiply `R^T*B` and place the result in `B`. The product is calculated
-    /// in place and must only be considered valid when the function returns
-    /// without error.
-    fn r_tr_mul_mut<C2, S2>(&self, b: &mut Matrix<T, R, C2, S2>) -> Result<(), Error>
-    where
-        C2: Dim,
-        S2: RawStorageMut<T, R, C2> + IsContiguous,
-        T: ConstOne,
-    {
-        qr_util::r_tr_mul_mut(self.__lapack_qr_ref(), b)
-    }
-
     /// Computes the orthonormal matrix `Q ∈ R^(m ⨯ n)` of this decomposition.
     /// Note that this matrix has _economy_ dimensions, which means it is not
     /// square unless `A` is square. It satisfies `Q^T Q = I`. Note further

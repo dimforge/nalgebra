@@ -312,7 +312,7 @@ pub fn r_mul_mut<T, R1, C1, S1, C2, S2>(
 ) -> Result<(), Error>
 where
     T: QrReal + ConstOne,
-    R1: DimMin<C1>,
+    R1: Dim,
     C1: Dim,
     C2: Dim,
     S1: RawStorage<T, R1, C1> + IsContiguous,
@@ -323,28 +323,6 @@ where
     }
 
     unsafe { left_multiply_r_mut(qr, Transposition::No, b)? };
-    Ok(())
-}
-
-/// multiply R^T*B and place the result in B, where R is the upper triangular matrix
-/// in a qr decomposition as computed by lapack.
-pub fn r_tr_mul_mut<T, R1, C1, S1, C2, S2>(
-    qr: &Matrix<T, R1, C1, S1>,
-    b: &mut Matrix<T, R1, C2, S2>,
-) -> Result<(), Error>
-where
-    T: QrReal + ConstOne,
-    R1: DimMin<C1>,
-    C1: Dim,
-    C2: Dim,
-    S2: RawStorageMut<T, R1, C2> + IsContiguous,
-    S1: IsContiguous + RawStorage<T, R1, C1>,
-{
-    if qr.nrows() != b.nrows() {
-        return Err(Error::Dimensions);
-    }
-
-    unsafe { left_multiply_r_mut(qr, Transposition::Transpose, b)? };
     Ok(())
 }
 
@@ -370,22 +348,25 @@ unsafe fn left_multiply_r_mut<T, R1, C1, S1, R2, C2, S2>(
 ) -> Result<(), LapackErrorCode>
 where
     T: QrReal + ConstOne,
-    R1: DimMin<C1>,
+    R1: Dim,
     C1: Dim,
     S2: RawStorageMut<T, R2, C2> + IsContiguous,
     R2: Dim,
     C2: Dim,
     S1: IsContiguous + RawStorage<T, R1, C1>,
 {
-    let m = qr
+    let m = mat
         .nrows()
         .try_into()
         .expect("integer dimensions out of bounds");
-    let n = qr
+    let n = mat
         .ncols()
         .try_into()
         .expect("integer dimensions out of bounds");
-    let lda = m;
+    let lda = qr
+        .nrows()
+        .try_into()
+        .expect("integer dimensions out of bounds");
     let ldb = mat
         .nrows()
         .try_into()

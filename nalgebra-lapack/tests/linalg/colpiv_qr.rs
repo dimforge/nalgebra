@@ -39,10 +39,11 @@ fn linear_system_dynamic() -> impl Strategy<Value = (DMatrix<f64>, DMatrix<f64>)
     })
 }
 
-/// gives us the A and X matrices of the system AX = B
-fn linear_system_dynamic_ax() -> impl Strategy<Value = (DMatrix<f64>, DMatrix<f64>)> {
+/// gives us a matrix A for QR decomposition and a matrix B where R*B can be calculated
+fn square_or_overdetermined_mat_and_r_multipliable()
+-> impl Strategy<Value = (DMatrix<f64>, DMatrix<f64>)> {
     square_or_overdetermined_dmatrix().prop_flat_map(|a| {
-        let b = matrix(PROPTEST_F64, PROPTEST_MATRIX_DIM, a.nrows());
+        let b = matrix(PROPTEST_F64, a.ncols(), PROPTEST_MATRIX_DIM);
         (Just(a), b)
     })
 }
@@ -130,7 +131,7 @@ proptest! {
     }
 
     #[test]
-    fn r_mul_mut((a, mut x) in linear_system_dynamic_ax()) {
+    fn r_mul_mut((a, mut x) in square_or_overdetermined_mat_and_r_multipliable()) {
         let qr = ColPivQR::new(a).unwrap();
         let rx  = qr.r()*&x;
         qr.r_mul_mut(&mut x).unwrap();
