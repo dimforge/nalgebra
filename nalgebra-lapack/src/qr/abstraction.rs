@@ -21,7 +21,7 @@ where
     fn __lapack_qr_ref(&self) -> &OMatrix<T, R, C>;
 
     #[doc(hidden)]
-    /// get a reference of the householder coefficients vector computed by
+    /// get a reference of the householder coefficients vector as computed by
     /// lapack
     fn __lapack_tau_ref(&self) -> &OVector<T, DimMinimum<R, C>>;
 
@@ -57,6 +57,7 @@ where
         self.solve_mut(&mut x, rhs)?;
         Ok(x)
     }
+
     /// Solve the square or overdetermined system in `A X = B`, where `X ∈ R^(n ⨯ k)`,
     /// `B ∈ R^(m ⨯ k)`in a least-squares sense, such that `|| A X -B||^2`
     /// is minimized. The solution is placed into the matrix `X ∈ R^(m ⨯ k)`.
@@ -64,7 +65,7 @@ where
     /// Note that QR decomposition _does not_ typically give the minimum norm solution
     /// for `X`, only the residual is minimized which is typically what we want.
     ///
-    /// This function performs a small allocation.
+    /// This function might perform a small allocation.
     fn solve_mut<C2: Dim, S, S2>(
         &self,
         x: &mut Matrix<T, C, C2, S2>,
@@ -180,7 +181,6 @@ where
             )
             .expect("unexpected error in lapack backend")
         };
-
         q
     }
 

@@ -2,7 +2,7 @@ use super::qr::{QrReal, QrScalar};
 use crate::qr::QrDecomposition;
 use crate::qr_util;
 use crate::sealed::Sealed;
-use na::{ComplexField, Const, IsContiguous, Matrix, OVector, RealField, Vector};
+use na::{Const, IsContiguous, Matrix, OVector, RealField, Vector};
 use nalgebra::storage::RawStorageMut;
 use nalgebra::{DefaultAllocator, Dim, DimMin, DimMinimum, OMatrix, Scalar, allocator::Allocator};
 use num::float::TotalOrder;
