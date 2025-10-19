@@ -11,7 +11,7 @@ use qr_util::Error;
 pub trait QrDecomposition<T, R, C>: Sealed
 where
     DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>> + Allocator<C>,
-    R: DimMin<C>,
+    R: DimMin<C, Output = C>,
     C: Dim,
     T: Scalar + RealField + QrReal,
 {
@@ -136,6 +136,9 @@ where
         S2: RawStorageMut<T, C, C2> + IsContiguous,
         T: ConstOne,
     {
+        if self.nrows() < self.ncols() {
+            return Err(Error::Underdetermined);
+        }
         qr_util::r_mul_mut(self.__lapack_qr_ref(), b)
     }
 

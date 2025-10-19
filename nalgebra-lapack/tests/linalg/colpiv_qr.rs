@@ -1,3 +1,5 @@
+use core::panic;
+
 use crate::proptest::*;
 use na::{DMatrix, Dim, Matrix, OMatrix, RawStorage};
 use nl::{ColPivQR, qr::QrDecomposition};

@@ -31,7 +31,7 @@ pub struct ColPivQR<T, R, C>
 where
     DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>> + Allocator<C>,
     T: Scalar,
-    R: DimMin<C>,
+    R: DimMin<C, Output = C>,
     C: Dim,
 {
     // qr decomposition, see https://www.netlib.org/lapack/explore-html/d0/dea/group__geqp3.html
@@ -49,7 +49,7 @@ impl<T, R, C> Sealed for ColPivQR<T, R, C>
 where
     DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>> + Allocator<C>,
     T: Scalar,
-    R: DimMin<C>,
+    R: DimMin<C, Output = C>,
     C: Dim,
 {
 }
@@ -59,7 +59,7 @@ impl<T, R, C> ColPivQR<T, R, C>
 where
     DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>> + Allocator<C>,
     T: QrScalar + Zero + RealField + TotalOrder + Float,
-    R: DimMin<C>,
+    R: DimMin<C, Output = C>,
     C: Dim,
 {
     /// Try to create a new decomposition from the given matrix using the default
@@ -132,7 +132,7 @@ impl<T, R, C> ColPivQR<T, R, C>
 where
     DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>> + Allocator<C>,
     T: QrScalar + Zero + RealField,
-    R: DimMin<C>,
+    R: DimMin<C, Output = C>,
     C: Dim,
 {
     /// get the effective rank of the matrix computed using the stratey
@@ -152,7 +152,7 @@ where
 impl<T, R, C> QrDecomposition<T, R, C> for ColPivQR<T, R, C>
 where
     DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>> + Allocator<C>,
-    R: DimMin<C>,
+    R: DimMin<C, Output = C>,
     C: Dim,
     T: Scalar + RealField + QrReal,
 {
@@ -174,6 +174,9 @@ where
         S2: RawStorageMut<T, C, C2> + IsContiguous,
         T: Zero,
     {
+        if self.nrows() < self.ncols() {
+            return Err(Error::Underdetermined);
+        }
         let rank = self.rank();
         qr_util::qr_solve_mut_with_rank_unpermuted(&self.qr, &self.tau, rank, x, b)?;
         self.p().permute_rows_mut(x)?;

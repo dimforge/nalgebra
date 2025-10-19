@@ -112,7 +112,7 @@ where
 impl<T, R, C> QrDecomposition<T, R, C> for QR<T, R, C>
 where
     DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>> + Allocator<C>,
-    R: DimMin<C>,
+    R: DimMin<C, Output = C>,
     C: Dim,
     T: Scalar + RealField + QrReal,
 {
@@ -134,6 +134,10 @@ where
         S2: RawStorageMut<T, C, C2> + IsContiguous,
         T: Zero,
     {
+        if self.nrows() <= self.ncols() {
+            return Err(Error::Underdetermined);
+        }
+
         // since we use QR decomposition without column pivoting, we assume
         // full rank.
         let rank = self
