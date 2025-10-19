@@ -13,6 +13,8 @@ use serde::{Deserialize, Serialize};
 
 pub use crate::qr_util::Error;
 
+pub(crate) mod abstraction;
+
 /// The QR decomposition of a general matrix `A`, where `A = Q R`.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(

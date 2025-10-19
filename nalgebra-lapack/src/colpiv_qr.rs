@@ -266,7 +266,7 @@ where
     pub fn q(&self) -> OMatrix<T, R, DimMinimum<R, C>>
     where
         DefaultAllocator: Allocator<R, <R as DimMin<C>>::Output>,
-        T: QrReal + Zero + ComplexField,
+        T: QrReal + Zero + RealField,
     {
         let (nrows, ncols) = self.qr.shape_generic();
         let min_nrows_ncols = nrows.min(ncols);
