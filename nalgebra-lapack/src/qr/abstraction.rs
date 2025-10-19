@@ -143,7 +143,7 @@ where
         let min_nrows_ncols = nrows.min(ncols);
 
         if min_nrows_ncols.value() == 0 {
-            return OMatrix::zeros_generic(nrows, min_nrows_ncols);
+            return OMatrix::from_element_generic(nrows, min_nrows_ncols, T::zero());
         }
 
         let mut q = self
@@ -162,8 +162,8 @@ where
                 nrows,
                 self.__lapack_tau_ref().as_slice(),
             )
-        }
-        .expect("unexpected error in lapack backend");
+            .expect("unexpected error in lapack backend")
+        };
 
         let mut work = vec![T::zero(); lwork as usize];
 
@@ -178,8 +178,8 @@ where
                 &mut work,
                 lwork,
             )
-        }
-        .expect("unexpected error in lapack backend");
+            .expect("unexpected error in lapack backend")
+        };
 
         q
     }
@@ -192,13 +192,16 @@ where
     /// This function allocates.
     #[inline]
     #[must_use]
-    fn r(&self) -> OMatrix<T, DimMinimum<R, C>, DimMinimum<R, C>>
+    fn r(&self) -> OMatrix<T, DimMinimum<R, C>, C>
     where
-        DefaultAllocator: Allocator<DimMinimum<R, C>, DimMinimum<R, C>>,
+        DefaultAllocator: Allocator<R, C>
+            + Allocator<R, DimMinimum<R, C>>
+            + Allocator<DimMinimum<R, C>, C>
+            + Allocator<DimMinimum<R, C>>,
     {
         let (nrows, ncols) = self.shape_generic();
-        let d = nrows.min(ncols);
-        let m = self.__lapack_qr_ref().generic_view((0, 0), (d, d));
-        m.upper_triangle()
+        self.__lapack_qr_ref()
+            .rows_generic(0, nrows.min(ncols))
+            .upper_triangle()
     }
 }

@@ -1,4 +1,4 @@
-use nl::QR;
+use nl::{QR, qr::QrDecomposition};
 
 use crate::proptest::*;
 use proptest::{prop_assert, proptest};

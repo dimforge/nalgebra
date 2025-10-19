@@ -1,6 +1,6 @@
 use crate::proptest::*;
 use na::{DMatrix, Dim, Matrix, OMatrix, RawStorage};
-use nl::ColPivQR;
+use nl::{ColPivQR, qr::QrDecomposition};
 use num_traits::Zero;
 use proptest::prelude::*;
 

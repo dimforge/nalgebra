@@ -1,4 +1,5 @@
 use super::ColPivQR;
+use crate::qr::QrDecomposition;
 use approx::{assert_abs_diff_eq, assert_relative_eq};
 use na::{Matrix, OMatrix};
 
