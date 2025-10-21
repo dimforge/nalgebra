@@ -255,7 +255,7 @@ unsafe fn multiply_q_mut<T, R1, C1, S1, R2, C2, S2, S3>(
     mat: &mut Matrix<T, R2, C2, S2>,
     side: Side,
     transpose: Transposition,
-) -> Result<(), LapackErrorCode>
+) -> Result<(), Error>
 where
     T: QrReal,
     R1: DimMin<C1>,
@@ -291,8 +291,41 @@ where
     let trans = transpose;
     let tau = tau.as_slice();
 
-    // SAFETY: the containing function is unsafe and requires the correct
-    // matrix dimensions as input
+    if k as usize != qr.ncols() {
+        return Err(Error::Dimensions);
+    }
+
+    // dimensions checks from the lapack documentation
+    // see e.g. https://www.netlib.org/lapack/explore-html/d7/d50/group__unmqr_ga768bd221f959be1b3d15bd177bb5c1b3.html#ga768bd221f959be1b3d15bd177bb5c1b3
+    match side {
+        Side::Left => {
+            if m < k {
+                return Err(Error::Dimensions);
+            }
+
+            if lda < m {
+                return Err(Error::Dimensions);
+            }
+        }
+        Side::Right => {
+            if n < k {
+                return Err(Error::Dimensions);
+            }
+
+            if lda < n {
+                return Err(Error::Dimensions);
+            }
+        }
+    }
+
+    if ldc < m {
+        return Err(Error::Dimensions);
+    }
+
+    // SAFETY: the dimensions are checked as above, but the user has to make
+    // sure that qr indeed contains the contents of a qr decomposition returned
+    // by lapack and tau must contain the scalar factors of the reflectors as
+    // returned by lapack.
     let lwork = unsafe { T::xormqr_work_size(side, transpose, m, n, k, a, lda, tau, c, ldc)? };
     let mut work = vec![T::zero(); lwork as usize];
 

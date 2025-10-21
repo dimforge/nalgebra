@@ -1,7 +1,7 @@
 use crate::proptest::*;
 use na::{
     DMatrix, DefaultAllocator, Dim, DimDiff, DimMin, DimMinimum, DimSub, Matrix, Matrix5x3,
-    OMatrix, RawStorage, SVD, Scalar, U1, allocator::Allocator,
+    OMatrix, RawStorage, SVD, U1, allocator::Allocator,
 };
 use num_traits::Zero;
 use proptest::prelude::*;

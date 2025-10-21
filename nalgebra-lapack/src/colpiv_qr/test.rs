@@ -1,9 +1,7 @@
-use std::convert::identity;
-
 use super::ColPivQR;
 use crate::qr::QrDecomposition;
 use approx::{assert_abs_diff_eq, assert_relative_eq};
-use na::{Matrix, Matrix5, Matrix5x4, OMatrix};
+use na::{Matrix, Matrix5, OMatrix};
 
 #[test]
 fn smoketest_qr_decomposition_for_f32_matrix() {
