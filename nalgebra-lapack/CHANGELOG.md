@@ -10,15 +10,15 @@ For the **changes between versions 0.4.0 and 0.27.0** see the main
 * fix failing tests for Cholesky decomposition
 * fix compilation with `serde-serialize` feature enabled
 * add column-pivoting QR decomposition and solver
+* Introduce a common, trait based interface to QR and column-pivoted QR.
+* Extend QR decompositions to allow multiplication with Q, Q^T, R, R^T efficiently
+  from both sides.
 * fix logic error in calculation of complex eigenvalues in eigen-decomposition.
 * change the feature flags for choosing the lapack backend, update docs accordingly
 * removed untested complex support in QR decomposition
 * remove `Qr::unpack`, since it brings no practical benefit over `(qr.q()`, `.r())`,
   but looks like it would bring an efficiency gain.
 * QR decomposition restricted to m>=n
-* Introduce a common, trait based interface to QR and column-pivoted QR.
-* Extend QR to match the capabilities of column-pivoted QR, including least
-  squares solver
 
 ## [0.4.0] - 2016-09-07
 
