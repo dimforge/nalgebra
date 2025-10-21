@@ -11,7 +11,7 @@ use na::{DefaultAllocator, Matrix, OMatrix, Scalar};
 
 use lapack;
 
-/// The cholesky decomposition of a symmetric-definite-positive matrix.
+/// The Cholesky decomposition of a symmetric positive-definite matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
@@ -42,7 +42,7 @@ impl<T: CholeskyScalar + Zero, D: Dim> Cholesky<T, D>
 where
     DefaultAllocator: Allocator<D, D>,
 {
-    /// Computes the cholesky decomposition of the given symmetric-definite-positive square
+    /// Computes the Cholesky decomposition of the given symmetric positive-definite square
     /// matrix.
     ///
     /// Only the lower-triangular part of the input matrix is considered.
@@ -51,7 +51,7 @@ where
         // TODO: check symmetry as well?
         assert!(
             m.is_square(),
-            "Unable to compute the cholesky decomposition of a non-square matrix."
+            "Unable to compute the Cholesky decomposition of a non-square matrix."
         );
 
         let uplo = b'L';
@@ -64,13 +64,13 @@ where
         Some(Self { l: m })
     }
 
-    /// Retrieves the lower-triangular factor of the cholesky decomposition.
+    /// Retrieves the lower-triangular factor of the Cholesky decomposition.
     pub fn unpack(mut self) -> OMatrix<T, D, D> {
         self.l.fill_upper_triangle(Zero::zero(), 1);
         self.l
     }
 
-    /// Retrieves the lower-triangular factor of che cholesky decomposition, without zeroing-out
+    /// Retrieves the lower-triangular factor of the Cholesky decomposition, without zeroing-out
     /// its strict upper-triangular part.
     ///
     /// This is an allocation-less version of `self.l()`. The values of the strict upper-triangular
@@ -79,7 +79,7 @@ where
         self.l
     }
 
-    /// Retrieves the lower-triangular factor of the cholesky decomposition.
+    /// Retrieves the lower-triangular factor of the Cholesky decomposition.
     #[must_use]
     pub fn l(&self) -> OMatrix<T, D, D> {
         let mut res = self.l.clone();
@@ -87,7 +87,7 @@ where
         res
     }
 
-    /// Retrieves the lower-triangular factor of the cholesky decomposition, without zeroing-out
+    /// Retrieves the lower-triangular factor of the Cholesky decomposition, without zeroing-out
     /// its strict upper-triangular part.
     ///
     /// This is an allocation-less version of `self.l()`. The values of the strict upper-triangular
@@ -177,7 +177,7 @@ where
  *
  */
 /// Trait implemented by floats (`f32`, `f64`) and complex floats (`Complex<f32>`, `Complex<f64>`)
-/// supported by the cholesky decomposition.
+/// supported by the Cholesky decomposition.
 pub trait CholeskyScalar: Scalar + Copy {
     #[allow(missing_docs)]
     fn xpotrf(uplo: u8, n: i32, a: &mut [Self], lda: i32, info: &mut i32);

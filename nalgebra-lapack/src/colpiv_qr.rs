@@ -14,10 +14,10 @@ mod permutation;
 #[cfg(test)]
 mod test;
 pub use permutation::Permutation;
-/// utility functionality to calculate the rank of matrices
+/// Utility functionality to calculate the rank of matrices.
 mod rank;
 
-/// The column-pivoted QR-decomposition of a rectangular matrix `A ∈ R^(m ⨯ n)`
+/// The column-pivoted QR decomposition of a rectangular matrix `A ∈ R^(m × n)`
 /// with `m >= n`.
 ///
 /// The columns of the matrix `A` are permuted such that `A P = Q R`, meaning
@@ -34,14 +34,14 @@ where
     R: DimMin<C, Output = C>,
     C: Dim,
 {
-    // qr decomposition, see https://www.netlib.org/lapack/explore-html/d0/dea/group__geqp3.html
+    // QR decomposition, see https://www.netlib.org/lapack/explore-html/d0/dea/group__geqp3.html
     qr: OMatrix<T, R, C>,
-    // householder coefficients, see https://www.netlib.org/lapack/explore-html/d0/dea/group__geqp3.html
+    // Householder coefficients, see https://www.netlib.org/lapack/explore-html/d0/dea/group__geqp3.html
     tau: OVector<T, DimMinimum<R, C>>,
-    // permutation vector, see https://www.netlib.org/lapack/explore-html/d0/dea/group__geqp3.html
-    // note that permutation indices are 1-based in LAPACK
+    // Permutation vector, see https://www.netlib.org/lapack/explore-html/d0/dea/group__geqp3.html
+    // Note that permutation indices are 1-based in LAPACK
     jpvt: OVector<i32, C>,
-    // rank of the matrix
+    // Rank of the matrix
     rank: i32,
 }
 
@@ -70,7 +70,7 @@ where
 
     /// Try to create a new decomposition from the given matrix and specify the
     /// strategy for rank determination. When in doubt, use the default strategy
-    /// via the [ColPivQR::new]  constructor.
+    /// via the [`ColPivQR::new`] constructor.
     pub fn with_rank_algo(
         mut m: OMatrix<T, R, C>,
         rank_algo: RankDeterminationAlgorithm<T>,

@@ -16,7 +16,7 @@ pub use crate::qr_util::Error;
 pub(crate) mod abstraction;
 pub use abstraction::QrDecomposition;
 
-/// The QR-decomposition of a rectangular matrix `A ∈ R^(m ⨯ n)` with `m >= n`.
+/// The QR decomposition of a rectangular matrix `A ∈ R^(m × n)` with `m >= n`.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",

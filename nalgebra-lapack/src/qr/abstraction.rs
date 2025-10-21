@@ -6,7 +6,7 @@ use na::{
 use num::{ConstOne, Zero};
 use qr_util::Error;
 
-/// common functionality for the QR decomposition of an m x n matrix `A` with or
+/// Common functionality for the QR decomposition of an m × n matrix `A` with or
 /// without column-pivoting.
 pub trait QrDecomposition<T, R, C>: Sealed
 where
@@ -16,29 +16,29 @@ where
     T: Scalar + RealField + QrReal,
 {
     #[doc(hidden)]
-    /// get a reference to the internal represenation of the QR decomposition
-    /// with the output of the lapack QR decomposition.
+    /// Get a reference to the internal representation of the QR decomposition
+    /// with the output of the LAPACK QR decomposition.
     fn __lapack_qr_ref(&self) -> &OMatrix<T, R, C>;
 
     #[doc(hidden)]
-    /// get a reference of the householder coefficients vector as computed by
-    /// lapack
+    /// Get a reference to the Householder coefficients vector as computed by
+    /// LAPACK.
     fn __lapack_tau_ref(&self) -> &OVector<T, DimMinimum<R, C>>;
 
     #[inline]
-    /// the number of rows of the original matrix `A`
+    /// The number of rows of the original matrix `A`.
     fn nrows(&self) -> usize {
         self.__lapack_qr_ref().nrows()
     }
 
     #[inline]
-    /// the number of columns of the original matrix `A`
+    /// The number of columns of the original matrix `A`.
     fn ncols(&self) -> usize {
         self.__lapack_qr_ref().ncols()
     }
 
     #[inline]
-    /// shape of the original matrix `A`
+    /// Shape of the original matrix `A`.
     fn shape_generic(&self) -> (R, C) {
         self.__lapack_qr_ref().shape_generic()
     }
@@ -58,9 +58,9 @@ where
         Ok(x)
     }
 
-    /// Solve the square or overdetermined system in `A X = B`, where `X ∈ R^(n ⨯ k)`,
-    /// `B ∈ R^(m ⨯ k)`in a least-squares sense, such that `|| A X -B||^2`
-    /// is minimized. The solution is placed into the matrix `X ∈ R^(m ⨯ k)`.
+    /// Solve the square or overdetermined system in `A X = B`, where `X ∈ R^(n × k)`,
+    /// `B ∈ R^(m × k)` in a least-squares sense, such that `|| A X - B||^2`
+    /// is minimized. The solution is placed into the matrix `X ∈ R^(n × k)`.
     ///
     /// Note that QR decomposition _does not_ typically give the minimum norm solution
     /// for `X`, only the residual is minimized which is typically what we want.
@@ -77,8 +77,8 @@ where
         T: Zero;
 
     /// Efficiently calculate the matrix product `Q B` of the factor `Q` with a
-    /// given matrix `B`. `Q` acts as if it is a matrix of dimension `m ⨯ m`, so
-    /// we require `B ∈ R^(m ⨯ k)`. The product is calculated in place and
+    /// given matrix `B`. `Q` acts as if it is a matrix of dimension `m × m`, so
+    /// we require `B ∈ R^(m × k)`. The product is calculated in place and
     /// must only be considered valid when the function returns without error.
     fn q_mul_mut<C2, S>(&self, b: &mut Matrix<T, R, C2, S>) -> Result<(), Error>
     where
@@ -89,8 +89,8 @@ where
         Ok(())
     }
     /// Efficiently calculate the matrix product `Q^T B` of the factor `Q` with a
-    /// given matrix `B`. `Q` acts as if it is a matrix of dimension `m ⨯ m`, so
-    /// we require `B ∈ R^(m ⨯ k)`. The product is calculated in place and
+    /// given matrix `B`. `Q` acts as if it is a matrix of dimension `m × m`, so
+    /// we require `B ∈ R^(m × k)`. The product is calculated in place and
     /// must only be considered valid when the function returns without error.
     fn q_tr_mul_mut<C2, S>(&self, b: &mut Matrix<T, R, C2, S>) -> Result<(), Error>
     where
@@ -102,8 +102,8 @@ where
     }
 
     /// Efficiently calculate the matrix product `B Q` of the factor `Q` with a
-    /// given matrix `B`. `Q` acts as if it is a matrix of dimension `m ⨯ m`, so
-    /// we require `B ∈ R^(k ⨯ m)`. The product is calculated in place and
+    /// given matrix `B`. `Q` acts as if it is a matrix of dimension `m × m`, so
+    /// we require `B ∈ R^(k × m)`. The product is calculated in place and
     /// must only be considered valid when the function returns without error.
     fn mul_q_mut<R2, S>(&self, b: &mut Matrix<T, R2, R, S>) -> Result<(), Error>
     where
@@ -115,8 +115,8 @@ where
     }
 
     /// Efficiently calculate the matrix product `B Q^T` of the factor `Q` with a
-    /// given matrix `B`. `Q` acts as if it is a matrix of dimension `m ⨯ m`, so
-    /// we require `B ∈ R^(k ⨯ m)`. The product is calculated in place and
+    /// given matrix `B`. `Q` acts as if it is a matrix of dimension `m × m`, so
+    /// we require `B ∈ R^(k × m)`. The product is calculated in place and
     /// must only be considered valid when the function returns without error.
     fn mul_q_tr_mut<R2, S>(&self, b: &mut Matrix<T, R2, R, S>) -> Result<(), Error>
     where
@@ -127,7 +127,7 @@ where
         Ok(())
     }
 
-    /// multiply `R*B` and place the result in `B`. R is treated as an m x m
+    /// Multiply `R*B` and place the result in `B`. R is treated as an m × m
     /// upper triangular matrix. The product is calculated in place and must
     /// only be considered valid when the function returns
     /// without error.
@@ -145,7 +145,7 @@ where
         qr_util::r_xx_mul_mut(self.__lapack_qr_ref(), Transposition::No, b)
     }
 
-    /// multiply `R^T * B` and place the result in `B`. R is treated as an m x m
+    /// Multiply `R^T * B` and place the result in `B`. R is treated as an m × m
     /// upper triangular matrix. The product is calculated in place and must
     /// only be considered valid when the function returns
     /// without error.
@@ -163,7 +163,7 @@ where
         qr_util::r_xx_mul_mut(self.__lapack_qr_ref(), Transposition::Transpose, b)
     }
 
-    /// multiply `B*R` and place the result in `B`. R is treated as an m x m
+    /// Multiply `B*R` and place the result in `B`. R is treated as an m × m
     /// upper triangular matrix. The product is calculated in place and must
     /// only be considered valid when the function returns
     /// without error.
@@ -181,7 +181,7 @@ where
         qr_util::mul_r_xx_mut(self.__lapack_qr_ref(), Transposition::No, b)
     }
 
-    /// multiply `B*R^T` and place the result in `B`. R is treated as an m x m
+    /// Multiply `B*R^T` and place the result in `B`. R is treated as an m × m
     /// upper triangular matrix. The product is calculated in place and must
     /// only be considered valid when the function returns
     /// without error.
@@ -199,10 +199,10 @@ where
         qr_util::mul_r_xx_mut(self.__lapack_qr_ref(), Transposition::Transpose, b)
     }
 
-    /// Computes the orthonormal matrix `Q ∈ R^(m ⨯ n)` of this decomposition.
+    /// Computes the orthonormal matrix `Q ∈ R^(m × n)` of this decomposition.
     /// Note that this matrix has _economy_ dimensions, which means it is not
     /// square unless `A` is square. It satisfies `Q^T Q = I`. Note further
-    /// that is is typically not necessary to compute `Q` explicitly. Rather,
+    /// that it is typically not necessary to compute `Q` explicitly. Rather,
     /// check if some of the provided multiplication functions can help to
     /// calculate the matrix products `Q B`, `B Q`, `Q^T B`, `B Q^T` more efficiently.
     ///

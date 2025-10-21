@@ -4,25 +4,25 @@ use na::{
 };
 use num::{ConstOne, Zero};
 
+/// Error type for QR decomposition operations.
 #[derive(Debug, PartialEq, thiserror::Error)]
-/// error type
 pub enum Error {
+    /// Incorrect matrix dimensions.
     #[error("incorrect matrix dimensions")]
-    /// incorrect matrix dims
     Dimensions,
+    /// LAPACK backend returned error.
     #[error("Lapack returned with error: {0}")]
-    /// lapack backend returned error
     Lapack(#[from] LapackErrorCode),
+    /// QR decomposition for underdetermined systems not supported.
     #[error("QR decomposition for underdetermined systems not supported")]
-    /// underdetermined system
     Underdetermined,
+    /// Matrix has rank zero.
     #[error("Matrix has rank zero")]
-    /// matrix has zero rank
     ZeroRank,
 }
 
-/// Thin wrapper around certain invokation of `multiply_q_mut`, where:
-/// * `qr`: contains the lapack-style qr decomposition of a matrix A
+/// Thin wrapper around certain invocation of `multiply_q_mut`, where:
+/// * `qr`: contains the LAPACK-style QR decomposition of a matrix A
 /// * `tau`: scalar factors of the elementary reflectors
 /// * `b`: matrix B described below
 ///

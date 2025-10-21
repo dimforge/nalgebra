@@ -17,7 +17,7 @@ use lapack;
 /// This decomposes a matrix `M` with m rows and n columns into three parts:
 /// * `L` which is a `m × min(m, n)` lower-triangular matrix.
 /// * `U` which is a `min(m, n) × n` upper-triangular matrix.
-/// * `P` which is a `m * m` permutation matrix.
+/// * `P` which is a `m × m` permutation matrix.
 ///
 /// Those are such that `M == P * L * U`.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]

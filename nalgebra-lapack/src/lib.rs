@@ -4,19 +4,19 @@
 //!
 //! ## Selecting a LAPACK Backend
 //!
-//! This crate uses cargo [cargo features](https://doc.crates.io/manifest.html#the-[features]-section)
+//! This crate uses [cargo features](https://doc.crates.io/manifest.html#the-[features]-section)
 //! to select which lapack provider (or implementation) is used.
 //!
 //! ### Default LAPACK Backend and Performance
 //!
-//! By default, the [`netlib-src`](https://crates.io/crates/netlib-src) crate
+//! By default, the [`lapack-src`](https://crates.io/crates/lapack-src) crate
 //! is used as a LAPACK source, which bundles netlib and works out of the box,
-//! given an existing FOTRAN compiler on your system. That makes this choice
+//! given an existing FORTRAN compiler on your system. That makes this choice
 //! practical, but it's typically not the best performing backend.
 //!
-//! ### Lapack Backends
+//! ### LAPACK Backends
 //!
-//! LAPACK backends other than `netlib` typically assume the libraries or
+//! LAPACK backends other than `lapack-netlib` typically assume the libraries or
 //! frameworks are present on your system. See the respective vendors how to
 //! install them. Backends are selected using one of the `lapack-*` feature flags:
 //!
@@ -25,22 +25,22 @@
 //! * `lapack-openblas`: Use LAPACK provided via [OpenBLAS](http://www.openmathlib.org/OpenBLAS/).
 //! * `lapack-accelerate`: Use Apple's [Accelerate](https://developer.apple.com/documentation/accelerate)
 //!   framework.
-//! * `lapack-mkl`: alias for `lapack-mkl-static-seq`. A useful default for [Intel MKL](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html)
+//! * `lapack-mkl`: alias for `lapack-mkl-static-seq`. A useful default for [Intel MKL](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html).
 //! * `lapack-mkl-static-seq`: statically link the _sequential_ version of MKL.
 //! * `lapack-mkl-static-par`: statically link the _parallel_ version of MKL.
 //! * `lapack-mkl-dynamic-seq`: dynamically link the sequential version of MKL.
 //! * `lapack-mkl-dynamic-par`: dynamically link the parallel version of MKL.
-//! * `lapack-custom`: Use a custom lapack backend whose functions must be
-//!   available at linktime. It is your responsibility to make sure those are
-//!   ABI compatible to the function signatures in the [lapack](https://crates.io/crates/lapack)
+//! * `lapack-custom`: Use a custom LAPACK backend whose functions must be
+//!   available at link time. It is your responsibility to make sure those are
+//!   ABI compatible with the function signatures in the [lapack](https://crates.io/crates/lapack)
 //!   crate.
 //!
 //! Note that **exactly one** of these features must be selected
 //! and that `lapack-netlib` is selected by default, which means **you have
-//! to disable default features**, when explicitly specifying a lapack backend.
+//! to disable default features** when explicitly specifying a LAPACK backend.
 //!
 //! ```toml
-//! nalgebra-lapack = {version = *, default-features = false, features = ["lapack-*"]}
+//! nalgebra-lapack = { version = "*", default-features = false, features = ["lapack-*"] }
 //! ```
 //!
 //! [version-img]: https://img.shields.io/crates/v/nalgebra-lapack.svg
@@ -61,9 +61,9 @@
 //!
 //!
 //! ## Contributors
-//! This integration of LAPACK on nalgebra was
+//! This integration of LAPACK with nalgebra was
 //! [initiated](https://github.com/strawlab/nalgebra-lapack) by Andrew Straw. It
-//! then became officially supported and integrated to the main nalgebra
+//! then became officially supported and integrated into the main nalgebra
 //! repository.
 
 #![deny(non_camel_case_types)]
@@ -77,7 +77,7 @@
     html_root_url = "https://nalgebra.rs/rustdoc"
 )]
 
-// a utility macro that makes sure that exactly one of the lapack backend
+// A utility macro that makes sure that exactly one of the LAPACK backend
 // features is selected. It provides helpful error messages otherwise.
 macro_rules! enforce_exactly_one_feature_selected {
     ($($feat:literal),+ $(,)?) => {
@@ -98,12 +98,12 @@ macro_rules! enforce_exactly_one_feature_selected {
 // ## Multiple Features Selected!
 //
 // By default, the `lapack-netlib`
-// backend is specified, so to select another backend, you have disable
-// the default-features of this crate, when including this crate.
+// backend is specified, so to select another backend, you have to disable
+// the default features of this crate when including this crate.
 //
 // ## Select At Least One Feature!
 //
-// If you want to use a custom backend at link-time, turn off default features
+// If you want to use a custom backend at link time, turn off default features
 // and use `lapack-custom`.
 enforce_exactly_one_feature_selected!(
     "lapack-openblas",
@@ -126,29 +126,29 @@ extern crate num_traits as num;
 mod lapack_check;
 
 mod cholesky;
-/// column-pivoted QR decomposition of a rectangular (or square) matrix
+/// Column-pivoted QR decomposition of a rectangular (or square) matrix.
 pub mod colpiv_qr;
 mod eigen;
 mod generalized_eigenvalues;
 mod hessenberg;
 mod lu;
-/// QR decomposition of a rectangular (or square) matrix
+/// QR decomposition of a rectangular (or square) matrix.
 pub mod qr;
 mod qz;
 mod schur;
 mod svd;
 mod symmetric_eigen;
 
-/// internal utility module that contains functionality that is useful for
-/// both column-pivoted and non-pivoted qr decomposition
+/// Internal utility module that contains functionality that is useful for
+/// both column-pivoted and non-pivoted QR decomposition.
 mod qr_util;
 
 use num_complex::Complex;
 
-/// utility module that defines some common terms that lapack uses
+/// Utility module that defines some common terms that LAPACK uses.
 mod lapack_terminology;
 
-/// utility module for lapack error codes and error checking
+/// Utility module for LAPACK error codes and error checking.
 mod lapack_error;
 
 pub use lapack_error::LapackErrorCode;
