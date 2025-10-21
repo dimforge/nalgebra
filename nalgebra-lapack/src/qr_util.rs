@@ -330,7 +330,7 @@ where
         return Err(Error::Dimensions);
     }
 
-    unsafe { left_multiply_r_mut(qr, Transposition::No, b)? };
+    unsafe { multiply_r_mut(qr, Transposition::No, Side::Left, b)? };
     Ok(())
 }
 
@@ -338,22 +338,23 @@ where
 /// for multiplying the upper triangular part R or a QR decomposition with another
 /// matrix.
 ///
+/// The way the ?TRMM logic works is that A is a kxk matrix, and B is m x n.
+/// When multiplying from the left, then k = m and when multiplying from the
+/// right, k = n. The matrix A can be stored in the QR decomposition as the
+/// upper triangular part, so LDA is the number of rows for the QR decomp.
+///
 /// The ?TRMM functions also allow scaling with a factor alpha, which
 /// we always set to 1 and they allow the matrix to be upper or lower triangular,
 /// we always use upper triangular. They also allow to multiply from right or
 /// left, but the dimension of R in a QR decomposition only allows multiplication
 /// from the left, I think.
-///
-/// # Safety
-///
-/// The dimensions of the matrices must be correct such that the multiplication
-/// can be performed.
 #[inline]
-unsafe fn left_multiply_r_mut<T, R1, C1, S1, R2, C2, S2>(
+fn multiply_r_mut<T, R1, C1, S1, R2, C2, S2>(
     qr: &Matrix<T, R1, C1, S1>,
     transpose: Transposition,
+    side: Side,
     mat: &mut Matrix<T, R2, C2, S2>,
-) -> Result<(), LapackErrorCode>
+) -> Result<(), Error>
 where
     T: QrReal + ConstOne,
     R1: Dim,
@@ -363,26 +364,49 @@ where
     C2: Dim,
     S1: IsContiguous + RawStorage<T, R1, C1>,
 {
-    let m = mat
+    let m: i32 = mat
         .nrows()
         .try_into()
         .expect("integer dimensions out of bounds");
-    let n = mat
+    let n: i32 = mat
         .ncols()
         .try_into()
         .expect("integer dimensions out of bounds");
-    let lda = qr
+    let lda: i32 = qr
         .nrows()
         .try_into()
         .expect("integer dimensions out of bounds");
-    let ldb = mat
+    let ldb: i32 = mat
         .nrows()
         .try_into()
         .expect("integer dimensions out of bounds");
 
+    // these bounds are from the lapack documentation
+    // see e.g. https://www.netlib.org/lapack/explore-html/dd/dab/group__trmm_ga4d2f76d6726f53c69031a2fe7f999add.html#ga4d2f76d6726f53c69031a2fe7f999add
+    match side {
+        Side::Left => {
+            if lda == 0 || lda < m {
+                return Err(Error::Dimensions);
+            }
+            if qr.ncols() != m as usize {
+                return Err(Error::Dimensions);
+            }
+        }
+        Side::Right => {
+            if lda == 0 || lda < n {
+                return Err(Error::Dimensions);
+            }
+            if qr.ncols() != n as usize {
+                return Err(Error::Dimensions);
+            }
+        }
+    }
+
+    // SAFETY: we're using the correct types and we are giving the
+    // correct matrix dimensions as per lapack docs
     unsafe {
         T::xtrmm(
-            Side::Left,
+            side,
             TriangularStructure::Upper,
             transpose,
             DiagonalKind::NonUnit,
