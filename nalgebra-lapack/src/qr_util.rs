@@ -304,10 +304,11 @@ where
     Ok(())
 }
 
-/// multiply R*B and place the result in B, where R is the upper triangular matrix
+/// multiply R*B or R^T *B and place the result in B, where R is the upper triangular matrix
 /// in a qr decomposition as computed by lapack.
-pub fn r_mul_mut<T, R1, C1, S1, C2, S2>(
+pub fn r_xx_mul_mut<T, R1, C1, S1, C2, S2>(
     qr: &Matrix<T, R1, C1, S1>,
+    transpose: Transposition,
     b: &mut Matrix<T, C1, C2, S2>,
 ) -> Result<(), Error>
 where
@@ -330,10 +331,40 @@ where
         return Err(Error::Dimensions);
     }
 
-    unsafe { multiply_r_mut(qr, Transposition::No, Side::Left, b)? };
+    multiply_r_mut(qr, transpose, Side::Left, b)?;
     Ok(())
 }
 
+/// multiply B*R or B * R^T and place the result in B, where R is the upper triangular matrix
+/// in a qr decomposition as computed by lapack.
+pub fn mul_r_xx_mut<T, R1, C1, S1, R2, S2>(
+    qr: &Matrix<T, R1, C1, S1>,
+    transpose: Transposition,
+    b: &mut Matrix<T, R2, C1, S2>,
+) -> Result<(), Error>
+where
+    T: QrReal + ConstOne,
+    R1: Dim,
+    C1: Dim,
+    R2: Dim,
+    S1: RawStorage<T, R1, C1> + IsContiguous,
+    S2: RawStorageMut<T, R2, C1> + IsContiguous,
+{
+    // looking carefully at the lapack docs, the xTRMM requires
+    // an overdetermined matrix (m>=n), because otherwise R will
+    // be upper trapezoidal and the logic will be different and it
+    // might not actually be useful to multiply the square part.
+    if qr.nrows() < qr.ncols() {
+        return Err(Error::Underdetermined);
+    }
+
+    if b.ncols() != qr.ncols() {
+        return Err(Error::Dimensions);
+    }
+
+    multiply_r_mut(qr, transpose, Side::Right, b)?;
+    Ok(())
+}
 /// thin-ish wrapper around the lapack function [?TRMM](https://www.netlib.org/lapack/explore-html/dd/dab/group__trmm.html)
 /// for multiplying the upper triangular part R or a QR decomposition with another
 /// matrix.

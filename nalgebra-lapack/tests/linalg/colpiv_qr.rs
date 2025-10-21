@@ -88,10 +88,26 @@ proptest! {
     }
 
     #[test]
-    fn r_mul_mut((a, mut x) in square_or_overdetermined_mat_and_r_multipliable()) {
+    fn r_multiplication(a in square_or_overdetermined_dmatrix()) {
+        // we use the identity matrix for multiplication to check if
+        // this results in the correct qr.r(). We have already verified qr.r()
+        // above.
         let qr = ColPivQR::new(a).unwrap();
-        let rx  = qr.r()*&x;
-        qr.r_mul_mut(&mut x).unwrap();
-        prop_assert!(relative_eq!(rx,x,epsilon = 1e-5));
+
+        let mut r = DMatrix::identity(qr.ncols(),qr.ncols());
+        qr.r_mul_mut(&mut r).unwrap();
+        prop_assert!(relative_eq!(r,qr.r(),epsilon = 1e-5));
+
+        let mut rt = DMatrix::identity(qr.ncols(),qr.ncols());
+        qr.r_tr_mul_mut(&mut rt).unwrap();
+        prop_assert!(relative_eq!(rt,qr.r().transpose(),epsilon = 1e-5));
+
+        let mut r = DMatrix::identity(qr.ncols(),qr.ncols());
+        qr.mul_r_mut(&mut r).unwrap();
+        prop_assert!(relative_eq!(r,qr.r(),epsilon = 1e-5));
+
+        let mut rt = DMatrix::identity(qr.ncols(),qr.ncols());
+        qr.mul_r_tr_mut(&mut rt).unwrap();
+        prop_assert!(relative_eq!(rt,qr.r().transpose(),epsilon = 1e-5));
     }
 }

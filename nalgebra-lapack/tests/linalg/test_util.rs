@@ -49,15 +49,6 @@ pub fn full_rank_linear_system_dynamic() -> impl Strategy<Value = (DMatrix<f64>,
     })
 }
 
-/// gives us a matrix A for QR decomposition and a matrix B where R*B can be calculated
-pub fn square_or_overdetermined_mat_and_r_multipliable()
--> impl Strategy<Value = (DMatrix<f64>, DMatrix<f64>)> {
-    square_or_overdetermined_dmatrix().prop_flat_map(|a| {
-        let b = matrix(PROPTEST_F64, a.ncols(), PROPTEST_MATRIX_DIM);
-        (Just(a), b)
-    })
-}
-
 pub fn full_rank_matrix5x3() -> impl Strategy<Value = Matrix5x3<f64>> {
     matrix5x3().prop_flat_map(|a| Just(make_full_rank(a)))
 }

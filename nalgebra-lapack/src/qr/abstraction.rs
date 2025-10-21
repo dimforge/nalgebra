@@ -1,4 +1,4 @@
-use crate::{qr::QrReal, qr_util, sealed::Sealed};
+use crate::{Transposition, qr::QrReal, qr_util, sealed::Sealed};
 use na::{
     DefaultAllocator, Dim, DimMin, DimMinimum, IsContiguous, Matrix, OMatrix, OVector,
     RawStorageMut, RealField, Scalar, Storage, allocator::Allocator,
@@ -6,7 +6,7 @@ use na::{
 use num::{ConstOne, Zero};
 use qr_util::Error;
 
-/// common functionality for the QR decomposition of a matrix `A` with or
+/// common functionality for the QR decomposition of an m x n matrix `A` with or
 /// without column-pivoting.
 pub trait QrDecomposition<T, R, C>: Sealed
 where
@@ -127,9 +127,12 @@ where
         Ok(())
     }
 
-    /// multiply `R*B` and place the result in `B`. The product is calculated
-    /// in place and must only be considered valid when the function returns
+    /// multiply `R*B` and place the result in `B`. R is treated as an m x m
+    /// upper triangular matrix. The product is calculated in place and must
+    /// only be considered valid when the function returns
     /// without error.
+    ///
+    /// Prefer this over `qr.r() * B`, since its faster and allocation-free.
     fn r_mul_mut<C2, S2>(&self, b: &mut Matrix<T, C, C2, S2>) -> Result<(), Error>
     where
         C2: Dim,
@@ -139,7 +142,61 @@ where
         if self.nrows() < self.ncols() {
             return Err(Error::Underdetermined);
         }
-        qr_util::r_mul_mut(self.__lapack_qr_ref(), b)
+        qr_util::r_xx_mul_mut(self.__lapack_qr_ref(), Transposition::No, b)
+    }
+
+    /// multiply `R^T * B` and place the result in `B`. R is treated as an m x m
+    /// upper triangular matrix. The product is calculated in place and must
+    /// only be considered valid when the function returns
+    /// without error.
+    ///
+    /// Prefer this over `qr.r().transpose() * B`, since its faster and allocation-free.
+    fn r_tr_mul_mut<C2, S2>(&self, b: &mut Matrix<T, C, C2, S2>) -> Result<(), Error>
+    where
+        C2: Dim,
+        S2: RawStorageMut<T, C, C2> + IsContiguous,
+        T: ConstOne,
+    {
+        if self.nrows() < self.ncols() {
+            return Err(Error::Underdetermined);
+        }
+        qr_util::r_xx_mul_mut(self.__lapack_qr_ref(), Transposition::Transpose, b)
+    }
+
+    /// multiply `B*R` and place the result in `B`. R is treated as an m x m
+    /// upper triangular matrix. The product is calculated in place and must
+    /// only be considered valid when the function returns
+    /// without error.
+    ///
+    /// Prefer this over `B * qr.r()`, since its faster and allocation-free.
+    fn mul_r_mut<R2, S2>(&self, b: &mut Matrix<T, R2, C, S2>) -> Result<(), Error>
+    where
+        R2: Dim,
+        S2: RawStorageMut<T, R2, C> + IsContiguous,
+        T: ConstOne,
+    {
+        if self.nrows() < self.ncols() {
+            return Err(Error::Underdetermined);
+        }
+        qr_util::mul_r_xx_mut(self.__lapack_qr_ref(), Transposition::No, b)
+    }
+
+    /// multiply `B*R^T` and place the result in `B`. R is treated as an m x m
+    /// upper triangular matrix. The product is calculated in place and must
+    /// only be considered valid when the function returns
+    /// without error.
+    ///
+    /// Prefer this over `B * qr.r()`, since its faster and allocation-free.
+    fn mul_r_tr_mut<R2, S2>(&self, b: &mut Matrix<T, R2, C, S2>) -> Result<(), Error>
+    where
+        R2: Dim,
+        S2: RawStorageMut<T, R2, C> + IsContiguous,
+        T: ConstOne,
+    {
+        if self.nrows() < self.ncols() {
+            return Err(Error::Underdetermined);
+        }
+        qr_util::mul_r_xx_mut(self.__lapack_qr_ref(), Transposition::Transpose, b)
     }
 
     /// Computes the orthonormal matrix `Q ∈ R^(m ⨯ n)` of this decomposition.

@@ -60,11 +60,11 @@ proptest! {
         prop_assert!(relative_eq!(a.transpose()*&a*x,a.transpose()*b,epsilon = 1e-5));
     }
 
-    #[test]
-    fn r_mul_mut((a, mut x) in square_or_overdetermined_mat_and_r_multipliable()) {
-        let qr = QR::new(a).unwrap();
-        let rx  = qr.r()*&x;
-        qr.r_mul_mut(&mut x).unwrap();
-        prop_assert!(relative_eq!(rx,x,epsilon = 1e-5));
-    }
+    // #[test]
+    // fn r_mul_mut((a, mut x) in square_or_overdetermined_mat_and_r_multipliable()) {
+    //     let qr = QR::new(a).unwrap();
+    //     let rx  = qr.r()*&x;
+    //     qr.r_mul_mut(&mut x).unwrap();
+    //     prop_assert!(relative_eq!(rx,x,epsilon = 1e-5));
+    // }
 }

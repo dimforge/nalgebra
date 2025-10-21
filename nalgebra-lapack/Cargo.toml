@@ -42,7 +42,7 @@ serde = { version = "1.0", features = ["derive"], optional = true }
 lapack = { version = "0.20", default-features = false }
 blas = { version = "0.23", default-features = false }
 lapack-src = { version = "0.13", optional = true }
-blas-src = { version = "0.14", optional = true }
+blas-src = { version = "0.14", optional = true, default-features = false}
 thiserror = "1.0"
 
 [dev-dependencies]
