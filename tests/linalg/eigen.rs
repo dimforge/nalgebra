@@ -1,4 +1,4 @@
-use na::{DMatrix, Matrix3};
+use na::{Complex, DMatrix, Matrix3};
 
 #[cfg(feature = "proptest-support")]
 mod proptest_tests {
@@ -139,6 +139,35 @@ fn very_small_deviation_from_identity_issue_1368() {
     {
         assert_relative_eq!(*v, 1.);
     }
+}
+
+// Regression test for #1528
+#[test]
+#[rustfmt::skip]
+fn eigenvalues_search_should_not_hang_issue_1528() {
+    let m = DMatrix::from_row_slice(
+        4,
+        4,
+        &[
+            0.0_f64,            0.5773502691896257, 0.0,                0.0,
+            0.5773502691896257, 0.0,                0.5163977794943222, 0.0,
+            0.0,                0.5163977794943222, 0.0,                0.50709255283711,
+            0.0,                0.0,                0.50709255283711,   0.0,
+        ],
+    );
+    let complex_eigenvals = m.complex_eigenvalues();
+
+    assert_relative_eq!(
+        complex_eigenvals.iter().sum::<Complex<f64>>().re,
+        m.trace(),
+        epsilon = 1e-10
+    );
+
+    assert_relative_eq!(
+        complex_eigenvals.iter().product::<Complex<f64>>().re,
+        m.determinant(),
+        epsilon = 1e-10
+    );
 }
 
 //  #[cfg(feature = "arbitrary")]
