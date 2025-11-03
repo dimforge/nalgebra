@@ -1342,3 +1342,26 @@ fn parallel_column_iteration_mut() {
     assert_eq!(first, second);
     assert_eq!(second, DMatrix::identity(400, 300));
 }
+
+#[test]
+fn abs_diff_eq_basic_test() {
+    use approx::AbsDiffEq;
+    use nalgebra_macros::dvector;
+
+    let a = dvector![1.0, 2.0];
+    let b = dvector![1.0, 2.0];
+
+    assert!(a.abs_diff_eq(&b, 1e-6));
+}
+
+#[test]
+#[should_panic]
+fn abs_diff_eq_nonmatching_shapes() {
+    use approx::AbsDiffEq;
+    use nalgebra_macros::dvector;
+
+    let a = dvector![1.0, 2.0, 3.0];
+    let b = dvector![1.0, 2.0];
+
+    a.abs_diff_eq(&b, 1e-6);
+}

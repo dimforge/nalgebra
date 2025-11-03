@@ -1750,6 +1750,7 @@ where
 
     #[inline]
     fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
+        assert!(self.shape() == other.shape());
         self.iter()
             .zip(other.iter())
             .all(|(a, b)| a.abs_diff_eq(b, epsilon.clone()))
