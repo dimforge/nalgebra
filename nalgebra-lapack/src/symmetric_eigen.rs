@@ -161,6 +161,10 @@ where
     }
 }
 
+pub trait Sealed {}
+impl Sealed for f32 {}
+impl Sealed for f64 {}
+
 /*
  *
  * Lapack functions dispatch.
@@ -168,7 +172,7 @@ where
  */
 /// Trait implemented by scalars for which Lapack implements the eigendecomposition of symmetric
 /// real matrices.
-pub trait SymmetricEigenScalar: Scalar {
+pub trait SymmetricEigenScalar: Scalar + Sealed {
     #[allow(missing_docs)]
     fn xsyev(
         jobz: u8,

@@ -150,7 +150,7 @@ pub use self::qr::QR;
 pub use self::qz::QZ;
 pub use self::schur::Schur;
 pub use self::svd::SVD;
-pub use self::symmetric_eigen::SymmetricEigen;
+pub use self::symmetric_eigen::{SymmetricEigen, SymmetricEigenScalar};
 
 mod sealed;
 
