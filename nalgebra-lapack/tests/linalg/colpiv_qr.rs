@@ -1,42 +1,9 @@
+use super::test_util::*;
 use crate::proptest::*;
-use na::{DMatrix, Dim, Matrix, OMatrix, RawStorage};
-use nl::ColPivQR;
-use num_traits::Zero;
+use core::panic;
+use na::{DMatrix, OMatrix};
+use nl::{ColPivQR, qr::QrDecomposition};
 use proptest::prelude::*;
-
-fn is_upper_triangular<T, R, C, S>(mat: &Matrix<T, R, C, S>) -> bool
-where
-    T: Zero + PartialEq,
-    C: Dim,
-    R: Dim,
-    S: RawStorage<T, R, C>,
-{
-    let ncols = mat.ncols();
-    let nrows = mat.nrows();
-
-    let zero = T::zero();
-    for c in 0..ncols {
-        for r in c + 1..nrows {
-            if mat[(r, c)] != zero {
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
-fn square_or_overdetermined_dmatrix() -> impl Strategy<Value = DMatrix<f64>> {
-    PROPTEST_MATRIX_DIM.prop_flat_map(|rows| {
-        (1..=rows).prop_flat_map(move |cols| matrix(PROPTEST_F64, rows..=rows, cols..=cols))
-    })
-}
-
-fn linear_system_dynamic() -> impl Strategy<Value = (DMatrix<f64>, DMatrix<f64>)> {
-    square_or_overdetermined_dmatrix().prop_flat_map(|a| {
-        let b = matrix(PROPTEST_F64, a.nrows(), PROPTEST_MATRIX_DIM);
-        (Just(a), b)
-    })
-}
 
 proptest! {
     #[test]
@@ -95,7 +62,7 @@ proptest! {
             },
             Err(err) => {
                 prop_assert!(rank == 0);
-                prop_assert!(err == nl::ColPivQrError::ZeroRank);
+                prop_assert!(err == nl::colpiv_qr::Error::ZeroRank);
             },
         }
     }
@@ -115,8 +82,74 @@ proptest! {
             },
             Err(err) => {
                 prop_assert!(rank == 0);
-                prop_assert!(err == nl::ColPivQrError::ZeroRank);
+                prop_assert!(err == nl::colpiv_qr::Error::ZeroRank);
             },
         }
+    }
+
+    #[test]
+    fn r_multiplication(a in square_or_overdetermined_dmatrix()) {
+        // we use the identity matrix for multiplication to check if
+        // this results in the correct qr.r(). We have already verified qr.r()
+        // above.
+        let qr = ColPivQR::new(a).unwrap();
+
+        let mut r = DMatrix::identity(qr.ncols(),qr.ncols());
+        qr.r_mul_mut(&mut r).unwrap();
+        prop_assert!(relative_eq!(r,qr.r(),epsilon = 1e-5));
+
+        let mut rt = DMatrix::identity(qr.ncols(),qr.ncols());
+        qr.r_tr_mul_mut(&mut rt).unwrap();
+        prop_assert!(relative_eq!(rt,qr.r().transpose(),epsilon = 1e-5));
+
+        let mut r = DMatrix::identity(qr.ncols(),qr.ncols());
+        qr.mul_r_mut(&mut r).unwrap();
+        prop_assert!(relative_eq!(r,qr.r(),epsilon = 1e-5));
+
+        let mut rt = DMatrix::identity(qr.ncols(),qr.ncols());
+        qr.mul_r_tr_mut(&mut rt).unwrap();
+        prop_assert!(relative_eq!(rt,qr.r().transpose(),epsilon = 1e-5));
+    }
+
+    #[test]
+    fn q_multiplication(a in square_or_overdetermined_dmatrix()) {
+        // same trick as in r-multiplication test. Use rectangular identity matrix
+        // for multiplication and compare with qr.q(), which is computed
+        // differently and verified above.
+        let qr = ColPivQR::new(a).unwrap();
+
+        let mut q = DMatrix::identity(qr.nrows(),qr.ncols());
+        qr.q_mul_mut(&mut q).unwrap();
+        prop_assert!(relative_eq!(q,qr.q(),epsilon = 1e-5));
+
+        // this tests orthogonality Q^T Q = I
+        qr.q_tr_mul_mut(&mut q).unwrap();
+        prop_assert!(relative_eq!(q,DMatrix::<f64>::identity(q.nrows(),q.ncols()),epsilon = 1e-5));
+
+        // now since we've verified Q itself, we now use it to verify
+        // the other multiplications by generating rectangular matrices m x m
+
+        // I*Q
+        let mut q = DMatrix::identity(qr.nrows(),qr.nrows());
+        qr.mul_q_mut(&mut q).unwrap();
+
+        // I * Q^T
+        let mut qt = DMatrix::identity(qr.nrows(),qr.nrows());
+        qr.mul_q_tr_mut(&mut qt).unwrap();
+
+        // Q * I
+        let mut q2 = DMatrix::identity(qr.nrows(),qr.nrows());
+        qr.q_mul_mut(&mut q2).unwrap();
+
+        // Q^T * I
+        let mut qt2 = DMatrix::identity(qr.nrows(),qr.nrows());
+        qr.q_tr_mul_mut(&mut qt2).unwrap();
+
+        let eye = DMatrix::identity(qr.nrows(),qr.nrows());
+
+        prop_assert!(relative_eq!(q,q2, epsilon = 1e-5));
+        prop_assert!(relative_eq!(qt,qt2, epsilon = 1e-5));
+        prop_assert!(relative_eq!(&qt*&q, eye, epsilon = 1e-5));
+        prop_assert!(relative_eq!(&q*&qt, eye, epsilon = 1e-5));
     }
 }

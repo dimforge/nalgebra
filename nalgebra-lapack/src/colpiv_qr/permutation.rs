@@ -1,7 +1,9 @@
-use super::{ColPivQrScalar, Error};
 use na::{
     DefaultAllocator, Dim, IsContiguous, Matrix, OVector, RawStorageMut, allocator::Allocator,
 };
+
+use super::Error;
+use crate::qr::QrScalar;
 
 #[cfg(test)]
 mod test;
@@ -33,7 +35,7 @@ where
     where
         R: Dim,
         S: RawStorageMut<T, R, D> + IsContiguous,
-        T: ColPivQrScalar,
+        T: QrScalar,
     {
         //@note(geo-ant) due to the LAPACK internal logic in the jpvt vector, we have
         // to invert the forward/backward argument here
@@ -49,7 +51,7 @@ where
     where
         R: Dim,
         S: RawStorageMut<T, R, D> + IsContiguous,
-        T: ColPivQrScalar,
+        T: QrScalar,
     {
         self.apply_cols_mut(true, mat)
     }
@@ -60,7 +62,7 @@ where
     where
         C: Dim,
         S: RawStorageMut<T, D, C> + IsContiguous,
-        T: ColPivQrScalar,
+        T: QrScalar,
     {
         self.apply_rows_mut(false, mat)
     }
@@ -74,7 +76,7 @@ where
     where
         C: Dim,
         S: RawStorageMut<T, D, C> + IsContiguous,
-        T: ColPivQrScalar,
+        T: QrScalar,
     {
         self.apply_rows_mut(true, mat)
     }
@@ -89,7 +91,7 @@ where
     where
         C: Dim,
         S: RawStorageMut<T, D, C> + IsContiguous,
-        T: ColPivQrScalar,
+        T: QrScalar,
     {
         if mat.nrows() != self.jpvt.len() {
             return Err(Error::Dimensions);
@@ -130,7 +132,7 @@ where
     where
         R: Dim,
         S: RawStorageMut<T, R, D> + IsContiguous,
-        T: ColPivQrScalar,
+        T: QrScalar,
     {
         if mat.ncols() != self.jpvt.len() {
             return Err(Error::Dimensions);

@@ -1,6 +1,7 @@
 use super::ColPivQR;
+use crate::qr::QrDecomposition;
 use approx::{assert_abs_diff_eq, assert_relative_eq};
-use na::{Matrix, OMatrix};
+use na::{Matrix, Matrix5, OMatrix};
 
 #[test]
 fn smoketest_qr_decomposition_for_f32_matrix() {
@@ -157,6 +158,30 @@ fn test_q_multiplication() {
     };
 
     assert_abs_diff_eq!(q_tr_mul_b, b * q_full.transpose(), epsilon = 1e-4);
+
+    // we should also be able to get the Q and Q^T matries by multiplying suitably
+    // by multiplying Q or Q^T to a suitably sized identity matrix
+    let eye5x5 = Matrix5::<f32>::identity();
+
+    // Q*I
+    let mut q_full2 = eye5x5.clone();
+    qr.q_mul_mut(&mut q_full2).unwrap();
+    assert_abs_diff_eq!(q_full, q_full2, epsilon = 1e-4);
+
+    // I*Q
+    let mut q_full2 = eye5x5.clone();
+    qr.mul_q_mut(&mut q_full2).unwrap();
+    assert_abs_diff_eq!(q_full, q_full2, epsilon = 1e-4);
+
+    // Q^T*I
+    let mut q_full2_tr = eye5x5.clone();
+    qr.q_tr_mul_mut(&mut q_full2_tr).unwrap();
+    assert_abs_diff_eq!(q_full.transpose(), q_full2_tr, epsilon = 1e-4);
+
+    // I*Q^T
+    let mut q_full2_tr = eye5x5.clone();
+    qr.mul_q_tr_mut(&mut q_full2_tr).unwrap();
+    assert_abs_diff_eq!(q_full.transpose(), q_full2_tr, epsilon = 1e-4);
 }
 
 #[test]

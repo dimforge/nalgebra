@@ -5,13 +5,20 @@ For the **changes between versions 0.4.0 and 0.27.0** see the main
 
 ## Unreleased
 
-* bugfixes in Schur decomposition
-* bugfixes in LU decomposition
-* fix failing tests for Cholesky decomposition
-* fix compilation with `serde-serialize` feature enabled
-* add column-pivoting QR decomposition and solver
-* fix logic error in calculation of complex eigenvalues in eigen-decomposition.
-* change the feature flags for choosing the lapack backend, update docs accordingly
+* Bugfixes in Schur decomposition
+* Bugfixes in LU decomposition
+* Fix failing tests for Cholesky decomposition
+* Fix compilation with `serde-serialize` feature enabled
+* Add column-pivoting QR decomposition and solver
+* Introduce a common, trait-based interface to QR and column-pivoted QR
+* Extend QR decompositions to allow multiplication with Q, Q^T, R, R^T efficiently
+  from both sides
+* Fix logic error in calculation of complex eigenvalues in eigen-decomposition
+* Change the feature flags for choosing the LAPACK backend, update docs accordingly
+* Remove untested complex support in QR decomposition
+* Remove `Qr::unpack`, since it brings no practical benefit over `(qr.q(), qr.r())`,
+  but looks like it would bring an efficiency gain
+* QR decomposition restricted to m >= n
 
 ## [0.4.0] - 2016-09-07
 
@@ -19,17 +26,17 @@ For the **changes between versions 0.4.0 and 0.27.0** see the main
   simplifies usage of the traits and is consistent with the concept of
   associated types used as output type parameters (not input type parameters) as
   described in [the associated type
-  RFC](https://github.com/rust-lang/rfcs/blob/master/text/0195-associated-items.md).
-* Implemented `check_info!` macro to check all LAPACK calls.
-* Implemented error handling with [error_chain](https://crates.io/crates/error-chain).
+  RFC](https://github.com/rust-lang/rfcs/blob/master/text/0195-associated-items.md)
+* Implemented `check_info!` macro to check all LAPACK calls
+* Implemented error handling with [error_chain](https://crates.io/crates/error-chain)
 
 ## [0.3.0] - 2016-09-06
 
 * Documentation is hosted at https://docs.rs/nalgebra-lapack/
-* Updated `nalgebra` to 0.10.
-* Rename traits `HasSVD` to `SVD` and `HasEigensystem` to `Eigensystem`.
-* Added `Solve` trait for solving a linear matrix equation.
-* Added `Inverse` for computing the multiplicative inverse of a matrix.
-* Added `Cholesky` for decomposing a positive-definite matrix.
+* Updated `nalgebra` to 0.10
+* Rename traits `HasSVD` to `SVD` and `HasEigensystem` to `Eigensystem`
+* Added `Solve` trait for solving a linear matrix equation
+* Added `Inverse` for computing the multiplicative inverse of a matrix
+* Added `Cholesky` for decomposing a positive-definite matrix
 * The `Eigensystem` and `SVD` traits are now generic over types. The
-  associated types have been removed.
+  associated types have been removed
