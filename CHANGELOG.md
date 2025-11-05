@@ -744,7 +744,7 @@ All dependencies have been updated to their latest versions.
 
 The most notable change of this release is the support for using part of the library without the rust standard
 library (i.e. it supports `#![no_std]`). See the
-corresponding [documentation](https://nalgebra.rs/wasm_and_embedded_programming/).
+corresponding [documentation](https://nalgebra.rs/docs/user_guide/wasm_and_embedded_targets/).
 
 ### Modified
 
