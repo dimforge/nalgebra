@@ -156,7 +156,7 @@ where
     #[inline]
     #[must_use]
     pub fn determinant<T: One + ClosedNeg>(&self) -> T {
-        if self.len % 2 == 0 {
+        if self.len.is_multiple_of(2) {
             T::one()
         } else {
             -T::one()

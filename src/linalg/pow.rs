@@ -26,7 +26,7 @@ where
             let mut x = self.clone_owned();
             let mut workspace = self.clone_owned();
 
-            if exp % 2 == 0 {
+            if exp.is_multiple_of(2) {
                 self.fill_with_identity();
             } else {
                 // Avoid an useless multiplication by the identity
