@@ -1,6 +1,7 @@
 // Non-conventional component-wise operators.
 
 use num::{Signed, Zero};
+use std::cmp::PartialOrd;
 use std::ops::{Add, Mul};
 
 use simba::scalar::{ClosedDivAssign, ClosedMulAssign};
@@ -43,7 +44,45 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         res
     }
 
-    // TODO: add other operators like component_ln, component_pow, etc. ?
+    /// Computes the component-wise minimum
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use nalgebra::Vector3;
+    ///
+    /// let u = Vector3::new(-1.0, 3.0, 2.0);
+    /// let v = Vector3::new(1.0, 2.0, 3.0);
+    /// assert_eq!(u.component_min(&v), Vector3::new(-1.0, 2.0, 2.0))
+    /// ```
+    pub fn component_min(&self, rhs: &Matrix<T, R, C, S>) -> OMatrix<T, R, C>
+    where
+        T: PartialOrd + Copy,
+        DefaultAllocator: Allocator<R, C>,
+    {
+        self.zip_map(rhs, |a, b| if a < b { a } else { b })
+    }
+
+    /// Computes the component-wise maximum
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use nalgebra::Vector3;
+    ///
+    /// let u = Vector3::new(-1.0, 3.0, 2.0);
+    /// let v = Vector3::new(1.0, 2.0, 3.0);
+    /// assert_eq!(u.component_max(&v), Vector3::new(1.0, 3.0, 3.0))
+    /// ```
+    pub fn component_max(&self, rhs: &Matrix<T, R, C, S>) -> OMatrix<T, R, C>
+    where
+        T: PartialOrd + Copy,
+        DefaultAllocator: Allocator<R, C>,
+    {
+        self.zip_map(rhs, |a, b| if a > b { a } else { b })
+    }
+
+    // FIXME: add other operators like component_ln, component_pow, etc. ?
 }
 
 macro_rules! component_binop_impl(
