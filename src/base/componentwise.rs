@@ -1,7 +1,6 @@
 // Non-conventional component-wise operators.
 
 use num::{Signed, Zero};
-use std::cmp::PartialOrd;
 use std::ops::{Add, Mul};
 
 use simba::scalar::{ClosedDivAssign, ClosedMulAssign};
@@ -53,14 +52,18 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     ///
     /// let u = Vector3::new(-1.0, 3.0, 2.0);
     /// let v = Vector3::new(1.0, 2.0, 3.0);
-    /// assert_eq!(u.component_min(&v), Vector3::new(-1.0, 2.0, 2.0))
+    /// let expected = Vector3::new(-1.0, 2.0, 2.0);
+    ///
+    /// assert_eq!(u.component_min(&v), expected)
     /// ```
-    pub fn component_min(&self, rhs: &Matrix<T, R, C, S>) -> OMatrix<T, R, C>
+    #[inline]
+    #[must_use]
+    pub fn component_min(&self, rhs: &Self) -> OMatrix<T, R, C>
     where
-        T: PartialOrd + Copy,
+        T: SimdPartialOrd,
         DefaultAllocator: Allocator<R, C>,
     {
-        self.zip_map(rhs, |a, b| if a < b { a } else { b })
+        self.inf(rhs)
     }
 
     /// Computes the component-wise maximum
@@ -72,14 +75,18 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     ///
     /// let u = Vector3::new(-1.0, 3.0, 2.0);
     /// let v = Vector3::new(1.0, 2.0, 3.0);
-    /// assert_eq!(u.component_max(&v), Vector3::new(1.0, 3.0, 3.0))
+    /// let expected = Vector3::new(1.0, 3.0, 3.0);
+    ///
+    /// assert_eq!(u.component_max(&v), expected)
     /// ```
-    pub fn component_max(&self, rhs: &Matrix<T, R, C, S>) -> OMatrix<T, R, C>
+    #[inline]
+    #[must_use]
+    pub fn component_max(&self, rhs: &Self) -> OMatrix<T, R, C>
     where
-        T: PartialOrd + Copy,
+        T: SimdPartialOrd,
         DefaultAllocator: Allocator<R, C>,
     {
-        self.zip_map(rhs, |a, b| if a > b { a } else { b })
+        self.sup(rhs)
     }
 
     // FIXME: add other operators like component_ln, component_pow, etc. ?
