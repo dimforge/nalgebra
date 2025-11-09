@@ -235,10 +235,16 @@ where
             }
 
             let sqrt_denom = |v: T| {
-                if v.is_zero() {
+                // positive definiteness requires the diagonal to be real and strictly positive
+                if !v.clone().imaginary().is_zero() {
                     return None;
                 }
-                v.try_sqrt()
+                let re = v.real();
+                if re <= T::RealField::zero() {
+                    return None;
+                }
+                // fixme: could be improved by sqrt on real, e.g. `T::from_real(re.sqrt())`
+                Some(T::from_real(re).sqrt())
             };
 
             let diag = unsafe { matrix.get_unchecked((j, j)).clone() };
