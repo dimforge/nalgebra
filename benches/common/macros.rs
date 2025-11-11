@@ -1,16 +1,24 @@
 #![macro_use]
 
+/// This will call `Drop::drop()` within the benchmarking loop for all arguments that were not consumed
+/// by the binary operation.
+///
+/// Do not use this macro for types with non-trivial `Drop` implementation unless you want to include it
+/// into the measurement.
 macro_rules! bench_binop(
     ($name: ident, $t1: ty, $t2: ty, $binop: ident) => {
         fn $name(bh: &mut criterion::Criterion) {
             use rand::SeedableRng;
-            let mut rng = IsaacRng::seed_from_u64(0);
-            let a = rng.random::<$t1>();
-            let b = rng.random::<$t2>();
 
-            bh.bench_function(stringify!($name), move |bh| bh.iter(|| {
-                a.$binop(b)
-            }));
+            let mut rng = IsaacRng::seed_from_u64(0);
+
+            bh.bench_function(stringify!($name), |bh| bh.iter_batched(
+                || (rng.random::<$t1>(), rng.random::<$t2>()),
+                |args| {
+                    args.0.$binop(args.1)
+                },
+                criterion::BatchSize::SmallInput),
+            );
         }
     }
 );
@@ -19,50 +27,63 @@ macro_rules! bench_binop_ref(
     ($name: ident, $t1: ty, $t2: ty, $binop: ident) => {
         fn $name(bh: &mut criterion::Criterion) {
             use rand::SeedableRng;
-            let mut rng = IsaacRng::seed_from_u64(0);
-            let a = rng.random::<$t1>();
-            let b = rng.random::<$t2>();
 
-            bh.bench_function(stringify!($name), move |bh| bh.iter(|| {
-                a.$binop(&b)
-            }));
+            let mut rng = IsaacRng::seed_from_u64(0);
+
+            bh.bench_function(stringify!($name), |bh| bh.iter_batched_ref(
+                || (rng.random::<$t1>(), rng.random::<$t2>()),
+                |args| {
+                    args.0.$binop(&args.1)
+                },
+                criterion::BatchSize::SmallInput),
+            );
         }
     }
 );
 
-macro_rules! bench_binop_fn(
-    ($name: ident, $t1: ty, $t2: ty, $binop: path) => {
+/// This will call `Drop::drop()` within the benchmarking loop for all arguments that were not consumed
+/// by the binary operation.
+///
+/// Do not use this macro for types with non-trivial `Drop` implementation unless you want to include it
+/// into the measurement.
+macro_rules! bench_binop_single_1st(
+    ($name: ident, $t1: ty, $t2: ty, $binop: ident) => {
         fn $name(bh: &mut criterion::Criterion) {
             use rand::SeedableRng;
-            let mut rng = IsaacRng::seed_from_u64(0);
-            let a = rng.random::<$t1>();
-            let b = rng.random::<$t2>();
+            use std::hint::black_box;
 
-            bh.bench_function(stringify!($name), move |bh| bh.iter(|| {
-                $binop(&a, &b)
-            }));
+            let mut rng = IsaacRng::seed_from_u64(0);
+
+            let first = black_box(rng.random::<$t1>());
+
+            bh.bench_function(stringify!($name), |bh| bh.iter_batched(
+                || rng.random::<$t2>(),
+                |second| {
+                    first.$binop(second)
+                },
+                criterion::BatchSize::SmallInput),
+            );
         }
     }
 );
 
-macro_rules! bench_unop_na(
-    ($name: ident, $t: ty, $unop: ident) => {
+macro_rules! bench_binop_single_1st_ref(
+    ($name: ident, $t1: ty, $t2: ty, $binop: ident) => {
         fn $name(bh: &mut criterion::Criterion) {
-            const LEN: usize = 1 << 13;
-
             use rand::SeedableRng;
+            use std::hint::black_box;
+
             let mut rng = IsaacRng::seed_from_u64(0);
 
-            let elems: Vec<$t> =  (0usize .. LEN).map(|_| rng.random::<$t>()).collect();
-            let mut i = 0;
+            let first = black_box(rng.random::<$t1>());
 
-            bh.bench_function(stringify!($name), move |bh| bh.iter(|| {
-                i = (i + 1) & (LEN - 1);
-
-                unsafe {
-                    std::hint::black_box(na::$unop(elems.get_unchecked(i)))
-                }
-            }));
+            bh.bench_function(stringify!($name), |bh| bh.iter_batched_ref(
+                || rng.random::<$t2>(),
+                |second| {
+                    first.$binop(second)
+                },
+                criterion::BatchSize::SmallInput),
+            );
         }
     }
 );
@@ -70,44 +91,17 @@ macro_rules! bench_unop_na(
 macro_rules! bench_unop(
     ($name: ident, $t: ty, $unop: ident) => {
         fn $name(bh: &mut criterion::Criterion) {
-            const LEN: usize = 1 << 13;
-
             use rand::SeedableRng;
+
             let mut rng = IsaacRng::seed_from_u64(0);
 
-            let mut elems: Vec<$t> =  (0usize .. LEN).map(|_| rng.random::<$t>()).collect();
-            let mut i = 0;
-
-            bh.bench_function(stringify!($name), move |bh| bh.iter(|| {
-                i = (i + 1) & (LEN - 1);
-
-                unsafe {
-                    std::hint::black_box(elems.get_unchecked_mut(i).$unop())
-                }
-            }));
-        }
-    }
-);
-
-macro_rules! bench_construction(
-    ($name: ident, $constructor: path, $( $args: ident: $types: ty),*) => {
-        fn $name(bh: &mut criterion::Criterion) {
-            const LEN: usize = 1 << 13;
-
-            use rand::SeedableRng;
-            let mut rng = IsaacRng::seed_from_u64(0);
-
-            $(let $args: Vec<$types> = (0usize .. LEN).map(|_| rng.random::<$types>()).collect();)*
-            let mut i = 0;
-
-            bh.bench_function(stringify!($name), move |bh| bh.iter(|| {
-                i = (i + 1) & (LEN - 1);
-
-                unsafe {
-                    let res = $constructor($(*$args.get_unchecked(i),)*);
-                    std::hint::black_box(res)
-                }
-            }));
+            bh.bench_function(stringify!($name), |bh| bh.iter_batched_ref(
+                || rng.random::<$t>(),
+                |arg| {
+                    arg.$unop()
+                },
+                criterion::BatchSize::SmallInput),
+            );
         }
     }
 );
