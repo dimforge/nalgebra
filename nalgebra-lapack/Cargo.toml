@@ -1,7 +1,7 @@
 [package]
 name = "nalgebra-lapack"
-version = "0.26.0"
-authors = ["Sébastien Crozet <developer@crozet.re>", "Andrew Straw <strawman@astraw.com>"]
+version = "0.27.0"
+authors = ["Sébastien Crozet <developer@crozet.re>", "Andrew Straw <strawman@astraw.com>", "geo-ant <geos.blog@posteo.de>"]
 
 description = "Matrix decompositions using nalgebra matrices and Lapack bindings."
 homepage = "https://nalgebra.rs"
