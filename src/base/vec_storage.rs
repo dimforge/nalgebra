@@ -473,7 +473,7 @@ impl<T, R: Dim> Extend<T> for VecStorage<T, R, Dyn> {
         self.data.extend(iter);
         self.ncols = Dyn(self.data.len() / self.nrows.value());
         assert!(
-            self.data.len() % self.nrows.value() == 0,
+            self.data.len().is_multiple_of(self.nrows.value()),
             "The number of elements produced by the given iterator was not a multiple of the number of rows."
         );
     }
