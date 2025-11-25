@@ -35,7 +35,7 @@ fn ldl_partial() {
 
 #[test]
 #[rustfmt::skip]
-fn ldl_cholesky() {
+fn ldl_lsqrtd() {
     let m = Matrix3::new(
         Complex::new(2.0, 0.0), Complex::new(-1.0, 0.5),  Complex::zero(),
         Complex::new(-1.0, -0.5),  Complex::new(2.0, 0.0), Complex::new(-1.0, 0.0),
@@ -44,7 +44,7 @@ fn ldl_cholesky() {
     let chol= m.cholesky().unwrap();
     let ldl = m.ldl().unwrap();
     
-    assert!(relative_eq!(ldl.cholesky_l(), chol.l(), epsilon = 3.0e-16));
+    assert!(relative_eq!(ldl.lsqrtd().unwrap(), chol.l(), epsilon = 3.0e-16));
 }
 
 #[test]
