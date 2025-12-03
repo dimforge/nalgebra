@@ -9,10 +9,17 @@ fn ldl_simple() {
         Complex::new(-1.0, -0.5),  Complex::new(2.0, 0.0), Complex::new(-1.0, 0.0),
         Complex::zero(), Complex::new(-1.0, 0.0),  Complex::new(2.0, 0.0));
 
-    let ldl = m.lower_triangle().ldl().unwrap();
+    let ldl = m.ldl().unwrap();
+
+    println!("{:}", &m);
+    println!("{:}", ldl.l_matrix());
+    println!("{:}", ldl.d());
     
     // Rebuild
-    let p = ldl.l * ldl.d_matrix() * ldl.l.adjoint();
+    let p = ldl.l_matrix() * ldl.d_matrix() * ldl.l_matrix().adjoint();
+
+
+    println!("{:}", &p);
 
     assert!(relative_eq!(m, p, epsilon = 3.0e-12));
 }
@@ -28,7 +35,7 @@ fn ldl_partial() {
     let ldl = m.lower_triangle().ldl().unwrap();
     
     // Rebuild
-    let p = ldl.l * ldl.d_matrix() * ldl.l.adjoint();
+    let p = ldl.l_matrix() * ldl.d_matrix() * ldl.l_matrix().adjoint();
 
     assert!(relative_eq!(m, p, epsilon = 3.0e-12));
 }
@@ -59,7 +66,7 @@ fn ldl_non_sym_panic() {
     let ldl = m.ldl().unwrap();
     
     // Rebuild
-    let p = ldl.l * ldl.d_matrix() * ldl.l.transpose();
+    let p = ldl.l_matrix() * ldl.d_matrix() * ldl.l_matrix().transpose();
 
     assert!(relative_eq!(m, p, epsilon = 3.0e-16));
 }
