@@ -1076,7 +1076,7 @@ where
 
     /// The underlying quaternion.
     ///
-    /// Same as `self.as_ref()`.
+    /// Same as `self.as_ref()`. For conversion by value see [`Unit::into_inner`].
     ///
     /// # Example
     /// ```
