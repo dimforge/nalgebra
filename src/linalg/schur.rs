@@ -348,6 +348,9 @@ where
         DefaultAllocator: Allocator<DimDiff<D, U1>>,
     {
         let mut n = end;
+        // Equivalent to SMLNUM in LAPACK DLAHQR. Since SMLNUM depends on the machine
+        // precision, we use eps^2 here as best approximation.
+        // This is justified because the relative threshold use eps * ( t[n,n] + t[m,m] )
         let absolute_threshold = eps.clone() * eps.clone();
 
         while n > 0 {
