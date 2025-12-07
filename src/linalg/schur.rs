@@ -348,12 +348,18 @@ where
         DefaultAllocator: Allocator<DimDiff<D, U1>>,
     {
         let mut n = end;
+        // Equivalent to SMLNUM in LAPACK DLAHQR. Since SMLNUM depends on the machine
+        // precision, we use eps^2 here as best approximation.
+        // This is justified because the relative threshold use eps * ( t[n,n] + t[m,m] )
+        let absolute_threshold = eps.clone() * eps.clone();
 
         while n > 0 {
             let m = n - 1;
+            let off_diag_norm = t[(n, m)].clone().norm1();
 
-            if t[(n, m)].clone().norm1()
-                <= eps.clone() * (t[(n, n)].clone().norm1() + t[(m, m)].clone().norm1())
+            if off_diag_norm <= absolute_threshold
+                || off_diag_norm
+                    <= eps.clone() * (t[(n, n)].clone().norm1() + t[(m, m)].clone().norm1())
             {
                 t[(n, m)] = T::zero();
             } else {
@@ -372,8 +378,11 @@ where
             let m = new_start - 1;
 
             let off_diag = t[(new_start, m)].clone();
+            let off_diag_norm = off_diag.clone().norm1();
+
             if off_diag.is_zero()
-                || off_diag.norm1()
+                || off_diag_norm <= absolute_threshold
+                || off_diag_norm
                     <= eps.clone()
                         * (t[(new_start, new_start)].clone().norm1() + t[(m, m)].clone().norm1())
             {
