@@ -519,6 +519,38 @@ fn csr_matrix_get_index_entry() {
 }
 
 #[test]
+fn csr_upper_triangle_solve_ok() {
+    const N: usize = 10;
+    let eye = CsrMatrix::<f32>::identity(N);
+    let b = DMatrix::from_row_slice(N, 1, &[0.5; N]);
+    assert_eq!(eye.solve_upper_triangular(&b), Some(b));
+
+    let mut eye = CsrMatrix::<f32>::identity(N);
+    let v = if let SparseEntryMut::NonZero(v) = eye.index_entry_mut(0, 0) {
+        v
+    } else {
+        unreachable!();
+    };
+    *v = 2.0;
+    let b = DMatrix::from_row_slice(N, 1, &[1.0; N]);
+    let mut x = b.clone();
+    x[0] = 0.5;
+    assert_eq!(eye.solve_upper_triangular(&b), Some(x));
+
+    #[rustfmt::skip]
+    let dense = DMatrix::from_row_slice(3, 3, &[
+        1., 1., 1.,
+        0., 1., 1.,
+        0., 0., 1.,
+    ]);
+    let csr = CsrMatrix::from(&dense);
+
+    let b = DMatrix::from_row_slice(3, 1, &[1.0; 3]);
+    let x = DMatrix::from_row_slice(3, 1, &[-1., 0., 1.]);
+    assert_eq!(csr.solve_upper_triangular(&b), Some(x));
+}
+
+#[test]
 fn csr_matrix_row_iter() {
     #[rustfmt::skip]
     let dense = DMatrix::from_row_slice(3, 4, &[
