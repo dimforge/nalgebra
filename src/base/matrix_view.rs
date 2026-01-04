@@ -33,14 +33,6 @@ macro_rules! view_storage_impl (
         #[deprecated = "Use ViewStorage(Mut) instead."]
         pub type $legacy_name<'a, T, R, C, RStride, CStride> = $T<'a, T, R, C, RStride, CStride>;
 
-        unsafe impl<'a, T: Send, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Send
-            for $T<'a, T, R, C, RStride, CStride>
-        {}
-
-        unsafe impl<'a, T: Sync, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Sync
-            for $T<'a, T, R, C, RStride, CStride>
-        {}
-
         impl<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim> $T<'a, T, R, C, RStride, CStride> {
             /// Create a new matrix view without bounds checking and from a raw pointer.
             ///
@@ -136,6 +128,20 @@ impl<T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Copy
 {
 }
 
+/// Safety: Equivalent to a shared reference to `T`. All `Dim` type arguments are `Send + Sync`. A
+/// shared reference can be sent iff `T: Sync`.
+unsafe impl<'a, T: Sync, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Send
+    for ViewStorage<'a, T, R, C, RStride, CStride>
+{
+}
+
+/// Safety: Equivalent to a shared reference to `T`. All `Dim` type arguments are `Send + Sync`. A
+/// shared reference is `Sync` iff `T: Sync`.
+unsafe impl<'a, T: Sync, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Sync
+    for ViewStorage<'a, T, R, C, RStride, CStride>
+{
+}
+
 impl<T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Clone
     for ViewStorage<'_, T, R, C, RStride, CStride>
 {
@@ -143,6 +149,20 @@ impl<T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Clone
     fn clone(&self) -> Self {
         *self
     }
+}
+
+/// Safety: Equivalent to a unique reference to `T`. All `Dim` type arguments are `Send + Sync`. A
+/// unique reference is `Send` iff `T: Send`.
+unsafe impl<'a, T: Send, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Send
+    for ViewStorageMut<'a, T, R, C, RStride, CStride>
+{
+}
+
+/// Safety: Equivalent to a unique reference to `T`. All `Dim` type arguments are `Send + Sync`. A
+/// unique reference is `Sync` iff `T: Sync`.
+unsafe impl<'a, T: Sync, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Sync
+    for ViewStorageMut<'a, T, R, C, RStride, CStride>
+{
 }
 
 impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
