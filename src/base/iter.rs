@@ -100,7 +100,7 @@ macro_rules! iterator {
                         // so this is not observable.
                         if self.size != 0 {
                             let stride = self.strides.0.value();
-                            self.ptr = self.ptr.add(stride);
+                            self.ptr = self.ptr.wrapping_add(stride);
                         }
 
                         Some(old)
