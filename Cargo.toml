@@ -176,7 +176,7 @@ trybuild = "1.0.90"
 cool_asserts = "2.0.3"
 
 [workspace]
-members = ["nalgebra-lapack", "nalgebra-glm", "nalgebra-sparse", "nalgebra-macros"]
+members = ["nalgebra-lapack", "nalgebra-glm", "nalgebra-sparse", "nalgebra-macros", "nalgebra-euler-angles"]
 resolver = "2"
 
 [[example]]
