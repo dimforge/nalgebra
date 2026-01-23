@@ -5,6 +5,7 @@ mod bidiagonal;
 mod cholesky;
 mod convolution;
 mod determinant;
+mod eigen;
 // TODO: this should not be needed. However, the exp uses
 // explicit float operations on `f32` and `f64`. We need to
 // get rid of these to allow exp to be used on a no-std context.
@@ -37,6 +38,7 @@ mod udu;
 pub use self::bidiagonal::*;
 pub use self::cholesky::*;
 pub use self::col_piv_qr::*;
+pub use self::eigen::*;
 pub use self::full_piv_lu::*;
 pub use self::hessenberg::*;
 pub use self::lu::*;

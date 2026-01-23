@@ -8,6 +8,16 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 **nalgebra-lapack change log** is found [here](https://github.com/dimforge/nalgebra/blob/main/nalgebra-lapack/CHANGELOG.md)
 starting with `nalgebra-lapack` version `0.27.0`.
 
+[Unreleased]
+Added
+
+Add Eigen struct for eigendecomposition of general (non-symmetric) square matrices.
+This computes complex eigenvalues and eigenvectors for real matrices that may be
+non-symmetric, complementing the existing SymmetricEigen which only handles
+symmetric matrices. The implementation uses the Schur decomposition followed by
+back-substitution and works in pure Rust (no LAPACK dependency required).
+New methods: Eigen::new(), Eigen::try_new(), Eigen::recompose().
+
 ## [0.34.1] (20 Sept. 2025)
 
 ### Added
