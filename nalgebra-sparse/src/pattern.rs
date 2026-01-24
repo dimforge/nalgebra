@@ -61,6 +61,14 @@ impl SparsityPattern {
             minor_dim,
         }
     }
+    /// Creates the sparsity pattern of an identity matrix of size `n`.
+    pub fn identity(n: usize) -> Self {
+        Self {
+            major_offsets: (0..=n).collect(),
+            minor_indices: (0..n).collect(),
+            minor_dim: n,
+        }
+    }
 
     /// The offsets for the major dimension.
     #[inline]
@@ -108,6 +116,13 @@ impl SparsityPattern {
     #[must_use]
     pub fn lane(&self, major_index: usize) -> &[usize] {
         self.get_lane(major_index).unwrap()
+    }
+    /// Returns an iterator over all lanes in this sparsity pattern, in order.
+    /// Does not omit empty lanes.
+    #[inline]
+    #[must_use]
+    pub fn lanes(&self) -> impl Iterator<Item = &[usize]> {
+        (0..self.major_offsets.len() - 1).map(move |r| self.lane(r))
     }
 
     /// Get the lane at the given index, or `None` if out of bounds.
@@ -296,6 +311,198 @@ impl SparsityPattern {
             new_indices,
         )
         .expect("Internal error: Transpose should never fail.")
+    }
+
+    /// Computes the output sparsity pattern of `x` in `Ax = b`.
+    /// where A's nonzero pattern is given by `self` and the non-zero indices
+    /// of vector `b` are specified as a slice.
+    /// The output is not necessarily in sorted order, but is topological sort order.
+    /// Treats `self` as lower triangular, even if there are elements in the upper triangle.
+    /// Acts as if b is one major lane (i.e. CSC matrix and one column)
+    pub fn sparse_lower_triangular_solve(&self, b: &[usize], out: &mut Vec<usize>) {
+        assert!(b.iter().all(|&i| i < self.major_dim()));
+        out.clear();
+
+        // From a given starting column, traverses and finds all reachable indices.
+        fn reach(sp: &SparsityPattern, j: usize, out: &mut Vec<usize>) {
+            // already traversed
+            if out.contains(&j) {
+                return;
+            }
+
+            out.push(j);
+            for &i in sp.lane(j) {
+                if i < j {
+                    continue;
+                }
+                reach(sp, i, out);
+            }
+        }
+
+        for &i in b {
+            reach(&self, i, out);
+        }
+    }
+
+    /// Computes the output sparsity pattern of `x` in `Ax = b`.
+    /// where A's nonzero pattern is given by `self` and the non-zero indices
+    /// of vector `b` are specified as a slice.
+    /// The output is not necessarily in sorted order, but is topological sort order.
+    /// Treats `self` as upper triangular, even if there are elements in the lower triangle.
+    /// Acts as if b is one major lane (i.e. CSC matrix and one column)
+    pub fn sparse_upper_triangular_solve(&self, b: &[usize], out: &mut Vec<usize>) {
+        assert!(b.iter().all(|&i| i < self.major_dim()));
+        out.clear();
+
+        // From a given starting column, traverses and finds all reachable indices.
+        fn reach(sp: &SparsityPattern, j: usize, out: &mut Vec<usize>) {
+            // already traversed
+            if out.contains(&j) {
+                return;
+            }
+
+            out.push(j);
+            // iteration order here does not matter, but technically it should be rev?
+            for &i in sp.lane(j).iter().rev() {
+                if i > j {
+                    continue;
+                }
+                reach(sp, i, out);
+            }
+        }
+
+        for &i in b {
+            reach(&self, i, out);
+        }
+    }
+
+    /// Left-looking Sparse LU decomposition from Gilbert/Peierls.
+    /// returns the sparsity pattern of the output
+    pub fn left_looking_lu_decomposition(&self) -> SparsityPattern {
+        assert_eq!(self.major_dim(), self.minor_dim());
+        let n = self.minor_dim();
+        let mut sp = SparsityPatternBuilder::new(n, n);
+        let mut x = vec![];
+        for col in 0..n {
+            sp.valid_partial()
+                .sparse_lower_triangular_solve(self.lane(col), &mut x);
+            x.sort_unstable();
+            for &row in &x {
+                assert!(sp.insert(col, row).is_ok());
+            }
+        }
+        sp.build()
+    }
+}
+
+/// A builder that allows for constructing a sparsity pattern.
+/// It requires elements to be added in sorted order. Specifically,
+/// For each element the major must be >= the previous element's major.
+/// If the major is the same, the minor must be in ascending order.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SparsityPatternBuilder {
+    buf: SparsityPattern,
+    major_dim: usize,
+}
+
+/// An error when adding into the SparsityPatternBuilder
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum BuilderInsertError {
+    ///
+    MajorTooLow,
+    ///
+    MinorTooLow,
+}
+
+impl SparsityPatternBuilder {
+    /// Constructs a new empty builder.
+    pub fn new(major_dim: usize, minor_dim: usize) -> Self {
+        Self {
+            buf: SparsityPattern {
+                major_offsets: vec![0],
+                minor_indices: vec![],
+                minor_dim,
+            },
+            major_dim,
+        }
+    }
+    /// The number of non-zero entries inserted into `self`.
+    pub fn num_entries(&self) -> usize {
+        self.buf.minor_indices.len()
+    }
+
+    /// Allows for general assignment of indices
+    pub fn insert(&mut self, maj: usize, min: usize) -> Result<(), BuilderInsertError> {
+        assert!(maj < self.major_dim);
+        assert!(min < self.buf.minor_dim);
+
+        let curr_major = self.buf.major_dim();
+
+        // cannot go backwards in major
+        if maj < curr_major {
+            return Err(BuilderInsertError::MajorTooLow);
+        }
+        // cannot go backwards in minor
+        if maj == curr_major
+            && *self.buf.major_offsets.last().unwrap() < self.buf.minor_indices.len()
+            && !self.buf.minor_indices.is_empty()
+            && min <= *self.buf.minor_indices.last().unwrap()
+        {
+            return Err(BuilderInsertError::MinorTooLow);
+        }
+        // add any advances in row.
+        for _ in curr_major..maj {
+            self.buf.major_offsets.push(self.buf.minor_indices.len());
+        }
+        self.buf.minor_indices.push(min);
+        Ok(())
+    }
+    /// Returns a valid partial sparsity pattern.
+    /// All the major lanes up to the current insertion will be completed.
+    pub(crate) fn valid_partial(&mut self) -> &SparsityPattern {
+        if *self.buf.major_offsets.last().unwrap() != self.buf.minor_indices.len() {
+            self.buf.major_offsets.push(self.buf.minor_indices.len());
+        }
+        &self.buf
+    }
+    /// Consumes self and outputs the constructed `SparsityPattern`.
+    /// If elements were added to the last major, but `advance_major`
+    /// was not called, will implicitly call `advance_major` then
+    /// output the values.
+    #[inline]
+    pub fn build(mut self) -> SparsityPattern {
+        self.buf
+            .major_offsets
+            .resize(self.major_dim + 1, self.buf.minor_indices.len());
+        assert_eq!(self.buf.major_dim(), self.major_dim);
+        self.buf
+    }
+    /// Returns the current major being modified by `self`.
+    pub fn current_major(&self) -> usize {
+        assert!(!self.buf.major_offsets.is_empty());
+        self.buf.major_offsets.len() - 1
+    }
+
+    /// Reverts the major index of `self` back to `maj`, deleting any entries ahead of it.
+    /// Preserves entries in `maj`.
+    pub fn revert_to_major(&mut self, maj: usize) -> bool {
+        // preserve maj + 1 elements in self
+        if self.buf.major_offsets.len() + 1 <= maj {
+            return false;
+        }
+        let last = self.buf.major_offsets[maj + 1];
+        self.buf.major_offsets.truncate(maj + 1);
+        self.buf.minor_indices.truncate(last + 1);
+        true
+    }
+
+    /// Allows for rebuilding part of a sparsity pattern, assuming that
+    /// items after maj_start have not been filled in.
+    pub fn from(sp: SparsityPattern) -> Self {
+        SparsityPatternBuilder {
+            major_dim: sp.major_dim(),
+            buf: sp,
+        }
     }
 }
 
