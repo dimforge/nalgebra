@@ -43,7 +43,53 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         res
     }
 
-    // TODO: add other operators like component_ln, component_pow, etc. ?
+    /// Computes the component-wise minimum
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use nalgebra::Vector3;
+    ///
+    /// let u = Vector3::new(-1.0, 3.0, 2.0);
+    /// let v = Vector3::new(1.0, 2.0, 3.0);
+    /// let expected = Vector3::new(-1.0, 2.0, 2.0);
+    ///
+    /// assert_eq!(u.component_min(&v), expected)
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn component_min(&self, rhs: &Self) -> OMatrix<T, R, C>
+    where
+        T: SimdPartialOrd,
+        DefaultAllocator: Allocator<R, C>,
+    {
+        self.inf(rhs)
+    }
+
+    /// Computes the component-wise maximum
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use nalgebra::Vector3;
+    ///
+    /// let u = Vector3::new(-1.0, 3.0, 2.0);
+    /// let v = Vector3::new(1.0, 2.0, 3.0);
+    /// let expected = Vector3::new(1.0, 3.0, 3.0);
+    ///
+    /// assert_eq!(u.component_max(&v), expected)
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn component_max(&self, rhs: &Self) -> OMatrix<T, R, C>
+    where
+        T: SimdPartialOrd,
+        DefaultAllocator: Allocator<R, C>,
+    {
+        self.sup(rhs)
+    }
+
+    // FIXME: add other operators like component_ln, component_pow, etc. ?
 }
 
 macro_rules! component_binop_impl(
