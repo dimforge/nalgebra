@@ -818,14 +818,16 @@ where
     /// # use std::f32;
     /// # use nalgebra::{UnitQuaternion};
     /// let q1 = UnitQuaternion::from_euler_angles(0.0, 0.0, 0.0);
-    /// let q2 = UnitQuaternion::from_euler_angles(-0.1, 0.0, 0.0);
-    /// let q3 = UnitQuaternion::from_euler_angles(0.1, 0.0, 0.0);
+    /// let q2 = UnitQuaternion::from_euler_angles(0.1, 0.0, 0.0);
+    /// let q3 = UnitQuaternion::from_euler_angles(0.2, 0.0, 0.0);
     ///
     /// let quat_vec = vec![q1, q2, q3];
     /// let q_mean = UnitQuaternion::mean_of(quat_vec);
     ///
     /// let euler_angles_mean = q_mean.euler_angles();
-    /// assert_relative_eq!(euler_angles_mean.0, 0.0, epsilon = 1.0e-7)
+    /// assert_relative_eq!(euler_angles_mean.0, 0.1, epsilon = 1.0e-7);
+    /// assert_relative_eq!(euler_angles_mean.1, 0.0, epsilon = 1.0e-7);
+    /// assert_relative_eq!(euler_angles_mean.2, 0.0, epsilon = 1.0e-7);
     /// ```
     #[inline]
     pub fn mean_of(unit_quaternions: impl IntoIterator<Item = Self>) -> Self
@@ -851,10 +853,10 @@ where
 
         let max_eigenvector = eigen_matrix.eigenvectors.column(max_eigenvalue_index);
         UnitQuaternion::from_quaternion(Quaternion::new(
+            max_eigenvector[3].clone(),
             max_eigenvector[0].clone(),
             max_eigenvector[1].clone(),
             max_eigenvector[2].clone(),
-            max_eigenvector[3].clone(),
         ))
     }
 }
@@ -929,5 +931,56 @@ mod tests {
             let x = rng.random::<UnitQuaternion<f32>>();
             assert!(relative_eq!(x.into_inner().norm(), 1.0))
         }
+    }
+
+    /// A single input value into mean_of should give back the same value.
+    #[test]
+    fn mean_of_single() {
+        use nalgebra::UnitQuaternion;
+        let q1 = UnitQuaternion::from_euler_angles(0.1, 0.2, 0.3);
+
+        let quat_vec = vec![q1];
+        let q_mean = UnitQuaternion::mean_of(quat_vec);
+
+        let euler_angles_mean = q_mean.euler_angles();
+        assert_relative_eq!(euler_angles_mean.0, 0.1, epsilon = 1.0e-7);
+        assert_relative_eq!(euler_angles_mean.1, 0.2, epsilon = 1.0e-7);
+        assert_relative_eq!(euler_angles_mean.2, 0.3, epsilon = 1.0e-7);
+    }
+
+    /// Three input values, with the mean outputs to be compared against
+    /// [another implementation](https://stackoverflow.com/a/49690919/1758759)
+    /// of the averaging algorithm.
+    #[test]
+    fn mean_of_three_values_1() {
+        use nalgebra::UnitQuaternion;
+        let q1 = UnitQuaternion::from_euler_angles(0.2, 0.1, 0.2);
+        let q2 = UnitQuaternion::from_euler_angles(0.6, 0.0, 0.5);
+        let q3 = UnitQuaternion::from_euler_angles(0.2, 0.2, 1.2);
+
+        let quat_vec = vec![q1, q2, q3];
+        let q_mean = UnitQuaternion::mean_of(quat_vec);
+
+        let euler_angles_mean = q_mean.euler_angles();
+        assert_relative_eq!(euler_angles_mean.0, 0.32674402, epsilon = 1.0e-7);
+        assert_relative_eq!(euler_angles_mean.1, 0.08907341, epsilon = 1.0e-7);
+        assert_relative_eq!(euler_angles_mean.2, 0.63291054, epsilon = 1.0e-7);
+    }
+
+    /// Similar to `mean_of_three_values_1` but has some negative values thrown in for good measure.
+    #[test]
+    fn mean_of_three_values_2() {
+        use nalgebra::UnitQuaternion;
+        let q1 = UnitQuaternion::from_euler_angles(-1.4, 2.0, 0.4);
+        let q2 = UnitQuaternion::from_euler_angles(2.3, 2.0, -0.4);
+        let q3 = UnitQuaternion::from_euler_angles(-0.2, -7.0, 0.6);
+
+        let quat_vec = vec![q1, q2, q3];
+        let q_mean = UnitQuaternion::mean_of(quat_vec);
+
+        let euler_angles_mean = q_mean.euler_angles();
+        assert_relative_eq!(euler_angles_mean.0, -0.55177751, epsilon = 1.0e-7);
+        assert_relative_eq!(euler_angles_mean.1, 0.96545842, epsilon = 1.0e-7);
+        assert_relative_eq!(euler_angles_mean.2, 1.93519699, epsilon = 1.0e-7);
     }
 }
