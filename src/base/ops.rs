@@ -1,4 +1,5 @@
 use num::{One, Zero};
+use num_complex::Complex;
 use std::iter;
 use std::ops::{
     Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
@@ -548,7 +549,22 @@ macro_rules! left_scalar_mul_impl(
     )*}
 );
 
-left_scalar_mul_impl!(u8, u16, u32, u64, usize, i8, i16, i32, i64, isize, f32, f64);
+left_scalar_mul_impl!(
+    u8,
+    u16,
+    u32,
+    u64,
+    usize,
+    i8,
+    i16,
+    i32,
+    i64,
+    isize,
+    f32,
+    f64,
+    Complex<f32>,
+    Complex<f64>
+);
 
 // Matrix × Matrix
 impl<'b, T, R1: Dim, C1: Dim, R2: Dim, C2: Dim, SA, SB> Mul<&'b Matrix<T, R2, C2, SB>>
