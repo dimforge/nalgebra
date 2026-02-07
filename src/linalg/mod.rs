@@ -21,6 +21,7 @@ mod lu;
 mod permutation_sequence;
 mod pow;
 mod qr;
+mod rref;
 mod schur;
 mod solve;
 mod svd;
