@@ -2134,6 +2134,72 @@ impl<
     }
 }
 
+impl<T: crate::SimdRealField + SimdPartialOrd + ClosedMul, R: Dim, C: Dim, S: RawStorage<T, R, C>>
+    Matrix<T, R, C, S>
+{
+    /// Calculate the right-handed angle between two vectors in radians.
+    ///
+    /// This function is very different to the [angle] function.
+    /// It always yields a positive result `x` between `0.0` and `2.0*PI` and is only applicable
+    /// for 2D vectors.
+    /// In the following example, we calculate the right-handed angle between the following two
+    /// vectors.
+    /// ```ignore
+    ///       p
+    ///      │
+    ///      │
+    ///      └─────── q
+    /// ```
+    /// Note that the order in which the arguments are executed plays an important role.
+    /// Furthermore, we can see that the sum of both results `PI/2.0` and `3.0*PI/2.0` add up to a
+    /// total of `2.0*PI`.
+    /// ```
+    /// # use nalgebra::Vector2;
+    /// let p = Vector2::from([0.0, 1.0]);
+    /// let q = Vector2::from([2.0, 0.0]);
+    ///
+    /// let abs_diff1 = (p.angle_right_handed(&q) - std::f64::consts::FRAC_PI_2).abs();
+    /// let abs_diff2 = (q.angle_right_handed(&p) - 3.0 * std::f64::consts::FRAC_PI_2).abs();
+    /// assert!(abs_diff1 < 1e-10);
+    /// assert!(abs_diff2 < 1e-10);
+    /// ```
+    pub fn angle_right_handed<R2, C2, SB>(&self, other: &Matrix<T, R2, C2, SB>) -> T
+    where
+        R2: Dim,
+        C2: Dim,
+        SB: RawStorage<T, R2, C2>,
+        ShapeConstraint: DimEq<R, R2> + DimEq<C, C2>,
+        ShapeConstraint: SameNumberOfRows<R, U2>
+            + SameNumberOfColumns<C, U1>
+            + SameNumberOfRows<R2, U2>
+            + SameNumberOfColumns<C2, U1>,
+    {
+        let shape = self.shape();
+        assert_eq!(
+            shape,
+            other.shape(),
+            "2D vector angle_right_handed dimension mismatch."
+        );
+        assert_eq!(
+            shape,
+            (2, 1),
+            "2D angle_right_handed requires (2, 1) vectors {:?}",
+            shape
+        );
+
+        let two_pi =
+            (T::SimdRealField::one() + T::SimdRealField::one()) * T::SimdRealField::simd_pi();
+        let perp = other.perp(self);
+        let dot = self.dot(other);
+        let res: T::SimdRealField = T::SimdRealField::simd_atan2(perp, dot) % two_pi.clone();
+        use crate::SimdBool;
+        res.clone().simd_lt(T::SimdRealField::zero()).if_else(
+            || res.clone() + two_pi,
+            || res.clone()
+        )
+    }
+}
+
 impl<T: Scalar + Field, S: RawStorage<T, U3>> Vector<T, U3, S> {
     /// Computes the matrix `M` such that for all vector `v` we have `M * v == self.cross(&v)`.
     #[inline]
