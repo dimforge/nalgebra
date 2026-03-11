@@ -1,4 +1,5 @@
 use crate::utils::is_sorted_descending;
+use approx::{AbsDiffEq, RelativeEq};
 use na::{DMatrix, Matrix6};
 
 #[cfg(feature = "proptest-support")]
@@ -512,4 +513,48 @@ fn svd_regression_issue_1313() {
     let svd = m.clone().svd(true, true);
     let m2 = svd.recompose().unwrap();
     assert_relative_eq!(&m, &m2, epsilon = 1e-5);
+}
+
+#[test]
+// Accuracy bug reported in issue #1172 of nalgebra (https://github.com/dimforge/nalgebra/issues/1172)
+fn svd_regression_issue_1172() {
+    use nalgebra::{Complex, Matrix4};
+    type M4C = Matrix4<Complex<f64>>;
+
+    let m = M4C::new(
+        Complex::new(0.4846888711394364, -0.0000000000000002529226450498658),
+        Complex::new(0.4997655143494952, -0.00000000000000001731471891552503),
+        Complex::new(0.00000000000000001527512211317369, 0.49976551434949495),
+        Complex::new(0.00000000000000009643636194372324, -0.48468887113943676),
+        Complex::new(0.4997655143494954, -0.00000000000000023999992468308935),
+        Complex::new(0.5153111288605629, -0.0000000000000002516108359162637),
+        Complex::new(-0.000000000000000005044961400919933, 0.5153111288605631),
+        Complex::new(0.000000000000000042486770760464153, -0.49976551434949495),
+        Complex::new(-0.000000000000000032383811520876863, -0.49976551434949484),
+        Complex::new(0.000000000000000014710206963221994, -0.5153111288605633),
+        Complex::new(0.5153111288605635, 0.00000000000000016459157448729957),
+        Complex::new(-0.4997655143494946, -0.00000000000000028045339796436483),
+        Complex::new(0.00000000000000007455816688442185, 0.4846888711394367),
+        Complex::new(0.0000000000000000641248522548626, 0.49976551434949484),
+        Complex::new(-0.49976551434949473, -0.00000000000000018487105599880945),
+        Complex::new(0.48468887113943704, 0.00000000000000015953066497724206),
+    );
+    let svd = m.svd(true, true);
+    let sings = svd.singular_values;
+    let u = svd.u.unwrap();
+    let v_t = svd.v_t.unwrap();
+    let sigma = M4C::from_diagonal(&sings.cast::<Complex<f64>>());
+    let m1 = u * sigma * v_t;
+
+    // Should be accurate to machine precision
+    assert_relative_eq!(m, m1, epsilon = 1e-12);
+
+    // Singular values should be sorted and non-negative
+    assert!(sings.iter().all(|&x| x >= 0.0));
+
+    // The largest singular value should be close to 2.0
+    assert!(sings[0].abs_diff_eq(&2.0, 1e-12));
+
+    // The smallest singular value should be small
+    assert!(sings[3] < 1e-12);
 }

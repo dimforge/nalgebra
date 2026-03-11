@@ -159,6 +159,20 @@ where
         let mut diagonal = bi_matrix.diagonal();
         let mut off_diagonal = bi_matrix.off_diagonal();
 
+        // Compute the Frobenius norm of the bidiagonal matrix for relative convergence checks,
+        // so we can use a relative tolerance rather than absolute.
+        // This avoids stability issues when diagonal elements are very small but not exactly zero.
+        let mut norm_sqr = T::RealField::zero();
+        for i in 0..diagonal.len() {
+            norm_sqr += diagonal[i].clone() * diagonal[i].clone();
+        }
+        for i in 0..off_diagonal.len() {
+            norm_sqr += off_diagonal[i].clone() * off_diagonal[i].clone();
+        }
+        let b_norm = norm_sqr.sqrt();
+        // Use relative epsilon: eps * ||B|| for zero checks
+        let eps_rel = eps.clone() * b_norm;
+
         let mut niter = 0;
         let (mut start, mut end) = Self::delimit_subproblem(
             &mut diagonal,
@@ -168,6 +182,7 @@ where
             bi_matrix.is_upper_diagonal(),
             dim - 1,
             eps.clone(),
+            eps_rel.clone(),
         );
 
         while end != start {
@@ -317,6 +332,7 @@ where
                 bi_matrix.is_upper_diagonal(),
                 end,
                 eps.clone(),
+                eps_rel.clone(),
             );
             start = sub.0;
             end = sub.1;
@@ -372,6 +388,7 @@ where
         is_upper_diagonal: bool,
         end: usize,
         eps: T::RealField,
+        eps_rel: T::RealField,
     ) -> (usize, usize) {
         let mut n = end;
 
@@ -383,7 +400,7 @@ where
                     <= eps.clone() * (diagonal[n].clone().norm1() + diagonal[m].clone().norm1())
             {
                 off_diagonal[m] = T::RealField::zero();
-            } else if diagonal[m].clone().norm1() <= eps {
+            } else if diagonal[m].clone().norm1() <= eps_rel {
                 diagonal[m] = T::RealField::zero();
                 Self::cancel_horizontal_off_diagonal_elt(
                     diagonal,
@@ -405,7 +422,7 @@ where
                         m - 1,
                     );
                 }
-            } else if diagonal[n].clone().norm1() <= eps {
+            } else if diagonal[n].clone().norm1() <= eps_rel {
                 diagonal[n] = T::RealField::zero();
                 Self::cancel_vertical_off_diagonal_elt(
                     diagonal,
@@ -435,9 +452,7 @@ where
             {
                 off_diagonal[m] = T::RealField::zero();
                 break;
-            }
-            // TODO: write a test that enters this case.
-            else if diagonal[m].clone().norm1() <= eps {
+            } else if diagonal[m].clone().norm1() <= eps_rel {
                 diagonal[m] = T::RealField::zero();
                 Self::cancel_horizontal_off_diagonal_elt(
                     diagonal,
