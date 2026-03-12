@@ -1,5 +1,4 @@
 use crate::utils::is_sorted_descending;
-use approx::{AbsDiffEq, RelativeEq};
 use na::{DMatrix, Matrix6};
 
 #[cfg(feature = "proptest-support")]
@@ -553,7 +552,7 @@ fn svd_regression_issue_1172() {
     assert!(sings.iter().all(|&x| x >= 0.0));
 
     // The largest singular value should be close to 2.0
-    assert!(sings[0].abs_diff_eq(&2.0, 1e-12));
+    assert!((sings[0] - 2.0).abs() < 1e-12);
 
     // The smallest singular value should be small
     assert!(sings[3] < 1e-12);
