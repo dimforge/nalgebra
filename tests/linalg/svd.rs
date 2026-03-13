@@ -513,3 +513,91 @@ fn svd_regression_issue_1313() {
     let m2 = svd.recompose().unwrap();
     assert_relative_eq!(&m, &m2, epsilon = 1e-5);
 }
+
+#[test]
+// Accuracy bug reported in issue #1172 of nalgebra (https://github.com/dimforge/nalgebra/issues/1172)
+fn svd_regression_issue_1172() {
+    use nalgebra::{Complex, Matrix4};
+    type M4C = Matrix4<Complex<f64>>;
+
+    let m = M4C::new(
+        Complex::new(0.4846888711394364, -0.0000000000000002529226450498658),
+        Complex::new(0.4997655143494952, -0.00000000000000001731471891552503),
+        Complex::new(0.00000000000000001527512211317369, 0.49976551434949495),
+        Complex::new(0.00000000000000009643636194372324, -0.48468887113943676),
+        Complex::new(0.4997655143494954, -0.00000000000000023999992468308935),
+        Complex::new(0.5153111288605629, -0.0000000000000002516108359162637),
+        Complex::new(-0.000000000000000005044961400919933, 0.5153111288605631),
+        Complex::new(0.000000000000000042486770760464153, -0.49976551434949495),
+        Complex::new(-0.000000000000000032383811520876863, -0.49976551434949484),
+        Complex::new(0.000000000000000014710206963221994, -0.5153111288605633),
+        Complex::new(0.5153111288605635, 0.00000000000000016459157448729957),
+        Complex::new(-0.4997655143494946, -0.00000000000000028045339796436483),
+        Complex::new(0.00000000000000007455816688442185, 0.4846888711394367),
+        Complex::new(0.0000000000000000641248522548626, 0.49976551434949484),
+        Complex::new(-0.49976551434949473, -0.00000000000000018487105599880945),
+        Complex::new(0.48468887113943704, 0.00000000000000015953066497724206),
+    );
+    let m_singular_values = nalgebra::dvector![2.0, 0.0, 0.0, 0.0];
+
+    let svd = m.svd(true, true);
+    let sings = svd.singular_values;
+    let u = svd.u.unwrap();
+    let v_t = svd.v_t.unwrap();
+    let sigma = M4C::from_diagonal(&sings.cast::<Complex<f64>>());
+    let m1 = u * sigma * v_t;
+
+    // Should be accurate to machine precision
+    assert_relative_eq!(m, m1, epsilon = 1e-12);
+
+    for (s, expected) in sings.iter().zip(m_singular_values.iter()) {
+        assert!(
+            (*s - expected).abs() < 1e-12,
+            "Singular value {s:e} is not accurate: expected {expected:e}",
+        );
+    }
+}
+
+#[test]
+// Accuracy bug reported as feedback to PR #1590 of nalgebra (https://github.com/dimforge/nalgebra/issues/1590)
+fn svd_regression_platform_dependent_accuracy() {
+    use nalgebra::{Complex, Matrix4};
+    type M4C = Matrix4<Complex<f64>>;
+
+    let m = M4C::new(
+        Complex::new(0.5163130224597328, 0.2640110414676673),
+        Complex::new(-0.10845827476820835, 0.34220148642893244),
+        Complex::new(0.14618038920991627, 0.3278663576677311),
+        Complex::new(0.4834191243671928, -0.32029192524071315),
+        Complex::new(0.25011023587834597, -0.5693169162970136),
+        Complex::new(0.3731433798035375, 0.09455746917888716),
+        Complex::new(0.34176716325705053, -0.17712228258452342),
+        Complex::new(-0.3732958190779979, -0.49731992995651203),
+        Complex::new(0.3732958190779976, -0.49731992995651314),
+        Complex::new(0.34176716325704987, 0.17712228258452062),
+        Complex::new(0.37314337980353635, -0.09455746917888491),
+        Complex::new(-0.25011023587834524, -0.5693169162970155),
+        Complex::new(0.4834191243671925, 0.32029192524071587),
+        Complex::new(-0.14618038920991572, 0.32786635766773),
+        Complex::new(0.10845827476820777, 0.3422014864289315),
+        Complex::new(0.5163130224597317, -0.26401104146766996),
+    );
+    let m_singular_values = nalgebra::dvector![2.0, 0.0, 0.0, 0.0];
+
+    let svd = m.svd(true, true);
+    let sings = svd.singular_values;
+    let u = svd.u.unwrap();
+    let v_t = svd.v_t.unwrap();
+    let sigma = M4C::from_diagonal(&sings.cast::<Complex<f64>>());
+    let m1 = u * sigma * v_t;
+
+    // Should be accurate to machine precision
+    assert_relative_eq!(m, m1, epsilon = 1e-12);
+
+    for (s, expected) in sings.iter().zip(m_singular_values.iter()) {
+        assert!(
+            (*s - expected).abs() < 1e-12,
+            "Singular value {s:e} is not accurate: expected {expected:e}",
+        );
+    }
+}
