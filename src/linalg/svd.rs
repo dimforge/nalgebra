@@ -170,8 +170,14 @@ where
             norm_sqr += off_diagonal[i].clone() * off_diagonal[i].clone();
         }
         let b_norm = norm_sqr.sqrt();
-        // Use relative epsilon: eps * ||B|| for zero checks
-        let eps_rel = eps.clone() * b_norm;
+        // Use relative epsilon: eps * dim * ||B|| for zero checks.
+        //
+        // Scaling by dim accounts for roundoff accumulation in the Householder
+        // reflections during bidiagonalization (similar to LAPACK's N*EPS approach
+        // in DBDSQR). Without this, near-rank-deficient complex matrices can
+        // have bidiagonal elements that are "almost zero" but above the threshold,
+        // leading to numerically unstable iterations on a near-zero subproblem.
+        let eps_rel = eps.clone() * crate::convert::<_, T::RealField>(dim as f64) * b_norm;
 
         let mut niter = 0;
         let (mut start, mut end) = Self::delimit_subproblem(
@@ -398,6 +404,7 @@ where
             if off_diagonal[m].is_zero()
                 || off_diagonal[m].clone().norm1()
                     <= eps.clone() * (diagonal[n].clone().norm1() + diagonal[m].clone().norm1())
+                || off_diagonal[m].clone().norm1() <= eps_rel
             {
                 off_diagonal[m] = T::RealField::zero();
             } else if diagonal[m].clone().norm1() <= eps_rel {
@@ -449,6 +456,7 @@ where
 
             if off_diagonal[m].clone().norm1()
                 <= eps.clone() * (diagonal[new_start].clone().norm1() + diagonal[m].clone().norm1())
+                || off_diagonal[m].clone().norm1() <= eps_rel
             {
                 off_diagonal[m] = T::RealField::zero();
                 break;
@@ -892,12 +900,13 @@ fn compute_2x2_uptrig_svd<T: RealField>(
     let mut v_t = None;
 
     if compute_u || compute_v {
-        let (csv, sgn_v) = GivensRotation::new(
+        let (csv, norm_v) = GivensRotation::new(
             m11.clone() * m12.clone(),
             v1.clone() * v1.clone() - m11.clone() * m11.clone(),
         );
-        v1 *= sgn_v.clone();
-        v2 *= sgn_v;
+        let sign_v = T::one().copysign(norm_v);
+        v1 *= sign_v.clone();
+        v2 *= sign_v;
 
         if compute_v {
             v_t = Some(csv.clone());
@@ -905,9 +914,10 @@ fn compute_2x2_uptrig_svd<T: RealField>(
 
         let cu = (m11.scale(csv.c()) + m12 * csv.s()) / v1.clone();
         let su = (m22 * csv.s()) / v1.clone();
-        let (csu, sgn_u) = GivensRotation::new(cu, su);
-        v1 *= sgn_u.clone();
-        v2 *= sgn_u;
+        let (csu, norm_u) = GivensRotation::new(cu, su);
+        let sign_u = T::one().copysign(norm_u);
+        v1 *= sign_u.clone();
+        v2 *= sign_u;
 
         if compute_u {
             u = Some(csu);
