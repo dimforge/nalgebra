@@ -20,7 +20,7 @@ where
 fn reconstruct<T: Copy + ComplexField, N: Dim>(ldl: &LDL<T, N>) -> OMatrix<T, N, N>
 where
     T::RealField: Copy,
-    DefaultAllocator: Allocator<N, N>,
+    DefaultAllocator: Allocator<N> + Allocator<N, N>,
 {
     let l_permuted = ldl.l_permuted();
     &l_permuted * ldl.d() * l_permuted.adjoint()

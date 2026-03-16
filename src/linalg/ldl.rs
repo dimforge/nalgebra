@@ -1,5 +1,7 @@
+#[cfg(feature = "serde-serialize-no-std")]
+use serde::{Deserialize, Serialize};
 use crate::{
-    ComplexField, DefaultAllocator, Dim, Matrix, OMatrix, RealField, Storage, allocator::Allocator,
+    ComplexField, DefaultAllocator, Dim, Matrix, OMatrix, OVector, RealField, Storage, U1, allocator::Allocator
 };
 use num_traits::{FromPrimitive, One, Zero};
 
@@ -9,31 +11,31 @@ use num_traits::{FromPrimitive, One, Zero};
     feature = "serde-serialize-no-std",
     serde(bound(serialize = "DefaultAllocator: Allocator<N, N>,
          OMatrix<T, N, N>: Serialize,
-         Vec<isize>: Serialize,
+         OVector<isize, N>: Serialize,
          Option<usize>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
     serde(bound(deserialize = "DefaultAllocator: Allocator<N, N>,
          OMatrix<T, N, N>: Deserialize<'de>,
-         Vec<isize>: Deserialize<'de>,
+         OVector<isize, N>: Deserialize<'de>,
          Option<usize>: Deserialize<'de>"))
 )]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Debug)]
 pub struct LDL<T: ComplexField, N: Dim>
 where
-    DefaultAllocator: Allocator<N, N>,
+    DefaultAllocator: Allocator<N> + Allocator<N, N>,
 {
     matrix: OMatrix<T, N, N>,
-    pivots: Vec<isize>,
+    pivots: OVector<isize, N>,
     zero_pivot: Option<usize>,
 }
 
 impl<T: Copy + ComplexField, N: Dim> LDL<T, N>
 where
     T::RealField: Copy,
-    DefaultAllocator: Allocator<N, N>,
+    DefaultAllocator: Allocator<N> + Allocator<N, N>,
 {
     /// Compute the factorization of a complex Hermitian matrix using the Bunch-Kaufman
     /// block-diagonal pivoting method:
@@ -47,11 +49,11 @@ where
         assert!(matrix.is_square());
         let n = matrix.nrows();
 
-        let mut pivots = vec![0; n];
+        let mut pivots = OVector::zeros_generic(matrix.shape_generic().0, U1);
         let mut zero_pivot = None;
 
-        // Bunch–Kaufman pivot threshold
-        let alpha = T::RealField::from_f64((1.0 + 17.0.sqrt()) / 8.0).unwrap();
+        // Bunch–Kaufman pivot threshold: (1 + sqrt(17)) / 8
+        let alpha = T::RealField::from_f64(0.6403882032022076).unwrap();
 
         // current pivot position
         let mut k = 0;
@@ -232,7 +234,7 @@ where
     /// denotes a 2x2 pivot block. The stored pivot indices are 1-based.
     #[inline]
     pub fn pivots(&self) -> &[isize] {
-        &self.pivots
+        self.pivots.as_slice()
     }
 
     /// The first exactly zero pivot, if one was encountered.

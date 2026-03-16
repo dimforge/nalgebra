@@ -268,7 +268,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> Matrix<T, D, D, S> {
     where
         T: Copy,
         T::RealField: Copy,
-        DefaultAllocator: Allocator<D, D>,
+        DefaultAllocator: Allocator<D> + Allocator<D, D>,
     {
         LDL::new(self.into_owned())
     }
