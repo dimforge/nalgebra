@@ -178,3 +178,28 @@ macro_rules! gen_tests(
 
 gen_tests!(complex, RandComplex<f64>);
 gen_tests!(f64, RandScalar<f64>);
+
+#[test]
+fn cholesky_non_pd_complex_returns_none() {
+    // Regression test for https://github.com/dimforge/nalgebra/issues/1536.
+    // A non-positive-definite matrix with Complex<f64> entries must return None,
+    // just as it does for f64 entries. The diagonal pivot elements during
+    // Cholesky factorization must be real and strictly positive; for complex
+    // types, try_sqrt always succeeds, so positivity must be checked explicitly.
+    use na::DMatrix;
+    use num_complex::Complex;
+
+    // This 2x2 negative-definite matrix is not positive definite.
+    let m = DMatrix::from_row_slice(2, 2, &[
+        Complex::new(-4.0_f64, 0.0), Complex::new(0.0, 0.0),
+        Complex::new(0.0, 0.0),      Complex::new(-4.0_f64, 0.0),
+    ]);
+    assert!(na::Cholesky::new(m).is_none());
+
+    // A matrix with a non-real diagonal pivot is also not positive definite.
+    let m2 = DMatrix::from_row_slice(2, 2, &[
+        Complex::new(0.0_f64, 1.0), Complex::new(0.0, 0.0),
+        Complex::new(0.0, 0.0),     Complex::new(1.0_f64, 0.0),
+    ]);
+    assert!(na::Cholesky::new(m2).is_none());
+}

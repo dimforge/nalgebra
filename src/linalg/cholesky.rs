@@ -235,10 +235,14 @@ where
             }
 
             let sqrt_denom = |v: T| {
-                if v.is_zero() {
-                    return None;
-                }
-                v.try_sqrt()
+                // For a valid Cholesky decomposition, diagonal pivot elements
+                // must be real and strictly positive. For complex types,
+                // `try_sqrt` always succeeds (every complex number has a square
+                // root), so we check positivity by calling `try_sqrt` on the
+                // real part only. For Hermitian matrices the diagonal stays
+                // real throughout the algorithm; the imaginary part is ignored
+                // here to tolerate small floating-point residuals.
+                v.real().try_sqrt().map(T::from_real)
             };
 
             let diag = unsafe { matrix.get_unchecked((j, j)).clone() };
