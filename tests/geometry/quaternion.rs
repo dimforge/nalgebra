@@ -266,8 +266,14 @@ proptest!(
 );
 
 #[test]
-fn unit_quaternion_small_scaled_axis() {
+fn unit_quaternion_from_small_scaled_axis_computations_stability() {
     let scaled_axis = Vector3::new(5.0e-20, 1e-16, -1.0e-17);
     let q = UnitQuaternion::new(scaled_axis);
-    assert_relative_eq!(q.scaled_axis(), scaled_axis, epsilon = 1.0e-10);
+    assert_relative_eq!(q.scaled_axis(), scaled_axis, max_relative = 1e-16,  epsilon = 0.0);
+    assert_relative_eq!(q.angle(), scaled_axis.norm(), max_relative = 1e-16, epsilon = 0.0);
+
+    let (roll, pitch, yaw) = q.euler_angles();
+    assert_relative_eq!(roll, scaled_axis.x, max_relative=1e-14, epsilon = 0.0);
+    assert_relative_eq!(pitch, scaled_axis.y, max_relative=1e-14, epsilon = 0.0);
+    assert_relative_eq!(yaw, scaled_axis.z, max_relative=1e-14, epsilon = 0.0);
 }
