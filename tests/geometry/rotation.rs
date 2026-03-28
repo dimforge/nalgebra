@@ -1,6 +1,4 @@
-use na::{
-    Matrix3, Quaternion, RealField, Rotation3, UnitQuaternion, UnitVector3, Vector2, Vector3,
-};
+use na::{Matrix3, Quaternion, RealField, Rotation3, Unit, UnitQuaternion, UnitVector3, Vector2, Vector3};
 use std::f64::consts::PI;
 
 #[test]
@@ -356,4 +354,18 @@ mod proptest_tests {
 
 
     }
+}
+
+#[test]
+fn small_scale_axis_no_precision_loss() {
+    let scaled_axis = Vector3::new(-1.0e-25, 1.0e-16, 2.0e-18);
+    let r = Rotation3::new(scaled_axis);
+    assert_relative_eq!(r.scaled_axis(), scaled_axis, max_relative = 1e-6, epsilon = 1e-30);
+}
+
+#[test]
+fn get_axis_for_pi_angle_rotation_issue_1382() {
+    let axis = Unit::new_normalize(Vector3::new(1., 2., 1.));
+    let r = Rotation3::from_axis_angle(&axis, PI);
+    assert_relative_eq!(r.axis().unwrap(), axis, max_relative=1.0e-16);
 }
