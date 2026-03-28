@@ -1330,20 +1330,13 @@ where
         T: RealField,
     {
         let angle = self.angle();
-        let scaling = if angle < crate::convert(1.0e-3) {
-            let a0: T = crate::convert(2.0);
-            let a2: T = crate::convert(1.0 / 12.0);
-            let a4: T = crate::convert(7.0 / 2880.0);
-            a0 + a2 * angle.clone().simd_powi(2) + a4 * angle.simd_powi(4)
-        } else {
-            angle.clone() / (crate::convert::<f64, T>(0.5) * angle).simd_sin()
-        };
         let vec = if self.scalar() >= T::zero() {
             self.imag()
         } else {
             -self.imag()
         };
-        vec * scaling
+        let two: T = crate::convert(2.0);
+        vec * two.clone() / (angle / two).simd_sinc()
     }
 
     /// The rotation axis and angle in (0, pi] of this unit quaternion.
