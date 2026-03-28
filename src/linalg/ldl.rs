@@ -47,9 +47,9 @@ where
     ///
     /// P A P^T = L * D * L^H
     ///
-    /// where L is a product of permutation and unit lower triangular matrices, U^H is the
-    /// conjugate transpose of U, and D is Hermitian and block diagonal with 1-by-1 and
-    /// 2-by-2 diagonal blocks.
+    /// where P is the permutation induced by the pivot sequence, L is unit lower
+    /// triangular in the permuted basis, and D is Hermitian block diagonal with
+    /// 1-by-1 and 2-by-2 diagonal blocks.
     pub fn new(mut matrix: OMatrix<T, N, N>) -> Self {
         assert!(matrix.is_square());
         let n = matrix.nrows();
@@ -249,11 +249,11 @@ where
         self.zero_pivot
     }
 
-    /// The permutation-aware factor (P^T L) of this decomposition.
+    /// Returns the permutation-aware factor P^T L.
     ///
-    /// This is the accumulated product of the stepwise permutation and unit-lower
-    /// factors. In general, once the permutations are absorbed, the result is no
-    /// longer lower triangular.
+    /// This factor can be combined directly with `d()` to reconstruct the original
+    /// matrix. In general `P^T L` is not lower triangular, even though `L` itself is
+    /// unit lower triangular in the permuted basis.
     pub fn l_permuted(&self) -> OMatrix<T, N, N> {
         let n = self.matrix.nrows();
         let (nrows, ncols) = self.matrix.shape_generic();
