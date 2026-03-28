@@ -8,6 +8,21 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 **nalgebra-lapack change log** is found [here](https://github.com/dimforge/nalgebra/blob/main/nalgebra-lapack/CHANGELOG.md)
 starting with `nalgebra-lapack` version `0.27.0`.
 
+## [0.34.2] (28 March 2026)
+
+### Added
+
+- Add `convert-glam031` and `convert-glam032` features for conversion from/to `glam` v0.31 and v0.32 [#1597](https://github.com/dimforge/nalgebra/pull/1597).
+
+### Fixed
+
+- Fix `SymmetricEigen` routine [#1210](https://github.com/dimforge/nalgebra/pull/1210).
+- Fix matrix parsing grammar to accept numbers without leading zeros, e.g. ".45" [#1578](https://github.com/dimforge/nalgebra/pull/1578).
+- Fix build with `glam` in `no_std` environments [#1555](https://github.com/dimforge/nalgebra/pull/1555).
+- Fix rustdoc warnings [#1511](https://github.com/dimforge/nalgebra/pull/1511).
+- Implement absolute threshold for early deflation in Schur algorithm [#1565](https://github.com/dimforge/nalgebra/pull/1565).
+- Assert matrix shapes for `Matrix::abs_diff_eq` [#1568](https://github.com/dimforge/nalgebra/pull/1568).
+
 ## [0.34.1] (20 Sept. 2025)
 
 ### Added
