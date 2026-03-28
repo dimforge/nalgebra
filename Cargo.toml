@@ -47,6 +47,8 @@ std = [
     "glam028?/std",
     "glam029?/std",
     "glam030?/std",
+    "glam031?/std",
+    "glam032?/std",
 ]
 sparse = []
 debug = ["approx/num-complex", "rand"]
@@ -71,6 +73,8 @@ libm = [
     "glam028?/libm",
     "glam029?/libm",
     "glam030?/libm",
+    "glam031?/libm",
+    "glam032?/libm",
 ]
 libm-force = ["simba/libm_force"]
 macros = ["nalgebra-macros"]
@@ -94,6 +98,8 @@ convert-glam027 = ["glam027"]
 convert-glam028 = ["glam028"]
 convert-glam029 = ["glam029"]
 convert-glam030 = ["glam030"]
+convert-glam031 = ["glam031"]
+convert-glam032 = ["glam032"]
 
 # Serialization
 ## To use serde in a #[no-std] environment, enable the
@@ -155,6 +161,8 @@ glam027 = { package = "glam", version = "0.27", optional = true, default-feature
 glam028 = { package = "glam", version = "0.28", optional = true, default-features = false }
 glam029 = { package = "glam", version = "0.29", optional = true, default-features = false }
 glam030 = { package = "glam", version = "0.30", optional = true, default-features = false }
+glam031 = { package = "glam", version = "0.31", optional = true, default-features = false }
+glam032 = { package = "glam", version = "0.32", optional = true, default-features = false }
 rayon = { version = "1.6", optional = true }
 defmt = { version = "1.0.1", optional = true }
 encase = { version = "0.12", optional = true }
