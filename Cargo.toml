@@ -31,21 +31,6 @@ std = [
     "num-rational/std",
     "approx/std",
     "simba/std",
-    "glam014?/std",
-    "glam015?/std",
-    "glam016?/std",
-    "glam017?/std",
-    "glam018?/std",
-    "glam019?/std",
-    "glam020?/std",
-    "glam021?/std",
-    "glam022?/std",
-    "glam023?/std",
-    "glam024?/std",
-    "glam025?/std",
-    "glam027?/std",
-    "glam028?/std",
-    "glam029?/std",
     "glam030?/std",
     "glam031?/std",
     "glam032?/std",
@@ -57,21 +42,6 @@ io = ["pest", "pest_derive"]
 compare = ["matrixcompare-core"]
 libm = [
     "simba/libm",
-    "glam014?/libm",
-    "glam015?/libm",
-    "glam016?/libm",
-    "glam017?/libm",
-    "glam018?/libm",
-    "glam019?/libm",
-    "glam020?/libm",
-    "glam021?/libm",
-    "glam022?/libm",
-    "glam023?/libm",
-    "glam024?/libm",
-    "glam025?/libm",
-    "glam027?/libm",
-    "glam028?/libm",
-    "glam029?/libm",
     "glam030?/libm",
     "glam031?/libm",
     "glam032?/libm",
@@ -82,21 +52,6 @@ macros = ["nalgebra-macros"]
 # Conversion
 convert-mint = ["mint"]
 convert-bytemuck = ["bytemuck", "num-complex/bytemuck"]
-convert-glam014 = ["glam014"]
-convert-glam015 = ["glam015"]
-convert-glam016 = ["glam016"]
-convert-glam017 = ["glam017"]
-convert-glam018 = ["glam018"]
-convert-glam019 = ["glam019"]
-convert-glam020 = ["glam020"]
-convert-glam021 = ["glam021"]
-convert-glam022 = ["glam022"]
-convert-glam023 = ["glam023"]
-convert-glam024 = ["glam024"]
-convert-glam025 = ["glam025"]
-convert-glam027 = ["glam027"]
-convert-glam028 = ["glam028"]
-convert-glam029 = ["glam029"]
 convert-glam030 = ["glam030"]
 convert-glam031 = ["glam031"]
 convert-glam032 = ["glam032"]
@@ -145,21 +100,6 @@ pest_derive = { version = "2", optional = true }
 bytemuck = { version = "1.5", optional = true }
 matrixcompare-core = { version = "0.1", optional = true }
 proptest = { version = "1", optional = true, default-features = false, features = ["std"] }
-glam014 = { package = "glam", version = "0.14", optional = true, default-features = false }
-glam015 = { package = "glam", version = "0.15", optional = true, default-features = false }
-glam016 = { package = "glam", version = "0.16", optional = true, default-features = false }
-glam017 = { package = "glam", version = "0.17", optional = true, default-features = false }
-glam018 = { package = "glam", version = "0.18", optional = true, default-features = false }
-glam019 = { package = "glam", version = "0.19", optional = true, default-features = false }
-glam020 = { package = "glam", version = "0.20", optional = true, default-features = false }
-glam021 = { package = "glam", version = "0.21", optional = true, default-features = false }
-glam022 = { package = "glam", version = "0.22", optional = true, default-features = false }
-glam023 = { package = "glam", version = "0.23", optional = true, default-features = false }
-glam024 = { package = "glam", version = "0.24", optional = true, default-features = false }
-glam025 = { package = "glam", version = "0.25", optional = true, default-features = false }
-glam027 = { package = "glam", version = "0.27", optional = true, default-features = false }
-glam028 = { package = "glam", version = "0.28", optional = true, default-features = false }
-glam029 = { package = "glam", version = "0.29", optional = true, default-features = false }
 glam030 = { package = "glam", version = "0.30", optional = true, default-features = false }
 glam031 = { package = "glam", version = "0.31", optional = true, default-features = false }
 glam032 = { package = "glam", version = "0.32", optional = true, default-features = false }
