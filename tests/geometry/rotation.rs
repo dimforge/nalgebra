@@ -1,4 +1,6 @@
-use na::{Matrix3, Quaternion, RealField, Rotation3, Unit, UnitQuaternion, UnitVector3, Vector2, Vector3};
+use na::{
+    Matrix3, Quaternion, RealField, Rotation3, UnitQuaternion, UnitVector3, Vector2, Vector3, Unit
+};
 use std::f64::consts::PI;
 
 #[test]

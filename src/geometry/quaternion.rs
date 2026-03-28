@@ -974,8 +974,8 @@ impl<T: RealField + AbsDiffEq<Epsilon = T>> AbsDiffEq for Quaternion<T> {
     #[inline]
     fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
         self.as_vector().abs_diff_eq(other.as_vector(), epsilon.clone()) ||
-            // Account for the double-covering of S², i.e. q = -q
-            self.as_vector().iter().zip(other.as_vector().iter()).all(|(a, b)| a.abs_diff_eq(&-b.clone(), epsilon.clone()))
+        // Account for the double-covering of S², i.e. q = -q
+        self.as_vector().iter().zip(other.as_vector().iter()).all(|(a, b)| a.abs_diff_eq(&-b.clone(), epsilon.clone()))
     }
 }
 
