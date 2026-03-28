@@ -249,7 +249,7 @@ where
         self.zero_pivot
     }
 
-    /// The permutation-aware factor of this decomposition.
+    /// The permutation-aware factor (P^T L) of this decomposition.
     ///
     /// This is the accumulated product of the stepwise permutation and unit-lower
     /// factors. In general, once the permutations are absorbed, the result is no
