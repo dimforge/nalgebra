@@ -1,9 +1,14 @@
-#[cfg(feature = "serde-serialize-no-std")]
-use serde::{Deserialize, Serialize};
 use crate::{
-    ComplexField, DefaultAllocator, Dim, Matrix, OMatrix, OVector, RealField, Storage, U1, allocator::Allocator
+    ComplexField, DefaultAllocator, Dim, Matrix, OMatrix, OVector, RealField, Storage, U1,
+    allocator::Allocator,
 };
 use num_traits::{FromPrimitive, One, Zero};
+
+#[cfg(feature = "serde-serialize-no-std")]
+use serde::{Deserialize, Serialize};
+
+/// A pivot represented as `(index, block_size)`, where `block_size` is either 1 or 2.
+type Pivot = (usize, usize);
 
 /// Bunch–Kaufman LDL^H factorization of a Hermitian matrix with symmetric pivoting.
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
@@ -11,14 +16,14 @@ use num_traits::{FromPrimitive, One, Zero};
     feature = "serde-serialize-no-std",
     serde(bound(serialize = "DefaultAllocator: Allocator<N, N>,
          OMatrix<T, N, N>: Serialize,
-         OVector<isize, N>: Serialize,
+         OVector<Pivot, N>: Serialize,
          Option<usize>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
     serde(bound(deserialize = "DefaultAllocator: Allocator<N, N>,
          OMatrix<T, N, N>: Deserialize<'de>,
-         OVector<isize, N>: Deserialize<'de>,
+         OVector<Pivot, N>: Deserialize<'de>,
          Option<usize>: Deserialize<'de>"))
 )]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
@@ -28,7 +33,7 @@ where
     DefaultAllocator: Allocator<N> + Allocator<N, N>,
 {
     matrix: OMatrix<T, N, N>,
-    pivots: OVector<isize, N>,
+    pivots: OVector<Pivot, N>,
     zero_pivot: Option<usize>,
 }
 
@@ -49,7 +54,7 @@ where
         assert!(matrix.is_square());
         let n = matrix.nrows();
 
-        let mut pivots = OVector::zeros_generic(matrix.shape_generic().0, U1);
+        let mut pivots = OVector::from_element_generic(matrix.shape_generic().0, U1, (0, 0));
         let mut zero_pivot = None;
 
         // Bunch–Kaufman pivot threshold: (1 + sqrt(17)) / 8
@@ -86,9 +91,10 @@ where
             if diag_abs.max(colmax) == T::RealField::zero() {
                 // Column k is zero: store a 1x1 pivot, and skip all other logic.
                 if zero_pivot.is_none() {
-                    zero_pivot = Some(k + 1);
+                    zero_pivot = Some(k);
                 }
-                pivots[k] = (k + 1).cast_signed();
+
+                pivots[k] = (k, 1);
                 k += 1;
                 continue;
             }
@@ -178,7 +184,7 @@ where
                     }
                 }
 
-                pivots[k] = (pivot_index + 1).cast_signed();
+                pivots[k] = (pivot_index, 1);
             } else {
                 // 2x2 pivot block D(k:k+1)
                 if k + 2 < n {
@@ -213,8 +219,8 @@ where
                     }
                 }
 
-                pivots[k] = -(pivot_index + 1).cast_signed();
-                pivots[k + 1] = -(pivot_index + 1).cast_signed();
+                pivots[k] = (pivot_index, 2);
+                pivots[k + 1] = (pivot_index, 2);
             }
 
             k += block_size;
@@ -229,17 +235,14 @@ where
 
     /// The pivot data for this factorization.
     ///
-    /// This uses the LAPACK `ipiv` convention:
-    /// a positive entry denotes a 1x1 pivot block, while a repeated negative entry
-    /// denotes a 2x2 pivot block. The stored pivot indices are 1-based.
+    /// Each entry is a tuple of the leading pivot index and block size for the corresponding step.
     #[inline]
-    pub fn pivots(&self) -> &[isize] {
+    pub fn pivots(&self) -> &[Pivot] {
         self.pivots.as_slice()
     }
 
     /// The first exactly zero pivot, if one was encountered.
     ///
-    /// This follows the LAPACK convention and is therefore 1-based.
     /// A value of `None` means no zero pivot was detected.
     #[inline]
     pub const fn zero_pivot(&self) -> Option<usize> {
@@ -258,9 +261,9 @@ where
 
         let mut k = 0;
         while k < n {
-            let pivot_index = self.pivots[k].unsigned_abs() - 1;
+            let (pivot_index, block_size) = self.pivots[k];
 
-            if self.pivots[k] > 0 {
+            if block_size == 1 {
                 // Right-multiply by the permutation: swap the affected columns.
                 l_permuted.swap_columns(k, pivot_index);
 
@@ -303,7 +306,7 @@ where
         let mut k = 0;
         while k < n {
             d[(k, k)] = self.matrix[(k, k)];
-            if self.pivots[k] < 0 {
+            if self.pivots[k].1 == 2 {
                 d[(k + 1, k)] = self.matrix[(k + 1, k)];
                 d[(k, k + 1)] = self.matrix[(k + 1, k)].conjugate();
                 d[(k + 1, k + 1)] = self.matrix[(k + 1, k + 1)];
@@ -346,9 +349,9 @@ where
         // Solve L * y = P^T * b using the stored pivot sequence and multipliers.
         let mut k = 0;
         while k < n {
-            let pivot_index = self.pivots[k].unsigned_abs() - 1;
+            let (pivot_index, block_size) = self.pivots[k];
 
-            if self.pivots[k] > 0 {
+            if block_size == 1 {
                 b.swap_rows(k, pivot_index);
 
                 for j in 0..m {
@@ -376,7 +379,7 @@ where
         // Solve D * z = y, handling 1x1 and 2x2 diagonal blocks.
         let mut k = 0;
         while k < n {
-            if self.pivots[k] > 0 {
+            if self.pivots[k].1 == 1 {
                 for j in 0..m {
                     b[(k, j)] = b[(k, j)].unscale(self.matrix[(k, k)].real());
                 }
@@ -410,7 +413,7 @@ where
                 }
             }
 
-            if self.pivots[k1] > 0 {
+            if self.pivots[k1].1 == 1 {
                 k -= 1;
             } else {
                 let k2 = k - 2;
@@ -422,7 +425,7 @@ where
                 k -= 2;
             }
 
-            b.swap_rows(k1, self.pivots[k1].unsigned_abs() - 1);
+            b.swap_rows(k1, self.pivots[k1].0);
         }
 
         true
@@ -435,7 +438,7 @@ where
 
         let mut k = 0;
         while k < n {
-            if self.pivots[k] > 0 {
+            if self.pivots[k].1 == 1 {
                 determinant *= self.matrix[(k, k)].real();
                 k += 1;
             } else {
