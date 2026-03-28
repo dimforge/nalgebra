@@ -1,7 +1,7 @@
 #![cfg(feature = "proptest-support")]
 #![allow(non_snake_case)]
 
-use na::{Unit, UnitQuaternion};
+use na::{Unit, UnitQuaternion, Vector3};
 
 use crate::proptest::*;
 use proptest::{prop_assert, proptest};
@@ -264,3 +264,10 @@ proptest!(
             && uqMuv == &uq * uv)
     }
 );
+
+#[test]
+fn unit_quaternion_small_scaled_axis() {
+    let scaled_axis = Vector3::new(5.0e-20, 1e-16, -1.0e-17);
+    let q = UnitQuaternion::new(scaled_axis);
+    assert_relative_eq!(q.scaled_axis(), scaled_axis, epsilon = 1.0e-10);
+}

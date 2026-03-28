@@ -516,7 +516,13 @@ where
     #[inline]
     #[must_use]
     pub fn exp(&self) -> Self {
-        self.exp_eps(T::simd_default_epsilon())
+        let v = self.vector();
+        let v_norm = v.norm();
+        let exp = self.scalar().simd_exp();
+        Self::from_parts(
+            exp.clone() * v_norm.clone().simd_cos(),
+            v * exp * v_norm.simd_sinc(),
+        )
     }
 
     /// Compute the exponential of a quaternion. Returns the identity if the vector part of this quaternion
@@ -968,8 +974,8 @@ impl<T: RealField + AbsDiffEq<Epsilon = T>> AbsDiffEq for Quaternion<T> {
     #[inline]
     fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
         self.as_vector().abs_diff_eq(other.as_vector(), epsilon.clone()) ||
-        // Account for the double-covering of S², i.e. q = -q
-        self.as_vector().iter().zip(other.as_vector().iter()).all(|(a, b)| a.abs_diff_eq(&-b.clone(), epsilon.clone()))
+            // Account for the double-covering of S², i.e. q = -q
+            self.as_vector().iter().zip(other.as_vector().iter()).all(|(a, b)| a.abs_diff_eq(&-b.clone(), epsilon.clone()))
     }
 }
 
@@ -1323,10 +1329,21 @@ where
     where
         T: RealField,
     {
-        match self.axis() {
-            Some(axis) => axis.into_inner() * self.angle(),
-            None => Vector3::zero(),
-        }
+        let angle = self.angle();
+        let scaling = if angle < crate::convert(1.0e-3) {
+            let a0: T = crate::convert(2.0);
+            let a2: T = crate::convert(1.0 / 12.0);
+            let a4: T = crate::convert(7.0 / 2880.0);
+            a0 + a2 * angle.clone().simd_powi(2) + a4 * angle.simd_powi(4)
+        } else {
+            angle.clone() / (crate::convert::<f64, T>(0.5) * angle).simd_sin()
+        };
+        let vec = if self.scalar() >= T::zero() {
+            self.imag()
+        } else {
+            -self.imag()
+        };
+        vec * scaling
     }
 
     /// The rotation axis and angle in (0, pi] of this unit quaternion.
