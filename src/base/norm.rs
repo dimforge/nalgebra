@@ -328,9 +328,9 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         DefaultAllocator: Allocator<R, C>,
     {
         let n = self.norm();
-        let le = n.clone().simd_le(min_norm);
+        let valid = n.clone().simd_gt(min_norm);
         let val = self.unscale(n);
-        SimdOption::new(val, le)
+        SimdOption::new(val, valid)
     }
 
     /// Sets the magnitude of this vector unless it is smaller than `min_magnitude`.
