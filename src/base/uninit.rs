@@ -1,4 +1,5 @@
 use std::mem::MaybeUninit;
+use std::ptr;
 
 /// This trait is used to write code that may work on matrices that may or may not
 /// be initialized.
@@ -26,8 +27,21 @@ pub unsafe trait InitStatus<T>: Copy {
     /// Retrieve a mutable reference to the element, assuming that it is initialized.
     ///
     /// # Safety
-    /// This is unsound if the referenced value isn’t initialized.
+    /// This is unsound if the referenced value isn't initialized.
     unsafe fn assume_init_mut(t: &mut Self::Value) -> &mut T;
+
+    /// Write a value through a raw pointer, initializing the element.
+    ///
+    /// # Safety
+    /// `out` must be valid for writes and properly aligned.
+    unsafe fn init_ptr(out: *mut Self::Value, t: T);
+
+    /// Read the initialized value from a raw pointer.
+    ///
+    /// # Safety
+    /// `ptr` must be valid for reads, properly aligned, and the pointed-to
+    /// value must be initialized.
+    unsafe fn assume_init_read(ptr: *const Self::Value) -> T;
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -54,6 +68,18 @@ unsafe impl<T> InitStatus<T> for Init {
     unsafe fn assume_init_mut(t: &mut T) -> &mut T {
         t
     }
+
+    #[inline(always)]
+    unsafe fn init_ptr(out: *mut T, t: T) {
+        // SAFETY: Caller guarantees `out` is valid for writes and aligned.
+        unsafe { ptr::write(out, t) }
+    }
+
+    #[inline(always)]
+    unsafe fn assume_init_read(p: *const T) -> T {
+        // SAFETY: Caller guarantees `p` is valid for reads, aligned, and initialized.
+        unsafe { ptr::read(p) }
+    }
 }
 
 unsafe impl<T> InitStatus<T> for Uninit {
@@ -76,5 +102,18 @@ unsafe impl<T> InitStatus<T> for Uninit {
         unsafe {
             &mut *t.as_mut_ptr() // TODO: use t.assume_init_mut()
         }
+    }
+
+    #[inline(always)]
+    unsafe fn init_ptr(out: *mut MaybeUninit<T>, t: T) {
+        // SAFETY: Caller guarantees `out` is valid for writes and aligned.
+        unsafe { ptr::write(out, MaybeUninit::new(t)) }
+    }
+
+    #[inline(always)]
+    unsafe fn assume_init_read(p: *const MaybeUninit<T>) -> T {
+        // SAFETY: Caller guarantees `p` is valid, aligned, and the value is initialized.
+        // MaybeUninit<T> has the same layout as T, so reading as T is sound.
+        unsafe { ptr::read(p.cast::<T>()) }
     }
 }
