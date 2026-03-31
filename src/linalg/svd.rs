@@ -235,7 +235,7 @@ where
                         m12,
                     );
 
-                    match GivensRotation::cancel_y(&vec) {
+                    match GivensRotation::cancel_y(&vec, eps.clone()) {
                         Some((rot1, norm1)) => {
                             rot1.inverse()
                                 .rotate_rows(&mut subm.fixed_columns_mut::<2>(0));
@@ -248,8 +248,7 @@ where
                             }
 
                             let v = Vector2::new(subm[(0, 0)].clone(), subm[(1, 0)].clone());
-                            // TODO: does the case `v.y == 0` ever happen?
-                            let (rot2, norm2) = GivensRotation::cancel_y(&v)
+                            let (rot2, norm2) = GivensRotation::cancel_y(&v, eps.clone())
                                 .unwrap_or((GivensRotation::identity(), subm[(0, 0)].clone()));
 
                             rot2.rotate(&mut subm.fixed_columns_mut::<2>(1));
@@ -505,7 +504,10 @@ where
         off_diagonal[i] = T::RealField::zero();
 
         for k in i..end {
-            match GivensRotation::cancel_x(&v) {
+            match GivensRotation::cancel_x(
+                &v,
+                T::RealField::default_epsilon() * crate::convert(1000.0),
+            ) {
                 Some((rot, norm)) => {
                     let rot = GivensRotation::new_unchecked(rot.c(), T::from_real(rot.s()));
                     diagonal[k + 1] = norm;
@@ -545,7 +547,10 @@ where
         off_diagonal[i] = T::RealField::zero();
 
         for k in (0..i + 1).rev() {
-            match GivensRotation::cancel_y(&v) {
+            match GivensRotation::cancel_y(
+                &v,
+                T::RealField::default_epsilon() * crate::convert(1000.0),
+            ) {
                 Some((rot, norm)) => {
                     let rot = GivensRotation::new_unchecked(rot.c(), T::from_real(rot.s()));
                     diagonal[k] = norm;
