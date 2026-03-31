@@ -152,7 +152,7 @@ where
                 for i in start..n {
                     let j = i + 1;
 
-                    match GivensRotation::cancel_y(&vec) {
+                    match GivensRotation::cancel_y(&vec, T::RealField::zero()) {
                         Some((rot, norm)) => {
                             if i > start {
                                 // Not the first iteration.
