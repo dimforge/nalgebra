@@ -876,7 +876,7 @@ where
 
 // Explicit formulae inspired from the paper "Computing the Singular Values of 2-by-2 Complex
 // Matrices", Sanzheng Qiao and Xiaohong Wang.
-// http://www.cas.mcmaster.ca/sqrl/papers/sqrl5.pdf
+// https://www.cas.mcmaster.ca/~qiao/publications/zsvd2.pdf
 fn compute_2x2_uptrig_svd<T: RealField>(
     m11: T,
     m12: T,
