@@ -11,6 +11,20 @@ fn cholesky_with_substitute() {
     assert!(na::Cholesky::new_with_substitute(m, 1e-8).is_some());
 }
 
+// 2x2 matrix filled with -1 is not positive definite and should not return a Cholesky
+// decomposition (regardless of element type).
+// See https://github.com/dimforge/nalgebra/issues/1536 .
+#[test]
+fn cholesky_check_positive_definiteness() {
+    let x = -1.0;
+    let m = na::Matrix2::new(x, x, x, x);
+    assert!(nalgebra::Cholesky::new(m).is_none());
+
+    let x = na::Complex::new(-1.0, 0.0);
+    let m = na::Matrix2::new(x, x, x, x);
+    assert!(nalgebra::Cholesky::new(m).is_none());
+}
+
 macro_rules! gen_tests(
     ($module: ident, $scalar: ty) => {
         mod $module {
