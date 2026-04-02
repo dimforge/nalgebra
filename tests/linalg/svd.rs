@@ -645,3 +645,46 @@ fn svd_regression_1() {
         );
     }
 }
+
+#[test]
+fn svd_regression_2() {
+    use nalgebra::{Complex, Matrix4};
+    type M4C = Matrix4<Complex<f64>>;
+
+    let m = M4C::new(
+        Complex::new(-0.4999999999999969, 0.00000000000000009847209127792333),
+        Complex::new(-0.5000000000000002, -0.0000000000000005145817176957074),
+        Complex::new(-0.5000000000000031, -0.00000000000000011326570795854838),
+        Complex::new(0.4999999999999997, 0.00000000000000028317808990753396),
+        Complex::new(-0.49999999999999994, 0.0000000000000002324728614724245),
+        Complex::new(-0.5000000000000029, 0.00000000000000009174755495786714),
+        Complex::new(-0.49999999999999994, 0.00000000000000037035002208515673),
+        Complex::new(0.4999999999999969, -0.0000000000000000779181294373365),
+        Complex::new(-0.5000000000000031, -0.00000000000000010725752877840523),
+        Complex::new(-0.4999999999999997, -0.0000000000000004179869031467993),
+        Complex::new(-0.499999999999997, -0.000000000000000027676985470314004),
+        Complex::new(0.5000000000000002, 0.0000000000000004129804445544165),
+        Complex::new(0.5000000000000001, -0.000000000000000490409530759043),
+        Complex::new(0.4999999999999969, -0.00000000000000008015506216445231),
+        Complex::new(0.5000000000000001, -0.00000000000000032732792387061645),
+        Complex::new(-0.5000000000000029, 0.00000000000000010807420148690568),
+    );
+    let m_singular_values = nalgebra::dvector![2.0, 0.0, 0.0, 0.0];
+
+    let svd = m.svd(true, true);
+    let sings = svd.singular_values;
+    let u = svd.u.unwrap();
+    let v_t = svd.v_t.unwrap();
+    let sigma = M4C::from_diagonal(&sings.cast::<Complex<f64>>());
+    let m1 = u * sigma * v_t;
+
+    // Should be accurate to machine precision
+    assert_relative_eq!(m, m1, epsilon = 1e-12);
+
+    for (s, expected) in sings.iter().zip(m_singular_values.iter()) {
+        assert!(
+            (*s - expected).abs() < 1e-12,
+            "Singular value {s:e} is not accurate: expected {expected:e}",
+        );
+    }
+}
