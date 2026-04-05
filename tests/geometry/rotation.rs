@@ -371,3 +371,20 @@ fn get_axis_for_pi_angle_rotation_issue_1382() {
     let r = Rotation3::from_axis_angle(&axis, PI);
     assert_relative_eq!(r.axis().unwrap(), axis, max_relative=1.0e-16);
 }
+
+#[test]
+fn angle_for_tiny_rotation_computed_as_multiplication_is_not_nan() {
+    let roll = 0.8448984061042941;
+    let pitch = -1.4629885349276224;
+    let yaw = -2.6163871512855312;
+    let r1 = Rotation3::from_euler_angles(roll, pitch, yaw);
+    let r2 = Rotation3::from_euler_angles(
+        roll * (1.0 + 1e-16),
+        pitch * (1.0 - 2e-16),
+        yaw * (1.0 + 1e-16),
+    );
+    let r = r1 * r2.inverse();
+    let angle: f64 = r.angle();
+    assert!(!angle.is_nan());
+    assert!(angle < 1e-15);
+}
