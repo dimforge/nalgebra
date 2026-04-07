@@ -3,7 +3,6 @@ use na::{
     Complex, ComplexField, DMatrix, DVector, DefaultAllocator, Dim, DimMin, Dyn, LDL, OMatrix,
     OVector, RealField, allocator::Allocator,
 };
-use num_traits::{One, Zero};
 use rand::{Rng, SeedableRng, rngs::StdRng};
 use rand_distr::{Distribution, StandardNormal};
 
@@ -67,62 +66,6 @@ where
     let u = random_isometry(n, n, rng);
     let d = OMatrix::from_diagonal(&diag.map(|x| Complex::new(x, T::zero())));
     &u * d * u.adjoint()
-}
-
-#[test]
-fn zero_matrix() {
-    for n in 1..=5 {
-        let ldl = DMatrix::<f64>::zeros(n, n).ldl();
-
-        assert_eq!(ldl.l_permuted(), DMatrix::identity(n, n));
-        assert_eq!(ldl.d(), DMatrix::zeros(n, n));
-        assert_eq!(ldl.zero_pivot(), Some(0));
-        assert_eq!(ldl.pivots(), (0..n).map(|i| (i, 1)).collect::<Vec<_>>());
-        assert!(ldl.determinant().is_zero());
-        assert!(ldl.solve(&DVector::from_element(n, 1.0)).is_none());
-    }
-}
-
-#[test]
-fn identity_matrix() {
-    for n in 1..=5 {
-        let identity = DMatrix::<f64>::identity(n, n);
-        let ldl = identity.clone().ldl();
-
-        assert_eq!(ldl.l_permuted(), identity);
-        assert_eq!(ldl.d(), identity);
-        assert_eq!(ldl.zero_pivot(), None);
-        assert_eq!(ldl.pivots(), (0..n).map(|i| (i, 1)).collect::<Vec<_>>());
-        assert!(ldl.determinant().is_one());
-    }
-}
-
-#[test]
-fn exchange_matrix() {
-    for n in 1..=15 {
-        let exchange = DMatrix::from_fn(n, n, |i, j| if i + j + 1 == n { 1.0 } else { 0.0 });
-        let ldl = exchange.clone().ldl();
-
-        let mut expected = Vec::with_capacity(n);
-        let m = (n + 2) / 4;
-        for r in 0..m {
-            let pivot = n - 2 * r - 1;
-            expected.push((pivot, 2));
-            expected.push((pivot, 2));
-        }
-        if !n.is_multiple_of(2) {
-            expected.push((2 * m, 1));
-        }
-
-        for r in m..(n / 2) {
-            let pivot = 2 * r + n % 2 + 1;
-            expected.push((pivot, 2));
-            expected.push((pivot, 2));
-        }
-
-        assert_eq!(exchange, reconstruct(&ldl));
-        assert_eq!(ldl.pivots(), expected);
-    }
 }
 
 // This indefinite spectrum reliably exercises diverse 1x1/2x2 pivot patterns across sizes.

@@ -233,22 +233,6 @@ where
         }
     }
 
-    /// The pivot data for this factorization.
-    ///
-    /// Each entry is a tuple of the leading pivot index and block size for the corresponding step.
-    #[inline]
-    pub fn pivots(&self) -> &[Pivot] {
-        self.pivots.as_slice()
-    }
-
-    /// The first exactly zero pivot, if one was encountered.
-    ///
-    /// A value of `None` means no zero pivot was detected.
-    #[inline]
-    pub const fn zero_pivot(&self) -> Option<usize> {
-        self.zero_pivot
-    }
-
     /// Returns the permutation-aware factor P^T L.
     ///
     /// This factor can be combined directly with `d()` to reconstruct the original
@@ -449,5 +433,70 @@ where
         }
 
         determinant
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{DMatrix, DVector};
+
+    use super::*;
+
+    #[test]
+    fn zero_matrix() {
+        for n in 1..=5 {
+            let ldl = DMatrix::<f64>::zeros(n, n).ldl();
+            assert_eq!(ldl.l_permuted(), DMatrix::identity(n, n));
+            assert_eq!(ldl.d(), DMatrix::zeros(n, n));
+            assert_eq!(ldl.zero_pivot, Some(0));
+            assert_eq!(ldl.pivots, DVector::from_fn(n, |i, _| (i, 1)));
+            assert!(ldl.determinant().is_zero());
+            assert!(ldl.solve(&DVector::from_element(n, 1.0)).is_none());
+        }
+    }
+
+    #[test]
+    fn identity_matrix() {
+        for n in 1..=5 {
+            let identity = DMatrix::<f64>::identity(n, n);
+            let ldl = identity.clone().ldl();
+
+            assert_eq!(ldl.l_permuted(), identity);
+            assert_eq!(ldl.d(), identity);
+            assert_eq!(ldl.zero_pivot, None);
+            assert_eq!(ldl.pivots, DVector::from_fn(n, |i, _| (i, 1)));
+            assert!(ldl.determinant().is_one());
+        }
+    }
+
+    #[test]
+    fn exchange_matrix() {
+        for n in 1..=15 {
+            let exchange = DMatrix::from_fn(n, n, |i, j| if i + j + 1 == n { 1.0 } else { 0.0 });
+            let ldl = exchange.clone().ldl();
+
+            let mut expected = Vec::with_capacity(n);
+            let m = (n + 2) / 4;
+            for r in 0..m {
+                let pivot = n - 2 * r - 1;
+                expected.push((pivot, 2));
+                expected.push((pivot, 2));
+            }
+            if !n.is_multiple_of(2) {
+                expected.push((2 * m, 1));
+            }
+
+            for r in m..(n / 2) {
+                let pivot = 2 * r + n % 2 + 1;
+                expected.push((pivot, 2));
+                expected.push((pivot, 2));
+            }
+
+            let l_permuted = ldl.l_permuted();
+            let reconstruction = &l_permuted * ldl.d() * l_permuted.adjoint();
+
+            assert_eq!(exchange, reconstruction);
+            assert_eq!(ldl.pivots.as_slice(), expected);
+        }
     }
 }
