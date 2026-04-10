@@ -1,8 +1,8 @@
 use crate::{
     ComplexField, DefaultAllocator, Dim, Matrix, OMatrix, OVector, RealField, Storage, U1,
-    allocator::Allocator,
+    allocator::Allocator, convert,
 };
-use num_traits::{FromPrimitive, One, Zero};
+use num_traits::{One, Zero};
 
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
@@ -58,7 +58,7 @@ where
         let mut zero_pivot = None;
 
         // Bunch–Kaufman pivot threshold: (1 + sqrt(17)) / 8
-        let alpha = T::RealField::from_f64(0.6403882032022076).unwrap();
+        let alpha: T::RealField = convert(0.6403882032022076);
 
         // current pivot position
         let mut k = 0;
