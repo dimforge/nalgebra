@@ -1,6 +1,6 @@
 use approx::assert_relative_eq;
 use na::{
-    Complex, ComplexField, DMatrix, DVector, DefaultAllocator, Dim, DimMin, Dyn, LDL, OMatrix,
+    Complex, ComplexField, DMatrix, DVector, DefaultAllocator, Dim, DimMin, Dyn, LBLT, OMatrix,
     OVector, RealField, allocator::Allocator,
 };
 use rand::{Rng, SeedableRng, rngs::StdRng};
@@ -16,13 +16,13 @@ where
     (matrix1 - matrix2).norm() / matrix1.norm().max(matrix2.norm())
 }
 
-fn reconstruct<T: Copy + ComplexField, N: Dim>(ldl: &LDL<T, N>) -> OMatrix<T, N, N>
+fn reconstruct<T: Copy + ComplexField, N: Dim>(lblt: &LBLT<T, N>) -> OMatrix<T, N, N>
 where
     T::RealField: Copy,
     DefaultAllocator: Allocator<N> + Allocator<N, N>,
 {
-    let l_permuted = ldl.l_permuted();
-    &l_permuted * ldl.d() * l_permuted.adjoint()
+    let l_permuted = lblt.l_permuted();
+    &l_permuted * lblt.d() * l_permuted.adjoint()
 }
 
 /// Samples a Haar-random isometry using a QR factorization of a complex Gaussian matrix.
@@ -79,17 +79,17 @@ fn alternating_unit_spectrum() {
 
         for _ in 0..10 {
             let matrix: DMatrix<Complex<f64>> = random_hermitian_from_diag(&diag, &mut rng);
-            let ldl = matrix.clone().ldl();
-            assert!(relative_norm(&matrix, &reconstruct(&ldl)) < 1e-12);
+            let lblt = matrix.clone().lblt();
+            assert!(relative_norm(&matrix, &reconstruct(&lblt)) < 1e-12);
 
             assert_relative_eq!(
-                ldl.determinant(),
+                lblt.determinant(),
                 (-1.0).powi(n_i32 / 2),
                 max_relative = 1e-12
             );
 
             let b = random_isometry(Dyn(n), Dyn(n), &mut rng);
-            assert!((&matrix * &ldl.solve(&b).unwrap() - &b).norm() / matrix.norm() < 1e-12);
+            assert!((&matrix * &lblt.solve(&b).unwrap() - &b).norm() / matrix.norm() < 1e-12);
         }
     }
 }
@@ -106,17 +106,17 @@ fn alternating_geometric_spectrum() {
 
         for _ in 0..10 {
             let matrix: DMatrix<Complex<f64>> = random_hermitian_from_diag(&diag, &mut rng);
-            let ldl = matrix.clone().ldl();
-            assert!(relative_norm(&matrix, &reconstruct(&ldl)) < 1e-12);
+            let lblt = matrix.clone().lblt();
+            assert!(relative_norm(&matrix, &reconstruct(&lblt)) < 1e-12);
 
             assert_relative_eq!(
-                ldl.determinant(),
+                lblt.determinant(),
                 (-10.0).powi(n_i32 * (n_i32 - 1) / 2),
                 max_relative = 10.0.powi(-11 + (n_i32 / 2))
             );
 
             let b = random_isometry(Dyn(n), Dyn(n), &mut rng);
-            assert!((&matrix * &ldl.solve(&b).unwrap() - &b).norm() / matrix.norm() < 1e-12);
+            assert!((&matrix * &lblt.solve(&b).unwrap() - &b).norm() / matrix.norm() < 1e-12);
         }
     }
 }

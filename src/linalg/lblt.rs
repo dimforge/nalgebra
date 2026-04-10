@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 /// A pivot represented as `(index, block_size)`, where `block_size` is either 1 or 2.
 type Pivot = (usize, usize);
 
-/// Bunch–Kaufman LDL^H factorization of a Hermitian matrix with symmetric pivoting.
+/// Bunch–Kaufman LBL^H factorization of a Hermitian matrix with symmetric pivoting.
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
@@ -28,7 +28,7 @@ type Pivot = (usize, usize);
 )]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Debug)]
-pub struct LDL<T: ComplexField, N: Dim>
+pub struct LBLT<T: ComplexField, N: Dim>
 where
     DefaultAllocator: Allocator<N> + Allocator<N, N>,
 {
@@ -37,7 +37,7 @@ where
     zero_pivot: Option<usize>,
 }
 
-impl<T: Copy + ComplexField, N: Dim> LDL<T, N>
+impl<T: Copy + ComplexField, N: Dim> LBLT<T, N>
 where
     T::RealField: Copy,
     DefaultAllocator: Allocator<N> + Allocator<N, N>,
@@ -45,10 +45,10 @@ where
     /// Compute the factorization of a complex Hermitian matrix using the Bunch-Kaufman
     /// block-diagonal pivoting method:
     ///
-    /// P A P^T = L * D * L^H
+    /// P A P^T = L * B * L^H
     ///
     /// where P is the permutation induced by the pivot sequence, L is unit lower
-    /// triangular in the permuted basis, and D is Hermitian block diagonal with
+    /// triangular in the permuted basis, and B is Hermitian block diagonal with
     /// 1-by-1 and 2-by-2 diagonal blocks.
     pub fn new(mut matrix: OMatrix<T, N, N>) -> Self {
         assert!(matrix.is_square());
@@ -445,13 +445,13 @@ mod tests {
     #[test]
     fn zero_matrix() {
         for n in 1..=5 {
-            let ldl = DMatrix::<f64>::zeros(n, n).ldl();
-            assert_eq!(ldl.l_permuted(), DMatrix::identity(n, n));
-            assert_eq!(ldl.d(), DMatrix::zeros(n, n));
-            assert_eq!(ldl.zero_pivot, Some(0));
-            assert_eq!(ldl.pivots, DVector::from_fn(n, |i, _| (i, 1)));
-            assert!(ldl.determinant().is_zero());
-            assert!(ldl.solve(&DVector::from_element(n, 1.0)).is_none());
+            let lblt = DMatrix::<f64>::zeros(n, n).lblt();
+            assert_eq!(lblt.l_permuted(), DMatrix::identity(n, n));
+            assert_eq!(lblt.d(), DMatrix::zeros(n, n));
+            assert_eq!(lblt.zero_pivot, Some(0));
+            assert_eq!(lblt.pivots, DVector::from_fn(n, |i, _| (i, 1)));
+            assert!(lblt.determinant().is_zero());
+            assert!(lblt.solve(&DVector::from_element(n, 1.0)).is_none());
         }
     }
 
@@ -459,13 +459,13 @@ mod tests {
     fn identity_matrix() {
         for n in 1..=5 {
             let identity = DMatrix::<f64>::identity(n, n);
-            let ldl = identity.clone().ldl();
+            let lblt = identity.clone().lblt();
 
-            assert_eq!(ldl.l_permuted(), identity);
-            assert_eq!(ldl.d(), identity);
-            assert_eq!(ldl.zero_pivot, None);
-            assert_eq!(ldl.pivots, DVector::from_fn(n, |i, _| (i, 1)));
-            assert!(ldl.determinant().is_one());
+            assert_eq!(lblt.l_permuted(), identity);
+            assert_eq!(lblt.d(), identity);
+            assert_eq!(lblt.zero_pivot, None);
+            assert_eq!(lblt.pivots, DVector::from_fn(n, |i, _| (i, 1)));
+            assert!(lblt.determinant().is_one());
         }
     }
 
@@ -473,7 +473,7 @@ mod tests {
     fn exchange_matrix() {
         for n in 1..=15 {
             let exchange = DMatrix::from_fn(n, n, |i, j| if i + j + 1 == n { 1.0 } else { 0.0 });
-            let ldl = exchange.clone().ldl();
+            let lblt = exchange.clone().lblt();
 
             let mut expected = Vec::with_capacity(n);
             let m = (n + 2) / 4;
@@ -492,11 +492,11 @@ mod tests {
                 expected.push((pivot, 2));
             }
 
-            let l_permuted = ldl.l_permuted();
-            let reconstruction = &l_permuted * ldl.d() * l_permuted.adjoint();
+            let l_permuted = lblt.l_permuted();
+            let reconstruction = &l_permuted * lblt.d() * l_permuted.adjoint();
 
             assert_eq!(exchange, reconstruction);
-            assert_eq!(ldl.pivots.as_slice(), expected);
+            assert_eq!(lblt.pivots.as_slice(), expected);
         }
     }
 }
