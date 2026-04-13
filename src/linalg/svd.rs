@@ -931,3 +931,116 @@ fn compute_2x2_uptrig_svd<T: RealField>(
 
     (u, Vector2::new(v1, v2), v_t)
 }
+
+// Ported from
+// https://www.netlib.org/lapack/explore-html/d8/da7/group__lasv2_ga96f9f244300d82921950e2c393b4b20f.html#ga96f9f244300d82921950e2c393b4b20f
+fn compute_2x2_uptrig_svd1<T: RealField>(
+    m11: T,
+    m12: T,
+    m22: T,
+    compute_u: bool,
+    compute_v: bool,
+) -> (
+    Option<GivensRotation<T>>,
+    Vector2<T>,
+    Option<GivensRotation<T>>,
+) {
+    let mut fa = m11.clone().abs();
+    let ga = m12.clone().abs();
+    let mut ha = m22.clone().abs();
+    let swap = ha > fa;
+    let pmax = if swap {
+        if ga > ha { 2 } else { 3 }
+    } else {
+        if ga > fa { 2 } else { 1 }
+    };
+    // pmax = 1, 2 or 3 according as f, g or h is largest in absolute value
+    let (mut f, g, mut h) = (m11.clone(), m12.clone(), m22.clone());
+    if swap {
+        (f, h) = (h, f);
+        (fa, ha) = (ha, fa);
+    }
+    debug_assert!(fa >= ha);
+    let (mut ssmin, mut ssmax, mut csl, mut snl, mut csr, mut snr) = if ga.is_zero() {
+        (ha, fa, T::one(), T::zero(), T::one(), T::zero())
+    } else {
+        if pmax == 2 && fa.clone() / ga.clone() < T::default_epsilon() {
+            let ssmax = ga.clone();
+            let ssmin = if ha > T::one() {
+                fa.clone() / (ga.clone() / ha.clone())
+            } else {
+                (fa.clone() / ga) * ha.clone()
+            };
+            let csl = T::one();
+            let snl = h.clone() / g.clone();
+            let snr = T::one();
+            let csr = f.clone() / g.clone();
+            (ssmin, ssmax, csl, snl, csr, snr)
+        } else {
+            let d = fa.clone() - ha.clone();
+            let l = if d == fa {
+                T::one()
+            } else {
+                d.clone() / fa.clone()
+            };
+            debug_assert!(T::zero() <= l);
+            debug_assert!(l <= T::one());
+            let m = g.clone() / f.clone();
+            let mut t = T::one() + T::one() - l.clone();
+            debug_assert!(t >= T::one());
+            let mm = m.clone() * m.clone();
+            let tt = t.clone() * t.clone();
+            let s = (tt + mm.clone()).sqrt();
+            debug_assert!(s >= T::one());
+            let r = if l == T::zero() {
+                m.clone().abs()
+            } else {
+                (l.clone() * l.clone() + mm).sqrt()
+            };
+            debug_assert!(r >= T::zero());
+            let a = (s.clone() + r.clone()) * crate::convert(0.5);
+            debug_assert!(a >= T::one());
+            debug_assert!(a <= T::one() + m.clone().abs());
+            let ssmin = ha / a.clone();
+            let ssmax = fa * a.clone();
+            t = if m == T::zero() {
+                if l == T::zero() {
+                    f.clone().signum() * g.clone().signum() * crate::convert(2.0)
+                } else {
+                    g.clone() / (d * f.clone().signum()) + m.clone() / t
+                }
+            } else {
+                (m.clone() / (s + t) + m.clone() / (r + l)) * (T::one() + a.clone())
+            };
+            let l1 = (t.clone() * t.clone() + crate::convert(4.0)).sqrt();
+            let csr = (T::one() + T::one()) / l1.clone();
+            let snr = t / l1;
+            let csl = (csr.clone() + snr.clone() * m) / a.clone();
+            let snl = (h.clone() / f.clone()) * snr.clone() / a;
+            (ssmin, ssmax, csl, snl, csr, snr)
+        }
+    };
+    if swap {
+        (csl, snl, csr, snr) = (snr, csr, snl, csl);
+    }
+    let (f_sign, g_sign, h_sign) = (f.signum(), g.signum(), h.signum());
+    let tsign = match pmax {
+        1 => csr.clone().signum() * csl.clone().signum() * f_sign.clone(),
+        2 => snr.clone().signum() * csl.clone().signum() * g_sign,
+        3 => snr.clone().signum() * snl.clone().signum() * h_sign.clone(),
+        _ => panic!(),
+    };
+    ssmax *= tsign.clone();
+    ssmin *= tsign * f_sign * h_sign;
+    let u = if compute_u {
+        Some(GivensRotation::new_unchecked(csl, snl))
+    } else {
+        None
+    };
+    let v_t = if compute_v {
+        Some(GivensRotation::new_unchecked(csr, -snr))
+    } else {
+        None
+    };
+    (u, Vector2::new(ssmax, ssmin), v_t)
+}
