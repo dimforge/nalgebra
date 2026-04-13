@@ -1,4 +1,4 @@
-use na::{Complex, Matrix3};
+use na::{linalg::LDL, Complex, Matrix3};
 use num::Zero;
 
 #[test]
@@ -10,16 +10,9 @@ fn ldl_simple() {
         Complex::zero(), Complex::new(-1.0, 0.0),  Complex::new(2.0, 0.0));
 
     let ldl = m.ldl().unwrap();
-
-    println!("{:}", &m);
-    println!("{:}", ldl.l_matrix());
-    println!("{:}", ldl.d());
     
     // Rebuild
-    let p = ldl.l_matrix() * ldl.d_matrix() * ldl.l_matrix().adjoint();
-
-
-    println!("{:}", &p);
+    let p = ldl.l() * ldl.d() * ldl.l().adjoint();
 
     assert!(relative_eq!(m, p, epsilon = 3.0e-12));
 }
@@ -32,10 +25,10 @@ fn ldl_partial() {
         Complex::zero(),  Complex::zero(), Complex::zero(),
         Complex::zero(), Complex::zero(),  Complex::new(2.0, 0.0));
 
-    let ldl = m.lower_triangle().ldl().unwrap();
+    let ldl = LDL::new_unchecked(m.lower_triangle());
     
     // Rebuild
-    let p = ldl.l_matrix() * ldl.d_matrix() * ldl.l_matrix().adjoint();
+    let p = ldl.l() * ldl.d() * ldl.l().adjoint();
 
     assert!(relative_eq!(m, p, epsilon = 3.0e-12));
 }
@@ -50,7 +43,7 @@ fn ldl_lsqrtd() {
 
     let chol= m.cholesky().unwrap();
     let ldl = m.ldl().unwrap();
-    
+
     assert!(relative_eq!(ldl.lsqrtd().unwrap(), chol.l(), epsilon = 3.0e-16));
 }
 
@@ -66,7 +59,7 @@ fn ldl_non_sym_panic() {
     let ldl = m.ldl().unwrap();
     
     // Rebuild
-    let p = ldl.l_matrix() * ldl.d_matrix() * ldl.l_matrix().transpose();
+    let p = ldl.l() * ldl.d() * ldl.l().transpose();
 
     assert!(relative_eq!(m, p, epsilon = 3.0e-16));
 }

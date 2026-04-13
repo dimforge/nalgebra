@@ -281,7 +281,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> Matrix<T, D, D, S> {
         Hessenberg::new(self.into_owned())
     }
 
-    /// Attempts to compute the LDL decomposition of this matrix.
+    /// Attempts to compute the strictly diagonal LDL / LDLT decomposition of this matrix.
     ///
     /// The input matrix `self` is assumed to be symmetric and this decomposition will only read
     /// the lower-triangular part of `self`.
