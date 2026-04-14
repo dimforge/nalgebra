@@ -1,4 +1,4 @@
-use na::{linalg::LDL, Complex, Matrix3};
+use na::{linalg::LDL, Complex, Matrix2, Matrix3, Vector2, QR};
 use num::Zero;
 
 #[test]
@@ -15,11 +15,12 @@ fn ldl_simple() {
     let p = ldl.l() * ldl.d() * ldl.l().adjoint();
 
     assert!(relative_eq!(m, p, epsilon = 3.0e-12));
+    assert!(relative_eq!(m.determinant(), ldl.determinant(), epsilon = 3.0e-12));
 }
 
 #[test]
 #[rustfmt::skip]
-fn ldl_partial() {
+fn ldl_unchecked() {
     let m = Matrix3::new(
         Complex::new(2.0, 0.0), Complex::zero(),  Complex::zero(),
         Complex::zero(),  Complex::zero(), Complex::zero(),
@@ -31,6 +32,7 @@ fn ldl_partial() {
     let p = ldl.l() * ldl.d() * ldl.l().adjoint();
 
     assert!(relative_eq!(m, p, epsilon = 3.0e-12));
+    assert!(ldl.determinant() == Complex::zero());
 }
 
 #[test]
@@ -45,6 +47,23 @@ fn ldl_lsqrtd() {
     let ldl = m.ldl().unwrap();
 
     assert!(relative_eq!(ldl.lsqrtd().unwrap(), chol.l(), epsilon = 3.0e-16));
+}
+
+#[test]
+#[rustfmt::skip]
+fn ldl_solve() {
+    let m = Matrix2::new(8.0, 2.0, 2.0, 4.0);
+    let b = Vector2::new(5.0, 1.0);
+
+    println!("{}", m);
+
+    let ldl = m.ldl().unwrap();
+    let chol = m.cholesky().unwrap();
+
+    let sol_ldl = ldl.solve(&b).unwrap();
+    let sol_chol = chol.solve(&b);
+
+    assert!(relative_eq!(sol_ldl, sol_chol, epsilon = 3.0e-16));
 }
 
 #[test]

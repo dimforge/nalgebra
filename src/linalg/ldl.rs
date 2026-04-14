@@ -4,9 +4,10 @@ use serde::{Deserialize, Serialize};
 use crate::allocator::Allocator;
 use crate::base::{Const, DefaultAllocator, OMatrix, OVector};
 use crate::dimension::Dim;
+use crate::{Matrix, Storage};
 use simba::scalar::ComplexField;
 
-/// The LDL / LDL^T factorization of a Hermitian matrix A = LDL^T where L is a lower unit-triangular matrix and D is diagonal matrix.
+/// The LDL / LDL^T factorization of a Hermitian matrix A = LDL^T where L is a lower unit-triangular matrix and D is a diagonal matrix.
 ///
 /// This implementation referes to the strictly diagonal LDL algorithm.
 /// For the more general Bunch-Kaufman block-diagonal pivoting method we refer to the LBL factorization.
@@ -39,6 +40,13 @@ where
     #[must_use]
     pub fn d(&self) -> OMatrix<T, D, D> {
         OMatrix::from_diagonal(&self.0.diagonal())
+    }
+
+    /// Computes the determinant of the decomposed matrix.
+    pub fn determinant(&self) -> T {
+        self.diagonal()
+            .iter()
+            .fold(T::one(), |acc, next| acc * next.clone())
     }
 
     /// Returns the diagonal elements as a vector.
@@ -114,8 +122,6 @@ where
 
                 matrix[(i, j)] = l_ij / matrix[(j, j)].clone();
 
-                dbg!(&matrix[(i, j)]);
-
                 // Zero out the upper triangular part.
                 matrix[(j, i)] = T::zero();
             }
@@ -124,7 +130,7 @@ where
         Some(Self(matrix))
     }
 
-    /// Computes the LDL / LDL^T factorization, allowing for zero pivots. If a zero pivot is detected the corresponding column & row is zero'd out.
+    /// Computes the LDL / LDL^T factorization, allowing for zero pivots. If a zero pivot is detected the corresponding column & row is filled with zeros.
     ///
     /// This factorization is only valid for singular matrices with a specific structure, e.g. singular matrices of the form A = xxT.
     pub fn new_unchecked(mut matrix: OMatrix<T, D, D>) -> Self {
@@ -162,5 +168,36 @@ where
         }
 
         Self(matrix)
+    }
+
+    /// Solves the linear system A * x = b using this factorization.
+    pub fn solve<M: Dim, S>(&self, b: &Matrix<T, D, M, S>) -> Option<OMatrix<T, D, M>>
+    where
+        S: Storage<T, D, M>,
+        DefaultAllocator: Allocator<D, M>,
+    {
+        let mut result = b.clone_owned();
+
+        if self.solve_mut(&mut result) {
+            Some(result)
+        } else {
+            None
+        }
+    }
+
+    /// Solves the linear system A * x = b in place, overwriting `b` with the solution.
+    pub fn solve_mut<M: Dim>(&self, b: &mut OMatrix<T, D, M>) -> bool
+    where
+        DefaultAllocator: Allocator<D, M>,
+    {
+        if self.determinant() == T::zero() {
+            return false;
+        }
+
+        self.l().solve_lower_triangular_unchecked_mut(b);
+        self.d().solve_lower_triangular_unchecked_mut(b);
+        self.l().transpose().solve_upper_triangular_unchecked_mut(b);
+
+        true
     }
 }
