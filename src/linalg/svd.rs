@@ -874,9 +874,10 @@ where
     }
 }
 
-// Explicit formulae inspired from the paper "Computing the Singular Values of 2-by-2 Complex
-// Matrices", Sanzheng Qiao and Xiaohong Wang.
-// http://www.cas.mcmaster.ca/sqrl/papers/sqrl5.pdf
+// Ported from
+// https://www.netlib.org/lapack/explore-html/d8/da7/group__lasv2_ga96f9f244300d82921950e2c393b4b20f.html#ga96f9f244300d82921950e2c393b4b20f
+// with some clean-up and modification to match our slightly different contract.
+// (We want the smaller eigenvalue in the top left.)
 fn compute_2x2_uptrig_svd<T: RealField>(
     m11: T,
     m12: T,
@@ -890,44 +891,120 @@ fn compute_2x2_uptrig_svd<T: RealField>(
 ) {
     let two: T::RealField = crate::convert(2.0f64);
     let half: T::RealField = crate::convert(0.5f64);
+    let four: T::RealField = crate::convert(4.0f64);
 
-    let denom = (m11.clone() + m22.clone()).hypot(m12.clone())
-        + (m11.clone() - m22.clone()).hypot(m12.clone());
-
-    // NOTE: v1 is the singular value that is the closest to m22.
-    // This prevents cancellation issues when constructing the vector `csv` below. If we chose
-    // otherwise, we would have v1 ~= m11 when m12 is small. This would cause catastrophic
-    // cancellation on `v1 * v1 - m11 * m11` below.
-    let mut v1 = m11.clone() * m22.clone() * two / denom.clone();
-    let mut v2 = half * denom;
-
-    let mut u = None;
-    let mut v_t = None;
-
-    if compute_u || compute_v {
-        let (csv, norm_v) = GivensRotation::new(
-            m11.clone() * m12.clone(),
-            v1.clone() * v1.clone() - m11.clone() * m11.clone(),
-        );
-        let sign_v = T::one().copysign(norm_v);
-        v1 *= sign_v.clone();
-        v2 *= sign_v;
-
-        if compute_v {
-            v_t = Some(csv.clone());
-        }
-
-        let cu = (m11.scale(csv.c()) + m12 * csv.s()) / v1.clone();
-        let su = (m22 * csv.s()) / v1.clone();
-        let (csu, norm_u) = GivensRotation::new(cu, su);
-        let sign_u = T::one().copysign(norm_u);
-        v1 *= sign_u.clone();
-        v2 *= sign_u;
-
-        if compute_u {
-            u = Some(csu);
-        }
+    #[derive(PartialEq)]
+    enum MatrixEntry {
+        F,
+        G,
+        H,
     }
 
-    (u, Vector2::new(v1, v2), v_t)
+    // Determine the largest entry in the matrix (m11=f, m12=g, m22=h), and
+    // ensure that |f| >= |h| by swapping if necessary (and correcting the
+    // result later).
+    let mut abs_f = m11.clone().abs();
+    let abs_g = m12.clone().abs();
+    let mut abs_h = m22.clone().abs();
+    let swap_f_and_h = abs_h > abs_f;
+    let largest_entry = if swap_f_and_h {
+        if abs_g > abs_h {
+            MatrixEntry::G
+        } else {
+            MatrixEntry::H
+        }
+    } else {
+        if abs_g > abs_f {
+            MatrixEntry::G
+        } else {
+            MatrixEntry::F
+        }
+    };
+    let (mut f, g, mut h) = (m11.clone(), m12.clone(), m22.clone());
+    if swap_f_and_h {
+        (f, h) = (h, f);
+        (abs_f, abs_h) = (abs_h, abs_f);
+    }
+
+    // Solve the problem.
+    let (mut v1, mut v2, mut su, mut cu, mut sv, mut cv) = if abs_g.is_zero() {
+        (abs_h, abs_f, -T::one(), T::zero(), T::one(), T::zero())
+    } else {
+        if largest_entry == MatrixEntry::G && abs_f.clone() / abs_g.clone() < T::default_epsilon() {
+            (
+                if abs_h > T::one() {
+                    abs_f / (abs_g.clone() / abs_h)
+                } else {
+                    (abs_f / abs_g.clone()) * abs_h
+                },
+                abs_g,
+                T::one(),
+                h.clone() / g.clone(),
+                -f.clone() / g.clone(),
+                T::one(),
+            )
+        } else {
+            let d = abs_f.clone() - abs_h.clone();
+            let l = if d == abs_f {
+                T::one()
+            } else {
+                d.clone() / abs_f.clone()
+            };
+            let m = g.clone() / f.clone();
+            let mut t = two.clone() - l.clone();
+            let mm = m.clone() * m.clone();
+            let s = (t.clone() * t.clone() + mm.clone()).sqrt();
+            let r = if l == T::zero() {
+                m.clone().abs()
+            } else {
+                (l.clone() * l.clone() + mm).sqrt()
+            };
+            let a = half * (s.clone() + r.clone());
+            t = if m == T::zero() {
+                if l == T::zero() {
+                    two.clone() * f.clone().signum() * g.clone().signum()
+                } else {
+                    g.clone() / (d * f.clone().signum()) + m.clone() / t
+                }
+            } else {
+                (m.clone() / (s + t) + m.clone() / (r + l)) * (T::one() + a.clone())
+            };
+            let b = (t.clone() * t.clone() + four).sqrt();
+            let sv = -two / b.clone();
+            let cv = t / b;
+            let su = (sv.clone() - cv.clone() * m) / a.clone();
+            let cu = (h.clone() / f.clone()) * cv.clone() / a.clone();
+            (abs_h / a.clone(), abs_f * a, su, cu, sv, cv)
+        }
+    };
+
+    // Swap if necessary.
+    if swap_f_and_h {
+        (su, cu, sv, cv) = (cv, sv, cu, su);
+    }
+
+    // Set the signs of the eigenvalues.
+    let (f_sign, g_sign, h_sign) = (f.signum(), g.signum(), h.signum());
+    let tsign = match largest_entry {
+        MatrixEntry::F => sv.clone().signum() * su.clone().signum() * f_sign.clone(),
+        MatrixEntry::G => -cv.clone().signum() * su.clone().signum() * g_sign,
+        MatrixEntry::H => cv.clone().signum() * cu.clone().signum() * h_sign.clone(),
+    };
+    v1 *= tsign.clone() * f_sign * h_sign;
+    v2 *= tsign;
+
+    // Return the result.
+    (
+        if compute_u {
+            Some(GivensRotation::new_unchecked(cu.clone(), su.clone()))
+        } else {
+            None
+        },
+        Vector2::new(v1, v2),
+        if compute_v {
+            Some(GivensRotation::new_unchecked(cv.clone(), sv.clone()))
+        } else {
+            None
+        },
+    )
 }
