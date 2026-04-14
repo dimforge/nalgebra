@@ -1033,14 +1033,14 @@ fn compute_2x2_uptrig_svd1<T: RealField>(
     ssmax *= tsign.clone();
     ssmin *= tsign * f_sign * h_sign;
     let u = if compute_u {
-        Some(GivensRotation::new_unchecked(csl, snl))
+        Some(GivensRotation::new_unchecked(snl.clone(), -csl.clone()))
     } else {
         None
     };
     let v_t = if compute_v {
-        Some(GivensRotation::new_unchecked(csr, -snr))
+        Some(GivensRotation::new_unchecked(snr.clone(), -csr.clone()))
     } else {
         None
     };
-    (u, Vector2::new(ssmax, ssmin), v_t)
+    (u, Vector2::new(ssmin, ssmax), v_t)
 }
