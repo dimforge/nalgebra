@@ -874,67 +874,9 @@ where
     }
 }
 
-// Explicit formulae inspired from the paper "Computing the Singular Values of 2-by-2 Complex
-// Matrices", Sanzheng Qiao and Xiaohong Wang.
-// https://www.cas.mcmaster.ca/~qiao/publications/zsvd2.pdf
-fn compute_2x2_uptrig_svd<T: RealField>(
-    m11: T,
-    m12: T,
-    m22: T,
-    compute_u: bool,
-    compute_v: bool,
-) -> (
-    Option<GivensRotation<T>>,
-    Vector2<T>,
-    Option<GivensRotation<T>>,
-) {
-    let two: T::RealField = crate::convert(2.0f64);
-    let half: T::RealField = crate::convert(0.5f64);
-
-    let denom = (m11.clone() + m22.clone()).hypot(m12.clone())
-        + (m11.clone() - m22.clone()).hypot(m12.clone());
-
-    // NOTE: v1 is the singular value that is the closest to m22.
-    // This prevents cancellation issues when constructing the vector `csv` below. If we chose
-    // otherwise, we would have v1 ~= m11 when m12 is small. This would cause catastrophic
-    // cancellation on `v1 * v1 - m11 * m11` below.
-    let mut v1 = m11.clone() * m22.clone() * two / denom.clone();
-    let mut v2 = half * denom;
-
-    let mut u = None;
-    let mut v_t = None;
-
-    if compute_u || compute_v {
-        let (csv, norm_v) = GivensRotation::new(
-            m11.clone() * m12.clone(),
-            v1.clone() * v1.clone() - m11.clone() * m11.clone(),
-        );
-        let sign_v = T::one().copysign(norm_v);
-        v1 *= sign_v.clone();
-        v2 *= sign_v;
-
-        if compute_v {
-            v_t = Some(csv.clone());
-        }
-
-        let cu = (m11.scale(csv.c()) + m12 * csv.s()) / v1.clone();
-        let su = (m22 * csv.s()) / v1.clone();
-        let (csu, norm_u) = GivensRotation::new(cu, su);
-        let sign_u = T::one().copysign(norm_u);
-        v1 *= sign_u.clone();
-        v2 *= sign_u;
-
-        if compute_u {
-            u = Some(csu);
-        }
-    }
-
-    (u, Vector2::new(v1, v2), v_t)
-}
-
 // Ported from
 // https://www.netlib.org/lapack/explore-html/d8/da7/group__lasv2_ga96f9f244300d82921950e2c393b4b20f.html#ga96f9f244300d82921950e2c393b4b20f
-fn compute_2x2_uptrig_svd1<T: RealField>(
+fn compute_2x2_uptrig_svd<T: RealField>(
     m11: T,
     m12: T,
     m22: T,
