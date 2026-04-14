@@ -889,102 +889,122 @@ fn compute_2x2_uptrig_svd<T: RealField>(
     Vector2<T>,
     Option<GivensRotation<T>>,
 ) {
-    let mut fa = m11.clone().abs();
-    let ga = m12.clone().abs();
-    let mut ha = m22.clone().abs();
-    let swap = ha > fa;
-    let pmax = if swap {
-        if ga > ha { 2 } else { 3 }
-    } else {
-        if ga > fa { 2 } else { 1 }
-    };
-    // pmax = 1, 2 or 3 according as f, g or h is largest in absolute value
-    let (mut f, g, mut h) = (m11.clone(), m12.clone(), m22.clone());
-    if swap {
-        (f, h) = (h, f);
-        (fa, ha) = (ha, fa);
+    let two: T::RealField = crate::convert(2.0f64);
+    let half: T::RealField = crate::convert(0.5f64);
+    let four: T::RealField = crate::convert(4.0f64);
+
+    #[derive(PartialEq)]
+    enum MatrixEntry {
+        F,
+        G,
+        H,
     }
-    debug_assert!(fa >= ha);
-    let (mut ssmin, mut ssmax, mut csl, mut snl, mut csr, mut snr) = if ga.is_zero() {
-        (ha, fa, T::one(), T::zero(), T::one(), T::zero())
-    } else {
-        if pmax == 2 && fa.clone() / ga.clone() < T::default_epsilon() {
-            let ssmax = ga.clone();
-            let ssmin = if ha > T::one() {
-                fa.clone() / (ga.clone() / ha.clone())
-            } else {
-                (fa.clone() / ga) * ha.clone()
-            };
-            let csl = T::one();
-            let snl = h.clone() / g.clone();
-            let snr = T::one();
-            let csr = f.clone() / g.clone();
-            (ssmin, ssmax, csl, snl, csr, snr)
+
+    // Determine the largest entry in the matrix (m11=f, m12=g, m22=h), and
+    // ensure that |f| >= |h| by swapping if necessary (and correcting the
+    // result later).
+    let mut abs_f = m11.clone().abs();
+    let abs_g = m12.clone().abs();
+    let mut abs_h = m22.clone().abs();
+    let swap_f_and_h = abs_h > abs_f;
+    let largest_entry = if swap_f_and_h {
+        if abs_g > abs_h {
+            MatrixEntry::G
         } else {
-            let d = fa.clone() - ha.clone();
-            let l = if d == fa {
+            MatrixEntry::H
+        }
+    } else {
+        if abs_g > abs_f {
+            MatrixEntry::G
+        } else {
+            MatrixEntry::F
+        }
+    };
+    let (mut f, g, mut h) = (m11.clone(), m12.clone(), m22.clone());
+    if swap_f_and_h {
+        (f, h) = (h, f);
+        (abs_f, abs_h) = (abs_h, abs_f);
+    }
+
+    // Solve the problem.
+    let (mut v1, mut v2, mut su, mut cu, mut sv, mut cv) = if abs_g.is_zero() {
+        (abs_h, abs_f, -T::one(), T::zero(), T::one(), T::zero())
+    } else {
+        if largest_entry == MatrixEntry::G && abs_f.clone() / abs_g.clone() < T::default_epsilon() {
+            (
+                if abs_h > T::one() {
+                    abs_f / (abs_g.clone() / abs_h)
+                } else {
+                    (abs_f / abs_g.clone()) * abs_h
+                },
+                abs_g,
+                T::one(),
+                h.clone() / g.clone(),
+                -f.clone() / g.clone(),
+                T::one(),
+            )
+        } else {
+            let d = abs_f.clone() - abs_h.clone();
+            let l = if d == abs_f {
                 T::one()
             } else {
-                d.clone() / fa.clone()
+                d.clone() / abs_f.clone()
             };
-            debug_assert!(T::zero() <= l);
-            debug_assert!(l <= T::one());
             let m = g.clone() / f.clone();
-            let mut t = T::one() + T::one() - l.clone();
-            debug_assert!(t >= T::one());
+            let mut t = two.clone() - l.clone();
             let mm = m.clone() * m.clone();
-            let tt = t.clone() * t.clone();
-            let s = (tt + mm.clone()).sqrt();
-            debug_assert!(s >= T::one());
+            let s = (t.clone() * t.clone() + mm.clone()).sqrt();
             let r = if l == T::zero() {
                 m.clone().abs()
             } else {
                 (l.clone() * l.clone() + mm).sqrt()
             };
-            debug_assert!(r >= T::zero());
-            let a = (s.clone() + r.clone()) * crate::convert(0.5);
-            debug_assert!(a >= T::one());
-            debug_assert!(a <= T::one() + m.clone().abs());
-            let ssmin = ha / a.clone();
-            let ssmax = fa * a.clone();
+            let a = half * (s.clone() + r.clone());
             t = if m == T::zero() {
                 if l == T::zero() {
-                    f.clone().signum() * g.clone().signum() * crate::convert(2.0)
+                    two.clone() * f.clone().signum() * g.clone().signum()
                 } else {
                     g.clone() / (d * f.clone().signum()) + m.clone() / t
                 }
             } else {
                 (m.clone() / (s + t) + m.clone() / (r + l)) * (T::one() + a.clone())
             };
-            let l1 = (t.clone() * t.clone() + crate::convert(4.0)).sqrt();
-            let csr = (T::one() + T::one()) / l1.clone();
-            let snr = t / l1;
-            let csl = (csr.clone() + snr.clone() * m) / a.clone();
-            let snl = (h.clone() / f.clone()) * snr.clone() / a;
-            (ssmin, ssmax, csl, snl, csr, snr)
+            let b = (t.clone() * t.clone() + four).sqrt();
+            let sv = -two / b.clone();
+            let cv = t / b;
+            let su = (sv.clone() - cv.clone() * m) / a.clone();
+            let cu = (h.clone() / f.clone()) * cv.clone() / a.clone();
+            (abs_h / a.clone(), abs_f * a, su, cu, sv, cv)
         }
     };
-    if swap {
-        (csl, snl, csr, snr) = (snr, csr, snl, csl);
+
+    // Swap if necessary.
+    if swap_f_and_h {
+        (su, cu, sv, cv) = (cv, sv, cu, su);
     }
+
+    // Set the signs of the eigenvalues.
     let (f_sign, g_sign, h_sign) = (f.signum(), g.signum(), h.signum());
-    let tsign = match pmax {
-        1 => csr.clone().signum() * csl.clone().signum() * f_sign.clone(),
-        2 => snr.clone().signum() * csl.clone().signum() * g_sign,
-        3 => snr.clone().signum() * snl.clone().signum() * h_sign.clone(),
-        _ => panic!(),
+    let tsign = match largest_entry {
+        MatrixEntry::F => sv.clone().signum() * su.clone().signum() * f_sign.clone(),
+        MatrixEntry::G => -cv.clone().signum() * su.clone().signum() * g_sign,
+        MatrixEntry::H => cv.clone().signum() * cu.clone().signum() * h_sign.clone(),
     };
-    ssmax *= tsign.clone();
-    ssmin *= tsign * f_sign * h_sign;
-    let u = if compute_u {
-        Some(GivensRotation::new_unchecked(snl.clone(), -csl.clone()))
-    } else {
-        None
-    };
-    let v_t = if compute_v {
-        Some(GivensRotation::new_unchecked(snr.clone(), -csr.clone()))
-    } else {
-        None
-    };
-    (u, Vector2::new(ssmin, ssmax), v_t)
+    v1 *= tsign.clone() * f_sign * h_sign;
+    v2 *= tsign;
+
+    // Return the result.
+    (
+        if compute_u {
+            Some(GivensRotation::new_unchecked(cu.clone(), su.clone()))
+        } else {
+            None
+        },
+        Vector2::new(v1, v2),
+        if compute_v {
+            Some(GivensRotation::new_unchecked(cv.clone(), sv.clone()))
+        } else {
+            None
+        },
+    )
 }
