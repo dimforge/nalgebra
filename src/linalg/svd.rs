@@ -876,6 +876,8 @@ where
 
 // Ported from
 // https://www.netlib.org/lapack/explore-html/d8/da7/group__lasv2_ga96f9f244300d82921950e2c393b4b20f.html#ga96f9f244300d82921950e2c393b4b20f
+// with some clean-up and modification to match our slightly different contract.
+// (We want the smaller eigenvalue in the top left.)
 fn compute_2x2_uptrig_svd<T: RealField>(
     m11: T,
     m12: T,
