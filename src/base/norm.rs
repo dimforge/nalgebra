@@ -45,6 +45,9 @@ pub struct EuclideanNorm;
 /// Lp norm.
 #[derive(Copy, Clone, Debug)]
 pub struct LpNorm(pub i32);
+#[derive(Copy, Clone, Debug)]
+/// The induced matrix 1-norm (maximum absolute column sum).
+pub struct OneNorm;
 /// L-infinite norm aka. Chebytchev norm aka. uniform norm aka. suppremum norm.
 #[derive(Copy, Clone, Debug)]
 pub struct UniformNorm;
@@ -117,6 +120,45 @@ impl<T: SimdComplexField> Norm<T> for LpNorm {
             acc + diff.simd_modulus().simd_powi(self.0)
         })
         .simd_powf(crate::convert(1.0 / (self.0 as f64)))
+    }
+}
+
+impl<T: SimdComplexField> Norm<T> for OneNorm {
+    #[inline]
+    fn norm<R, C, S>(&self, m: &Matrix<T, R, C, S>) -> T::SimdRealField
+    where
+        R: Dim,
+        C: Dim,
+        S: Storage<T, R, C>,
+    {
+        m.column_iter()
+            .map(|col| col.fold(T::SimdRealField::zero(), |a, b| a + b.simd_modulus()))
+            .fold(T::SimdRealField::zero(), T::SimdRealField::simd_max)
+    }
+
+    #[inline]
+    fn metric_distance<R1, C1, S1, R2, C2, S2>(
+        &self,
+        m1: &Matrix<T, R1, C1, S1>,
+        m2: &Matrix<T, R2, C2, S2>,
+    ) -> T::SimdRealField
+    where
+        R1: Dim,
+        C1: Dim,
+        S1: Storage<T, R1, C1>,
+        R2: Dim,
+        C2: Dim,
+        S2: Storage<T, R2, C2>,
+        ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>,
+    {
+        m1.column_iter()
+            .zip(m2.column_iter())
+            .map(|(c1, c2)| {
+                c1.zip_fold(&c2, T::SimdRealField::zero(), |acc, a, b| {
+                    acc + (a - b).simd_modulus()
+                })
+            })
+            .fold(T::SimdRealField::zero(), T::SimdRealField::simd_max)
     }
 }
 
@@ -314,6 +356,16 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         T: SimdComplexField,
     {
         self.apply_norm(&LpNorm(p))
+    }
+
+    /// The induced matrix 1-norm (maximum absolute column sum).
+    #[inline]
+    #[must_use]
+    pub fn one_norm(&self) -> T::SimdRealField
+    where
+        T: SimdComplexField,
+    {
+        self.apply_norm(&OneNorm)
     }
 
     /// Attempts to normalize `self`.

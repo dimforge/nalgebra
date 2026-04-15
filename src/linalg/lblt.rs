@@ -50,6 +50,9 @@ where
     /// where P is the permutation induced by the pivot sequence, L is unit lower
     /// triangular in the permuted basis, and B is Hermitian block diagonal with
     /// 1-by-1 and 2-by-2 diagonal blocks.
+    ///
+    /// This implementation follows the partial pivoting (Algorithm A) variant from
+    /// Bunch & Kaufman (1977), which is also the basis for LAPACK’s `?sytrf/?hetrf` routines.
     pub fn new(mut matrix: OMatrix<T, N, N>) -> Self {
         assert!(matrix.is_square());
         let n = matrix.nrows();
@@ -101,13 +104,9 @@ where
 
             let pivot_index: usize;
 
-            if diag_abs >= alpha * colmax {
-                // The diagonal dominates column k strongly enough to use A[k, k] as a 1x1 pivot
-                // without any row/column interchange.
-                pivot_index = k;
-            } else {
-                let imax = imax.unwrap();
-
+            if let Some(imax) = imax
+                && diag_abs < alpha * colmax
+            {
                 let mut rowmax = T::RealField::zero();
                 for j in k..imax {
                     rowmax = rowmax.max(matrix[(imax, j)].norm1());
@@ -129,9 +128,13 @@ where
                         block_size = 2;
                     }
                 }
+            } else {
+                // The diagonal dominates column k strongly enough to use A[k, k] as a 1x1 pivot
+                // without any row/column interchange.
+                pivot_index = k;
             }
 
-            let pivot_target: usize = k + block_size - 1;
+            let pivot_target = k + block_size - 1;
 
             if pivot_index != pivot_target {
                 // Hermitian two-sided interchange for the chosen pivot.

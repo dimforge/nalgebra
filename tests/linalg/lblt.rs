@@ -3,26 +3,21 @@ use na::{
     Complex, ComplexField, DMatrix, DVector, DefaultAllocator, Dim, DimMin, Dyn, LBLT, OMatrix,
     OVector, RealField, allocator::Allocator,
 };
+use num_traits::FromPrimitive;
 use rand::{Rng, SeedableRng, rngs::StdRng};
 use rand_distr::{Distribution, StandardNormal};
 
-fn relative_norm<T, N, M>(matrix1: &OMatrix<T, N, M>, matrix2: &OMatrix<T, N, M>) -> T::RealField
+fn decomposition_error<T, N>(matrix: &OMatrix<T, N, N>, lblt: &LBLT<T, N>) -> T::RealField
 where
-    T: ComplexField,
-    N: Dim,
-    M: Dim,
-    DefaultAllocator: Allocator<N, M>,
-{
-    (matrix1 - matrix2).norm() / matrix1.norm().max(matrix2.norm())
-}
-
-fn reconstruct<T: Copy + ComplexField, N: Dim>(lblt: &LBLT<T, N>) -> OMatrix<T, N, N>
-where
+    T: Copy + ComplexField,
     T::RealField: Copy,
+    N: Dim,
     DefaultAllocator: Allocator<N> + Allocator<N, N>,
 {
+    let n = T::RealField::from_usize(matrix.nrows()).unwrap();
     let l_permuted = lblt.l_permuted();
-    &l_permuted * lblt.d() * l_permuted.adjoint()
+    let reconstruction = &l_permuted * lblt.d() * l_permuted.adjoint();
+    (reconstruction - matrix).one_norm() / (matrix.one_norm() * n)
 }
 
 /// Samples a Haar-random isometry using a QR factorization of a complex Gaussian matrix.
@@ -80,7 +75,7 @@ fn alternating_unit_spectrum() {
         for _ in 0..10 {
             let matrix: DMatrix<Complex<f64>> = random_hermitian_from_diag(&diag, &mut rng);
             let lblt = matrix.clone().lblt();
-            assert!(relative_norm(&matrix, &reconstruct(&lblt)) < 1e-12);
+            assert!(decomposition_error(&matrix, &lblt) < 1e-14);
 
             assert_relative_eq!(
                 lblt.determinant(),
@@ -89,7 +84,9 @@ fn alternating_unit_spectrum() {
             );
 
             let b = random_isometry(Dyn(n), Dyn(n), &mut rng);
-            assert!((&matrix * &lblt.solve(&b).unwrap() - &b).norm() / matrix.norm() < 1e-12);
+            assert!(
+                (&matrix * &lblt.solve(&b).unwrap() - &b).one_norm() / matrix.one_norm() < 1e-12
+            );
         }
     }
 }
@@ -107,7 +104,7 @@ fn alternating_geometric_spectrum() {
         for _ in 0..10 {
             let matrix: DMatrix<Complex<f64>> = random_hermitian_from_diag(&diag, &mut rng);
             let lblt = matrix.clone().lblt();
-            assert!(relative_norm(&matrix, &reconstruct(&lblt)) < 1e-12);
+            assert!(decomposition_error(&matrix, &lblt) < 1e-14);
 
             assert_relative_eq!(
                 lblt.determinant(),
@@ -116,7 +113,9 @@ fn alternating_geometric_spectrum() {
             );
 
             let b = random_isometry(Dyn(n), Dyn(n), &mut rng);
-            assert!((&matrix * &lblt.solve(&b).unwrap() - &b).norm() / matrix.norm() < 1e-12);
+            assert!(
+                (&matrix * &lblt.solve(&b).unwrap() - &b).one_norm() / matrix.one_norm() < 1e-12
+            );
         }
     }
 }
