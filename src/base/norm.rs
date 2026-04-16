@@ -42,12 +42,15 @@ pub trait Norm<T: SimdComplexField> {
 /// Euclidean norm.
 #[derive(Copy, Clone, Debug)]
 pub struct EuclideanNorm;
+
 /// Lp norm.
 #[derive(Copy, Clone, Debug)]
 pub struct LpNorm(pub i32);
-#[derive(Copy, Clone, Debug)]
+
 /// The induced matrix 1-norm (maximum absolute column sum).
+#[derive(Copy, Clone, Debug)]
 pub struct OneNorm;
+
 /// L-infinite norm aka. Chebytchev norm aka. uniform norm aka. suppremum norm.
 #[derive(Copy, Clone, Debug)]
 pub struct UniformNorm;
