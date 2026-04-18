@@ -85,10 +85,10 @@ where
                         colmax = magnitude;
                     }
                 }
-                (Some(imax), colmax)
+                (imax, colmax)
             } else {
                 // If k is the last column, there is no off-diagonal candidate.
-                (None, T::RealField::zero())
+                (0, T::RealField::zero())
             };
 
             if diag_abs.max(colmax) == T::RealField::zero() {
@@ -104,9 +104,7 @@ where
 
             let pivot_index: usize;
 
-            if let Some(imax) = imax
-                && diag_abs < alpha * colmax
-            {
+            if diag_abs < alpha * colmax {
                 let mut rowmax = T::RealField::zero();
                 for j in k..imax {
                     rowmax = rowmax.max(matrix[(imax, j)].norm1());
