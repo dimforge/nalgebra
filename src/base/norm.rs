@@ -60,9 +60,9 @@ pub struct EuclideanNorm;
 pub struct LpNorm(pub i32);
 
 /// Induced matrix 1-norm (maximum absolute column sum).
-/// 
+///
 /// Computes max_j sum_i |a_ij|.
-/// 
+///
 /// For a column vector, this is the L1 norm.
 /// For a row vector, this is the L-infinity norm.
 #[derive(Copy, Clone, Debug)]
@@ -396,9 +396,9 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     }
 
     /// Induced matrix 1-norm (maximum absolute column sum).
-    /// 
+    ///
     /// Computes max_j sum_i |a_ij|.
-    /// 
+    ///
     /// For a column vector, this is the L1 norm.
     /// For a row vector, this is the L-infinity norm.
     #[inline]
