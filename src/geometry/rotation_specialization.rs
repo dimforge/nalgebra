@@ -3,8 +3,6 @@ use crate::base::storage::Owned;
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
-use num::Zero;
-
 #[cfg(feature = "rand-no-std")]
 use rand::{
     Rng,
@@ -332,9 +330,7 @@ where
     /// assert_eq!(Rotation3::new(Vector3::<f32>::zeros()), Rotation3::identity());
     /// ```
     pub fn new<SB: Storage<T, U3>>(axisangle: Vector<T, U3, SB>) -> Self {
-        let axisangle = axisangle.into_owned();
-        let (axis, angle) = Unit::new_and_get(axisangle);
-        Self::from_axis_angle(&axis, angle)
+        UnitQuaternion::new(axisangle).to_rotation_matrix()
     }
 
     /// Builds a 3D rotation matrix from an axis scaled by the rotation angle.
@@ -823,13 +819,11 @@ impl<T: SimdRealField> Rotation3<T> {
     /// ```
     #[inline]
     #[must_use]
-    pub fn angle(&self) -> T {
-        ((self.matrix()[(0, 0)].clone()
-            + self.matrix()[(1, 1)].clone()
-            + self.matrix()[(2, 2)].clone()
-            - T::one())
-            / crate::convert(2.0))
-        .simd_acos()
+    pub fn angle(&self) -> T
+    where
+        T: RealField,
+    {
+        UnitQuaternion::from_rotation_matrix(&self).angle()
     }
 
     /// The rotation axis. Returns `None` if the rotation angle is zero or PI.
@@ -853,14 +847,7 @@ impl<T: SimdRealField> Rotation3<T> {
     where
         T: RealField,
     {
-        let rotmat = self.matrix();
-        let axis = SVector::<T, 3>::new(
-            rotmat[(2, 1)].clone() - rotmat[(1, 2)].clone(),
-            rotmat[(0, 2)].clone() - rotmat[(2, 0)].clone(),
-            rotmat[(1, 0)].clone() - rotmat[(0, 1)].clone(),
-        );
-
-        Unit::try_new(axis, T::default_epsilon())
+        Unit::try_new(self.scaled_axis(), T::default_epsilon())
     }
 
     /// The rotation axis multiplied by the rotation angle.
@@ -879,10 +866,7 @@ impl<T: SimdRealField> Rotation3<T> {
     where
         T: RealField,
     {
-        match self.axis() {
-            Some(axis) => axis.into_inner() * self.angle(),
-            None => Vector::zero(),
-        }
+        UnitQuaternion::from_rotation_matrix(&self).scaled_axis()
     }
 
     /// The rotation axis and angle in (0, pi] of this rotation matrix.
@@ -910,7 +894,9 @@ impl<T: SimdRealField> Rotation3<T> {
     where
         T: RealField,
     {
-        self.axis().map(|axis| (axis, self.angle()))
+        let scaled_axis = self.scaled_axis();
+        let axis = Unit::try_new(scaled_axis.clone(), T::default_epsilon());
+        axis.map(|axis| (axis, scaled_axis.norm()))
     }
 
     /// The rotation angle needed to make `self` and `other` coincide.
@@ -927,7 +913,7 @@ impl<T: SimdRealField> Rotation3<T> {
     #[must_use]
     pub fn angle_to(&self, other: &Self) -> T
     where
-        T::Element: SimdRealField,
+        T: RealField,
     {
         self.rotation_to(other).angle()
     }

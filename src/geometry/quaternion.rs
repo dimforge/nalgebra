@@ -516,7 +516,13 @@ where
     #[inline]
     #[must_use]
     pub fn exp(&self) -> Self {
-        self.exp_eps(T::simd_default_epsilon())
+        let v = self.vector();
+        let v_norm = v.norm();
+        let exp = self.scalar().simd_exp();
+        Self::from_parts(
+            exp.clone() * v_norm.clone().simd_cos(),
+            v * exp * v_norm.simd_sinc(),
+        )
     }
 
     /// Compute the exponential of a quaternion. Returns the identity if the vector part of this quaternion
@@ -1323,10 +1329,14 @@ where
     where
         T: RealField,
     {
-        match self.axis() {
-            Some(axis) => axis.into_inner() * self.angle(),
-            None => Vector3::zero(),
-        }
+        let angle = self.angle();
+        let vec = if self.scalar() >= T::zero() {
+            self.imag()
+        } else {
+            -self.imag()
+        };
+        let two: T = crate::convert(2.0);
+        vec * two.clone() / (angle / two).simd_sinc()
     }
 
     /// The rotation axis and angle in (0, pi] of this unit quaternion.
