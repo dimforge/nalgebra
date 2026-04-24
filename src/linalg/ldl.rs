@@ -132,7 +132,7 @@ where
 
     /// Computes the LDL / LDL^T factorization, allowing for zero pivots. If a zero pivot is detected the corresponding column & row is filled with zeros.
     ///
-    /// This factorization is only valid for singular matrices with a specific structure, e.g. singular matrices of the form A = xxT.
+    /// This factorization is only valid for singular matrices with a specific structure, e.g. covariance matrices.
     pub fn new_unchecked(mut matrix: OMatrix<T, D, D>) -> Self {
         for j in 0..matrix.ncols() {
             let mut d_j: T = matrix[(j, j)].clone();
