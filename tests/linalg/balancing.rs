@@ -1,7 +1,7 @@
 #![cfg(feature = "proptest-support")]
 
-use na::balancing;
 use na::DMatrix;
+use na::balancing;
 
 use crate::proptest::*;
 use proptest::{prop_assert_eq, proptest};

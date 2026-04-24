@@ -1,12 +1,13 @@
 //! This module provides the matrix exponent (exp) function to square matrices.
 //!
 use crate::{
+    ComplexField, OMatrix, RealField,
     base::{
+        DefaultAllocator,
         allocator::Allocator,
         dimension::{Const, Dim, DimMin, DimMinimum},
-        DefaultAllocator,
     },
-    convert, try_convert, ComplexField, OMatrix, RealField,
+    convert, try_convert,
 };
 
 use crate::num::Zero;
@@ -155,7 +156,7 @@ where
     fn d4_tight(&mut self) -> T::RealField {
         if self.d4_exact.is_none() {
             self.calc_a4();
-            self.d4_exact = Some(one_norm(self.a4.as_ref().unwrap()).powf(convert(0.25)));
+            self.d4_exact = Some(self.a4.as_ref().unwrap().one_norm().powf(convert(0.25)));
         }
         self.d4_exact.clone().unwrap()
     }
@@ -163,7 +164,13 @@ where
     fn d6_tight(&mut self) -> T::RealField {
         if self.d6_exact.is_none() {
             self.calc_a6();
-            self.d6_exact = Some(one_norm(self.a6.as_ref().unwrap()).powf(convert(1.0 / 6.0)));
+            self.d6_exact = Some(
+                self.a6
+                    .as_ref()
+                    .unwrap()
+                    .one_norm()
+                    .powf(convert(1.0 / 6.0)),
+            );
         }
         self.d6_exact.clone().unwrap()
     }
@@ -171,7 +178,13 @@ where
     fn d8_tight(&mut self) -> T::RealField {
         if self.d8_exact.is_none() {
             self.calc_a8();
-            self.d8_exact = Some(one_norm(self.a8.as_ref().unwrap()).powf(convert(1.0 / 8.0)));
+            self.d8_exact = Some(
+                self.a8
+                    .as_ref()
+                    .unwrap()
+                    .one_norm()
+                    .powf(convert(1.0 / 8.0)),
+            );
         }
         self.d8_exact.clone().unwrap()
     }
@@ -179,7 +192,13 @@ where
     fn d10_tight(&mut self) -> T::RealField {
         if self.d10_exact.is_none() {
             self.calc_a10();
-            self.d10_exact = Some(one_norm(self.a10.as_ref().unwrap()).powf(convert(1.0 / 10.0)));
+            self.d10_exact = Some(
+                self.a10
+                    .as_ref()
+                    .unwrap()
+                    .one_norm()
+                    .powf(convert(1.0 / 10.0)),
+            );
         }
         self.d10_exact.clone().unwrap()
     }
@@ -195,7 +214,7 @@ where
 
         if self.d4_approx.is_none() {
             self.calc_a4();
-            self.d4_approx = Some(one_norm(self.a4.as_ref().unwrap()).powf(convert(0.25)));
+            self.d4_approx = Some(self.a4.as_ref().unwrap().one_norm().powf(convert(0.25)));
         }
 
         self.d4_approx.clone().unwrap()
@@ -212,7 +231,13 @@ where
 
         if self.d6_approx.is_none() {
             self.calc_a6();
-            self.d6_approx = Some(one_norm(self.a6.as_ref().unwrap()).powf(convert(1.0 / 6.0)));
+            self.d6_approx = Some(
+                self.a6
+                    .as_ref()
+                    .unwrap()
+                    .one_norm()
+                    .powf(convert(1.0 / 6.0)),
+            );
         }
 
         self.d6_approx.clone().unwrap()
@@ -229,7 +254,13 @@ where
 
         if self.d8_approx.is_none() {
             self.calc_a8();
-            self.d8_approx = Some(one_norm(self.a8.as_ref().unwrap()).powf(convert(1.0 / 8.0)));
+            self.d8_approx = Some(
+                self.a8
+                    .as_ref()
+                    .unwrap()
+                    .one_norm()
+                    .powf(convert(1.0 / 8.0)),
+            );
         }
 
         self.d8_approx.clone().unwrap()
@@ -246,7 +277,13 @@ where
 
         if self.d10_approx.is_none() {
             self.calc_a10();
-            self.d10_approx = Some(one_norm(self.a10.as_ref().unwrap()).powf(convert(1.0 / 10.0)));
+            self.d10_approx = Some(
+                self.a10
+                    .as_ref()
+                    .unwrap()
+                    .one_norm()
+                    .powf(convert(1.0 / 10.0)),
+            );
         }
 
         self.d10_approx.clone().unwrap()
@@ -388,7 +425,7 @@ where
 fn factorial(n: usize) -> u128 {
     match FACTORIAL.get(n) {
         Some(f) => *f,
-        None => panic!("{}! is greater than u128::MAX", n),
+        None => panic!("{n}! is greater than u128::MAX"),
     }
 }
 
@@ -429,17 +466,13 @@ where
     let choose_2m_m = factorial(2 * m) / (m_factorial * m_factorial);
 
     let abs_c_recip = choose_2m_m * factorial(2 * m + 1);
-    let alpha = a_abs_onenorm / one_norm(a);
+    let alpha = a_abs_onenorm / a.one_norm();
     let alpha: f64 = try_convert::<_, f64>(alpha).unwrap() / abs_c_recip as f64;
 
     let u = 2_f64.powf(-53.0);
     let log2_alpha_div_u = (alpha / u).log2();
     let value = (log2_alpha_div_u / (2.0 * m as f64)).ceil();
-    if value > 0.0 {
-        value as u64
-    } else {
-        0
-    }
+    if value > 0.0 { value as u64 } else { 0 }
 }
 
 fn solve_p_q<T, D>(u: OMatrix<T, D, D>, v: OMatrix<T, D, D>) -> OMatrix<T, D, D>
@@ -452,27 +485,6 @@ where
     let q = &v - &u;
 
     q.lu().solve(&p).unwrap()
-}
-
-fn one_norm<T, D>(m: &OMatrix<T, D, D>) -> T::RealField
-where
-    T: ComplexField,
-    D: Dim,
-    DefaultAllocator: Allocator<D, D>,
-{
-    let mut max = <T as ComplexField>::RealField::zero();
-
-    for i in 0..m.ncols() {
-        let col = m.column(i);
-        max = max.max(
-            col.iter()
-                .fold(<T as ComplexField>::RealField::zero(), |a, b| {
-                    a + b.clone().abs()
-                }),
-        );
-    }
-
-    max
 }
 
 impl<T: ComplexField, D> OMatrix<T, D, D>
@@ -525,11 +537,7 @@ where
         } else {
             let l2 = try_convert::<_, f64>((eta_5 / theta_13).log2().ceil()).unwrap();
 
-            if l2 < 0.0 {
-                0
-            } else {
-                l2 as u64
-            }
+            if l2 < 0.0 { 0 } else { l2 as u64 }
         };
 
         s += ell(
@@ -544,17 +552,5 @@ where
             x = &x * &x;
         }
         x
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    #[allow(clippy::float_cmp)]
-    fn one_norm() {
-        use crate::Matrix3;
-        let m = Matrix3::new(-3.0, 5.0, 7.0, 2.0, 6.0, 4.0, 0.0, 2.0, 8.0);
-
-        assert_eq!(super::one_norm(&m), 19.0);
     }
 }

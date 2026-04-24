@@ -1,3 +1,6 @@
+// Needed otherwise the rkyv macros generate code incompatible with rust-2024
+#![cfg_attr(feature = "rkyv-serialize", allow(unsafe_op_in_unsafe_fn))]
+
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num::Zero;
 use std::fmt;
@@ -49,6 +52,7 @@ use rkyv::bytecheck;
     ")
     )
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Similarity<T, R, const D: usize> {
     /// The part of this similarity that does not include the scaling factor.
     pub isometry: Isometry<T, R, D>,

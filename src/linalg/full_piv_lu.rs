@@ -8,8 +8,8 @@ use crate::dimension::{Dim, DimMin, DimMinimum};
 use crate::storage::{Storage, StorageMut};
 use simba::scalar::ComplexField;
 
-use crate::linalg::lu;
 use crate::linalg::PermutationSequence;
+use crate::linalg::lu;
 
 /// LU decomposition with full row and column pivoting.
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
@@ -27,6 +27,7 @@ use crate::linalg::PermutationSequence;
          OMatrix<T, R, C>: Deserialize<'de>,
          PermutationSequence<DimMinimum<R, C>>: Deserialize<'de>"))
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Debug)]
 pub struct FullPivLU<T: ComplexField, R: DimMin<C>, C: Dim>
 where
@@ -90,7 +91,7 @@ where
     }
 
     #[doc(hidden)]
-    pub fn lu_internal(&self) -> &OMatrix<T, R, C> {
+    pub const fn lu_internal(&self) -> &OMatrix<T, R, C> {
         &self.lu
     }
 
@@ -122,14 +123,14 @@ where
     /// The row permutations of this decomposition.
     #[inline]
     #[must_use]
-    pub fn p(&self) -> &PermutationSequence<DimMinimum<R, C>> {
+    pub const fn p(&self) -> &PermutationSequence<DimMinimum<R, C>> {
         &self.p
     }
 
     /// The column permutations of this decomposition.
     #[inline]
     #[must_use]
-    pub fn q(&self) -> &PermutationSequence<DimMinimum<R, C>> {
+    pub const fn q(&self) -> &PermutationSequence<DimMinimum<R, C>> {
         &self.q
     }
 

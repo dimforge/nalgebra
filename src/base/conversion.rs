@@ -9,7 +9,7 @@ use simba::simd::{PrimitiveSimdValue, SimdValue};
 use crate::base::allocator::{Allocator, SameShapeAllocator};
 use crate::base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 use crate::base::dimension::{
-    Const, Dim, U1, U10, U11, U12, U13, U14, U15, U16, U2, U3, U4, U5, U6, U7, U8, U9,
+    Const, Dim, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16,
 };
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::base::dimension::{DimName, Dyn};
@@ -187,7 +187,7 @@ where
 }
 
 macro_rules! impl_from_into_asref_1D(
-    ($(($NRows: ident, $NCols: ident) => $SZ: expr);* $(;)*) => {$(
+    ($(($NRows: ident, $NCols: ident) => $SZ: expr_2021);* $(;)*) => {$(
         impl<T, S> AsRef<[T; $SZ]> for Matrix<T, $NRows, $NCols, S>
         where T: Scalar,
               S: RawStorage<T, $NRows, $NCols> + IsContiguous {
@@ -265,7 +265,7 @@ macro_rules! impl_from_into_asref_borrow_2D(
 
     //does the impls on one case for either AsRef/AsMut and Borrow/BorrowMut
     (
-        ($NRows: ty, $NCols: ty) => ($SZRows: expr, $SZCols: expr);
+        ($NRows: ty, $NCols: ty) => ($SZRows: expr_2021, $SZCols: expr_2021);
         $Ref:ident.$ref:ident(), $Mut:ident.$mut:ident()
     ) => {
         impl<T: Scalar, S> $Ref<[[T; $SZRows]; $SZCols]> for Matrix<T, $NRows, $NCols, S>
@@ -292,7 +292,7 @@ macro_rules! impl_from_into_asref_borrow_2D(
     };
 
     //collects the mappings from typenum pairs to consts
-    ($(($NRows: ty, $NCols: ty) => ($SZRows: expr, $SZCols: expr));* $(;)*) => {$(
+    ($(($NRows: ty, $NCols: ty) => ($SZRows: expr_2021, $SZCols: expr_2021));* $(;)*) => {$(
         impl_from_into_asref_borrow_2D!(
             ($NRows, $NCols) => ($SZRows, $SZCols); AsRef.as_ref(), AsMut.as_mut()
         );

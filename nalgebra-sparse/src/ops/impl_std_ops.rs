@@ -1,11 +1,11 @@
 use crate::csc::CscMatrix;
 use crate::csr::CsrMatrix;
 
+use crate::ops::Op;
 use crate::ops::serial::{
     spadd_csc_prealloc, spadd_csr_prealloc, spadd_pattern, spmm_csc_dense, spmm_csc_pattern,
     spmm_csc_prealloc_unchecked, spmm_csr_dense, spmm_csr_pattern, spmm_csr_prealloc_unchecked,
 };
-use crate::ops::Op;
 use nalgebra::allocator::Allocator;
 use nalgebra::base::storage::RawStorage;
 use nalgebra::constraint::{DimEq, ShapeConstraint};
@@ -117,7 +117,7 @@ impl_spmm!(CsrMatrix, spmm_csr_pattern, spmm_csr_prealloc_unchecked);
 impl_spmm!(CscMatrix, spmm_csc_pattern, spmm_csc_prealloc_unchecked);
 
 /// Implements Scalar * Matrix operations for *concrete* scalar types. The reason this is necessary
-/// is that we are not able to implement Mul<Matrix<T>> for all T generically due to orphan rules.
+/// is that we are not able to implement `Mul<Matrix<T>>` for all T generically due to orphan rules.
 macro_rules! impl_concrete_scalar_matrix_mul {
     ($matrix_type:ident, $($scalar_type:ty),*) => {
         // For each concrete scalar type, forward the implementation of scalar * matrix

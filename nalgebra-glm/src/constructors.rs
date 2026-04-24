@@ -1,8 +1,8 @@
+use crate::RealNumber;
 use crate::aliases::{
     Qua, TMat, TMat2, TMat2x3, TMat2x4, TMat3, TMat3x2, TMat3x4, TMat4, TMat4x2, TMat4x3, TVec1,
     TVec2, TVec3, TVec4,
 };
-use crate::RealNumber;
 use na::Scalar;
 
 /// Creates a new 1D vector.

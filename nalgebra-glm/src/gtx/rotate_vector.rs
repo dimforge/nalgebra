@@ -1,7 +1,7 @@
 use na::{Rotation3, Unit, UnitComplex};
 
-use crate::aliases::{TMat4, TVec2, TVec3, TVec4};
 use crate::RealNumber;
+use crate::aliases::{TMat4, TVec2, TVec3, TVec4};
 
 /// Build the rotation matrix needed to align `normal` and `up`.
 pub fn orientation<T: RealNumber>(normal: &TVec3<T>, up: &TVec3<T>) -> TMat4<T> {

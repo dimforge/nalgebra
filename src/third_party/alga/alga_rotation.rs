@@ -28,7 +28,6 @@ impl<T: RealField + simba::scalar::RealField, const D: usize> TwoSidedInverse<Mu
     for Rotation<T, D>
 {
     #[inline]
-    #[must_use = "Did you mean to use two_sided_inverse_mut()?"]
     fn two_sided_inverse(&self) -> Self {
         self.transpose()
     }

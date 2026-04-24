@@ -1,9 +1,12 @@
+// Needed otherwise the rkyv macros generate code incompatible with rust-2024
+#![cfg_attr(feature = "rkyv-serialize", allow(unsafe_op_in_unsafe_fn))]
+
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distr::{Distribution, StandardUniform},
     Rng,
+    distr::{Distribution, StandardUniform},
 };
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -35,6 +38,7 @@ use rkyv::bytecheck;
 )]
 #[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[derive(Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Orthographic3<T> {
     matrix: Matrix4<T>,
 }
@@ -125,7 +129,7 @@ impl<T: RealField> Orthographic3<T> {
     /// # use nalgebra::{Orthographic3, Point3};
     /// let proj = Orthographic3::new(1.0, 10.0, 2.0, 20.0, 0.1, 1000.0);
     /// // Check this projection actually transforms the view cuboid into the double-unit cube.
-    /// // See https://www.nalgebra.org/docs/user_guide/projections#orthographic-projection for more details.
+    /// // See https://www.nalgebra.rs/docs/user_guide/projections#orthographic-projection for more details.
     /// let p1 = Point3::new(1.0, 2.0, -0.1);
     /// let p2 = Point3::new(1.0, 2.0, -1000.0);
     /// let p3 = Point3::new(1.0, 20.0, -0.1);
@@ -268,7 +272,7 @@ impl<T: RealField> Orthographic3<T> {
     /// ```
     #[inline]
     #[must_use]
-    pub fn as_matrix(&self) -> &Matrix4<T> {
+    pub const fn as_matrix(&self) -> &Matrix4<T> {
         &self.matrix
     }
 
@@ -282,7 +286,7 @@ impl<T: RealField> Orthographic3<T> {
     /// ```
     #[inline]
     #[must_use]
-    pub fn as_projective(&self) -> &Projective3<T> {
+    pub const fn as_projective(&self) -> &Projective3<T> {
         unsafe { &*(self as *const Orthographic3<T> as *const Projective3<T>) }
     }
 

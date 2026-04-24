@@ -1,8 +1,8 @@
 use std::fs;
 use std::path::Path;
 
-use crate::sparse::CsMatrix;
 use crate::RealField;
+use crate::sparse::CsMatrix;
 use pest::Parser;
 
 #[derive(Parser)]

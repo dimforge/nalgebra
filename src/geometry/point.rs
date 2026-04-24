@@ -1,3 +1,6 @@
+// Needed otherwise the rkyv macros generate code incompatible with rust-2024
+#![cfg_attr(feature = "rkyv-serialize", allow(unsafe_op_in_unsafe_fn))]
+
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num::{One, Zero};
 use std::cmp::Ordering;
@@ -20,7 +23,7 @@ use std::mem::MaybeUninit;
 
 /// A point in an euclidean space.
 ///
-/// The difference between a point and a vector is only semantic. See [the user guide](https://www.nalgebra.org/docs/user_guide/points_and_transformations)
+/// The difference between a point and a vector is only semantic. See [the user guide](https://www.nalgebra.rs/docs/user_guide/points_and_transformations)
 /// for details on the distinction. The most notable difference that vectors ignore translations.
 /// In particular, an [`Isometry2`](crate::Isometry2) or [`Isometry3`](crate::Isometry3) will
 /// transform points by applying a rotation and a translation on them. However, these isometries
@@ -53,6 +56,7 @@ use std::mem::MaybeUninit;
     ")
     )
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct OPoint<T: Scalar, D: DimName>
 where
     DefaultAllocator: Allocator<D>,
@@ -244,7 +248,7 @@ where
     /// Creates a new point with the given coordinates.
     #[deprecated(note = "Use Point::from(vector) instead.")]
     #[inline]
-    pub fn from_coordinates(coords: OVector<T, D>) -> Self {
+    pub const fn from_coordinates(coords: OVector<T, D>) -> Self {
         Self { coords }
     }
 
@@ -316,7 +320,7 @@ where
     #[inline]
     #[must_use]
     pub unsafe fn get_unchecked(&self, i: usize) -> &T {
-        self.coords.vget_unchecked(i)
+        unsafe { self.coords.vget_unchecked(i) }
     }
 
     /// Mutably iterates through this point coordinates.
@@ -347,7 +351,7 @@ where
     #[inline]
     #[must_use]
     pub unsafe fn get_unchecked_mut(&mut self, i: usize) -> &mut T {
-        self.coords.vget_unchecked_mut(i)
+        unsafe { self.coords.vget_unchecked_mut(i) }
     }
 
     /// Swaps two entries without bound-checking.
@@ -357,7 +361,7 @@ where
     /// `i1` and `i2` must be less than `self.len()`.
     #[inline]
     pub unsafe fn swap_unchecked(&mut self, i1: usize, i2: usize) {
-        self.coords.swap_unchecked((i1, 0), (i2, 0))
+        unsafe { self.coords.swap_unchecked((i1, 0), (i2, 0)) }
     }
 }
 

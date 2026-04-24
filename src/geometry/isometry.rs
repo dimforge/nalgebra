@@ -1,3 +1,6 @@
+// Needed otherwise the rkyv macros generate code incompatible with rust-2024
+#![cfg_attr(feature = "rkyv-serialize", allow(unsafe_op_in_unsafe_fn))]
+
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use std::fmt;
 use std::hash;
@@ -32,8 +35,8 @@ use rkyv::bytecheck;
 /// - A translation part of type [`Translation3`](crate::Translation3)
 /// - A rotation part which can either be a [`UnitQuaternion`](crate::UnitQuaternion) or a [`Rotation3`](crate::Rotation3).
 ///
-/// Note that instead of using the [`Isometry`](crate::Isometry) type in your code directly, you should use one
-/// of its aliases: [`Isometry2`](crate::Isometry2), [`Isometry3`](crate::Isometry3),
+/// Note that instead of using the [`Isometry`] type in your code directly, you should use one
+/// of its aliases: [`Isometry2`](crate::Isometry2), [`Isometry3`],
 /// [`IsometryMatrix2`](crate::IsometryMatrix2), [`IsometryMatrix3`](crate::IsometryMatrix3). Though
 /// keep in mind that all the documentation of all the methods of these aliases will also appears on
 /// this page.
@@ -85,6 +88,7 @@ use rkyv::bytecheck;
     ")
     )
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Isometry<T, R, const D: usize> {
     /// The pure rotational part of this isometry.
     pub rotation: R,
@@ -136,7 +140,7 @@ impl<T: Scalar, R: AbstractRotation<T, D>, const D: usize> Isometry<T, R, D> {
     /// assert_relative_eq!(iso * Point3::new(1.0, 2.0, 3.0), Point3::new(-1.0, 2.0, 0.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn from_parts(translation: Translation<T, D>, rotation: R) -> Self {
+    pub const fn from_parts(translation: Translation<T, D>, rotation: R) -> Self {
         Self {
             rotation,
             translation,

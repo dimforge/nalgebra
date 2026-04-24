@@ -3,9 +3,9 @@ use crate::base::storage::Owned;
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
+use crate::base::Scalar;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{Dim, Dyn};
-use crate::base::Scalar;
 use crate::base::{DefaultAllocator, OMatrix};
 use crate::linalg::givens::GivensRotation;
 use simba::scalar::ComplexField;

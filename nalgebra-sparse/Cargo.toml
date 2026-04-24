@@ -1,11 +1,11 @@
 [package]
 name = "nalgebra-sparse"
-version = "0.10.0"
+version = "0.11.0"
 authors = ["Andreas Longva", "Sébastien Crozet <developer@crozet.re>"]
-edition = "2018"
+edition = "2024"
 description = "Sparse matrix computation based on nalgebra."
-documentation = "https://www.nalgebra.org/docs"
-homepage = "https://nalgebra.org"
+documentation = "https://www.nalgebra.rs/docs"
+homepage = "https://nalgebra.rs"
 repository = "https://github.com/dimforge/nalgebra"
 readme = "../README.md"
 categories = ["science", "mathematics", "wasm", "no-std"]
@@ -24,7 +24,7 @@ io = ["pest", "pest_derive"]
 slow-tests = []
 
 [dependencies]
-nalgebra = { version = "0.33", path = "../" }
+nalgebra = { version = "0.34", path = "../" }
 num-traits = { version = "0.2", default-features = false }
 proptest = { version = "1.0", optional = true }
 matrixcompare-core = { version = "0.1.0", optional = true }
@@ -35,7 +35,7 @@ serde = { version = "1.0", default-features = false, features = ["derive"], opti
 [dev-dependencies]
 itertools = "0.13"
 matrixcompare = { version = "0.3.0", features = ["proptest-support"] }
-nalgebra = { version = "0.33", path = "../", features = ["compare"] }
+nalgebra = { version = "0.34", path = "../", features = ["compare"] }
 tempfile = "3.3"
 serde_json = "1.0"
 

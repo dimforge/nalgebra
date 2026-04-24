@@ -31,7 +31,6 @@ impl<T: RealField + simba::scalar::RealField> AbstractMagma<Multiplicative> for 
 
 impl<T: RealField + simba::scalar::RealField> TwoSidedInverse<Multiplicative> for UnitComplex<T> {
     #[inline]
-    #[must_use = "Did you mean to use two_sided_inverse_mut()?"]
     fn two_sided_inverse(&self) -> Self {
         self.inverse()
     }

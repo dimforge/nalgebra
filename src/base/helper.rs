@@ -3,8 +3,8 @@ use quickcheck::{Arbitrary, Gen};
 
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distr::{Distribution, StandardUniform},
     Rng,
+    distr::{Distribution, StandardUniform},
 };
 
 /// Simple helper function for rejection sampling

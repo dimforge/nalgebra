@@ -12,5 +12,5 @@ Document = {
     (NEWLINE ~ Entry?)*
 }
 Dimension = @{ ASCII_DIGIT+ }
-Value = @{ ("+" | "-")? ~ NUMBER+ ~ ("." ~ NUMBER+)? ~ ("e" ~ ("+" | "-")? ~ NUMBER+)? }
+Value = @{ ("+" | "-")? ~ (NUMBER+ ~ ("." ~ NUMBER*)? | "." ~ NUMBER+) ~ (("e" | "E") ~ ("+" | "-")? ~ NUMBER+)? }
 Entry = { Dimension ~ Dimension ~ Value }

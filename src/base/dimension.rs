@@ -53,7 +53,7 @@ impl<'de> Deserialize<'de> for Dyn {
     where
         D: Deserializer<'de>,
     {
-        usize::deserialize(deserializer).map(|x| Dyn(x))
+        usize::deserialize(deserializer).map(Dyn)
     }
 }
 
@@ -219,11 +219,12 @@ dim_ops!(
     archive(as = "Self")
 )]
 #[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Const<const R: usize>;
 
 /// Trait implemented exclusively by type-level integers.
 pub trait DimName: Dim {
-    const USIZE: usize;
+    const DIM: usize;
 
     /// The name of this dimension, i.e., the singleton `Self`.
     fn name() -> Self;
@@ -280,7 +281,7 @@ unsafe impl<const T: usize> Dim for Const<T> {
 }
 
 impl<const T: usize> DimName for Const<T> {
-    const USIZE: usize = T;
+    const DIM: usize = T;
 
     #[inline]
     fn name() -> Self {
@@ -304,7 +305,7 @@ impl ToConst for typenum::U1 {
 }
 
 macro_rules! from_to_typenum (
-    ($($D: ident, $VAL: expr);* $(;)*) => {$(
+    ($($D: ident, $VAL: expr_2021);* $(;)*) => {$(
         pub type $D = Const<$VAL>;
 
         impl ToTypenum for Const<$VAL> {

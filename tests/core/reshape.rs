@@ -1,6 +1,6 @@
 use na::{
     Const, DMatrix, DMatrixView, DMatrixViewMut, Dyn, Matrix, MatrixView, MatrixViewMut, SMatrix,
-    SMatrixView, SMatrixViewMut, VecStorage, U3, U4,
+    SMatrixView, SMatrixViewMut, U3, U4, VecStorage,
 };
 use nalgebra_macros::matrix;
 use simba::scalar::SupersetOf;

@@ -24,8 +24,8 @@ pub use self::rotate_vector::{
 };
 pub use self::transform::{rotation, rotation2d, scaling, scaling2d, translation, translation2d};
 pub use self::transform2::{
-    proj, proj2d, reflect, reflect2d, scale_bias, scale_bias_matrix, shear2d_x, shear2d_y, shear_x,
-    shear_y, shear_z,
+    proj, proj2d, reflect, reflect2d, scale_bias, scale_bias_matrix, shear_x, shear_y, shear_z,
+    shear2d_x, shear2d_y,
 };
 pub use self::transform2d::{rotate2d, scale2d, translate2d};
 pub use self::vector_angle::angle;

@@ -1,11 +1,11 @@
 use proc_macro::TokenStream;
-use quote::{quote, ToTokens, TokenStreamExt};
+use quote::{ToTokens, TokenStreamExt, quote};
 use std::ops::Index;
+use syn::Expr;
 use syn::parse::{Error, Parse, ParseStream};
 use syn::punctuated::Punctuated;
 use syn::spanned::Spanned;
-use syn::Expr;
-use syn::{parse_macro_input, Token};
+use syn::{Token, parse_macro_input};
 
 use proc_macro2::{Delimiter, Spacing, TokenStream as TokenStream2, TokenTree};
 use proc_macro2::{Group, Punct};

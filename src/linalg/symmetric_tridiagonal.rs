@@ -6,8 +6,8 @@ use crate::base::{DefaultAllocator, OMatrix, OVector};
 use crate::dimension::{Const, DimDiff, DimSub, U1};
 use simba::scalar::ComplexField;
 
-use crate::linalg::householder;
 use crate::Matrix;
+use crate::linalg::householder;
 use std::mem::MaybeUninit;
 
 /// Tridiagonalization of a symmetric matrix.
@@ -26,6 +26,7 @@ use std::mem::MaybeUninit;
          OMatrix<T, D, D>: Deserialize<'de>,
          OVector<T, DimDiff<D, U1>>: Deserialize<'de>"))
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Debug)]
 pub struct SymmetricTridiagonal<T: ComplexField, D: DimSub<U1>>
 where
@@ -94,7 +95,7 @@ where
 
     #[doc(hidden)]
     // For debugging.
-    pub fn internal_tri(&self) -> &OMatrix<T, D, D> {
+    pub const fn internal_tri(&self) -> &OMatrix<T, D, D> {
         &self.tri
     }
 

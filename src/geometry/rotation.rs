@@ -1,3 +1,6 @@
+// Needed otherwise the rkyv macros generate code incompatible with rust-2024
+#![cfg_attr(feature = "rkyv-serialize", allow(unsafe_op_in_unsafe_fn))]
+
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num::{One, Zero};
 use std::fmt;
@@ -26,7 +29,7 @@ use rkyv::bytecheck;
 /// The `Rotation` type can either represent a 2D or 3D rotation, represented as a matrix.
 /// For a rotation based on quaternions, see [`UnitQuaternion`](crate::UnitQuaternion) instead.
 ///
-/// Note that instead of using the [`Rotation`](crate::Rotation) type in your code directly, you should use one
+/// Note that instead of using the [`Rotation`] type in your code directly, you should use one
 /// of its aliases: [`Rotation2`](crate::Rotation2), or [`Rotation3`](crate::Rotation3). Though
 /// keep in mind that all the documentation of all the methods of these aliases will also appears on
 /// this page.
@@ -64,6 +67,7 @@ use rkyv::bytecheck;
     )
 )]
 #[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Copy, Clone)]
 pub struct Rotation<T, const D: usize> {
     matrix: SMatrix<T, D, D>,
@@ -179,7 +183,7 @@ impl<T: Scalar, const D: usize> Rotation<T, D> {
     /// ```
     #[inline]
     #[must_use]
-    pub fn matrix(&self) -> &SMatrix<T, D, D> {
+    pub const fn matrix(&self) -> &SMatrix<T, D, D> {
         &self.matrix
     }
 
@@ -190,7 +194,7 @@ impl<T: Scalar, const D: usize> Rotation<T, D> {
     /// Invariants of the rotation matrix should not be violated.
     #[inline]
     #[deprecated(note = "Use `.matrix_mut_unchecked()` instead.")]
-    pub unsafe fn matrix_mut(&mut self) -> &mut SMatrix<T, D, D> {
+    pub const unsafe fn matrix_mut(&mut self) -> &mut SMatrix<T, D, D> {
         &mut self.matrix
     }
 
@@ -200,7 +204,7 @@ impl<T: Scalar, const D: usize> Rotation<T, D> {
     /// matrix by another one that is non-inversible or non-orthonormal. If one of
     /// those properties is broken, subsequent method calls may return bogus results.
     #[inline]
-    pub fn matrix_mut_unchecked(&mut self) -> &mut SMatrix<T, D, D> {
+    pub const fn matrix_mut_unchecked(&mut self) -> &mut SMatrix<T, D, D> {
         &mut self.matrix
     }
 

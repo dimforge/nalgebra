@@ -2,15 +2,15 @@ use num::Zero;
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
 
+use crate::ComplexField;
 use crate::allocator::{Allocator, Reallocator};
 use crate::base::{Const, DefaultAllocator, Matrix, OMatrix, OVector, Unit};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::dimension::{Dim, DimMin, DimMinimum};
 use crate::storage::StorageMut;
-use crate::ComplexField;
 
 use crate::geometry::Reflection;
-use crate::linalg::{householder, PermutationSequence};
+use crate::linalg::{PermutationSequence, householder};
 use std::mem::MaybeUninit;
 
 /// The QR decomposition (with column pivoting) of a general matrix.
@@ -31,6 +31,7 @@ use std::mem::MaybeUninit;
          PermutationSequence<DimMinimum<R, C>>: Deserialize<'de>,
          OVector<T, DimMinimum<R, C>>: Deserialize<'de>"))
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Debug)]
 pub struct ColPivQR<T: ComplexField, R: DimMin<C>, C: Dim>
 where
@@ -150,7 +151,7 @@ where
     /// Retrieves the column permutation of this decomposition.
     #[inline]
     #[must_use]
-    pub fn p(&self) -> &PermutationSequence<DimMinimum<R, C>> {
+    pub const fn p(&self) -> &PermutationSequence<DimMinimum<R, C>> {
         &self.p
     }
 
@@ -172,7 +173,7 @@ where
     }
 
     #[doc(hidden)]
-    pub fn col_piv_qr_internal(&self) -> &OMatrix<T, R, C> {
+    pub const fn col_piv_qr_internal(&self) -> &OMatrix<T, R, C> {
         &self.col_piv_qr
     }
 

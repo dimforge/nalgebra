@@ -1,3 +1,6 @@
+// Needed otherwise the rkyv macros generate code incompatible with rust-2024
+#![cfg_attr(feature = "rkyv-serialize", allow(unsafe_op_in_unsafe_fn))]
+
 use std::fmt;
 use std::ops::Deref;
 
@@ -35,6 +38,7 @@ use rkyv::bytecheck;
     )
 )]
 #[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Unit<T> {
     pub(crate) value: T,
 }
@@ -187,7 +191,7 @@ impl<T> Unit<T> {
 
     /// Wraps the given reference, assuming it is already normalized.
     #[inline]
-    pub fn from_ref_unchecked(value: &T) -> &Self {
+    pub const fn from_ref_unchecked(value: &T) -> &Self {
         unsafe { &*(value as *const T as *const Self) }
     }
 
@@ -209,7 +213,7 @@ impl<T> Unit<T> {
     /// the underlying value in such a way that it no longer has unit length may lead to unexpected
     /// results.
     #[inline]
-    pub fn as_mut_unchecked(&mut self) -> &mut T {
+    pub const fn as_mut_unchecked(&mut self) -> &mut T {
         &mut self.value
     }
 }

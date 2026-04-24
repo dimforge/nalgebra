@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://nalgebra.org/img/logo_nalgebra.svg" alt="crates.io">
+  <img src="https://nalgebra.rs/img/logo_nalgebra.svg" alt="crates.io">
 </p>
 <p align="center">
     <a href="https://discord.gg/vt9DJSW">
@@ -14,7 +14,7 @@
 </p>
 <p align = "center">
     <strong>
-        <a href="https://nalgebra.org">Users guide</a> | <a href="https://docs.rs/nalgebra/latest/nalgebra/">Documentation</a>
+        <a href="https://nalgebra.rs">Users guide</a> | <a href="https://docs.rs/nalgebra/latest/nalgebra/">Documentation</a>
     </strong>
 </p>
 

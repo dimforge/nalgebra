@@ -2,8 +2,8 @@ use std::ops::{Deref, DerefMut};
 
 use simba::simd::SimdValue;
 
-use crate::base::coordinates::IJKW;
 use crate::Scalar;
+use crate::base::coordinates::IJKW;
 
 use crate::geometry::Quaternion;
 

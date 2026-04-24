@@ -39,13 +39,44 @@ pub trait Norm<T: SimdComplexField> {
         ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>;
 }
 
-/// Euclidean norm.
+/// Euclidean norm of a vector, or Frobenius norm of a matrix.
+///
+/// Computes sqrt(sum |a_ij|^2) over all elements.
+///
+/// <div class="warning">
+/// For matrices, this is the Frobenius norm, not the matrix 2-norm (spectral norm).
+/// </div>
 #[derive(Copy, Clone, Debug)]
 pub struct EuclideanNorm;
-/// Lp norm.
+
+/// Entrywise Lp norm of a matrix or vector.
+///
+/// Computes (sum |a_ij|^p)^(1/p) over all elements.
+///
+/// <div class="warning">
+/// This does not match the standard mathematical definition of the matrix Lp norm.
+/// </div>
 #[derive(Copy, Clone, Debug)]
 pub struct LpNorm(pub i32);
-/// L-infinite norm aka. Chebytchev norm aka. uniform norm aka. suppremum norm.
+
+/// Induced matrix 1-norm (maximum absolute column sum).
+///
+/// Computes max_j sum_i |a_ij|.
+///
+/// For a column vector, this is the L1 norm.
+/// For a row vector, this is the L-infinity norm.
+#[derive(Copy, Clone, Debug)]
+pub struct OneNorm;
+
+/// Entrywise L-infinity norm of a matrix or vector.
+///
+/// Computes max |a_ij| over all elements.
+///
+/// For a vector this is the standard L-infinity norm.
+///
+/// <div class="warning">
+/// For matrices, this is the entrywise maximum, not the induced matrix infinity-norm.
+/// </div>
 #[derive(Copy, Clone, Debug)]
 pub struct UniformNorm;
 
@@ -120,6 +151,45 @@ impl<T: SimdComplexField> Norm<T> for LpNorm {
     }
 }
 
+impl<T: SimdComplexField> Norm<T> for OneNorm {
+    #[inline]
+    fn norm<R, C, S>(&self, m: &Matrix<T, R, C, S>) -> T::SimdRealField
+    where
+        R: Dim,
+        C: Dim,
+        S: Storage<T, R, C>,
+    {
+        m.column_iter()
+            .map(|col| col.fold(T::SimdRealField::zero(), |a, b| a + b.simd_modulus()))
+            .fold(T::SimdRealField::zero(), T::SimdRealField::simd_max)
+    }
+
+    #[inline]
+    fn metric_distance<R1, C1, S1, R2, C2, S2>(
+        &self,
+        m1: &Matrix<T, R1, C1, S1>,
+        m2: &Matrix<T, R2, C2, S2>,
+    ) -> T::SimdRealField
+    where
+        R1: Dim,
+        C1: Dim,
+        S1: Storage<T, R1, C1>,
+        R2: Dim,
+        C2: Dim,
+        S2: Storage<T, R2, C2>,
+        ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>,
+    {
+        m1.column_iter()
+            .zip(m2.column_iter())
+            .map(|(c1, c2)| {
+                c1.zip_fold(&c2, T::SimdRealField::zero(), |acc, a, b| {
+                    acc + (a - b).simd_modulus()
+                })
+            })
+            .fold(T::SimdRealField::zero(), T::SimdRealField::simd_max)
+    }
+}
+
 impl<T: SimdComplexField> Norm<T> for UniformNorm {
     #[inline]
     fn norm<R, C, S>(&self, m: &Matrix<T, R, C, S>) -> T::SimdRealField
@@ -158,8 +228,11 @@ impl<T: SimdComplexField> Norm<T> for UniformNorm {
 }
 
 /// # Magnitude and norms
+///
+/// Unless otherwise noted, the norm used throughout is the L2 norm for vectors and
+/// the Frobenius norm for matrices.
 impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
-    /// The squared L2 norm of this vector.
+    /// Squared L2 norm of this vector, or squared Frobenius norm of this matrix.
     #[inline]
     #[must_use]
     pub fn norm_squared(&self) -> T::SimdRealField
@@ -176,7 +249,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         res
     }
 
-    /// The L2 norm of this matrix.
+    /// L2 norm of this vector, or Frobenius norm of this matrix.
     ///
     /// Use `.apply_norm` to apply a custom norm.
     #[inline]
@@ -188,7 +261,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         self.norm_squared().simd_sqrt()
     }
 
-    /// Compute the distance between `self` and `rhs` using the metric induced by the euclidean norm.
+    /// Distance between `self` and `rhs` using the L2 norm for vectors, or the Frobenius for matrices.
     ///
     /// Use `.apply_metric_distance` to apply a custom norm.
     #[inline]
@@ -306,7 +379,13 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         self.unscale(self.norm())
     }
 
-    /// The Lp norm of this matrix.
+    /// Entrywise Lp norm of this matrix or vector.
+    ///
+    /// Computes (sum |a_ij|^p)^(1/p) over all elements.
+    ///
+    /// <div class="warning">
+    /// For matrices, this does not match the standard mathematical definition of the matrix Lp norm.
+    /// </div>
     #[inline]
     #[must_use]
     pub fn lp_norm(&self, p: i32) -> T::SimdRealField
@@ -314,6 +393,21 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         T: SimdComplexField,
     {
         self.apply_norm(&LpNorm(p))
+    }
+
+    /// Induced matrix 1-norm (maximum absolute column sum).
+    ///
+    /// Computes max_j sum_i |a_ij|.
+    ///
+    /// For a column vector, this is the L1 norm.
+    /// For a row vector, this is the L-infinity norm.
+    #[inline]
+    #[must_use]
+    pub fn one_norm(&self) -> T::SimdRealField
+    where
+        T: SimdComplexField,
+    {
+        self.apply_norm(&OneNorm)
     }
 
     /// Attempts to normalize `self`.
@@ -536,7 +630,7 @@ where
                 nbasis_elements += 1;
 
                 // All the other vectors will be dependent.
-                if nbasis_elements == D::dim() {
+                if nbasis_elements == D::DIM {
                     break;
                 }
             }
@@ -556,11 +650,11 @@ where
     {
         // TODO: is this necessary?
         assert!(
-            vs.len() <= D::dim(),
+            vs.len() <= D::DIM,
             "The given set of vectors has no chance of being a free family."
         );
 
-        match D::dim() {
+        match D::DIM {
             1 => {
                 if vs.is_empty() {
                     let _ = f(&Self::canonical_basis_element(0));
@@ -613,7 +707,7 @@ where
                         known_basis.push(v.normalize())
                     }
 
-                    for i in 0..D::dim() - vs.len() {
+                    for i in 0..D::DIM - vs.len() {
                         let mut elt = Self::canonical_basis_element(i);
 
                         for v in &known_basis {
@@ -631,8 +725,10 @@ where
                 }
                 #[cfg(all(not(feature = "std"), not(feature = "alloc")))]
                 {
-                    panic!("Cannot compute the orthogonal subspace basis of a vector with a dimension greater than 3 \
-                            if #![no_std] is enabled and the 'alloc' feature is not enabled.")
+                    panic!(
+                        "Cannot compute the orthogonal subspace basis of a vector with a dimension greater than 3 \
+                            if #![no_std] is enabled and the 'alloc' feature is not enabled."
+                    )
                 }
             }
         }

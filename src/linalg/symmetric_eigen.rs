@@ -10,8 +10,8 @@ use crate::dimension::{Dim, DimDiff, DimSub, U1};
 use crate::storage::Storage;
 use simba::scalar::ComplexField;
 
-use crate::linalg::givens::GivensRotation;
 use crate::linalg::SymmetricTridiagonal;
+use crate::linalg::givens::GivensRotation;
 
 /// Eigendecomposition of a symmetric matrix.
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
@@ -29,6 +29,7 @@ use crate::linalg::SymmetricTridiagonal;
          OVector<T::RealField, D>: Deserialize<'de>,
          OMatrix<T, D, D>: Deserialize<'de>"))
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Debug)]
 pub struct SymmetricEigen<T: ComplexField, D: Dim>
 where
@@ -151,38 +152,43 @@ where
                 for i in start..n {
                     let j = i + 1;
 
-                    if let Some((rot, norm)) = GivensRotation::cancel_y(&vec) {
-                        if i > start {
-                            // Not the first iteration.
-                            off_diag[i - 1] = norm;
+                    match GivensRotation::cancel_y(&vec) {
+                        Some((rot, norm)) => {
+                            if i > start {
+                                // Not the first iteration.
+                                off_diag[i - 1] = norm;
+                            }
+
+                            let mii = diag[i].clone();
+                            let mjj = diag[j].clone();
+                            let mij = off_diag[i].clone();
+
+                            let cc = rot.c() * rot.c();
+                            let ss = rot.s() * rot.s();
+                            let cs = rot.c() * rot.s();
+
+                            let b = cs.clone() * crate::convert(2.0) * mij.clone();
+
+                            diag[i] =
+                                (cc.clone() * mii.clone() + ss.clone() * mjj.clone()) - b.clone();
+                            diag[j] = (ss.clone() * mii.clone() + cc.clone() * mjj.clone()) + b;
+                            off_diag[i] = cs * (mii - mjj) + mij * (cc - ss);
+
+                            if i != n - 1 {
+                                vec.x = off_diag[i].clone();
+                                vec.y = -rot.s() * off_diag[i + 1].clone();
+                                off_diag[i + 1] *= rot.c();
+                            }
+
+                            if let Some(ref mut q) = q_mat {
+                                let rot =
+                                    GivensRotation::new_unchecked(rot.c(), T::from_real(rot.s()));
+                                rot.inverse().rotate_rows(&mut q.fixed_columns_mut::<2>(i));
+                            }
                         }
-
-                        let mii = diag[i].clone();
-                        let mjj = diag[j].clone();
-                        let mij = off_diag[i].clone();
-
-                        let cc = rot.c() * rot.c();
-                        let ss = rot.s() * rot.s();
-                        let cs = rot.c() * rot.s();
-
-                        let b = cs.clone() * crate::convert(2.0) * mij.clone();
-
-                        diag[i] = (cc.clone() * mii.clone() + ss.clone() * mjj.clone()) - b.clone();
-                        diag[j] = (ss.clone() * mii.clone() + cc.clone() * mjj.clone()) + b;
-                        off_diag[i] = cs * (mii - mjj) + mij * (cc - ss);
-
-                        if i != n - 1 {
-                            vec.x = off_diag[i].clone();
-                            vec.y = -rot.s() * off_diag[i + 1].clone();
-                            off_diag[i + 1] *= rot.c();
+                        None => {
+                            break;
                         }
-
-                        if let Some(ref mut q) = q_mat {
-                            let rot = GivensRotation::new_unchecked(rot.c(), T::from_real(rot.s()));
-                            rot.inverse().rotate_rows(&mut q.fixed_columns_mut::<2>(i));
-                        }
-                    } else {
-                        break;
                     }
                 }
 
@@ -199,10 +205,21 @@ where
                     diag[start + 1].clone(),
                 );
                 let eigvals = m.eigenvalues().unwrap();
-                let basis = Vector2::new(
-                    eigvals.x.clone() - diag[start + 1].clone(),
-                    off_diag[start].clone(),
-                );
+
+                // Choose the basis least likely to experience cancellation
+                let basis = if (eigvals.x.clone() - diag[start + 1].clone()).abs()
+                    > (eigvals.x.clone() - diag[start].clone()).abs()
+                {
+                    Vector2::new(
+                        eigvals.x.clone() - diag[start + 1].clone(),
+                        off_diag[start].clone(),
+                    )
+                } else {
+                    Vector2::new(
+                        off_diag[start].clone(),
+                        eigvals.x.clone() - diag[start].clone(),
+                    )
+                };
 
                 diag[start] = eigvals[0].clone();
                 diag[start + 1] = eigvals[1].clone();
@@ -342,7 +359,36 @@ where
 
 #[cfg(test)]
 mod test {
-    use crate::base::Matrix2;
+    use crate::base::{Matrix2, Matrix4};
+
+    /// Exercises bug reported in issue #1109 of nalgebra (https://github.com/dimforge/nalgebra/issues/1109)
+    #[test]
+    fn symmetric_eigen_regression_issue_1109() {
+        let m = Matrix4::new(
+            -19884.07f64,
+            -10.07188,
+            11.277279,
+            -188560.63,
+            -10.07188,
+            12.518197,
+            1.3770627,
+            -102.97504,
+            11.277279,
+            1.3770627,
+            14.587362,
+            113.26099,
+            -188560.63,
+            -102.97504,
+            113.26099,
+            -1788112.3,
+        );
+        let eig = m.symmetric_eigen();
+        assert!(relative_eq!(
+            m.lower_triangle(),
+            eig.recompose().lower_triangle(),
+            epsilon = 1.0e-5
+        ));
+    }
 
     fn expected_shift(m: Matrix2<f64>) -> f64 {
         let vals = m.eigenvalues().unwrap();

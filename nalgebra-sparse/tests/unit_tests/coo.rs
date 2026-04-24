@@ -1,7 +1,7 @@
 use crate::assert_panics;
 use nalgebra::DMatrix;
-use nalgebra_sparse::coo::CooMatrix;
 use nalgebra_sparse::SparseFormatErrorKind;
+use nalgebra_sparse::coo::CooMatrix;
 
 #[test]
 fn coo_construction_for_valid_data() {
@@ -201,12 +201,14 @@ fn coo_try_from_triplets_iter() {
         5,
         vec![(0, 6, 3.0)].into_iter(),
     ));
-    assert!(CooMatrix::<f32>::try_from_triplets_iter(
-        3,
-        5,
-        vec![(0, 3, 3.0), (1, 2, 2.0), (0, 3, 1.0),].into_iter(),
-    )
-    .is_ok());
+    assert!(
+        CooMatrix::<f32>::try_from_triplets_iter(
+            3,
+            5,
+            vec![(0, 3, 3.0), (1, 2, 2.0), (0, 3, 1.0),].into_iter(),
+        )
+        .is_ok()
+    );
 }
 
 #[test]

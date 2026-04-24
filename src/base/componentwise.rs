@@ -6,12 +6,12 @@ use std::ops::{Add, Mul};
 use simba::scalar::{ClosedDivAssign, ClosedMulAssign};
 use simba::simd::SimdPartialOrd;
 
+use crate::ClosedAddAssign;
 use crate::base::allocator::{Allocator, SameShapeAllocator};
 use crate::base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 use crate::base::dimension::Dim;
 use crate::base::storage::{Storage, StorageMut};
 use crate::base::{DefaultAllocator, Matrix, MatrixSum, OMatrix, Scalar};
-use crate::ClosedAddAssign;
 
 /// The type of the result of a matrix component-wise operation.
 pub type MatrixComponentOp<T, R1, C1, R2, C2> = MatrixSum<T, R1, C1, R2, C2>;
@@ -47,7 +47,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 }
 
 macro_rules! component_binop_impl(
-    ($($binop: ident, $binop_mut: ident, $binop_assign: ident, $cmpy: ident, $Trait: ident . $op: ident . $op_assign: ident, $desc:expr, $desc_cmpy:expr, $desc_mut:expr);* $(;)*) => {$(
+    ($($binop: ident, $binop_mut: ident, $binop_assign: ident, $cmpy: ident, $Trait: ident . $op: ident . $op_assign: ident, $desc:expr_2021, $desc_cmpy:expr_2021, $desc_mut:expr_2021);* $(;)*) => {$(
         #[doc = $desc]
         #[inline]
         #[must_use]

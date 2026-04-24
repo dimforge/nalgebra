@@ -1,7 +1,7 @@
-use crate::cs::CsMatrix;
-use crate::ops::serial::{OperationError, OperationErrorKind};
-use crate::ops::Op;
 use crate::SparseEntryMut;
+use crate::cs::CsMatrix;
+use crate::ops::Op;
+use crate::ops::serial::{OperationError, OperationErrorKind};
 use nalgebra::{ClosedAddAssign, ClosedMulAssign, DMatrixView, DMatrixViewMut, Scalar};
 use num_traits::{One, Zero};
 

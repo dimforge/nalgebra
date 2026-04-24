@@ -5,8 +5,8 @@ use crate::SparseFormatError;
 use crate::SparseFormatErrorKind;
 use crate::{CooMatrix, CscMatrix, CsrMatrix};
 use nalgebra::Complex;
-use pest::iterators::Pairs;
 use pest::Parser;
+use pest::iterators::Pairs;
 use std::cmp::PartialEq;
 use std::convert::Infallible;
 use std::convert::TryFrom;
@@ -499,7 +499,7 @@ mod internal {
         fn from_i128(i: i128) -> Result<Self, MatrixMarketError>;
         /// When matrix is a Real matrix, it will convert a [f64] number to this type.
         fn from_f64(f: f64) -> Result<Self, MatrixMarketError>;
-        /// When matrix is a Complex matrix, it will convert a [Complex<f64>] number to this type.
+        /// When matrix is a Complex matrix, it will convert a [`Complex<f64>`] number to this type.
         fn from_c64(c: Complex<f64>) -> Result<Self, MatrixMarketError>;
         /// When matrix is a Pattern matrix, it will convert a unit type [unit] to this type.
         fn from_pattern(p: ()) -> Result<Self, MatrixMarketError>;
@@ -1145,7 +1145,13 @@ fn parse_sparse_shape(
 
     // check for square matrix, when it's not a general matrix
     if *storagescheme != StorageScheme::General && r != c {
-        return Err(MatrixMarketError::from_kind_and_message(MatrixMarketErrorKind::NonSquare, format!("(Skew-)Symmetric or hermitian matrix should be square matrix, but it has dimension {} and {}", r, c)));
+        return Err(MatrixMarketError::from_kind_and_message(
+            MatrixMarketErrorKind::NonSquare,
+            format!(
+                "(Skew-)Symmetric or hermitian matrix should be square matrix, but it has dimension {} and {}",
+                r, c
+            ),
+        ));
     }
 
     Ok((r, c, nnz))
@@ -1170,7 +1176,13 @@ fn parse_dense_shape(
 
     // check for square matrix, when it's not a general matrix
     if *storagescheme != StorageScheme::General && r != c {
-        return Err(MatrixMarketError::from_kind_and_message(MatrixMarketErrorKind::NonSquare, format!("(Skew-)Symmetric or hermitian matrix should be square matrix, but it has dimension {} and {}", r, c)));
+        return Err(MatrixMarketError::from_kind_and_message(
+            MatrixMarketErrorKind::NonSquare,
+            format!(
+                "(Skew-)Symmetric or hermitian matrix should be square matrix, but it has dimension {} and {}",
+                r, c
+            ),
+        ));
     }
 
     let n: usize;

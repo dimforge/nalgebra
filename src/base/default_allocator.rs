@@ -10,6 +10,7 @@ use std::ptr;
 use alloc::vec::Vec;
 
 use super::Const;
+use crate::base::Scalar;
 use crate::base::allocator::{Allocator, Reallocator};
 use crate::base::array_storage::ArrayStorage;
 use crate::base::dimension::Dim;
@@ -18,7 +19,6 @@ use crate::base::dimension::{DimName, Dyn};
 use crate::base::storage::{RawStorage, RawStorageMut, Storage};
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::base::vec_storage::VecStorage;
-use crate::base::Scalar;
 #[cfg(any(feature = "std", feature = "alloc"))]
 use std::mem::ManuallyDrop;
 use std::mem::MaybeUninit;
@@ -49,12 +49,14 @@ impl<const R: usize, const C: usize> Allocator<Const<R>, Const<C>> for DefaultAl
     unsafe fn assume_init<T: Scalar>(
         uninit: ArrayStorage<MaybeUninit<T>, R, C>,
     ) -> ArrayStorage<T, R, C> {
-        // Safety:
-        // * The caller guarantees that all elements of the array are initialized
-        // * `MaybeUninit<T>` and T are guaranteed to have the same layout
-        // * `MaybeUninit` does not drop, so there are no double-frees
-        // And thus the conversion is safe
-        ArrayStorage((&uninit as *const _ as *const [_; C]).read())
+        unsafe {
+            // Safety:
+            // * The caller guarantees that all elements of the array are initialized
+            // * `MaybeUninit<T>` and T are guaranteed to have the same layout
+            // * `MaybeUninit` does not drop, so there are no double-frees
+            // And thus the conversion is safe
+            ArrayStorage((&uninit as *const _ as *const [_; C]).read())
+        }
     }
 
     #[inline]
@@ -104,17 +106,19 @@ impl<C: Dim> Allocator<Dyn, C> for DefaultAllocator {
     unsafe fn assume_init<T: Scalar>(
         uninit: VecStorage<MaybeUninit<T>, Dyn, C>,
     ) -> VecStorage<T, Dyn, C> {
-        // Avoids a double-drop.
-        let (nrows, ncols) = uninit.shape();
-        let vec: Vec<_> = uninit.into();
-        let mut md = ManuallyDrop::new(vec);
+        unsafe {
+            // Avoids a double-drop.
+            let (nrows, ncols) = uninit.shape();
+            let vec: Vec<_> = uninit.into();
+            let mut md = ManuallyDrop::new(vec);
 
-        // Safety:
-        // - MaybeUninit<T> has the same alignment and layout as T.
-        // - The length and capacity come from a valid vector.
-        let new_data = Vec::from_raw_parts(md.as_mut_ptr() as *mut _, md.len(), md.capacity());
+            // Safety:
+            // - MaybeUninit<T> has the same alignment and layout as T.
+            // - The length and capacity come from a valid vector.
+            let new_data = Vec::from_raw_parts(md.as_mut_ptr() as *mut _, md.len(), md.capacity());
 
-        VecStorage::new(nrows, ncols, new_data)
+            VecStorage::new(nrows, ncols, new_data)
+        }
     }
 
     #[inline]
@@ -125,8 +129,10 @@ impl<C: Dim> Allocator<Dyn, C> for DefaultAllocator {
     ) -> Self::Buffer<T> {
         let it = iter.into_iter();
         let res: Vec<T> = it.collect();
-        assert!(res.len() == nrows.value() * ncols.value(),
-                "Allocation from iterator error: the iterator did not yield the correct number of elements.");
+        assert!(
+            res.len() == nrows.value() * ncols.value(),
+            "Allocation from iterator error: the iterator did not yield the correct number of elements."
+        );
 
         VecStorage::new(nrows, ncols, res)
     }
@@ -152,17 +158,19 @@ impl<R: DimName> Allocator<R, Dyn> for DefaultAllocator {
     unsafe fn assume_init<T: Scalar>(
         uninit: VecStorage<MaybeUninit<T>, R, Dyn>,
     ) -> VecStorage<T, R, Dyn> {
-        // Avoids a double-drop.
-        let (nrows, ncols) = uninit.shape();
-        let vec: Vec<_> = uninit.into();
-        let mut md = ManuallyDrop::new(vec);
+        unsafe {
+            // Avoids a double-drop.
+            let (nrows, ncols) = uninit.shape();
+            let vec: Vec<_> = uninit.into();
+            let mut md = ManuallyDrop::new(vec);
 
-        // Safety:
-        // - MaybeUninit<T> has the same alignment and layout as T.
-        // - The length and capacity come from a valid vector.
-        let new_data = Vec::from_raw_parts(md.as_mut_ptr() as *mut _, md.len(), md.capacity());
+            // Safety:
+            // - MaybeUninit<T> has the same alignment and layout as T.
+            // - The length and capacity come from a valid vector.
+            let new_data = Vec::from_raw_parts(md.as_mut_ptr() as *mut _, md.len(), md.capacity());
 
-        VecStorage::new(nrows, ncols, new_data)
+            VecStorage::new(nrows, ncols, new_data)
+        }
     }
 
     #[inline]
@@ -173,8 +181,10 @@ impl<R: DimName> Allocator<R, Dyn> for DefaultAllocator {
     ) -> Self::Buffer<T> {
         let it = iter.into_iter();
         let res: Vec<T> = it.collect();
-        assert!(res.len() == nrows.value() * ncols.value(),
-                "Allocation from iterator error: the iterator did not yield the correct number of elements.");
+        assert!(
+            res.len() == nrows.value() * ncols.value(),
+            "Allocation from iterator error: the iterator did not yield the correct number of elements."
+        );
 
         VecStorage::new(nrows, ncols, res)
     }
@@ -199,21 +209,23 @@ where
         cto: Const<CTO>,
         buf: <Self as Allocator<RFrom, CFrom>>::Buffer<T>,
     ) -> ArrayStorage<MaybeUninit<T>, RTO, CTO> {
-        let mut res = <Self as Allocator<Const<RTO>, Const<CTO>>>::allocate_uninit(rto, cto);
+        unsafe {
+            let mut res = <Self as Allocator<Const<RTO>, Const<CTO>>>::allocate_uninit(rto, cto);
 
-        let (rfrom, cfrom) = buf.shape();
+            let (rfrom, cfrom) = buf.shape();
 
-        let len_from = rfrom.value() * cfrom.value();
-        let len_to = rto.value() * cto.value();
-        let len_copied = cmp::min(len_from, len_to);
-        ptr::copy_nonoverlapping(buf.ptr(), res.ptr_mut() as *mut T, len_copied);
+            let len_from = rfrom.value() * cfrom.value();
+            let len_to = rto.value() * cto.value();
+            let len_copied = cmp::min(len_from, len_to);
+            ptr::copy_nonoverlapping(buf.ptr(), res.ptr_mut() as *mut T, len_copied);
 
-        // Safety:
-        // - We don’t care about dropping elements because the caller is responsible for dropping things.
-        // - We forget `buf` so that we don’t drop the other elements, but ensure the buffer itself is cleaned up.
-        buf.forget_elements();
+            // Safety:
+            // - We don’t care about dropping elements because the caller is responsible for dropping things.
+            // - We forget `buf` so that we don’t drop the other elements, but ensure the buffer itself is cleaned up.
+            buf.forget_elements();
 
-        res
+            res
+        }
     }
 }
 
@@ -230,21 +242,23 @@ where
         cto: CTo,
         buf: ArrayStorage<T, RFROM, CFROM>,
     ) -> VecStorage<MaybeUninit<T>, Dyn, CTo> {
-        let mut res = <Self as Allocator<Dyn, CTo>>::allocate_uninit(rto, cto);
+        unsafe {
+            let mut res = <Self as Allocator<Dyn, CTo>>::allocate_uninit(rto, cto);
 
-        let (rfrom, cfrom) = buf.shape();
+            let (rfrom, cfrom) = buf.shape();
 
-        let len_from = rfrom.value() * cfrom.value();
-        let len_to = rto.value() * cto.value();
-        let len_copied = cmp::min(len_from, len_to);
-        ptr::copy_nonoverlapping(buf.ptr(), res.ptr_mut() as *mut T, len_copied);
+            let len_from = rfrom.value() * cfrom.value();
+            let len_to = rto.value() * cto.value();
+            let len_copied = cmp::min(len_from, len_to);
+            ptr::copy_nonoverlapping(buf.ptr(), res.ptr_mut() as *mut T, len_copied);
 
-        // Safety:
-        // - We don’t care about dropping elements because the caller is responsible for dropping things.
-        // - We forget `buf` so that we don’t drop the other elements, but ensure the buffer itself is cleaned up.
-        buf.forget_elements();
+            // Safety:
+            // - We don’t care about dropping elements because the caller is responsible for dropping things.
+            // - We forget `buf` so that we don’t drop the other elements, but ensure the buffer itself is cleaned up.
+            buf.forget_elements();
 
-        res
+            res
+        }
     }
 }
 
@@ -261,21 +275,23 @@ where
         cto: Dyn,
         buf: ArrayStorage<T, RFROM, CFROM>,
     ) -> VecStorage<MaybeUninit<T>, RTo, Dyn> {
-        let mut res = <Self as Allocator<RTo, Dyn>>::allocate_uninit(rto, cto);
+        unsafe {
+            let mut res = <Self as Allocator<RTo, Dyn>>::allocate_uninit(rto, cto);
 
-        let (rfrom, cfrom) = buf.shape();
+            let (rfrom, cfrom) = buf.shape();
 
-        let len_from = rfrom.value() * cfrom.value();
-        let len_to = rto.value() * cto.value();
-        let len_copied = cmp::min(len_from, len_to);
-        ptr::copy_nonoverlapping(buf.ptr(), res.ptr_mut() as *mut T, len_copied);
+            let len_from = rfrom.value() * cfrom.value();
+            let len_to = rto.value() * cto.value();
+            let len_copied = cmp::min(len_from, len_to);
+            ptr::copy_nonoverlapping(buf.ptr(), res.ptr_mut() as *mut T, len_copied);
 
-        // Safety:
-        // - We don’t care about dropping elements because the caller is responsible for dropping things.
-        // - We forget `buf` so that we don’t drop the other elements, but ensure the buffer itself is cleaned up.
-        buf.forget_elements();
+            // Safety:
+            // - We don’t care about dropping elements because the caller is responsible for dropping things.
+            // - We forget `buf` so that we don’t drop the other elements, but ensure the buffer itself is cleaned up.
+            buf.forget_elements();
 
-        res
+            res
+        }
     }
 }
 
@@ -288,8 +304,10 @@ impl<T: Scalar, CFrom: Dim, CTo: Dim> Reallocator<T, Dyn, CFrom, Dyn, CTo> for D
         cto: CTo,
         buf: VecStorage<T, Dyn, CFrom>,
     ) -> VecStorage<MaybeUninit<T>, Dyn, CTo> {
-        let new_buf = buf.resize(rto.value() * cto.value());
-        VecStorage::new(rto, cto, new_buf)
+        unsafe {
+            let new_buf = buf.resize(rto.value() * cto.value());
+            VecStorage::new(rto, cto, new_buf)
+        }
     }
 }
 
@@ -303,8 +321,10 @@ impl<T: Scalar, CFrom: Dim, RTo: DimName> Reallocator<T, Dyn, CFrom, RTo, Dyn>
         cto: Dyn,
         buf: VecStorage<T, Dyn, CFrom>,
     ) -> VecStorage<MaybeUninit<T>, RTo, Dyn> {
-        let new_buf = buf.resize(rto.value() * cto.value());
-        VecStorage::new(rto, cto, new_buf)
+        unsafe {
+            let new_buf = buf.resize(rto.value() * cto.value());
+            VecStorage::new(rto, cto, new_buf)
+        }
     }
 }
 
@@ -318,8 +338,10 @@ impl<T: Scalar, RFrom: DimName, CTo: Dim> Reallocator<T, RFrom, Dyn, Dyn, CTo>
         cto: CTo,
         buf: VecStorage<T, RFrom, Dyn>,
     ) -> VecStorage<MaybeUninit<T>, Dyn, CTo> {
-        let new_buf = buf.resize(rto.value() * cto.value());
-        VecStorage::new(rto, cto, new_buf)
+        unsafe {
+            let new_buf = buf.resize(rto.value() * cto.value());
+            VecStorage::new(rto, cto, new_buf)
+        }
     }
 }
 
@@ -333,7 +355,9 @@ impl<T: Scalar, RFrom: DimName, RTo: DimName> Reallocator<T, RFrom, Dyn, RTo, Dy
         cto: Dyn,
         buf: VecStorage<T, RFrom, Dyn>,
     ) -> VecStorage<MaybeUninit<T>, RTo, Dyn> {
-        let new_buf = buf.resize(rto.value() * cto.value());
-        VecStorage::new(rto, cto, new_buf)
+        unsafe {
+            let new_buf = buf.resize(rto.value() * cto.value());
+            VecStorage::new(rto, cto, new_buf)
+        }
     }
 }

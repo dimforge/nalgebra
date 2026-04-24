@@ -17,7 +17,11 @@ pub mod givens;
 mod hessenberg;
 pub mod householder;
 mod inverse;
+<<<<<<< ldldecomp
 mod ldl;
+=======
+mod lblt;
+>>>>>>> main
 mod lu;
 mod permutation_sequence;
 mod pow;
@@ -31,8 +35,8 @@ mod symmetric_eigen;
 mod symmetric_tridiagonal;
 mod udu;
 
-//// TODO: Not complete enough for publishing.
-//// This handles only cases where each eigenvalue has multiplicity one.
+// TODO: Not complete enough for publishing.
+// This handles only cases where each eigenvalue has multiplicity one.
 // mod eigen;
 
 pub use self::bidiagonal::*;
@@ -40,7 +44,11 @@ pub use self::cholesky::*;
 pub use self::col_piv_qr::*;
 pub use self::full_piv_lu::*;
 pub use self::hessenberg::*;
+<<<<<<< ldldecomp
 pub use self::ldl::*;
+=======
+pub use self::lblt::*;
+>>>>>>> main
 pub use self::lu::*;
 pub use self::permutation_sequence::*;
 pub use self::qr::*;

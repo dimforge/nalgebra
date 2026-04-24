@@ -15,4 +15,4 @@ mod glam_translation;
 #[path = "../common/glam_unit_complex.rs"]
 mod glam_unit_complex;
 
-pub(self) use glam027 as glam;
+pub(self) use glam031 as glam;

@@ -24,7 +24,7 @@ use lapack;
 #[cfg_attr(
     feature = "serde-serialize",
     serde(bound(deserialize = "DefaultAllocator: Allocator<D, D> + Allocator<D>,
-         OVector<T, D>: Serialize,
+         OVector<T, D>: Deserialize<'de>,
          OMatrix<T, D, D>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
@@ -82,7 +82,11 @@ where
 
         let lwork = T::xgees_work_size(
             b'V',
-            b'T',
+            //@note(geo-ant): this interface is bad because we could pass
+            // 'S' here, but we cannot give a function to SELECT, which
+            // isn't exposed here.
+            // https://www.netlib.org/lapack/explore-html/d5/d38/group__gees.html
+            b'N',
             n as i32,
             m.as_mut_slice(),
             lda,
@@ -100,7 +104,7 @@ where
 
         T::xgees(
             b'V',
-            b'T',
+            b'N',
             n as i32,
             m.as_mut_slice(),
             lda,
@@ -169,6 +173,7 @@ pub trait SchurScalar: Scalar {
     fn xgees(
         jobvs: u8,
         sort: u8,
+        //@note(geo-ant) see other comments in this file on this method
         // select: ???
         n: i32,
         a: &mut [Self],
@@ -208,6 +213,10 @@ macro_rules! real_eigensystem_scalar_impl (
             #[inline]
             fn xgees(jobvs:  u8,
                      sort:   u8,
+                     //@note(geo-ant) see the documentation for xGEES here:
+                     // https://www.netlib.org/lapack/explore-html/d5/d38/group__gees.html
+                     // If we pass a sort argument of b'S', then we must offer a
+                     // SELECT implementation.
                      // select: ???
                      n:      i32,
                      a:      &mut [$N],

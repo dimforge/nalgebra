@@ -1,8 +1,8 @@
 use crate::storage::Storage;
 use crate::{
     Allocator, Bidiagonal, Cholesky, ColPivQR, ComplexField, DefaultAllocator, Dim, DimDiff,
-    DimMin, DimMinimum, DimSub, FullPivLU, Hessenberg, Matrix, OMatrix, RealField, Schur,
-    SymmetricEigen, SymmetricTridiagonal, LDL, LU, QR, SVD, U1, UDU,
+    DimMin, DimMinimum, DimSub, FullPivLU, Hessenberg, LBLT, LDL, LU, Matrix, OMatrix, QR, RealField,
+    SVD, Schur, SymmetricEigen, SymmetricTridiagonal, U1, UDU,
 };
 
 /// # Rectangular matrix decomposition
@@ -244,6 +244,7 @@ impl<T: ComplexField, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 /// | -------------------------|---------------------------|--------------|
 /// | Hessenberg               | `Q * H * Qᵀ`             | `Q` is a unitary matrix and `H` an upper-Hessenberg matrix. |
 /// | Cholesky                 | `L * Lᵀ`                 | `L` is a lower-triangular matrix. |
+/// | LBLT decomposition       | `Pᵀ * L * B * Lᴴ * P`    | `L` is unit lower-triangular, `B` is Hermitian block-diagonal, and `P` is a permutation matrix. |
 /// | UDU                      | `U * D * Uᵀ`             | `U` is a upper-triangular matrix, and `D` a diagonal matrix. |
 /// | Schur decomposition      | `Q * T * Qᵀ`             | `Q` is an unitary matrix and `T` a quasi-upper-triangular matrix. |
 /// | Symmetric eigendecomposition | `Q ~ Λ ~ Qᵀ`   | `Q` is an unitary matrix, and `Λ` is a real diagonal matrix. |
@@ -258,6 +259,18 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> Matrix<T, D, D, S> {
         DefaultAllocator: Allocator<D, D>,
     {
         Cholesky::new(self.into_owned())
+    }
+
+    /// Computes the LBLT decomposition of this matrix.
+    /// The input matrix `self` is assumed to be Hermitian (symmetric) and the decomposition will
+    /// only read the lower-triangular part of `self`.
+    pub fn lblt(self) -> LBLT<T, D>
+    where
+        T: Copy,
+        T::RealField: Copy,
+        DefaultAllocator: Allocator<D> + Allocator<D, D>,
+    {
+        LBLT::new(self.into_owned())
     }
 
     /// Attempts to compute the UDU decomposition of this matrix.

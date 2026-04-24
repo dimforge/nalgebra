@@ -1,5 +1,5 @@
-use crate::aliases::{Qua, TVec};
 use crate::RealNumber;
+use crate::aliases::{Qua, TVec};
 
 /// Component-wise equality comparison between two quaternions.
 pub fn quat_equal<T: RealNumber>(x: &Qua<T>, y: &Qua<T>) -> TVec<bool, 4> {

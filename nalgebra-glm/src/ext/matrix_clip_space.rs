@@ -1,5 +1,5 @@
-use crate::aliases::TMat4;
 use crate::RealNumber;
+use crate::aliases::TMat4;
 
 //pub fn frustum<T: RealNumber>(left: T, right: T, bottom: T, top: T, near: T, far: T) -> TMat4<T> {
 //    unimplemented!()
@@ -754,7 +754,7 @@ pub fn infinite_perspective_rh_no<T: RealNumber>(aspect: T, fovy: T, near: T) ->
     mat
 }
 
-/// Build infinite right-handed perspective projection matrix with [0,1] depth range.
+/// Build infinite right-handed perspective projection matrix with \[0,1\] depth range.
 ///
 /// # Parameters
 ///

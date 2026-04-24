@@ -1,3 +1,6 @@
+#[cfg(feature = "serde-serialize")]
+use serde::{Deserialize, Serialize};
+
 use num::Zero;
 use num_complex::Complex;
 

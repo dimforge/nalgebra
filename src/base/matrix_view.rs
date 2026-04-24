@@ -2,6 +2,7 @@ use std::marker::PhantomData;
 use std::ops::{Range, RangeFrom, RangeFull, RangeInclusive, RangeTo};
 use std::slice;
 
+use crate::ReshapableStorage;
 use crate::base::allocator::Allocator;
 use crate::base::default_allocator::DefaultAllocator;
 use crate::base::dimension::{Const, Dim, DimName, Dyn, IsNotStaticOne, U1};
@@ -9,10 +10,9 @@ use crate::base::iter::MatrixIter;
 use crate::base::storage::{IsContiguous, Owned, RawStorage, RawStorageMut, Storage};
 use crate::base::{Matrix, Scalar};
 use crate::constraint::{DimEq, ShapeConstraint};
-use crate::ReshapableStorage;
 
 macro_rules! view_storage_impl (
-    ($doc: expr; $Storage: ident as $SRef: ty; $legacy_name:ident => $T: ident.$get_addr: ident ($Ptr: ty as $Ref: ty)) => {
+    ($doc: expr_2021; $Storage: ident as $SRef: ty; $legacy_name:ident => $T: ident.$get_addr: ident ($Ptr: ty as $Ref: ty)) => {
         #[doc = $doc]
         #[derive(Debug)]
         pub struct $T<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim>  {
@@ -33,14 +33,6 @@ macro_rules! view_storage_impl (
         #[deprecated = "Use ViewStorage(Mut) instead."]
         pub type $legacy_name<'a, T, R, C, RStride, CStride> = $T<'a, T, R, C, RStride, CStride>;
 
-        unsafe impl<'a, T: Send, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Send
-            for $T<'a, T, R, C, RStride, CStride>
-        {}
-
-        unsafe impl<'a, T: Sync, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Sync
-            for $T<'a, T, R, C, RStride, CStride>
-        {}
-
         impl<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim> $T<'a, T, R, C, RStride, CStride> {
             /// Create a new matrix view without bounds checking and from a raw pointer.
             ///
@@ -48,7 +40,7 @@ macro_rules! view_storage_impl (
             ///
             /// `*ptr` must point to memory that is valid `[T; R * C]`.
             #[inline]
-            pub unsafe fn from_raw_parts(ptr:     $Ptr,
+            pub const unsafe fn from_raw_parts(ptr:     $Ptr,
                                          shape:   (R, C),
                                          strides: (RStride, CStride))
                                         -> Self
@@ -77,11 +69,11 @@ macro_rules! view_storage_impl (
                 -> $T<'a, T, R, C, S::RStride, S::CStride>
                 where RStor: Dim,
                       CStor: Dim,
-                      S:     $Storage<T, RStor, CStor> {
+                      S:     $Storage<T, RStor, CStor> { unsafe {
 
                 let strides = storage.strides();
                 $T::new_with_strides_unchecked(storage, start, shape, strides)
-            }
+            }}
 
             /// Create a new matrix view without bounds checking.
             ///
@@ -98,9 +90,9 @@ macro_rules! view_storage_impl (
                       CStor: Dim,
                       S: $Storage<T, RStor, CStor>,
                       RStride: Dim,
-                      CStride: Dim {
+                      CStride: Dim { unsafe {
                 $T::from_raw_parts(storage.$get_addr(start.0, start.1), shape, strides)
-            }
+            }}
         }
 
         impl <'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
@@ -131,18 +123,46 @@ view_storage_impl!("A mutable matrix data storage for mutable matrix view. Only 
     RawStorageMut as &'a mut S; SliceStorageMut => ViewStorageMut.get_address_unchecked_mut(*mut T as &'a mut T)
 );
 
-impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Copy
+impl<T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Copy
+    for ViewStorage<'_, T, R, C, RStride, CStride>
+{
+}
+
+/// Safety: Equivalent to a shared reference to `T`. All `Dim` type arguments are `Send + Sync`. A
+/// shared reference can be sent iff `T: Sync`.
+unsafe impl<'a, T: Sync, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Send
     for ViewStorage<'a, T, R, C, RStride, CStride>
 {
 }
 
-impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Clone
+/// Safety: Equivalent to a shared reference to `T`. All `Dim` type arguments are `Send + Sync`. A
+/// shared reference is `Sync` iff `T: Sync`.
+unsafe impl<'a, T: Sync, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Sync
     for ViewStorage<'a, T, R, C, RStride, CStride>
+{
+}
+
+impl<T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Clone
+    for ViewStorage<'_, T, R, C, RStride, CStride>
 {
     #[inline]
     fn clone(&self) -> Self {
         *self
     }
+}
+
+/// Safety: Equivalent to a unique reference to `T`. All `Dim` type arguments are `Send + Sync`. A
+/// unique reference is `Send` iff `T: Send`.
+unsafe impl<'a, T: Send, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Send
+    for ViewStorageMut<'a, T, R, C, RStride, CStride>
+{
+}
+
+/// Safety: Equivalent to a unique reference to `T`. All `Dim` type arguments are `Send + Sync`. A
+/// unique reference is `Sync` iff `T: Sync`.
+unsafe impl<'a, T: Sync, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Sync
+    for ViewStorageMut<'a, T, R, C, RStride, CStride>
+{
 }
 
 impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
@@ -202,7 +222,7 @@ macro_rules! storage_impl(
             }
 
             #[inline]
-            unsafe fn as_slice_unchecked(&self) -> &[T] {
+            unsafe fn as_slice_unchecked(&self) -> &[T] { unsafe {
                 let (nrows, ncols) = self.shape();
                 if nrows.value() != 0 && ncols.value() != 0 {
                     let sz = self.linear_index(nrows.value() - 1, ncols.value() - 1);
@@ -211,7 +231,7 @@ macro_rules! storage_impl(
                 else {
                     slice::from_raw_parts(self.ptr, 0)
                 }
-            }
+            }}
         }
 
         unsafe impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Storage<T, R, C>
@@ -240,8 +260,8 @@ macro_rules! storage_impl(
 
 storage_impl!(ViewStorage, ViewStorageMut);
 
-unsafe impl<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim> RawStorageMut<T, R, C>
-    for ViewStorageMut<'a, T, R, C, RStride, CStride>
+unsafe impl<T, R: Dim, C: Dim, RStride: Dim, CStride: Dim> RawStorageMut<T, R, C>
+    for ViewStorageMut<'_, T, R, C, RStride, CStride>
 {
     #[inline]
     fn ptr_mut(&mut self) -> *mut T {
@@ -250,28 +270,27 @@ unsafe impl<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim> RawStorageMut<T, 
 
     #[inline]
     unsafe fn as_mut_slice_unchecked(&mut self) -> &mut [T] {
-        let (nrows, ncols) = self.shape();
-        if nrows.value() != 0 && ncols.value() != 0 {
-            let sz = self.linear_index(nrows.value() - 1, ncols.value() - 1);
-            slice::from_raw_parts_mut(self.ptr, sz + 1)
-        } else {
-            slice::from_raw_parts_mut(self.ptr, 0)
+        unsafe {
+            let (nrows, ncols) = self.shape();
+            if nrows.value() != 0 && ncols.value() != 0 {
+                let sz = self.linear_index(nrows.value() - 1, ncols.value() - 1);
+                slice::from_raw_parts_mut(self.ptr, sz + 1)
+            } else {
+                slice::from_raw_parts_mut(self.ptr, 0)
+            }
         }
     }
 }
 
-unsafe impl<'a, T, R: Dim, CStride: Dim> IsContiguous for ViewStorage<'a, T, R, U1, U1, CStride> {}
-unsafe impl<'a, T, R: Dim, CStride: Dim> IsContiguous
-    for ViewStorageMut<'a, T, R, U1, U1, CStride>
-{
-}
+unsafe impl<T, R: Dim, CStride: Dim> IsContiguous for ViewStorage<'_, T, R, U1, U1, CStride> {}
+unsafe impl<T, R: Dim, CStride: Dim> IsContiguous for ViewStorageMut<'_, T, R, U1, U1, CStride> {}
 
-unsafe impl<'a, T, R: DimName, C: Dim + IsNotStaticOne> IsContiguous
-    for ViewStorage<'a, T, R, C, U1, R>
+unsafe impl<T, R: DimName, C: Dim + IsNotStaticOne> IsContiguous
+    for ViewStorage<'_, T, R, C, U1, R>
 {
 }
-unsafe impl<'a, T, R: DimName, C: Dim + IsNotStaticOne> IsContiguous
-    for ViewStorageMut<'a, T, R, C, U1, R>
+unsafe impl<T, R: DimName, C: Dim + IsNotStaticOne> IsContiguous
+    for ViewStorageMut<'_, T, R, C, U1, R>
 {
 }
 
@@ -300,7 +319,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
 }
 
 macro_rules! matrix_view_impl (
-    ($me: ident: $Me: ty, $MatrixView: ident, $ViewStorage: ident, $Storage: ident.$get_addr: ident (), $data: expr;
+    ($me: ident: $Me: ty, $MatrixView: ident, $ViewStorage: ident, $Storage: ident.$get_addr: ident (), $data: expr_2021;
      $row: ident,
      $row_part: ident,
      $rows: ident,

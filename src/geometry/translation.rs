@@ -1,3 +1,6 @@
+// Needed otherwise the rkyv macros generate code incompatible with rust-2024
+#![cfg_attr(feature = "rkyv-serialize", allow(unsafe_op_in_unsafe_fn))]
+
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num::{One, Zero};
 use std::fmt;
@@ -32,6 +35,7 @@ use rkyv::bytecheck;
     )
 )]
 #[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Copy, Clone)]
 pub struct Translation<T, const D: usize> {
     /// The translation coordinates, i.e., how much is added to a point's coordinates when it is
@@ -102,7 +106,7 @@ impl<T: Scalar, const D: usize> Translation<T, D> {
     /// Creates a new translation from the given vector.
     #[inline]
     #[deprecated(note = "Use `::from` instead.")]
-    pub fn from_vector(vector: SVector<T, D>) -> Translation<T, D> {
+    pub const fn from_vector(vector: SVector<T, D>) -> Translation<T, D> {
         Translation { vector }
     }
 

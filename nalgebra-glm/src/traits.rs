@@ -19,16 +19,16 @@ pub trait Number:
 }
 
 impl<
-        T: Scalar
-            + Copy
-            + PartialOrd
-            + ClosedAddAssign
-            + ClosedSubAssign
-            + ClosedMulAssign
-            + AbsDiffEq<Epsilon = Self>
-            + Signed
-            + Bounded,
-    > Number for T
+    T: Scalar
+        + Copy
+        + PartialOrd
+        + ClosedAddAssign
+        + ClosedSubAssign
+        + ClosedMulAssign
+        + AbsDiffEq<Epsilon = Self>
+        + Signed
+        + Bounded,
+> Number for T
 {
 }
 

@@ -1,9 +1,9 @@
 //! This module provides the matrix exponential (pow) function to square matrices.
 
 use crate::{
+    DefaultAllocator, DimMin, Matrix, OMatrix, Scalar,
     allocator::Allocator,
     storage::{Storage, StorageMut},
-    DefaultAllocator, DimMin, Matrix, OMatrix, Scalar,
 };
 use num::{One, Zero};
 use simba::scalar::{ClosedAddAssign, ClosedMulAssign};
@@ -26,7 +26,7 @@ where
             let mut x = self.clone_owned();
             let mut workspace = self.clone_owned();
 
-            if exp % 2 == 0 {
+            if exp.is_multiple_of(2) {
                 self.fill_with_identity();
             } else {
                 // Avoid an useless multiplication by the identity
