@@ -1,6 +1,6 @@
 use na::{DVector, SVector, Vector2, Vector3, Vector4};
-use rand::Rng;
-use rand_isaac::IsaacRng;
+use rand::RngExt;
+use rand_xorshift::XorShiftRng;
 
 use std::ops::{Add, Div, Mul, Sub};
 
@@ -51,7 +51,7 @@ bench_binop_ref!(vec10000_dot_f32, SVector<f32, 10000>, SVector<f32, 10000>, dot
 fn vec10000_axpy_f64(bh: &mut criterion::Criterion) {
     use rand::SeedableRng;
 
-    let mut rng = IsaacRng::seed_from_u64(0);
+    let mut rng = XorShiftRng::seed_from_u64(0);
 
     bh.bench_function("vec10000_axpy_f64", |bh| {
         bh.iter_batched(
@@ -74,7 +74,7 @@ fn vec10000_axpy_f64(bh: &mut criterion::Criterion) {
 fn vec10000_axpy_beta_f64(bh: &mut criterion::Criterion) {
     use rand::SeedableRng;
 
-    let mut rng = IsaacRng::seed_from_u64(0);
+    let mut rng = XorShiftRng::seed_from_u64(0);
 
     bh.bench_function("vec10000_axpy_beta_f64", |bh| {
         bh.iter_batched(
@@ -98,7 +98,7 @@ fn vec10000_axpy_beta_f64(bh: &mut criterion::Criterion) {
 fn vec10000_axpy_f64_slice(bh: &mut criterion::Criterion) {
     use rand::SeedableRng;
 
-    let mut rng = IsaacRng::seed_from_u64(0);
+    let mut rng = XorShiftRng::seed_from_u64(0);
 
     bh.bench_function("vec10000_axpy_f64_slice", |bh| {
         bh.iter_batched(
@@ -123,7 +123,7 @@ fn vec10000_axpy_f64_slice(bh: &mut criterion::Criterion) {
 fn vec10000_axpy_f64_static(bh: &mut criterion::Criterion) {
     use rand::SeedableRng;
 
-    let mut rng = IsaacRng::seed_from_u64(0);
+    let mut rng = XorShiftRng::seed_from_u64(0);
 
     // NOTE: for some reasons, it is much faster if the argument are boxed (Box::new(OVector...)).
     bh.bench_function("vec10000_axpy_f64_static", |bh| {
@@ -147,7 +147,7 @@ fn vec10000_axpy_f64_static(bh: &mut criterion::Criterion) {
 fn vec10000_axpy_f32(bh: &mut criterion::Criterion) {
     use rand::SeedableRng;
 
-    let mut rng = IsaacRng::seed_from_u64(0);
+    let mut rng = XorShiftRng::seed_from_u64(0);
 
     bh.bench_function("vec10000_axpy_f32", |bh| {
         bh.iter_batched(
@@ -170,7 +170,7 @@ fn vec10000_axpy_f32(bh: &mut criterion::Criterion) {
 fn vec10000_axpy_beta_f32(bh: &mut criterion::Criterion) {
     use rand::SeedableRng;
 
-    let mut rng = IsaacRng::seed_from_u64(0);
+    let mut rng = XorShiftRng::seed_from_u64(0);
 
     bh.bench_function("vec10000_axpy_beta_f32", |bh| {
         bh.iter_batched(

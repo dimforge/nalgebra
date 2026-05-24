@@ -9,8 +9,9 @@ macro_rules! bench_binop(
     ($name: ident, $t1: ty, $t2: ty, $binop: ident) => {
         fn $name(bh: &mut criterion::Criterion) {
             use rand::SeedableRng;
+            use rand::RngExt;
 
-            let mut rng = IsaacRng::seed_from_u64(0);
+            let mut rng = XorShiftRng::seed_from_u64(0);
 
             bh.bench_function(stringify!($name), |bh| bh.iter_batched(
                 || (rng.random::<$t1>(), rng.random::<$t2>()),
@@ -27,8 +28,9 @@ macro_rules! bench_binop_ref(
     ($name: ident, $t1: ty, $t2: ty, $binop: ident) => {
         fn $name(bh: &mut criterion::Criterion) {
             use rand::SeedableRng;
+            use rand::RngExt;
 
-            let mut rng = IsaacRng::seed_from_u64(0);
+            let mut rng = XorShiftRng::seed_from_u64(0);
 
             bh.bench_function(stringify!($name), |bh| bh.iter_batched_ref(
                 || (rng.random::<$t1>(), rng.random::<$t2>()),
@@ -50,9 +52,10 @@ macro_rules! bench_binop_single_1st(
     ($name: ident, $t1: ty, $t2: ty, $binop: ident) => {
         fn $name(bh: &mut criterion::Criterion) {
             use rand::SeedableRng;
+            use rand::RngExt;
             use std::hint::black_box;
 
-            let mut rng = IsaacRng::seed_from_u64(0);
+            let mut rng = XorShiftRng::seed_from_u64(0);
 
             let first = black_box(rng.random::<$t1>());
 
@@ -71,9 +74,10 @@ macro_rules! bench_binop_single_1st_ref(
     ($name: ident, $t1: ty, $t2: ty, $binop: ident) => {
         fn $name(bh: &mut criterion::Criterion) {
             use rand::SeedableRng;
+            use rand::RngExt;
             use std::hint::black_box;
 
-            let mut rng = IsaacRng::seed_from_u64(0);
+            let mut rng = XorShiftRng::seed_from_u64(0);
 
             let first = black_box(rng.random::<$t1>());
 
@@ -92,8 +96,9 @@ macro_rules! bench_unop(
     ($name: ident, $t: ty, $unop: ident) => {
         fn $name(bh: &mut criterion::Criterion) {
             use rand::SeedableRng;
+            use rand::RngExt;
 
-            let mut rng = IsaacRng::seed_from_u64(0);
+            let mut rng = XorShiftRng::seed_from_u64(0);
 
             bh.bench_function(stringify!($name), |bh| bh.iter_batched_ref(
                 || rng.random::<$t>(),

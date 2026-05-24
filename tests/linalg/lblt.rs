@@ -4,7 +4,7 @@ use na::{
     OVector, RealField, allocator::Allocator,
 };
 use num_traits::FromPrimitive;
-use rand::{Rng, SeedableRng, rngs::StdRng};
+use rand::{Rng, RngExt, SeedableRng, rngs::StdRng};
 use rand_distr::{Distribution, StandardNormal};
 
 fn decomposition_error<T, N>(matrix: &OMatrix<T, N, N>, lblt: &LBLT<T, N>) -> T::RealField

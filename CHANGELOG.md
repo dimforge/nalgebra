@@ -8,6 +8,27 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 **nalgebra-lapack change log** is found [here](https://github.com/dimforge/nalgebra/blob/main/nalgebra-lapack/CHANGELOG.md)
 starting with `nalgebra-lapack` version `0.27.0`.
 
+## [0.35.0] (24 May 2026)
+
+### Added
+
+- Add the Bunch–Kaufman LDL decomposition (`LBLT`) via the new `Matrix::lblt` method [#1591](https://github.com/dimforge/nalgebra/pull/1591).
+- Add `OneNorm` and the `Matrix::one_norm` method computing the induced matrix 1-norm (maximum absolute column sum) [#1591](https://github.com/dimforge/nalgebra/pull/1591).
+- Add the `convert-glam033` feature to enable conversion from/to types from `glam` v0.33.
+
+### Changed
+
+- Bumped MSRV to 1.89.0.
+- Updated `simba` dependency to 0.10.
+- Updated `rand` dependency to 0.10 and `rand_distr` to 0.6.
+- Removed the `convert-glamXXX` features for all `glam` versions prior to 0.30 [#1598](https://github.com/dimforge/nalgebra/pull/1598).
+- Clarified norm documentation: `EuclideanNorm` is the Frobenius norm for matrices, `LpNorm`/`UniformNorm` are entrywise, not induced matrix norms [#1591](https://github.com/dimforge/nalgebra/pull/1591).
+- `nalgebra-lapack`: updated `thiserror` to 2.0.
+
+### Fixed
+
+- Fix the `T: Sync` bound on `impl Send for ViewStorage` so view storages can be sent across threads when `T: Send` [#1581](https://github.com/dimforge/nalgebra/pull/1581).
+
 ## [0.34.2] (28 March 2026)
 
 ### Added

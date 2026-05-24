@@ -4,3 +4,5 @@ mod v030;
 mod v031;
 #[cfg(feature = "glam032")]
 mod v032;
+#[cfg(feature = "glam033")]
+mod v033;

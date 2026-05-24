@@ -7,9 +7,9 @@ extern crate rand_package as rand;
 extern crate criterion;
 
 use na::{DMatrix, SMatrix, Scalar};
-use rand::Rng;
+use rand::RngExt;
 use rand::distr::{Distribution, StandardUniform};
-use rand_isaac::IsaacRng;
+use rand_xorshift::XorShiftRng;
 
 pub mod core;
 pub mod geometry;
@@ -22,14 +22,14 @@ where
     StandardUniform: Distribution<T>,
 {
     use rand::SeedableRng;
-    let mut rng = IsaacRng::seed_from_u64(0);
+    let mut rng = XorShiftRng::seed_from_u64(0);
     SMatrix::from_fn(|_, _| rng.random())
 }
 
 #[allow(dead_code)]
 fn reproducible_dmatrix(nrows: usize, ncols: usize) -> DMatrix<f64> {
     use rand::SeedableRng;
-    let mut rng = IsaacRng::seed_from_u64(0);
+    let mut rng = XorShiftRng::seed_from_u64(0);
     DMatrix::<f64>::from_fn(nrows, ncols, |_, _| rng.random())
 }
 
