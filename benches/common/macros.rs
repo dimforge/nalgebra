@@ -11,7 +11,7 @@ macro_rules! bench_binop(
             use rand::SeedableRng;
             use rand::RngExt;
 
-            let mut rng = IsaacRng::seed_from_u64(0);
+            let mut rng = XorShiftRng::seed_from_u64(0);
 
             bh.bench_function(stringify!($name), |bh| bh.iter_batched(
                 || (rng.random::<$t1>(), rng.random::<$t2>()),
@@ -30,7 +30,7 @@ macro_rules! bench_binop_ref(
             use rand::SeedableRng;
             use rand::RngExt;
 
-            let mut rng = IsaacRng::seed_from_u64(0);
+            let mut rng = XorShiftRng::seed_from_u64(0);
 
             bh.bench_function(stringify!($name), |bh| bh.iter_batched_ref(
                 || (rng.random::<$t1>(), rng.random::<$t2>()),
@@ -55,7 +55,7 @@ macro_rules! bench_binop_single_1st(
             use rand::RngExt;
             use std::hint::black_box;
 
-            let mut rng = IsaacRng::seed_from_u64(0);
+            let mut rng = XorShiftRng::seed_from_u64(0);
 
             let first = black_box(rng.random::<$t1>());
 
@@ -77,7 +77,7 @@ macro_rules! bench_binop_single_1st_ref(
             use rand::RngExt;
             use std::hint::black_box;
 
-            let mut rng = IsaacRng::seed_from_u64(0);
+            let mut rng = XorShiftRng::seed_from_u64(0);
 
             let first = black_box(rng.random::<$t1>());
 
@@ -98,7 +98,7 @@ macro_rules! bench_unop(
             use rand::SeedableRng;
             use rand::RngExt;
 
-            let mut rng = IsaacRng::seed_from_u64(0);
+            let mut rng = XorShiftRng::seed_from_u64(0);
 
             bh.bench_function(stringify!($name), |bh| bh.iter_batched_ref(
                 || rng.random::<$t>(),
