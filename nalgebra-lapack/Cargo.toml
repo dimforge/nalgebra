@@ -34,7 +34,7 @@ lapack-mkl-dynamic-par = ["lapack-src/intel-mkl-dynamic-parallel", "blas-src/int
 lapack-custom = []
 
 [dependencies]
-nalgebra = { version = "0.34", path = ".." }
+nalgebra = { version = "0.35", path = ".." }
 num-traits = "0.2"
 num-complex = { version = "0.4", default-features = false }
 simba = "0.10"
@@ -46,7 +46,7 @@ blas-src = { version = "0.14", optional = true, default-features = false}
 thiserror = "2.0"
 
 [dev-dependencies]
-nalgebra = { version = "0.34", features = ["arbitrary", "rand"], path = ".." }
+nalgebra = { version = "0.35", features = ["arbitrary", "rand"], path = ".." }
 proptest = { version = "1", default-features = false, features = ["std"] }
 quickcheck = "1"
 approx = "0.5"
