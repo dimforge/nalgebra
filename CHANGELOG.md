@@ -18,6 +18,7 @@ starting with `nalgebra-lapack` version `0.27.0`.
 
 ### Changed
 
+- Bumped MSRV to 1.89.0.
 - Updated `simba` dependency to 0.10.
 - Updated `rand` dependency to 0.10 and `rand_distr` to 0.6.
 - Removed the `convert-glamXXX` features for all `glam` versions prior to 0.30 [#1598](https://github.com/dimforge/nalgebra/pull/1598).
