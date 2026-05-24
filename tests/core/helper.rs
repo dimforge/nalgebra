@@ -4,7 +4,7 @@
 use na::RealField;
 use num_complex::Complex;
 use quickcheck::{Arbitrary, Gen};
-use rand::Rng;
+use rand::{Rng, RngExt};
 use rand::distr::{Distribution, StandardUniform};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]

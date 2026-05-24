@@ -1,5 +1,5 @@
 use na::{DVector, SVector, Vector2, Vector3, Vector4};
-use rand::Rng;
+use rand::{Rng, RngExt};
 use rand_isaac::IsaacRng;
 
 use std::ops::{Add, Div, Mul, Sub};

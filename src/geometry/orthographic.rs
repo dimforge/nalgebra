@@ -5,7 +5,7 @@
 use quickcheck::{Arbitrary, Gen};
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    Rng,
+    Rng, RngExt,
     distr::{Distribution, StandardUniform},
 };
 #[cfg(feature = "serde-serialize-no-std")]

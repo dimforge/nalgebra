@@ -6,7 +6,7 @@ use quickcheck::{Arbitrary, Gen};
 use num::One;
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    Rng,
+    Rng, RngExt,
     distr::{Distribution, StandardUniform},
 };
 

@@ -7,7 +7,7 @@ extern crate rand_package as rand;
 extern crate criterion;
 
 use na::{DMatrix, SMatrix, Scalar};
-use rand::Rng;
+use rand::{Rng, RngExt};
 use rand::distr::{Distribution, StandardUniform};
 use rand_isaac::IsaacRng;
 
