@@ -88,7 +88,7 @@ impl Parse for Matrix {
             } else {
                 ncols = Some(row.len());
             }
-            data.extend(row.into_iter());
+            data.extend(row);
             nrows += 1;
 
             // We've just read a row, so if there are more tokens, there must be a semi-colon,
