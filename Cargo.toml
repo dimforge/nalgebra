@@ -34,6 +34,7 @@ std = [
     "glam030?/std",
     "glam031?/std",
     "glam032?/std",
+    "glam033?/std",
 ]
 sparse = []
 debug = ["approx/num-complex", "rand"]
@@ -45,6 +46,7 @@ libm = [
     "glam030?/libm",
     "glam031?/libm",
     "glam032?/libm",
+    "glam033?/libm",
 ]
 libm-force = ["simba/libm_force"]
 macros = ["nalgebra-macros"]
@@ -55,6 +57,7 @@ convert-bytemuck = ["bytemuck", "num-complex/bytemuck"]
 convert-glam030 = ["glam030"]
 convert-glam031 = ["glam031"]
 convert-glam032 = ["glam032"]
+convert-glam033 = ["glam033"]
 
 # Serialization
 ## To use serde in a #[no-std] environment, enable the
@@ -103,6 +106,7 @@ proptest = { version = "1", optional = true, default-features = false, features 
 glam030 = { package = "glam", version = "0.30", optional = true, default-features = false }
 glam031 = { package = "glam", version = "0.31", optional = true, default-features = false }
 glam032 = { package = "glam", version = "0.32", optional = true, default-features = false }
+glam033 = { package = "glam", version = "0.33", optional = true, default-features = false, features = ["f64", "i32", "u32"] }
 rayon = { version = "1.6", optional = true }
 defmt = { version = "1.0.1", optional = true }
 encase = { version = "0.12", optional = true }
