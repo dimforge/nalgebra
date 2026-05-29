@@ -135,6 +135,10 @@ where
 
         // Implicit double-shift QR method.
         let mut niter = 0;
+        let mut kdefl = 0usize;
+        let kexsh = 10usize;
+        let exceptional_shift_a: T::RealField = crate::convert(0.75);
+        let exceptional_shift_b: T::RealField = crate::convert(-0.4375);
         let (mut start, mut end) = Self::delimit_subproblem(&mut t, eps.clone(), dim.value() - 1);
 
         while end != start {
@@ -150,10 +154,25 @@ where
                 let h22 = t[(start + 1, start + 1)].clone();
                 let h32 = t[(start + 2, start + 1)].clone();
 
-                let hnn = t[(n, n)].clone();
-                let hmm = t[(m, m)].clone();
-                let hnm = t[(n, m)].clone();
-                let hmn = t[(m, n)].clone();
+                let (hnn, hmm, hnm, hmn) = if kdefl != 0 && kdefl % kexsh == 0 {
+                    let s = t[(start + 1, start)].clone().norm1()
+                        + t[(start + 2, start + 1)].clone().norm1();
+                    let h = t[(start, start)].clone()
+                        + T::from_real(exceptional_shift_a.clone() * s.clone());
+                    (
+                        h.clone(),
+                        h,
+                        T::from_real(exceptional_shift_b.clone() * s.clone()),
+                        T::from_real(s),
+                    )
+                } else {
+                    (
+                        t[(n, n)].clone(),
+                        t[(m, m)].clone(),
+                        t[(n, m)].clone(),
+                        t[(m, n)].clone(),
+                    )
+                };
 
                 let tra = hnn.clone() + hmm.clone();
                 let det = hnn * hmm - hnm * hmn;
@@ -256,10 +275,17 @@ where
                 }
             }
 
+            let prev_start = start;
+            let prev_end = end;
             let sub = Self::delimit_subproblem(&mut t, eps.clone(), end);
 
             start = sub.0;
             end = sub.1;
+            if end < prev_end || start > prev_start {
+                kdefl = 0;
+            } else {
+                kdefl += 1;
+            }
 
             niter += 1;
             if niter == max_niter {
