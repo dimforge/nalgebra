@@ -136,9 +136,9 @@ where
         // Implicit double-shift QR method.
         let mut niter = 0;
         // Number of QR steps since the active window last shrank due to a deflation.
-        let mut kdefl = 0usize;
+        let mut kdefl: usize = 0;
         // Apply Wilkinson's exceptional shift every kexsh stalled QR steps.
-        let kexsh = 10usize;
+        let kexsh: usize = 10;
         // This is used by the exceptional shift algorithm as mentioned in
         // Wilkinson, J. H., & Reinsch, C. (1971).
         // Handbook for automatic computation (Vol. 2: Linear algebra)
