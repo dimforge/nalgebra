@@ -170,6 +170,31 @@ fn eigenvalues_search_should_not_hang_issue_1528() {
     );
 }
 
+// Regression test for #611
+#[test]
+#[rustfmt::skip]
+fn eigenvalues_search_should_not_hang_issue_611() {
+    let m = nalgebra::Matrix4::<f64>::new(
+        0.0, 0.0, 0.0, -0.8286,
+        1.0, 0.0, 0.0,  0.0,
+        0.0, 1.0, 0.0,  1.7094,
+        0.0, 0.0, 1.0,  0.0,
+    );
+    let complex_eigenvals = m.complex_eigenvalues();
+
+    assert_relative_eq!(
+        complex_eigenvals.iter().sum::<Complex<f64>>().re,
+        m.trace(),
+        epsilon = 1e-10
+    );
+
+    assert_relative_eq!(
+        complex_eigenvals.iter().product::<Complex<f64>>().re,
+        m.determinant(),
+        epsilon = 1e-10
+    );
+}
+
 //  #[cfg(feature = "arbitrary")]
 //  quickcheck! {
 // TODO: full eigendecomposition is not implemented yet because of its complexity when some
