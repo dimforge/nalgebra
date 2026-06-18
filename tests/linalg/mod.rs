@@ -10,6 +10,7 @@ mod hessenberg;
 mod inverse;
 mod lblt;
 mod lu;
+mod miri_smatrix;
 mod pow;
 mod qr;
 mod schur;
