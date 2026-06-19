@@ -235,10 +235,14 @@ where
             }
 
             let sqrt_denom = |v: T| {
-                if v.is_zero() {
+                let re = v.clone().real();
+                let im = v.imaginary();
+
+                if re <= T::RealField::zero() || !im.is_zero() {
                     return None;
                 }
-                v.try_sqrt()
+
+                re.try_sqrt().map(T::from_real)
             };
 
             let diag = unsafe { matrix.get_unchecked((j, j)).clone() };
