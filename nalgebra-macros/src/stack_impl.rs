@@ -26,7 +26,7 @@ pub fn stack_impl(matrix: Matrix) -> syn::Result<TokenStream2> {
                 let ident_block = format_ident!("{prefix}_stack_{i}_{j}_block");
                 let ident_shape = format_ident!("{prefix}_stack_{i}_{j}_shape");
                 output.extend(std::iter::once(quote_spanned! {expr.span()=>
-                    let ref #ident_block = #expr;
+                    let #ident_block = &(#expr);
                     let #ident_shape = #ident_block.shape_generic();
                 }));
             }
@@ -194,9 +194,9 @@ mod tests {
         let result = stack_impl(input).unwrap();
 
         let expected = quote! {{
-            let ref ___na_stack_0_0_block = a;
+            let ___na_stack_0_0_block = & (a);
             let ___na_stack_0_0_shape = ___na_stack_0_0_block.shape_generic();
-            let ref ___na_stack_1_1_block = b;
+            let ___na_stack_1_1_block = & (b);
             let ___na_stack_1_1_shape = ___na_stack_1_1_block.shape_generic();
             let ___na_stack_row_0_dim = ___na_stack_0_0_shape.0;
             let ___na_stack_row_0_offset = 0;
@@ -237,15 +237,15 @@ mod tests {
         let result = stack_impl(input).unwrap();
 
         let expected = quote! {{
-            let ref ___na_stack_0_0_block = a;
+            let ___na_stack_0_0_block = & (a);
             let ___na_stack_0_0_shape = ___na_stack_0_0_block.shape_generic();
-            let ref ___na_stack_0_2_block = b;
+            let ___na_stack_0_2_block = & (b);
             let ___na_stack_0_2_shape = ___na_stack_0_2_block.shape_generic();
-            let ref ___na_stack_1_1_block = c;
+            let ___na_stack_1_1_block = & (c);
             let ___na_stack_1_1_shape = ___na_stack_1_1_block.shape_generic();
-            let ref ___na_stack_1_2_block = d;
+            let ___na_stack_1_2_block = & (d);
             let ___na_stack_1_2_shape = ___na_stack_1_2_block.shape_generic();
-            let ref ___na_stack_2_0_block = e;
+            let ___na_stack_2_0_block = & (e);
             let ___na_stack_2_0_shape = ___na_stack_2_0_block.shape_generic();
             let ___na_stack_row_0_dim = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: SameNumberOfRows < _ , _ >> :: representative (___na_stack_0_0_shape . 0 , ___na_stack_0_2_shape . 0) . expect ("All blocks in block row 0 must have the same number of rows") ;
             let ___na_stack_row_0_offset = 0;
