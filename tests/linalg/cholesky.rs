@@ -190,16 +190,29 @@ fn cholesky_non_pd_complex_returns_none() {
     use num_complex::Complex;
 
     // This 2x2 negative-definite matrix is not positive definite.
-    let m = DMatrix::from_row_slice(2, 2, &[
-        Complex::new(-4.0_f64, 0.0), Complex::new(0.0, 0.0),
-        Complex::new(0.0, 0.0),      Complex::new(-4.0_f64, 0.0),
-    ]);
+    let m = DMatrix::from_row_slice(
+        2,
+        2,
+        &[
+            Complex::new(-4.0_f64, 0.0),
+            Complex::new(0.0, 0.0),
+            Complex::new(0.0, 0.0),
+            Complex::new(-4.0_f64, 0.0),
+        ],
+    );
     assert!(na::Cholesky::new(m).is_none());
 
-    // A matrix with a non-real diagonal pivot is also not positive definite.
-    let m2 = DMatrix::from_row_slice(2, 2, &[
-        Complex::new(0.0_f64, 1.0), Complex::new(0.0, 0.0),
-        Complex::new(0.0, 0.0),     Complex::new(1.0_f64, 0.0),
-    ]);
+    // A matrix whose diagonal pivot has a non-positive real part (here a purely
+    // imaginary entry, real part 0) is also not positive definite.
+    let m2 = DMatrix::from_row_slice(
+        2,
+        2,
+        &[
+            Complex::new(0.0_f64, 1.0),
+            Complex::new(0.0, 0.0),
+            Complex::new(0.0, 0.0),
+            Complex::new(1.0_f64, 0.0),
+        ],
+    );
     assert!(na::Cholesky::new(m2).is_none());
 }

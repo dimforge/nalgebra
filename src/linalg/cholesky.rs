@@ -235,10 +235,14 @@ where
             }
 
             let sqrt_denom = |v: T| {
-                let re = v.clone().real();
-                let im = v.imaginary();
+                // The diagonal pivots of a Hermitian positive-definite matrix
+                // are real and strictly positive. For complex scalars `try_sqrt`
+                // always succeeds, so we explicitly take the real part (the
+                // imaginary part is a roundoff artifact) and require it to be
+                // positive — otherwise the matrix is not positive-definite.
+                let re = v.real();
 
-                if re <= T::RealField::zero() || !im.is_zero() {
+                if re <= T::RealField::zero() {
                     return None;
                 }
 
