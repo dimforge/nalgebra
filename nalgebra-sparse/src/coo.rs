@@ -19,7 +19,7 @@ use crate::SparseFormatError;
 /// arrays `row_indices`, `col_indices` and `values` that constitute the coordinate triplets
 /// of the matrix. The indices must be in bounds, but *duplicate entries are explicitly allowed*.
 /// Upon conversion to other formats, the duplicate entries may be summed together. See the
-/// documentation for the respective conversion functions.
+/// documentation for the respective [conversion](crate::convert) functions.
 ///
 /// # Examples
 ///
