@@ -1000,6 +1000,25 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         }
     }
 
+    /// Applies a closure `f` to modify each component of `self`. Unlike `apply`,
+    /// `f` also gets passed the row and column index, i.e. `f(row, col, value)`.
+    #[inline]
+    pub fn apply_with_location<F: FnMut(usize, usize, &mut T)>(&mut self, mut f: F)
+    where
+        S: RawStorageMut<T, R, C>,
+    {
+        let (nrows, ncols) = self.shape();
+
+        for j in 0..ncols {
+            for i in 0..nrows {
+                unsafe {
+                    let e = self.data.get_unchecked_mut(i, j);
+                    f(i, j, e)
+                }
+            }
+        }
+    }
+
     /// Replaces each component of `self` by the result of a closure `f` applied on its components
     /// joined with the components from `rhs`.
     #[inline]
