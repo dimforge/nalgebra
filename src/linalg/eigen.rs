@@ -71,8 +71,6 @@ where
         let dim = m.nrows();
         let (mut eigenvectors, mut eigenvalues) = Schur::new(m, 0).unwrap().unpack();
 
-        println!("Schur eigenvalues: {}", eigenvalues);
-
         // Check that the eigenvalues are all Complex.
         for i in 0..dim - 1 {
             if !eigenvalues[(i + 1, i)].is_zero() {
