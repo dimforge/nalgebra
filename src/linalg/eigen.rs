@@ -82,20 +82,22 @@ where
 
         for j in 1..dim {
             for i in 0..j {
-                let diff = eigenvalues[(i, i)] - eigenvalues[(j, j)];
+                let diff = eigenvalues[(i, i)].clone() - eigenvalues[(j, j)].clone();
 
                 if diff.is_zero() && !eigenvalues[(i, j)].is_zero() {
                     return None;
                 }
 
-                let z = -eigenvalues[(i, j)] / diff;
+                let z = -eigenvalues[(i, j)].clone() / diff;
 
                 for k in j + 1..dim {
-                    eigenvalues[(i, k)] -= z * eigenvalues[(j, k)];
+                    let rhs = z.clone() * eigenvalues[(j, k)].clone();
+                    eigenvalues[(i, k)] -= rhs;
                 }
 
                 for k in 0..dim {
-                    eigenvectors[(k, j)] += z * eigenvectors[(k, i)];
+                    let rhs = z.clone() * eigenvectors[(k, i)].clone();
+                    eigenvectors[(k, j)] += rhs;
                 }
             }
         }
