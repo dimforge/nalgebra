@@ -1,6 +1,7 @@
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
 
+use approx::AbsDiffEq;
 use num_complex::Complex;
 use simba::scalar::ComplexField;
 use std::cmp;
@@ -16,8 +17,8 @@ use crate::base::{
 use crate::constraint::{DimEq, ShapeConstraint};
 
 use crate::geometry::{Reflection, UnitComplex};
-use crate::linalg::householder;
 use crate::linalg::Schur;
+use crate::linalg::householder;
 
 /// Eigendecomposition of a real matrix with real eigenvalues (or complex eigen values for complex matrices).
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
@@ -59,17 +60,35 @@ where
         Allocator<D, DimDiff<D, U1>> + Allocator<DimDiff<D, U1>> + Allocator<D, D> + Allocator<D>,
     // XXX: for debug
     DefaultAllocator: Allocator<D, D>,
-    OMatrix<T, D, D>: Display,
 {
-    /// Computes the eigendecomposition of a diagonalizable matrix with Complex eigenvalues.
-    pub fn new(m: OMatrix<T, D, D>) -> Option<Eigen<T, D>> {
+    /// Computes the eigendecomposition of a square matrix with distinct eigenvalues.
+    pub fn new(m: OMatrix<T, D, D>) -> Self {
+        Self::try_new(m, T::RealField::default_epsilon(), 0).unwrap()
+    }
+
+    /// Attempts to compute the eigendecomposition of a square matrix with distinct eigenvalues.
+    ///
+    /// Returns `None` if the Schur decomposition fails to converge, if any eigenvalues are
+    /// complex (only for real matrices), or if any eigenvalues are repeated.
+    ///
+    /// # Arguments
+    ///
+    /// * `eps`       − tolerance used to determine when a value converged to 0.
+    /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
+    ///   number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
+    ///   continues indefinitely until convergence.
+    pub fn try_new(
+        m: OMatrix<T, D, D>,
+        eps: T::RealField,
+        max_niter: usize,
+    ) -> Option<Eigen<T, D>> {
         assert!(
             m.is_square(),
             "Unable to compute the eigendecomposition of a non-square matrix."
         );
 
         let dim = m.nrows();
-        let (mut eigenvectors, mut eigenvalues) = Schur::new(m, 0).unwrap().unpack();
+        let (mut eigenvectors, mut eigenvalues) = Schur::try_new(m, eps, max_niter)?.unpack();
 
         // Check that the eigenvalues are all Complex.
         for i in 0..dim - 1 {
