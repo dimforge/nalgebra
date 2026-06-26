@@ -8,6 +8,12 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 **nalgebra-lapack change log** is found [here](https://github.com/dimforge/nalgebra/blob/main/nalgebra-lapack/CHANGELOG.md)
 starting with `nalgebra-lapack` version `0.27.0`.
 
+## Unreleased
+
+### Changed
+
+- `QR::solve` and `QR::solve_mut` now solve overdetermined systems in the least-squares sense (minimizing `‖Ax - b‖₂`) instead of panicking on non-square matrices. `QR::solve` now returns a matrix with as many rows as the system has columns [#1579](https://github.com/dimforge/nalgebra/issues/1579).
+
 ## [0.35.0] (24 May 2026)
 
 ### Added

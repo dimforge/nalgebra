@@ -171,40 +171,60 @@ where
     }
 }
 
-impl<T: ComplexField, D: DimMin<D, Output = D>> QR<T, D, D>
+impl<T: ComplexField, R: DimMin<C>, C: Dim> QR<T, R, C>
 where
-    DefaultAllocator: Allocator<D, D> + Allocator<D>,
+    DefaultAllocator: Allocator<R, C> + Allocator<R> + Allocator<DimMinimum<R, C>>,
 {
     /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
     ///
-    /// Returns `None` if `self` is not invertible.
+    /// If the system is overdetermined (i.e. the decomposed matrix has more rows than
+    /// columns), the least-squares solution minimizing `‖self * x - b‖` is returned. The
+    /// returned matrix has as many rows as the decomposed matrix has columns.
+    ///
+    /// This assumes the matrix has full column rank: the unpivoted QR factorization cannot
+    /// reliably solve rank-deficient or numerically ill-conditioned least-squares problems —
+    /// use `ColPivQR` or `SVD` for those. Returns `None` if a zero pivot is encountered.
+    /// Panics if the system is underdetermined (i.e. it has fewer rows than columns).
     #[must_use = "Did you mean to use solve_mut()?"]
     pub fn solve<R2: Dim, C2: Dim, S2>(
         &self,
         b: &Matrix<T, R2, C2, S2>,
-    ) -> Option<OMatrix<T, R2, C2>>
+    ) -> Option<OMatrix<T, C, C2>>
     where
         S2: Storage<T, R2, C2>,
-        ShapeConstraint: SameNumberOfRows<R2, D>,
-        DefaultAllocator: Allocator<R2, C2>,
+        ShapeConstraint: SameNumberOfRows<R2, R>,
+        DefaultAllocator: Allocator<R2, C2> + Allocator<C, C2>,
     {
         let mut res = b.clone_owned();
 
         if self.solve_mut(&mut res) {
-            Some(res)
+            // For an overdetermined system the solution lies in the first `ncols` rows.
+            let ncols = self.qr.shape_generic().1;
+            Some(res.rows_generic(0, ncols).into_owned())
         } else {
             None
         }
     }
 
-    /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
+    /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined,
+    /// overwriting `b`.
     ///
-    /// If the decomposed matrix is not invertible, this returns `false` and its input `b` is
-    /// overwritten with garbage.
+    /// If the system is overdetermined (i.e. the decomposed matrix has more rows than
+    /// columns), the least-squares solution minimizing `‖self * x - b‖` is computed and
+    /// written into the first `ncols` rows of `b`. The remaining `nrows - ncols` rows are
+    /// left holding the tail of `Qᵀ * b`; for each right-hand side (column of `b`), the
+    /// Euclidean norm of that tail equals its least-squares residual `‖self * x - b‖`.
+    /// `b` must have as many rows as the decomposed matrix.
+    ///
+    /// This assumes the matrix has full column rank: the unpivoted QR factorization cannot
+    /// reliably solve rank-deficient or numerically ill-conditioned least-squares problems —
+    /// use `ColPivQR` or `SVD` for those. If a zero pivot is encountered this returns `false`
+    /// and `b` is overwritten with garbage. Panics if the system is underdetermined (i.e. it
+    /// has fewer rows than columns).
     pub fn solve_mut<R2: Dim, C2: Dim, S2>(&self, b: &mut Matrix<T, R2, C2, S2>) -> bool
     where
         S2: StorageMut<T, R2, C2>,
-        ShapeConstraint: SameNumberOfRows<R2, D>,
+        ShapeConstraint: SameNumberOfRows<R2, R>,
     {
         assert_eq!(
             self.qr.nrows(),
@@ -212,8 +232,9 @@ where
             "QR solve matrix dimension mismatch."
         );
         assert!(
-            self.qr.is_square(),
-            "QR solve: unable to solve a non-square system."
+            self.qr.nrows() >= self.qr.ncols(),
+            "QR solve: the system must be square or overdetermined \
+             (it cannot have fewer rows than columns)."
         );
 
         self.q_tr_mul(b);
@@ -227,9 +248,11 @@ where
     ) -> bool
     where
         S2: StorageMut<T, R2, C2>,
-        ShapeConstraint: SameNumberOfRows<R2, D>,
+        ShapeConstraint: SameNumberOfRows<R2, R>,
     {
-        let dim = self.qr.nrows();
+        // For an overdetermined system only the first `min(nrows, ncols)` rows form the
+        // upper-triangular system; the remaining rows hold the least-squares residual.
+        let dim = self.diag.len();
 
         for k in 0..b.ncols() {
             let mut b = b.column_mut(k);
@@ -254,7 +277,12 @@ where
 
         true
     }
+}
 
+impl<T: ComplexField, D: DimMin<D, Output = D>> QR<T, D, D>
+where
+    DefaultAllocator: Allocator<D, D> + Allocator<D>,
+{
     /// Computes the inverse of the decomposed matrix.
     ///
     /// Returns `None` if the decomposed matrix is not invertible.
