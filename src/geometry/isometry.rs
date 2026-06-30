@@ -42,7 +42,7 @@ use rkyv::bytecheck;
 /// this page.
 ///
 /// # Construction
-/// * [From a 2D vector and/or an angle <span style="float:right;">`new`, `translation`, `rotation`…</span>](#construction-from-a-2d-vector-andor-a-rotation-angle)
+/// * [From a 2D vector and/or an angle <span style="float:right;">`new`, `translation`, `rotation`, `face_towards`…</span>](#construction-from-a-2d-vector-andor-a-rotation-angle)
 /// * [From a 3D vector and/or an axis-angle <span style="float:right;">`new`, `translation`, `rotation`…</span>](#construction-from-a-3d-vector-andor-an-axis-angle)
 /// * [From a 3D eye position and target point <span style="float:right;">`look_at`, `look_at_lh`, `face_towards`…</span>](#construction-from-a-3d-eye-position-and-target-point)
 /// * [From the translation and rotation parts <span style="float:right;">`from_parts`…</span>](#from-the-translation-and-rotation-parts)
