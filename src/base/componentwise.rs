@@ -1,6 +1,6 @@
 // Non-conventional component-wise operators.
 
-use num::{Signed, Zero};
+use num::{Signed, Zero, pow::pow};
 use std::ops::{Add, Mul};
 
 use simba::scalar::{ClosedDivAssign, ClosedMulAssign};
@@ -44,6 +44,33 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     }
 
     // TODO: add other operators like component_ln, component_pow, etc. ?
+
+
+    /// Computes the component-wise power value.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let a = Matrix2::new(0.0, 1.0,
+    ///                      -2.0, -3.0);
+    /// assert_eq!(a.power(2), Matrix2::new(0.0, 1.0, 4.0, 9.0))
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn component_pow(&self, p: usize) -> OMatrix<T, R, C>
+    where
+        T: Signed,
+        DefaultAllocator: Allocator<R, C>,
+    {
+        let mut res = self.clone_owned();
+
+        for e in res.iter_mut() {
+            *e = pow(e.clone(), p);
+        }
+
+        res
+    }
 }
 
 macro_rules! component_binop_impl(

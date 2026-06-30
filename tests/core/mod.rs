@@ -21,3 +21,4 @@ pub mod helper;
 
 #[cfg(feature = "macros")]
 mod macros;
+mod componentwise;
