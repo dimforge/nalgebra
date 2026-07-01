@@ -54,7 +54,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// # use nalgebra::Matrix2;
     /// let a = Matrix2::new(0.0, 1.0,
     ///                      -2.0, -3.0);
-    /// assert_eq!(a.power(2), Matrix2::new(0.0, 1.0, 4.0, 9.0))
+    /// assert_eq!(a.component_pow(2), Matrix2::new(0.0, 1.0, 4.0, 9.0))
     /// ```
     #[inline]
     #[must_use]
