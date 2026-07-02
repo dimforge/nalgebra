@@ -4,7 +4,7 @@ use num_traits::One;
 
 use nalgebra::Scalar;
 
-use crate::pattern::SparsityPattern;
+use crate::pattern::{BuilderInsertError, SparsityPattern, SparsityPatternBuilder};
 use crate::utils::{apply_permutation, compute_sort_permutation};
 use crate::{SparseEntry, SparseEntryMut, SparseFormatError, SparseFormatErrorKind};
 
@@ -701,4 +701,57 @@ where
     }
 
     Ok(())
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CsBuilder<T> {
+    sparsity_builder: SparsityPatternBuilder,
+    values: Vec<T>,
+}
+
+impl<T> CsBuilder<T> {
+    /// Constructs a new CsBuilder of the given size.
+    pub fn new(major_dim: usize, minor_dim: usize) -> Self {
+        Self {
+            sparsity_builder: SparsityPatternBuilder::new(major_dim, minor_dim),
+            values: vec![],
+        }
+    }
+    /// Given an existing CsMatrix, allows for modification by converting it into a builder.
+    pub fn from_mat(mat: CsMatrix<T>) -> Self {
+        let CsMatrix {
+            sparsity_pattern,
+            values,
+        } = mat;
+
+        CsBuilder {
+            sparsity_builder: SparsityPatternBuilder::from(sparsity_pattern),
+            values,
+        }
+    }
+    /// Backtracks to a given major index
+    pub fn revert_to_major(&mut self, maj: usize) -> bool {
+        if !self.sparsity_builder.revert_to_major(maj) {
+            return false;
+        }
+
+        self.values.truncate(self.sparsity_builder.num_entries());
+        true
+    }
+    pub fn insert(&mut self, maj: usize, min: usize, val: T) -> Result<(), BuilderInsertError> {
+        self.sparsity_builder.insert(maj, min)?;
+        self.values.push(val);
+        Ok(())
+    }
+    pub fn build(self) -> CsMatrix<T> {
+        let CsBuilder {
+            sparsity_builder,
+            values,
+        } = self;
+        let sparsity_pattern = sparsity_builder.build();
+        CsMatrix {
+            sparsity_pattern,
+            values,
+        }
+    }
 }
