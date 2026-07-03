@@ -1,4 +1,5 @@
-use na::{Matrix2, Matrix3};
+use num::float::FloatCore;
+use na::{DMatrix, Matrix2, Matrix2x3, Matrix3};
 
 #[test]
 fn abs() {
@@ -28,4 +29,42 @@ fn component_pow() {
 
     assert_eq!(c.component_pow(3), Matrix2::new(0.0, 0.0, 0.0, 0.0));
     assert_eq!(d.component_pow(3), Matrix3::new(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0));
+}
+
+#[test]
+fn component_log10_2x3_matrix() {
+    let a = Matrix2x3::new(1.0, 10.0, 100.0, 0.1, 0.01, 1000.0);
+    assert_eq!(a.component_log10(), Matrix2x3::new(0.0, 1.0, 2.0, -1.0, -2.0, 3.0));
+}
+
+#[test]
+fn component_log10_2x3_matrix_strange() {
+    let a = Matrix2x3::new(f64::INFINITY, f64::NEG_INFINITY, f64::NAN, f64::MIN, f64::MAX, f64::EPSILON);
+    let result = a.component_log10();
+
+    assert!(result[(0, 0)].is_infinite());
+    assert!(result[(0, 1)].is_nan());
+    assert!(result[(0, 2)].is_nan());
+    assert!(result[(1, 0)].is_nan());
+    assert_eq!(result[(1, 1)], f64::MAX.log10());
+    assert_eq!(result[(1, 2)], f64::EPSILON.log10());
+}
+
+#[test]
+fn component_log10_d_matrix() {
+    let a = DMatrix::from_row_slice(2, 2, &[1.0, 10.0, 0.1, 0.01]);
+    assert_eq!(a.component_log10(), DMatrix::from_row_slice(2, 2, &[0.0, 1.0, -1.0, -2.0]));
+}
+
+#[test]
+fn component_log10_d_matrix_strange() {
+    let a = DMatrix::from_row_slice(2, 3, &[f64::INFINITY, f64::NEG_INFINITY, f64::NAN, f64::MIN, f64::MAX, f64::EPSILON]);
+    let result = a.component_log10();
+
+    assert!(result[(0, 0)].is_infinite());
+    assert!(result[(0, 1)].is_nan());
+    assert!(result[(0, 2)].is_nan());
+    assert!(result[(1, 0)].is_nan());
+    assert_eq!(result[(1, 1)], f64::MAX.log10());
+    assert_eq!(result[(1, 2)], f64::EPSILON.log10());
 }

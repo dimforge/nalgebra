@@ -2,8 +2,7 @@
 
 use num::{Signed, Zero, pow::pow};
 use std::ops::{Add, Mul};
-
-use simba::scalar::{ClosedDivAssign, ClosedMulAssign};
+use simba::scalar::{ClosedDivAssign, ClosedMulAssign, RealField};
 use simba::simd::SimdPartialOrd;
 
 use crate::ClosedAddAssign;
@@ -67,6 +66,32 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
         for e in res.iter_mut() {
             *e = pow(e.clone(), p);
+        }
+
+        res
+    }
+
+    /// Computes the component-wise base 10 logarithm value.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let a = Matrix2::new(10.0, 100.0,
+    ///                      1000.0, 10000.0);
+    /// assert_eq!(a.component_log10(), Matrix2::new(1.0, 2.0, 3.0, 4.0))
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn component_log10(&self) -> OMatrix<T, R, C>
+    where
+        T: RealField,
+        DefaultAllocator: Allocator<R, C>,
+    {
+        let mut res = self.clone_owned();
+
+        for e in res.iter_mut() {
+            *e = e.clone().log10();
         }
 
         res
