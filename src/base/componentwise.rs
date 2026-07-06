@@ -33,13 +33,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         T: Signed,
         DefaultAllocator: Allocator<R, C>,
     {
-        let mut res = self.clone_owned();
-
-        for e in res.iter_mut() {
-            *e = e.abs();
-        }
-
-        res
+        self.map(|e| e.abs())
     }
 
     // TODO: add other operators like component_ln, component_pow, etc. ?
@@ -62,13 +56,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         T: Signed,
         DefaultAllocator: Allocator<R, C>,
     {
-        let mut res = self.clone_owned();
-
-        for e in res.iter_mut() {
-            *e = pow(e.clone(), p);
-        }
-
-        res
+        self.map(|e| pow(e, p))
     }
 
     /// Computes the component-wise base 10 logarithm value.
@@ -88,13 +76,27 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         T: RealField,
         DefaultAllocator: Allocator<R, C>,
     {
-        let mut res = self.clone_owned();
+        self.map(|e| e.log10())
+    }
 
-        for e in res.iter_mut() {
-            *e = e.clone().log10();
-        }
-
-        res
+    /// Computes the component-wise natural (e) logarithm value.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let a = Matrix2::new(1.0, std::f64::consts::E,
+    ///                     std::f64::consts::E.powf(2.0), std::f64::consts::E.powf(3.0))
+    /// assert_eq!(a.ln(), Matrix2::new(0.0, 1.0, 2.0, 3.0))
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn component_ln(&self) -> OMatrix<T, R, C>
+    where
+        T: RealField,
+        DefaultAllocator: Allocator<R, C>,
+    {
+        self.map(|e| e.ln())
     }
 }
 
