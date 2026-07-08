@@ -8,6 +8,12 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 **nalgebra-lapack change log** is found [here](https://github.com/dimforge/nalgebra/blob/main/nalgebra-lapack/CHANGELOG.md)
 starting with `nalgebra-lapack` version `0.27.0`.
 
+## Unreleased
+
+### Fixed
+
+- Clamp the `acos` argument in `Rotation3::euler_angles_ordered` so that rounding in the intermediate matrix products can no longer push the middle angle to `NaN` [#1481](https://github.com/dimforge/nalgebra/issues/1481).
+
 ## [0.35.0] (24 May 2026)
 
 ### Added
