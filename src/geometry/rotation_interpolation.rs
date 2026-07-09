@@ -1,4 +1,7 @@
-use crate::{RealField, Rotation2, Rotation3, SimdRealField, UnitComplex, UnitQuaternion};
+use crate::{Allocator, ArrayStorage, Const, DefaultAllocator, DimDiff, DimSub, Storage, U1};
+use crate::{
+    RealField, Rotation, Rotation2, Rotation3, SimdRealField, UnitComplex, UnitQuaternion,
+};
 
 /// # Interpolation
 impl<T: SimdRealField> Rotation2<T> {
@@ -19,7 +22,7 @@ impl<T: SimdRealField> Rotation2<T> {
     /// ```
     #[inline]
     #[must_use]
-    pub fn slerp(&self, other: &Self, t: T) -> Self
+    fn slerp_2d(&self, other: &Self, t: T) -> Self
     where
         T::Element: SimdRealField,
     {
@@ -49,7 +52,7 @@ impl<T: SimdRealField> Rotation3<T> {
     /// ```
     #[inline]
     #[must_use]
-    pub fn slerp(&self, other: &Self, t: T) -> Self
+    fn slerp_3d(&self, other: &Self, t: T) -> Self
     where
         T: RealField,
     {
@@ -77,5 +80,82 @@ impl<T: SimdRealField> Rotation3<T> {
         let q1 = UnitQuaternion::from(self.clone());
         let q2 = UnitQuaternion::from(other.clone());
         q1.try_slerp(&q2, t, epsilon).map(|q| q.into())
+    }
+}
+
+impl<T: RealField, const D: usize> Rotation<T, D>
+where
+    Const<D>: DimSub<U1>,
+    ArrayStorage<T, D, D>: Storage<T, Const<D>, Const<D>>,
+    DefaultAllocator: Allocator<T, Const<D>, Const<D>, Buffer = ArrayStorage<T, D, D>>
+        + Allocator<T, Const<D>>
+        + Allocator<T, Const<D>, DimDiff<Const<D>, U1>>
+        + Allocator<T, DimDiff<Const<D>, U1>>,
+{
+    ///
+    /// Computes the spherical linear interpolation between two general rotations.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::geometry::Rotation3;
+    ///
+    /// let q1 = Rotation3::from_euler_angles(std::f32::consts::FRAC_PI_4, 0.0, 0.0);
+    /// let q2 = Rotation3::from_euler_angles(-std::f32::consts::PI, 0.0, 0.0);
+    ///
+    /// let q = q1.slerp(&q2, 1.0 / 3.0);
+    ///
+    /// assert_eq!(q.euler_angles(), (std::f32::consts::FRAC_PI_2, 0.0, 0.0));
+    /// ```
+    ///
+    //FIXME: merging slerp for Rotation2 and Rotation3 into this raises the trait bounds
+    //from SimdRealField to RealField
+    #[inline]
+    #[must_use]
+    pub fn slerp(&self, other: &Self, t: T) -> Self {
+        //The best option here would be to use #[feature(specialization)], but until
+        //that's stabilized, this is the best we can do. Theoretically, the compiler should
+        //pretty thoroughly optimize away all the excess checks and conversions
+        match D {
+            0 => self.clone(),
+
+            //FIXME: this doesn't really work in 1D since we can't interp between -1 and 1
+            1 => self.clone(),
+
+            2 => {
+                let self2d = Rotation2::from_matrix_unchecked(
+                    self.clone().into_inner().fixed_resize(T::zero()),
+                );
+                let other2d = Rotation2::from_matrix_unchecked(
+                    other.clone().into_inner().fixed_resize(T::zero()),
+                );
+
+                Self::from_matrix_unchecked(
+                    self2d
+                        .slerp_2d(&other2d, t)
+                        .into_inner()
+                        .fixed_resize(T::zero()),
+                )
+            }
+
+            3 => {
+                let self3d = Rotation3::from_matrix_unchecked(
+                    self.clone().into_inner().fixed_resize(T::zero()),
+                );
+                let other3d = Rotation3::from_matrix_unchecked(
+                    other.clone().into_inner().fixed_resize(T::zero()),
+                );
+
+                Self::from_matrix_unchecked(
+                    self3d
+                        .slerp_3d(&other3d, t)
+                        .into_inner()
+                        .fixed_resize(T::zero()),
+                )
+            }
+
+            //the multiplication order matters here
+            _ => (other / self).powf(t) * self,
+        }
     }
 }
