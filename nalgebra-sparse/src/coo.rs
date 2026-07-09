@@ -311,4 +311,146 @@ impl<T> CooMatrix<T> {
     pub fn disassemble(self) -> (Vec<usize>, Vec<usize>, Vec<T>) {
         (self.row_indices, self.col_indices, self.values)
     }
+
+    /// Returns a new COO matrix containing only entries specified by the given predicate. The cost
+    /// of this operation is O(nnz) and allocates space for the new matrix.
+    #[inline]
+    pub fn filter<F>(&self, predicate: F) -> Self
+    where
+        F: Fn(usize, usize, T) -> bool,
+        T: Copy,
+    {
+        let ((row_indices, col_indices), values) = self
+            .row_indices
+            .iter()
+            .zip(self.col_indices.iter())
+            .zip(self.values.iter())
+            .filter(|((i, j), v)| predicate(**i, **j, **v))
+            .unzip();
+        Self {
+            nrows: self.nrows,
+            ncols: self.ncols,
+            row_indices,
+            col_indices,
+            values,
+        }
+    }
+
+    /// Removes the `i`th row from the matrix. Beware the cost of the operation is `O(nnz)` and
+    /// causes a reallocation.
+    ///
+    /// Panics
+    /// -------
+    ///
+    /// Panics if `i` is out of bounds.
+    ///
+    /// Examples
+    /// --------
+    ///
+    /// ```
+    /// # use nalgebra_sparse::coo::CooMatrix;
+    /// let row_indices = vec![0, 1];
+    /// let col_indices = vec![1, 2];
+    /// let values = vec![1.0, 2.0];
+    /// let mut coo = CooMatrix::try_from_triplets(2, 3, row_indices, col_indices, values)
+    ///     .unwrap();
+    ///
+    /// coo.remove_row(0);
+    /// ```
+    pub fn remove_row(&self, i: usize) -> Self
+    where
+        T: Copy,
+    {
+        assert!(i < self.nrows);
+        let mut new_coo = self.filter(|row, _, _| row != i);
+        new_coo.row_indices.iter_mut().for_each(|idx| {
+            if *idx > i {
+                *idx -= 1;
+            }
+        });
+        new_coo.nrows -= 1;
+        new_coo
+    }
+
+    /// Removes the `i`th column from the matrix. Beware the cost of the operation is `O(nnz)` and
+    /// causes a reallocation.
+    ///
+    /// Panics
+    /// -------
+    ///
+    /// Panics if `i` is out of bounds.
+    ///
+    /// Examples
+    /// --------
+    ///
+    /// ```
+    /// # use nalgebra_sparse::coo::CooMatrix;
+    /// let row_indices = vec![0, 1];
+    /// let col_indices = vec![1, 2];
+    /// let values = vec![1.0, 2.0];
+    /// let mut coo = CooMatrix::try_from_triplets(2, 3, row_indices, col_indices, values)
+    ///     .unwrap();
+    ///
+    /// coo.remove_column(0);
+    /// ```
+    pub fn remove_column(&self, i: usize) -> Self
+    where
+        T: Copy,
+    {
+        assert!(i < self.ncols);
+        let mut new_coo = self.filter(|_, col, _| col != i);
+        new_coo.col_indices.iter_mut().for_each(|idx| {
+            if *idx > i {
+                *idx -= 1;
+            }
+        });
+        new_coo.ncols -= 1;
+        new_coo
+    }
+
+    /// Removes the `i`th row and the `j`th column from the matrix. Beware the cost of the operation
+    /// is `O(nnz)` and causes a reallocation. Note that a reallocation can be saved calling this
+    /// function rather than successive calls to `remove_row` or `remove_column`.
+    ///
+    /// Panics
+    /// -------
+    ///
+    /// Panics if `i` or `j` are out of bounds.
+    ///
+    /// Examples
+    /// --------
+    ///
+    /// ```
+    /// # use nalgebra_sparse::coo::CooMatrix;
+    /// let row_indices = vec![0, 1];
+    /// let col_indices = vec![1, 2];
+    /// let values = vec![1.0, 2.0];
+    /// let mut coo = CooMatrix::try_from_triplets(2, 3, row_indices, col_indices, values)
+    ///     .unwrap();
+    ///
+    /// coo.remove_row_column(0, 1);
+    /// ```
+    pub fn remove_row_column(&self, i: usize, j: usize) -> Self
+    where
+        T: Copy,
+    {
+        assert!(i < self.nrows);
+        assert!(j < self.ncols);
+        let mut new_coo = self.filter(|row, col, _| row != i && col != j);
+        new_coo
+            .row_indices
+            .iter_mut()
+            .zip(new_coo.col_indices.iter_mut())
+            .for_each(|(row_idx, col_idx)| {
+                if *row_idx > i {
+                    *row_idx -= 1;
+                }
+                if *col_idx > j {
+                    *col_idx -= 1;
+                }
+            });
+        new_coo.nrows -= 1;
+        new_coo.ncols -= 1;
+        new_coo
+    }
 }
