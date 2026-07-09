@@ -4,13 +4,15 @@
 use std::fmt;
 use std::ops::Deref;
 
+use num::{One, Zero};
+
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::allocator::Allocator;
 use crate::base::DefaultAllocator;
 use crate::storage::RawStorage;
-use crate::{Dim, Matrix, OMatrix, RealField, Scalar, SimdComplexField, SimdRealField};
+use crate::{Dim, DimName, Matrix, OMatrix, RealField, Scalar, SimdComplexField, SimdRealField};
 
 #[cfg(feature = "rkyv-serialize")]
 use rkyv::bytecheck;
@@ -72,6 +74,18 @@ impl<'de, T: Deserialize<'de>> Deserialize<'de> for Unit<T> {
         D: Deserializer<'de>,
     {
         T::deserialize(deserializer).map(|x| Unit { value: x })
+    }
+}
+
+impl<T, R, C> Default for Unit<OMatrix<T, R, C>>
+where
+    T: Scalar + Zero + One,
+    R: DimName,
+    C: DimName,
+    DefaultAllocator: Allocator<R, C>,
+{
+    fn default() -> Self {
+        Self::new_unchecked(OMatrix::<T, R, C>::identity())
     }
 }
 
