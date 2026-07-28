@@ -1,4 +1,4 @@
-use na::{Matrix2, Vector3, geometry::Quaternion};
+use na::{Matrix, Matrix2, U2, Vector3, geometry::Quaternion};
 use num_traits::{One, Zero};
 
 #[test]
@@ -18,6 +18,14 @@ fn gemm_noncommutative() {
 
     let mut res: Matrix2<Qf64> = Matrix2::identity();
     res.gemm(k, &m1, &m2, -k);
+    assert_eq!(res, Matrix2::zero());
+}
+
+#[test]
+fn array_axcpy_nonstandard_stride() {
+    let matrix_a = Matrix::<_, U2, U2, _>::from_slice_with_strides(&[0, 0, 0, 0], 2, 1);
+    let matrix_b = Matrix::<_, U2, U2, _>::from_slice_with_strides(&[0, 0, 0, 0], 2, 1);
+    let res = matrix_b * matrix_a;
     assert_eq!(res, Matrix2::zero());
 }
 

@@ -108,11 +108,23 @@ pub unsafe fn axcpy_uninit<Status, T, D1: Dim, D2: Dim, SA, SB>(
         let y = y.data.as_mut_slice_unchecked();
         let x = x.data.as_slice_unchecked();
 
+        let xlen = number_of_elements(x.len(), rstride2);
+
         if !b.is_zero() {
-            array_axcpy(status, y, a, x, c, b, rstride1, rstride2, x.len());
+            array_axcpy(status, y, a, x, c, b, rstride1, rstride2, xlen);
         } else {
-            array_axc(status, y, a, x, c, rstride1, rstride2, x.len());
+            array_axc(status, y, a, x, c, rstride1, rstride2, xlen);
         }
+    }
+}
+
+fn number_of_elements(len: usize, stride: usize) -> usize {
+    if len == 0 {
+        0
+    } else if len % stride == 0 {
+        len / stride
+    } else {
+        len / stride + 1
     }
 }
 
@@ -329,5 +341,38 @@ pub unsafe fn gemm_uninit<
                 beta.clone(),
             );
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    #[test]
+    fn number_of_elements_test() {
+        assert_eq!(number_of_elements(0, 0), 0);
+    }
+}
+
+#[cfg(test)]
+#[cfg(feature = "proptest-support")]
+mod blas_proptest {
+    use super::*;
+    use proptest::{prop_assert, proptest};
+
+    proptest! {
+    #[test]
+    fn number_of_elements_proptest(len in 0..1024usize, stride in 1..32usize) {
+        let predicted_num = number_of_elements(len, stride);
+        println!("{}", predicted_num);
+        // last element must be inside the length
+        if predicted_num == 0 {
+        prop_assert!(len == 0);
+        } else {
+        prop_assert!((predicted_num-1) * stride < len);
+        }
+
+        // element after that must be outside the length
+        prop_assert!(predicted_num * stride >= len);
+    }
     }
 }
