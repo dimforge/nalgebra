@@ -25,10 +25,7 @@ fn gemm_noncommutative() {
 fn array_axcpy_nonstandard_stride() {
     let matrix_a = Matrix::<_, U2, U2, _>::from_slice_with_strides(&[0, 0, 0, 0], 2, 1);
     let matrix_b = Matrix::<_, U2, U2, _>::from_slice_with_strides(&[0, 0, 0, 0], 2, 1);
-    // if matrix_b is second, the bug does not trigger
     let res = matrix_b * matrix_a;
-    println!("{:?}", matrix_a);
-    println!("{:?}", matrix_b);
     assert_eq!(res, Matrix2::zero());
 }
 
