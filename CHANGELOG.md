@@ -8,6 +8,23 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 **nalgebra-lapack change log** is found [here](https://github.com/dimforge/nalgebra/blob/main/nalgebra-lapack/CHANGELOG.md)
 starting with `nalgebra-lapack` version `0.27.0`.
 
+## Unreleased
+
+### Added
+
+- Add `QR::q_columns` which computes the first `k` columns of `Q`, up to the full `Q` of a tall matrix. The
+  existing `QR::q` still returns the first `min(nrows, ncols)` columns only.
+
+### Changed
+
+- The `QR` decomposition now scales the Householder vectors like LAPACK's `?GEQR2` and `?ORG2R`, which is more
+  accurate. This is a breaking change:
+  - The internal representation changed. `QR::qr_internal` now holds `R` in its upper trapezoidal part and the
+    scaled Householder vectors below it. The `diag` field became LAPACK's `tau` vector.
+  - The diagonal of `R` is no longer forced to be positive. Some columns of `Q` and rows of `R` can have a
+    different sign than before.
+  - `Matrix::qr` and `QR::new` need the additional `DefaultAllocator: Allocator<C>` bound.
+
 ## [0.35.0] (24 May 2026)
 
 ### Added
