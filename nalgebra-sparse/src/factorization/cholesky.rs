@@ -262,7 +262,7 @@ impl<T: RealField> CscCholesky<T> {
     ///
     /// # Panics
     ///
-    /// Panics if `B` is not square.
+    /// Panics if the number of rows of `B` differs from the dimension of the factorized matrix.
     #[must_use = "Did you mean to use solve_mut()?"]
     pub fn solve<'a>(&'a self, b: impl Into<DMatrixView<'a, T>>) -> DMatrix<T> {
         let b = b.into();
@@ -277,7 +277,7 @@ impl<T: RealField> CscCholesky<T> {
     ///
     /// # Panics
     ///
-    /// Panics if `b` is not square.
+    /// Panics if the number of rows of `B` differs from the dimension of the factorized matrix.
     pub fn solve_mut<'a>(&'a self, b: impl Into<DMatrixViewMut<'a, T>>) {
         let expect_msg = "If the Cholesky factorization succeeded,\
             then the triangular solve should never fail";

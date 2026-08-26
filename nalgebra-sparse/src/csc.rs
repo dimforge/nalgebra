@@ -356,7 +356,7 @@ impl<T> CscMatrix<T> {
     #[inline]
     #[must_use]
     pub fn col(&self, index: usize) -> CscCol<'_, T> {
-        self.get_col(index).expect("Row index must be in bounds")
+        self.get_col(index).expect("Column index must be in bounds")
     }
 
     /// Mutable column access for the given column index.
@@ -367,7 +367,7 @@ impl<T> CscMatrix<T> {
     #[inline]
     pub fn col_mut(&mut self, index: usize) -> CscColMut<'_, T> {
         self.get_col_mut(index)
-            .expect("Row index must be in bounds")
+            .expect("Column index must be in bounds")
     }
 
     /// Return the column at the given column index, or `None` if out of bounds.
