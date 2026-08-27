@@ -12,7 +12,7 @@ use crate::base::dimension::{Const, Dim, DimAdd, DimDiff, DimMin, DimMinimum, Di
 use crate::base::storage::{RawStorage, RawStorageMut, ReshapableStorage};
 use crate::base::{DefaultAllocator, Matrix, OMatrix, RowVector, Scalar, Vector};
 use crate::{Storage, UninitMatrix};
-use std::mem::MaybeUninit;
+use std::mem::{ManuallyDrop, MaybeUninit};
 
 /// # Triangular matrix extraction
 impl<T: Scalar + Zero, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
@@ -364,7 +364,11 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         C: DimSub<Dyn, Output = Dyn>,
         DefaultAllocator: Reallocator<T, R, C, R, Dyn>,
     {
-        let mut m = self.into_owned();
+        // `m` is only consistent once `reallocate_copy` below has shrunk it. If
+        // `T::drop` panics in the loop, dropping `m` during unwinding would
+        // destroy the removed entries a second time, so hold it in a
+        // `ManuallyDrop` and take it back out on the success path.
+        let mut m = ManuallyDrop::new(self.into_owned());
         let (nrows, ncols) = m.shape_generic();
         let mut offset: usize = 0;
         let mut target: usize = 0;
@@ -398,6 +402,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         //         every element of the new matrix which can then
         //         be assumed to be initialized.
         unsafe {
+            let m = ManuallyDrop::take(&mut m);
             let new_data = DefaultAllocator::reallocate_copy(
                 nrows,
                 ncols.sub(Dyn::from_usize(offset)),
@@ -415,7 +420,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         R: DimSub<Dyn, Output = Dyn>,
         DefaultAllocator: Reallocator<T, R, C, Dyn, C>,
     {
-        let mut m = self.into_owned();
+        let mut m = ManuallyDrop::new(self.into_owned());
         let (nrows, ncols) = m.shape_generic();
         let mut offset: usize = 0;
         let mut target: usize = 0;
@@ -447,6 +452,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         //         every element of the new matrix which can then
         //         be assumed to be initialized.
         unsafe {
+            let m = ManuallyDrop::take(&mut m);
             let new_data = DefaultAllocator::reallocate_copy(
                 nrows.sub(Dyn::from_usize(offset / ncols.value())),
                 ncols,
@@ -493,7 +499,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         C: DimSub<D>,
         DefaultAllocator: Reallocator<T, R, C, R, DimDiff<C, D>>,
     {
-        let mut m = self.into_owned();
+        let mut m = ManuallyDrop::new(self.into_owned());
         let (nrows, ncols) = m.shape_generic();
         assert!(
             i + nremove.value() <= ncols.value(),
@@ -536,6 +542,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         //         every element of the new matrix which can then
         //         be assumed to be initialized.
         unsafe {
+            let m = ManuallyDrop::take(&mut m);
             let new_data = DefaultAllocator::reallocate_copy(nrows, ncols.sub(nremove), m.data);
             Matrix::from_data(new_data).assume_init()
         }
@@ -588,7 +595,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         R: DimSub<D>,
         DefaultAllocator: Reallocator<T, R, C, DimDiff<R, D>, C>,
     {
-        let mut m = self.into_owned();
+        let mut m = ManuallyDrop::new(self.into_owned());
         let (nrows, ncols) = m.shape_generic();
         assert!(
             i + nremove.value() <= nrows.value(),
@@ -612,6 +619,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         //         every element of the new matrix which can then
         //         be assumed to be initialized.
         unsafe {
+            let m = ManuallyDrop::take(&mut m);
             let new_data = DefaultAllocator::reallocate_copy(nrows.sub(nremove), ncols, m.data);
             Matrix::from_data(new_data).assume_init()
         }
@@ -881,7 +889,12 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         DefaultAllocator: Reallocator<T, R, C, R2, C2>,
     {
         let (nrows, ncols) = self.shape();
-        let mut data = self.into_owned();
+        // `data` is only consistent once one of the `reallocate_copy` calls
+        // below has resized it. If `T::drop` panics in the truncation path,
+        // dropping `data` during unwinding would destroy the truncated entries
+        // a second time, so hold it in a `ManuallyDrop` and take it back out
+        // once the destructive work is done.
+        let mut data = ManuallyDrop::new(self.into_owned());
 
         if new_nrows.value() == nrows {
             if new_ncols.value() < ncols {
@@ -896,7 +909,10 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
                 };
             }
 
-            let res = unsafe { DefaultAllocator::reallocate_copy(new_nrows, new_ncols, data.data) };
+            let res = unsafe {
+                let data = ManuallyDrop::take(&mut data);
+                DefaultAllocator::reallocate_copy(new_nrows, new_ncols, data.data)
+            };
             let mut res = Matrix::from_data(res);
 
             if new_ncols.value() > ncols {
@@ -919,10 +935,12 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
                         new_nrows.value(),
                         nrows - new_nrows.value(),
                     );
+                    let data = ManuallyDrop::take(&mut data);
                     res = Matrix::from_data(DefaultAllocator::reallocate_copy(
                         new_nrows, new_ncols, data.data,
                     ));
                 } else {
+                    let data = ManuallyDrop::take(&mut data);
                     res = Matrix::from_data(DefaultAllocator::reallocate_copy(
                         new_nrows, new_ncols, data.data,
                     ));

@@ -3,6 +3,9 @@ use na::{
     Matrix5x3, Matrix5x4,
 };
 use na::{Dyn, U3, U5};
+use std::panic::{catch_unwind, AssertUnwindSafe};
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+use std::sync::Mutex;
 
 #[test]
 #[rustfmt::skip]
@@ -699,4 +702,86 @@ fn resize_empty_matrix() {
     assert_eq!(m1, m5.resize(0, 0, 42));
     assert_eq!(m1, m6.resize(0, 0, 42));
     assert_eq!(m1, m7.resize(0, 0, 42));
+}
+
+// A panicking `Drop` in an editing method must not leave the storage claiming
+// ownership of already-destroyed elements.
+
+static PANIC_SAFETY_DROPS: AtomicUsize = AtomicUsize::new(0);
+static PANIC_SAFETY_ARMED: AtomicBool = AtomicBool::new(false);
+// The counters are global, so the cases below must not overlap.
+static PANIC_SAFETY_LOCK: Mutex<()> = Mutex::new(());
+
+#[derive(Clone, Debug, PartialEq)]
+struct PanicOnDrop(u64);
+
+impl Drop for PanicOnDrop {
+    fn drop(&mut self) {
+        PANIC_SAFETY_DROPS.fetch_add(1, Ordering::SeqCst);
+        if PANIC_SAFETY_ARMED.swap(false, Ordering::SeqCst) {
+            panic!("element Drop panics");
+        }
+    }
+}
+
+/// Arms one destructor, runs `f` on a 4x4 matrix, and checks that no element is
+/// destroyed more than once.
+fn check_panic_safety<F>(name: &str, f: F)
+where
+    F: FnOnce(DMatrix<PanicOnDrop>),
+{
+    let _guard = PANIC_SAFETY_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+
+    PANIC_SAFETY_DROPS.store(0, Ordering::SeqCst);
+    let m = DMatrix::from_fn(4, 4, |r, c| PanicOnDrop((r * 4 + c) as u64));
+
+    PANIC_SAFETY_ARMED.store(true, Ordering::SeqCst);
+    let r = catch_unwind(AssertUnwindSafe(move || f(m)));
+    PANIC_SAFETY_ARMED.store(false, Ordering::SeqCst);
+    assert!(r.is_err(), "{}: the armed Drop should have panicked", name);
+
+    // Sixteen elements exist. Fewer drops mean a leak on the unwind path, which
+    // is sound; more mean an element was destroyed twice.
+    let drops = PANIC_SAFETY_DROPS.load(Ordering::SeqCst);
+    assert!(
+        drops <= 16,
+        "{}: {} drops for 16 elements - an element was destroyed twice",
+        name,
+        drops
+    );
+}
+
+#[test]
+fn remove_columns_at_panicking_drop() {
+    check_panic_safety("remove_columns_at", |m| {
+        let _ = m.remove_columns_at(&[1]);
+    });
+}
+
+#[test]
+fn remove_rows_at_panicking_drop() {
+    check_panic_safety("remove_rows_at", |m| {
+        let _ = m.remove_rows_at(&[1]);
+    });
+}
+
+#[test]
+fn remove_columns_generic_panicking_drop() {
+    check_panic_safety("remove_columns_generic", |m| {
+        let _ = m.remove_columns_generic(1, Dyn(2));
+    });
+}
+
+#[test]
+fn remove_rows_generic_panicking_drop() {
+    check_panic_safety("remove_rows_generic", |m| {
+        let _ = m.remove_rows_generic(1, Dyn(2));
+    });
+}
+
+#[test]
+fn resize_generic_panicking_drop() {
+    check_panic_safety("resize_generic", |m| {
+        let _ = m.resize(4, 2, PanicOnDrop(99));
+    });
 }
