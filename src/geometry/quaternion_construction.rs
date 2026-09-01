@@ -282,7 +282,23 @@ where
 
     /// Creates a new unit quaternion from Euler angles.
     ///
-    /// The primitive rotations are applied in order: 1 roll − 2 pitch − 3 yaw.
+    /// The angles are interpreted as extrinsic rotations around the X, Y and Z axis.
+    /// These angles are also often called roll, pitch and yaw.
+    ///
+    /// The returned rotation could also be constructed in the following manner:
+    ///
+    /// ```
+    /// # use nalgebra::{UnitQuaternion, Vector3};
+    /// # use approx::assert_relative_eq;
+    /// # let angle_x: f32 = 0.5;
+    /// # let angle_y: f32 = 1.2;
+    /// # let angle_z: f32 = 2.3;
+    /// let rotation = UnitQuaternion::from_euler_angles(angle_x, angle_y, angle_z);
+    /// let manually_combined = UnitQuaternion::from_axis_angle(&Vector3::z_axis(), angle_z)
+    ///   * UnitQuaternion::from_axis_angle(&Vector3::y_axis(), angle_y)
+    ///   * UnitQuaternion::from_axis_angle(&Vector3::x_axis(), angle_x);
+    /// assert_relative_eq!(manually_combined, rotation, epsilon = 1e6);
+    /// ```
     ///
     /// # Example
     /// ```
