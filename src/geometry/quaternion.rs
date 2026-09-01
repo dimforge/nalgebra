@@ -1466,9 +1466,24 @@ where
 
     /// Converts this unit quaternion into its equivalent Euler angles.
     ///
-    /// The angles are produced in the form (roll, pitch, yaw).
+    /// The returned angles are extrinsic rotations around the X, Y and Z axis.
+    /// These angles are also often called roll, pitch and yaw.
+    ///
+    /// To get the original rotation back from the individual angles, you would combine them in the following manner:
+    ///
+    /// ```
+    /// # #![allow(deprecated)]
+    /// # use nalgebra::{UnitQuaternion, Vector3};
+    /// # use approx::assert_relative_eq;
+    /// # let rotation = UnitQuaternion::from_euler_angles(0.5_f32, 1.2, 2.3);
+    /// let angles = rotation.to_euler_angles();
+    /// let recombined = UnitQuaternion::from_axis_angle(&Vector3::z_axis(), angles.2)
+    ///   * UnitQuaternion::from_axis_angle(&Vector3::y_axis(), angles.1)
+    ///   * UnitQuaternion::from_axis_angle(&Vector3::x_axis(), angles.0);
+    /// assert_relative_eq!(recombined, rotation, epsilon = 1e-6);
+    /// ```
     #[inline]
-    #[deprecated(note = "This is renamed to use `.euler_angles()`.")]
+    #[deprecated(note = "This is renamed to `.euler_angles()`.")]
     pub fn to_euler_angles(self) -> (T, T, T)
     where
         T: RealField,
@@ -1478,17 +1493,31 @@ where
 
     /// Retrieves the euler angles corresponding to this unit quaternion.
     ///
-    /// The angles are produced in the form (roll, pitch, yaw).
+    /// The returned angles are extrinsic rotations around the X, Y and Z axis.
+    /// These angles are also often called roll, pitch and yaw.
+    ///
+    /// To get the original rotation back from the individual angles, you would combine them in the following manner:
+    ///
+    /// ```
+    /// # use nalgebra::{UnitQuaternion, Vector3};
+    /// # use approx::assert_relative_eq;
+    /// # let rotation = UnitQuaternion::from_euler_angles(0.5_f32, 1.2, 2.3);
+    /// let angles = rotation.euler_angles();
+    /// let recombined = UnitQuaternion::from_axis_angle(&Vector3::z_axis(), angles.2)
+    ///   * UnitQuaternion::from_axis_angle(&Vector3::y_axis(), angles.1)
+    ///   * UnitQuaternion::from_axis_angle(&Vector3::x_axis(), angles.0);
+    /// assert_relative_eq!(recombined, rotation, epsilon = 1e-6);
+    /// ```
     ///
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::UnitQuaternion;
     /// let rot = UnitQuaternion::from_euler_angles(0.1, 0.2, 0.3);
-    /// let euler = rot.euler_angles();
-    /// assert_relative_eq!(euler.0, 0.1, epsilon = 1.0e-6);
-    /// assert_relative_eq!(euler.1, 0.2, epsilon = 1.0e-6);
-    /// assert_relative_eq!(euler.2, 0.3, epsilon = 1.0e-6);
+    /// let (x, y, z) = rot.euler_angles();
+    /// assert_relative_eq!(x, 0.1, epsilon = 1.0e-6);
+    /// assert_relative_eq!(y, 0.2, epsilon = 1.0e-6);
+    /// assert_relative_eq!(z, 0.3, epsilon = 1.0e-6);
     /// ```
     #[inline]
     #[must_use]
