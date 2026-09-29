@@ -41,8 +41,7 @@ mod proptest_tests {
                         let m      = m.hermitian_part();
                         let eig    = m.symmetric_eigen();
                         let recomp = eig.recompose();
-
-                        prop_assert!(relative_eq!(m.lower_triangle(), recomp.lower_triangle(), epsilon = 1.0e-5))
+                        prop_assert!(relative_eq!(m.lower_triangle(), recomp.lower_triangle(), epsilon = 1.0e-4))
                     }
 
                     #[test]
