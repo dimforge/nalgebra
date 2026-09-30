@@ -303,17 +303,38 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         steps: (usize, usize),
     ) {
         let my_shape = self.shape();
-        // NOTE: we don't do any subtraction to avoid underflow for zero-sized matrices.
-        //
-        // Terms that would have been negative are moved to the other side of the inequality
-        // instead.
+
+        // Check for potential integer overflows during index and step calculations
+        // to prevent silent wrap-arounds in release mode and memory corruption.
+        let total_rows = steps
+            .0
+            .checked_add(1)
+            .and_then(|v| v.checked_mul(shape.0))
+            .and_then(|v| start.0.checked_add(v));
+
+        let max_rows = my_shape.0.checked_add(steps.0);
+
+        let valid_rows = match (total_rows, max_rows) {
+            (Some(t), Some(m)) => t <= m,
+            _ => false,
+        };
+
+        let total_cols = steps
+            .1
+            .checked_add(1)
+            .and_then(|v| v.checked_mul(shape.1))
+            .and_then(|v| start.1.checked_add(v));
+
+        let max_cols = my_shape.1.checked_add(steps.1);
+
+        let valid_cols = match (total_cols, max_cols) {
+            (Some(t), Some(m)) => t <= m,
+            _ => false,
+        };
+
         assert!(
-            start.0 + (steps.0 + 1) * shape.0 <= my_shape.0 + steps.0,
-            "Matrix slicing out of bounds."
-        );
-        assert!(
-            start.1 + (steps.1 + 1) * shape.1 <= my_shape.1 + steps.1,
-            "Matrix slicing out of bounds."
+            valid_rows && valid_cols,
+            "Matrix slicing out of bounds or integer overflow."
         );
     }
 }
