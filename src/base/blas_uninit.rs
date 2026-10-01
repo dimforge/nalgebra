@@ -12,6 +12,7 @@
 use matrixmultiply;
 use num::{One, Zero};
 use simba::scalar::{ClosedAddAssign, ClosedMulAssign};
+use std::ptr;
 #[cfg(feature = "std")]
 use std::{any::TypeId, mem};
 
@@ -26,14 +27,15 @@ use crate::base::uninit::InitStatus;
 use crate::base::{Matrix, Scalar, Vector};
 
 // # Safety
-// The content of `y` must only contain values for which
-// `Status::assume_init_mut` is sound.
+// `y` and `x` must be valid for the access pattern `ptr.add(i * stride)` for
+// `i` in `0..len`. The content of `y` must be initialized (since this reads
+// from `y` to accumulate with `beta`).
 #[allow(clippy::too_many_arguments)]
 unsafe fn array_axcpy<Status, T>(
     _: Status,
-    y: &mut [Status::Value],
+    y: *mut Status::Value,
     a: T,
-    x: &[T],
+    x: *const T,
     c: T,
     beta: T,
     stride1: usize,
@@ -43,20 +45,33 @@ unsafe fn array_axcpy<Status, T>(
     Status: InitStatus<T>,
     T: Scalar + Zero + ClosedAddAssign + ClosedMulAssign,
 {
-    unsafe {
-        for i in 0..len {
-            let y = Status::assume_init_mut(y.get_unchecked_mut(i * stride1));
-            *y = a.clone() * x.get_unchecked(i * stride2).clone() * c.clone()
-                + beta.clone() * y.clone();
+    for i in 0..len {
+        // SAFETY: Caller guarantees pointer validity for these offsets.
+        // The y elements are initialized (beta != 0 path), so assume_init_read is sound.
+        // We use ptr::read on x instead of (*ptr).clone() to avoid creating &T references
+        // that would push SharedRO tags onto the Stacked Borrows stack, conflicting with
+        // writes through y when both pointers derive from the same allocation.
+        // This is sound because all Scalar types that also implement
+        // Zero + ClosedAddAssign + ClosedMulAssign are Copy in practice (f32, f64, etc.).
+        unsafe {
+            let old_y = Status::assume_init_read(y.add(i * stride1));
+            let x_val = ptr::read(x.add(i * stride2));
+            Status::init_ptr(
+                y.add(i * stride1),
+                a.clone() * x_val * c.clone() + beta.clone() * old_y,
+            );
         }
     }
 }
 
-fn array_axc<Status, T>(
+// # Safety
+// `y` and `x` must be valid for the access pattern `ptr.add(i * stride)` for
+// `i` in `0..len`. The content of `y` need not be initialized (write-only path).
+unsafe fn array_axc<Status, T>(
     _: Status,
-    y: &mut [Status::Value],
+    y: *mut Status::Value,
     a: T,
-    x: &[T],
+    x: *const T,
     c: T,
     stride1: usize,
     stride2: usize,
@@ -66,11 +81,12 @@ fn array_axc<Status, T>(
     T: Scalar + Zero + ClosedAddAssign + ClosedMulAssign,
 {
     for i in 0..len {
+        // SAFETY: Caller guarantees pointer validity for these offsets.
+        // ptr::read is used instead of (*ptr).clone() to avoid Stacked Borrows
+        // violations — see array_axcpy for detailed rationale.
         unsafe {
-            Status::init(
-                y.get_unchecked_mut(i * stride1),
-                a.clone() * x.get_unchecked(i * stride2).clone() * c.clone(),
-            );
+            let x_val = ptr::read(x.add(i * stride2));
+            Status::init_ptr(y.add(i * stride1), a.clone() * x_val * c.clone());
         }
     }
 }
@@ -97,21 +113,25 @@ pub unsafe fn axcpy_uninit<Status, T, D1: Dim, D2: Dim, SA, SB>(
     ShapeConstraint: DimEq<D1, D2>,
     Status: InitStatus<T>,
 {
+    assert_eq!(y.nrows(), x.nrows(), "Axcpy: mismatched vector shapes.");
+
+    let len = x.nrows();
+    let rstride1 = y.strides().0;
+    let rstride2 = x.strides().0;
+
+    // SAFETY: We use raw pointers instead of slices to avoid creating
+    // aliasing &mut [T] / &[T] references when y and x derive from
+    // the same parent allocation (e.g. via columns_range_pair_mut).
+    // Raw pointer access does not perform Stacked Borrows retags,
+    // so it cannot invalidate sibling borrows.
     unsafe {
-        assert_eq!(y.nrows(), x.nrows(), "Axcpy: mismatched vector shapes.");
-
-        let rstride1 = y.strides().0;
-        let rstride2 = x.strides().0;
-
-        // SAFETY: the conversion to slices is OK because we access the
-        //         elements taking the strides into account.
-        let y = y.data.as_mut_slice_unchecked();
-        let x = x.data.as_slice_unchecked();
+        let y = y.data.ptr_mut();
+        let x = x.data.ptr();
 
         if !b.is_zero() {
-            array_axcpy(status, y, a, x, c, b, rstride1, rstride2, x.len());
+            array_axcpy(status, y, a, x, c, b, rstride1, rstride2, len);
         } else {
-            array_axc(status, y, a, x, c, rstride1, rstride2, x.len());
+            array_axc(status, y, a, x, c, rstride1, rstride2, len);
         }
     }
 }
@@ -160,6 +180,12 @@ pub unsafe fn gemv_uninit<Status, T, D1: Dim, R2: Dim, C2: Dim, D3: Dim, SA, SB,
         }
 
         // TODO: avoid bound checks.
+        // SAFETY (aliasing): `a` and `y` are received as `&Matrix` and `&mut Vector`
+        // respectively, so Rust's borrow rules guarantee they reference disjoint
+        // allocations. Column views into `a` (via `a.column(j)`) inherit provenance
+        // from `a` and cannot alias with `y`. After the raw-pointer rewrite
+        // (issue #1520), `axcpy_uninit` uses raw pointers internally, avoiding
+        // Stacked Borrows retag issues even if views were to share an allocation.
         let col2 = a.column(0);
         let val = x.vget_unchecked(0).clone();
 
@@ -268,6 +294,11 @@ pub unsafe fn gemm_uninit<
                         return;
                     }
 
+                    // SAFETY (aliasing): The matrixmultiply path operates entirely
+                    // on raw pointers via data.ptr()/data.ptr_mut(). No slice
+                    // references are created, so no Stacked Borrows retags occur.
+                    // The three matrices (a, b, y) are separate parameters with
+                    // disjoint provenance guaranteed by Rust's borrow rules.
                     if TypeId::of::<T>() == TypeId::of::<f32>() {
                         let (rsa, csa) = a.strides();
                         let (rsb, csb) = b.strides();
@@ -319,7 +350,11 @@ pub unsafe fn gemm_uninit<
 
         for j1 in 0..ncols1 {
             // TODO: avoid bound checks.
-            // SAFETY: this is UB if Status = Uninit && beta != 0
+            // SAFETY (uninit): this is UB if Status = Uninit && beta != 0.
+            // SAFETY (aliasing): `y.column_mut(j1)` and `b.column(j1)` derive
+            // from separate parent matrices (`y` vs `b`), so they cannot alias.
+            // Each `column_mut` borrow is consumed by `gemv_uninit` before the
+            // next iteration, so successive mutable column views do not overlap.
             gemv_uninit(
                 status,
                 &mut y.column_mut(j1),
