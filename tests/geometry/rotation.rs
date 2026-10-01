@@ -85,6 +85,29 @@ fn quaternion_euler_angles_issue_494() {
     assert_eq!(angs.2, 0.0);
 }
 
+#[test]
+fn euler_angles_ordered_issue_1481() {
+    // A valid unit quaternion can yield a rotation matrix whose diagonal
+    // entry is slightly outside [-1, 1] due to rounding; feeding it to acos
+    // produced NaN before the clamp fix.
+    let q = UnitQuaternion::new_normalize(Quaternion::<f64>::new(
+        0.1045170328727042,
+        -0.6993398242910853,
+        0.10451703287270421,
+        0.6993398242910854,
+    ));
+    let seq = [
+        UnitVector3::new_normalize(Vector3::z()),
+        UnitVector3::new_normalize(Vector3::y()),
+        UnitVector3::new_normalize(Vector3::x()),
+    ];
+    let (angles, _observable) = q.to_rotation_matrix().euler_angles_ordered(seq, false);
+    assert!(
+        angles.iter().all(|a| a.is_finite()),
+        "euler angles must be finite, got {angles:?}"
+    );
+}
+
 #[cfg(feature = "proptest-support")]
 mod proptest_tests {
     use approx::AbsDiffEq;

@@ -1098,7 +1098,7 @@ impl<T: SimdRealField> Rotation3<T> {
             c1,
         );
         let o_t = c * self.matrix() * (c.transpose() * r1l);
-        angles[1] = o_t.m33.acos();
+        angles[1] = o_t.m33.clamp(-T::one(), T::one()).acos();
 
         let safe1 = angles[1].abs() >= eps;
         let safe2 = (angles[1] - T::pi()).abs() >= eps;
