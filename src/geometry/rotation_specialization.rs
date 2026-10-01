@@ -417,7 +417,23 @@ where
 
     /// Creates a new rotation from Euler angles.
     ///
-    /// The primitive rotations are applied in order: 1 roll − 2 pitch − 3 yaw.
+    /// The angles are interpreted as extrinsic rotations around the X, Y and Z axis.
+    /// These angles are also often called roll, pitch and yaw.
+    ///
+    /// The returned rotation could also be constructed in the following manner:
+    ///
+    /// ```
+    /// # use nalgebra::{Rotation3, Vector3};
+    /// # use approx::assert_relative_eq;
+    /// # let angle_x: f32 = 0.5;
+    /// # let angle_y: f32 = 1.2;
+    /// # let angle_z: f32 = 2.3;
+    /// let rotation = Rotation3::from_euler_angles(angle_x, angle_y, angle_z);
+    /// let manually_combined = Rotation3::from_axis_angle(&Vector3::z_axis(), angle_z)
+    ///   * Rotation3::from_axis_angle(&Vector3::y_axis(), angle_y)
+    ///   * Rotation3::from_axis_angle(&Vector3::x_axis(), angle_x);
+    /// assert_relative_eq!(manually_combined, rotation, epsilon = 1e6);
+    /// ```
     ///
     /// # Example
     /// ```
@@ -934,8 +950,23 @@ impl<T: SimdRealField> Rotation3<T> {
 
     /// Creates Euler angles from a rotation.
     ///
-    /// The angles are produced in the form (roll, pitch, yaw).
-    #[deprecated(note = "This is renamed to use `.euler_angles()`.")]
+    /// The returned angles are extrinsic rotations around the X, Y and Z axis.
+    /// These angles are also often called roll, pitch and yaw.
+    ///
+    /// To get the original rotation back from the individual angles, you would combine them in the following manner:
+    ///
+    /// ```
+    /// # #![allow(deprecated)]
+    /// # use nalgebra::{Rotation3, Vector3};
+    /// # use approx::assert_relative_eq;
+    /// # let rotation = Rotation3::from_euler_angles(0.5_f32, 1.2, 2.3);
+    /// let angles = rotation.to_euler_angles();
+    /// let recombined = Rotation3::from_axis_angle(&Vector3::z_axis(), angles.2)
+    ///   * Rotation3::from_axis_angle(&Vector3::y_axis(), angles.1)
+    ///   * Rotation3::from_axis_angle(&Vector3::x_axis(), angles.0);
+    /// assert_relative_eq!(recombined, rotation, epsilon = 1e-6);
+    /// ```
+    #[deprecated(note = "This is renamed to `.euler_angles()`.")]
     pub fn to_euler_angles(self) -> (T, T, T)
     where
         T: RealField,
@@ -945,7 +976,21 @@ impl<T: SimdRealField> Rotation3<T> {
 
     /// Euler angles corresponding to this rotation from a rotation.
     ///
-    /// The angles are produced in the form (roll, pitch, yaw).
+    /// The returned angles are extrinsic rotations around the X, Y and Z axis.
+    /// These angles are also often called roll, pitch and yaw.
+    ///
+    /// To get the original rotation back from the individual angles, you would combine them in the following manner:
+    ///
+    /// ```
+    /// # use nalgebra::{Rotation3, Vector3};
+    /// # use approx::assert_relative_eq;
+    /// # let rotation = Rotation3::from_euler_angles(0.5_f32, 1.2, 2.3);
+    /// let angles = rotation.euler_angles();
+    /// let recombined = Rotation3::from_axis_angle(&Vector3::z_axis(), angles.2)
+    ///   * Rotation3::from_axis_angle(&Vector3::y_axis(), angles.1)
+    ///   * Rotation3::from_axis_angle(&Vector3::x_axis(), angles.0);
+    /// assert_relative_eq!(recombined, rotation, epsilon = 1e-6);
+    /// ```
     ///
     /// # Example
     /// ```

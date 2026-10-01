@@ -152,7 +152,23 @@ impl<T: RealField> Matrix4<T> {
 
     /// Creates a new rotation from Euler angles.
     ///
-    /// The primitive rotations are applied in order: 1 roll − 2 pitch − 3 yaw.
+    /// The angles are interpreted as extrinsic rotations around the X, Y and Z axis.
+    /// These angles are also often called roll, pitch and yaw.
+    ///
+    /// The returned rotation could also be constructed in the following manner:
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix4, Vector3};
+    /// # use approx::assert_relative_eq;
+    /// # let angle_x: f32 = 0.5;
+    /// # let angle_y: f32 = 1.2;
+    /// # let angle_z: f32 = 2.3;
+    /// let rotation = Matrix4::from_euler_angles(angle_x, angle_y, angle_z);
+    /// let manually_combined = Matrix4::from_axis_angle(&Vector3::z_axis(), angle_z)
+    ///   * Matrix4::from_axis_angle(&Vector3::y_axis(), angle_y)
+    ///   * Matrix4::from_axis_angle(&Vector3::x_axis(), angle_x);
+    /// assert_relative_eq!(manually_combined, rotation, epsilon = 1e6);
+    /// ```
     pub fn from_euler_angles(roll: T, pitch: T, yaw: T) -> Self {
         Rotation3::from_euler_angles(roll, pitch, yaw).to_homogeneous()
     }
