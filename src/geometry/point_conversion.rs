@@ -6,8 +6,8 @@ use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
 use crate::base::{Const, DefaultAllocator, Matrix, OVector, Scalar};
 
-use crate::geometry::Point;
-use crate::{DimName, OPoint};
+use crate::geometry::{Point, Point2, Point3};
+use crate::{DimName, OPoint, Vector3, Vector4};
 
 /*
  * This file provides the following conversions:
@@ -70,14 +70,27 @@ where
     }
 }
 
-impl<T: Scalar + Zero + One, D: DimName> From<OPoint<T, D>> for OVector<T, DimNameSum<D, U1>>
+impl<T: Scalar + Zero + One> From<Point2<T>> for Vector3<T> {
+    #[inline]
+    fn from(p: Point2<T>) -> Self {
+        p.to_homogeneous()
+    }
+}
+
+impl<T: Scalar + Zero + One> From<Point3<T>> for Vector4<T> {
+    #[inline]
+    fn from(p: Point3<T>) -> Self {
+        p.to_homogeneous()
+    }
+}
+
+impl<T: Scalar, D: DimName> From<OPoint<T, D>> for OVector<T, D>
 where
-    D: DimNameAdd<U1>,
-    DefaultAllocator: Allocator<DimNameSum<D, U1>> + Allocator<D>,
+    DefaultAllocator: Allocator<D>,
 {
     #[inline]
-    fn from(t: OPoint<T, D>) -> Self {
-        t.to_homogeneous()
+    fn from(p: OPoint<T, D>) -> Self {
+        p.coords
     }
 }
 
