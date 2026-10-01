@@ -58,10 +58,13 @@ impl<T: ComplexField> GivensRotation<T> {
     ///
     /// Returns `None` if no rotation is needed (i.e. if `v.y == 0`). Otherwise, this returns the norm
     /// of `v` and the rotation `r` such that `R * v = [ |v|, 0.0 ]^t` where `|v|` is the norm of `v`.
-    pub fn cancel_y<S: Storage<T, U2>>(v: &Vector<T, U2, S>) -> Option<(Self, T)> {
-        if !v[1].is_zero() {
-            let (mod0, sign0) = v[0].clone().to_exp();
-            let denom = (mod0.clone() * mod0.clone() + v[1].clone().modulus_squared()).sqrt();
+    pub fn cancel_y<S: Storage<T, U2>>(
+        v: &Vector<T, U2, S>,
+        eps: T::RealField,
+    ) -> Option<(Self, T)> {
+        let (mod0, sign0) = v[0].clone().to_exp();
+        let denom = (mod0.clone() * mod0.clone() + v[1].clone().modulus_squared()).sqrt();
+        if !v[1].is_zero() && denom > eps {
             let c = mod0 / denom.clone();
             let s = -v[1].clone() / sign0.clone().scale(denom.clone());
             let r = sign0.scale(denom);
@@ -75,10 +78,13 @@ impl<T: ComplexField> GivensRotation<T> {
     ///
     /// Returns `None` if no rotation is needed (i.e. if `v.x == 0`). Otherwise, this returns the norm
     /// of `v` and the rotation `r` such that `R * v = [ 0.0, |v| ]^t` where `|v|` is the norm of `v`.
-    pub fn cancel_x<S: Storage<T, U2>>(v: &Vector<T, U2, S>) -> Option<(Self, T)> {
-        if !v[0].is_zero() {
-            let (mod1, sign1) = v[1].clone().to_exp();
-            let denom = (mod1.clone() * mod1.clone() + v[0].clone().modulus_squared()).sqrt();
+    pub fn cancel_x<S: Storage<T, U2>>(
+        v: &Vector<T, U2, S>,
+        eps: T::RealField,
+    ) -> Option<(Self, T)> {
+        let (mod1, sign1) = v[1].clone().to_exp();
+        let denom = (mod1.clone() * mod1.clone() + v[0].clone().modulus_squared()).sqrt();
+        if !v[0].is_zero() && denom > eps {
             let c = mod1 / denom.clone();
             let s = (v[0].clone().conjugate() * sign1.clone()).unscale(denom.clone());
             let r = sign1.scale(denom);
