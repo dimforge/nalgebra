@@ -65,6 +65,9 @@ impl<
 impl<T: RealField, D: Dim, S: Storage<T, D>> Unit<Vector<T, D, S>> {
     /// Computes the spherical linear interpolation between two unit vectors.
     ///
+    /// When the vectors are antiparallel the geodesic is ambiguous; an arbitrary but
+    /// deterministic one is used, still honoring `slerp(_, 0) == self` and `slerp(_, 1) == rhs`.
+    ///
     /// # Examples:
     ///
     /// ```
@@ -86,9 +89,50 @@ impl<T: RealField, D: Dim, S: Storage<T, D>> Unit<Vector<T, D, S>> {
     where
         DefaultAllocator: Allocator<D>,
     {
-        // TODO: the result is wrong when self and rhs are collinear with opposite direction.
-        self.try_slerp(rhs, t, T::default_epsilon())
-            .unwrap_or_else(|| Unit::new_unchecked(self.clone_owned()))
+        if let Some(result) = self.try_slerp(rhs, t.clone(), T::default_epsilon()) {
+            return result;
+        }
+
+        // `self` and `rhs` are (nearly) antiparallel: the great circle is ambiguous, but the
+        // endpoints are not. Rotate through a deterministic axis orthogonal to `self`, so
+        // slerp(_, 0) == self, slerp(_, 1) == rhs, and the path stays continuous. See #657.
+        let n = self.clone_owned();
+        let dim = n.len();
+
+        // Canonical basis vector least aligned with `n`, for numerical robustness.
+        let mut axis = 0;
+        let mut min_sq = n[0].clone() * n[0].clone();
+        for i in 1..dim {
+            let sq = n[i].clone() * n[i].clone();
+            if sq < min_sq {
+                min_sq = sq;
+                axis = i;
+            }
+        }
+
+        let mut ortho = n.clone();
+        ortho.fill(T::zero());
+        ortho[axis] = T::one();
+        let dot = ortho.dot(&n);
+        ortho.axpy(-dot, &n, T::one()); // ortho = e_axis - (e_axis . n) n
+
+        let ortho_norm = ortho.norm();
+        if relative_eq!(ortho_norm, T::zero()) {
+            // No orthogonal direction exists (1D): only the endpoints are defined.
+            let half = T::one() / (T::one() + T::one());
+            return if t <= half {
+                Unit::new_unchecked(n)
+            } else {
+                Unit::new_unchecked(rhs.clone_owned())
+            };
+        }
+        ortho.unscale_mut(ortho_norm);
+
+        let theta = T::pi() * t;
+        let mut res = n.scale(theta.clone().cos());
+        res.axpy(theta.sin(), &ortho, T::one());
+
+        Unit::new_unchecked(res)
     }
 
     /// Computes the spherical linear interpolation between two unit vectors.
@@ -110,6 +154,12 @@ impl<T: RealField, D: Dim, S: Storage<T, D>> Unit<Vector<T, D, S>> {
         // self == other
         if c_hang >= T::one() {
             return Some(Unit::new_unchecked(self.clone_owned()));
+        }
+
+        // self == -other, up to rounding pushing the dot product past -1 (which would make the
+        // acos/sqrt below NaN): opposite direction, so the interpolation is not well-defined.
+        if c_hang <= -T::one() {
+            return None;
         }
 
         let hang = c_hang.clone().acos();

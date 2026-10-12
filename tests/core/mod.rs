@@ -3,6 +3,7 @@ mod cg;
 mod conversion;
 mod edition;
 mod empty;
+mod interpolation;
 mod matrix;
 mod matrix_view;
 #[cfg(feature = "mint")]
