@@ -46,10 +46,26 @@ pub fn svd_ordered3<T: RealField>(
     }
 
     let qr = b.qr();
+    // The QR decomposition does not force the diagonal of `R` to be positive, so the singular
+    // values are the absolute values of that diagonal, and the columns of `U` must get the
+    // sign of the corresponding diagonal element.
+    let r_diagonal = qr.qr_internal().diagonal();
 
     Some(SVD {
-        u: if compute_u { Some(qr.q()) } else { None },
-        singular_values: qr.diag_internal().map(|e| e.abs()),
+        u: if compute_u {
+            let mut u = qr.q();
+
+            for i in 0..3 {
+                if r_diagonal[i] < T::zero() {
+                    u.column_mut(i).neg_mut();
+                }
+            }
+
+            Some(u)
+        } else {
+            None
+        },
+        singular_values: r_diagonal.map(|e| e.abs()),
         v_t: if compute_v { Some(v.transpose()) } else { None },
     })
 }

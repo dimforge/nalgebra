@@ -3,17 +3,20 @@ use num::Zero;
 use serde::{Deserialize, Serialize};
 
 use crate::allocator::{Allocator, Reallocator};
-use crate::base::{DefaultAllocator, Matrix, OMatrix, OVector, Unit};
+use crate::base::{DefaultAllocator, Matrix, OMatrix, OVector};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::dimension::{Const, Dim, DimMin, DimMinimum};
 use crate::storage::{Storage, StorageMut};
 use simba::scalar::ComplexField;
 
-use crate::geometry::Reflection;
-use crate::linalg::householder;
 use std::mem::MaybeUninit;
 
 /// The QR decomposition of a general matrix.
+///
+/// The decomposition is stored like in LAPACK's `?GEQR2`: the upper trapezoidal part of `qr` is
+/// `R`, and the columns below its diagonal hold the Householder vectors `v` (their first component
+/// is `1` and is not stored). `Q` is the product `H(0) * H(1) * ... ` of the reflections
+/// `H(i) = I - tau(i) * v * v.adjoint()`.
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
@@ -36,7 +39,7 @@ where
     DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>>,
 {
     qr: OMatrix<T, R, C>,
-    diag: OVector<T, DimMinimum<R, C>>,
+    tau: OVector<T, DimMinimum<R, C>>,
 }
 
 impl<T: ComplexField, R: DimMin<C>, C: Dim> Copy for QR<T, R, C>
@@ -49,7 +52,7 @@ where
 
 impl<T: ComplexField, R: DimMin<C>, C: Dim> QR<T, R, C>
 where
-    DefaultAllocator: Allocator<R, C> + Allocator<R> + Allocator<DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<R, C> + Allocator<R> + Allocator<C> + Allocator<DimMinimum<R, C>>,
 {
     /// Computes the QR decomposition using householder reflections.
     pub fn new(mut matrix: OMatrix<T, R, C>) -> Self {
@@ -59,20 +62,67 @@ where
         if min_nrows_ncols.value() == 0 {
             return QR {
                 qr: matrix,
-                diag: Matrix::zeros_generic(min_nrows_ncols, Const::<1>),
+                tau: Matrix::zeros_generic(min_nrows_ncols, Const::<1>),
             };
         }
 
-        let mut diag = Matrix::uninit(min_nrows_ncols, Const::<1>);
+        let mut tau = Matrix::uninit(min_nrows_ncols, Const::<1>);
+        let mut work = Matrix::zeros_generic(ncols, Const::<1>);
 
         for i in 0..min_nrows_ncols.value() {
-            diag[i] =
-                MaybeUninit::new(householder::clear_column_unchecked(&mut matrix, i, 0, None));
+            let (mut left, mut right) = matrix.columns_range_pair_mut(i, i + 1..);
+            let mut axis = left.rows_range_mut(i..);
+
+            // Compute the scaled Householder vector, cf. LAPACK's `?LARFG`.
+            let (beta, tau_i) = {
+                let alpha = unsafe { axis.vget_unchecked(0).clone() };
+                let xnorm = axis.rows_range(1..).norm();
+
+                if xnorm.is_zero() && alpha.clone().imaginary().is_zero() {
+                    // The column is already in the wanted form.
+                    (alpha, T::zero())
+                } else {
+                    let a_r = alpha.clone().real();
+                    let a_i = alpha.clone().imaginary();
+                    // TODO: use LAPACK's `?LAPY3` once `RealField` has a `max` method.
+                    let reflection_norm =
+                        (a_r.clone() * a_r.clone() + a_i.clone() * a_i + xnorm.clone() * xnorm)
+                            .sqrt();
+                    // TODO: use `reflection_norm.copysign(a_r)`.
+                    let beta = -reflection_norm.abs() * a_r.signum();
+                    // TODO: rescale if `beta` is close to underflow, cf. LAPACK's `?LARFG`.
+                    let tau_i = (T::from_real(beta.clone()) - alpha.clone()).unscale(beta.clone());
+                    // Scale the Householder vector such that its first component is `1`.
+                    let tmp = alpha - T::from_real(beta.clone());
+                    axis.rows_range_mut(1..).apply(|x| *x /= tmp.clone());
+
+                    (T::from_real(beta), tau_i)
+                }
+            };
+
+            tau[i] = MaybeUninit::new(tau_i.clone());
+
+            if !tau_i.is_zero() {
+                // Apply the Householder reflection to the remaining columns.
+                unsafe {
+                    *axis.vget_unchecked_mut(0) = T::one();
+                }
+
+                let mut work = work.rows_range_mut(i + 1..);
+                work.gemv_ad(T::one(), &right.rows_range(i..), &axis, T::zero());
+                right
+                    .rows_range_mut(i..)
+                    .gerc(-tau_i.conjugate(), &axis, &work, T::one());
+            }
+
+            unsafe {
+                *axis.vget_unchecked_mut(0) = beta;
+            }
         }
 
-        // Safety: diag is now fully initialized.
-        let diag = unsafe { diag.assume_init() };
-        QR { qr: matrix, diag }
+        // Safety: tau is now fully initialized.
+        let tau = unsafe { tau.assume_init() };
+        QR { qr: matrix, tau }
     }
 
     /// Retrieves the upper trapezoidal submatrix `R` of this decomposition.
@@ -83,9 +133,7 @@ where
         DefaultAllocator: Allocator<DimMinimum<R, C>, C>,
     {
         let (nrows, ncols) = self.qr.shape_generic();
-        let mut res = self.qr.rows_generic(0, nrows.min(ncols)).upper_triangle();
-        res.set_partial_diagonal(self.diag.iter().map(|e| T::from_real(e.clone().modulus())));
-        res
+        self.qr.rows_generic(0, nrows.min(ncols)).upper_triangle()
     }
 
     /// Retrieves the upper trapezoidal submatrix `R` of this decomposition.
@@ -99,33 +147,76 @@ where
         let (nrows, ncols) = self.qr.shape_generic();
         let mut res = self.qr.resize_generic(nrows.min(ncols), ncols, T::zero());
         res.fill_lower_triangle(T::zero(), 1);
-        res.set_partial_diagonal(self.diag.iter().map(|e| T::from_real(e.clone().modulus())));
         res
+    }
+
+    /// Computes the first `ncols` columns of the orthogonal matrix `Q` of this decomposition.
+    ///
+    /// Use this to get the full `Q` of a tall matrix: `q_columns` accepts any `ncols` up to the
+    /// number of rows of the decomposed matrix, while [`QR::q`] returns the first
+    /// `min(nrows, ncols)` columns only.
+    ///
+    /// # Panics
+    /// Panics if `ncols` is bigger than the number of rows of the decomposed matrix.
+    #[must_use]
+    pub fn q_columns<K: Dim>(&self, ncols: K) -> OMatrix<T, R, K>
+    where
+        DefaultAllocator: Allocator<R, K> + Allocator<K>,
+    {
+        // This is LAPACK's `?ORG2R`.
+        let (q_nrows, q_ncols) = self.qr.shape_generic();
+        assert!(
+            ncols.value() <= q_nrows.value(),
+            "The number of columns of Q cannot be bigger than the number of rows of the decomposed matrix."
+        );
+
+        let mut a = OMatrix::<T, R, K>::identity_generic(q_nrows, ncols);
+        let mut work = Matrix::zeros_generic(ncols, Const::<1>);
+        // The reflections after the first `k` ones do not change the first `ncols` columns.
+        let k = q_nrows.value().min(q_ncols.value()).min(ncols.value());
+
+        a.view_range_mut(.., ..k)
+            .copy_from(&self.qr.view_range(.., ..k));
+
+        for i in (0..k).rev() {
+            let tau_i = unsafe { self.tau.vget_unchecked(i).clone() };
+
+            if i + 1 < ncols.value() {
+                // Apply the reflection to the columns computed so far.
+                unsafe {
+                    *a.get_unchecked_mut((i, i)) = T::one();
+                }
+
+                let (left, mut right) = a.columns_range_pair_mut(i, i + 1..);
+                let axis = left.rows_range(i..);
+                let mut work = work.rows_range_mut(i + 1..);
+                work.gemv_ad(T::one(), &right.rows_range(i..), &axis, T::zero());
+                right
+                    .rows_range_mut(i..)
+                    .gerc(-tau_i.clone(), &axis, &work, T::one());
+            }
+
+            if i + 1 < q_nrows.value() {
+                a.view_range_mut(i + 1.., i).apply(|x| *x *= -tau_i.clone());
+            }
+
+            unsafe {
+                *a.get_unchecked_mut((i, i)) = T::one() - tau_i;
+            }
+            a.view_range_mut(..i, i).fill(T::zero());
+        }
+
+        a
     }
 
     /// Computes the orthogonal matrix `Q` of this decomposition.
     #[must_use]
     pub fn q(&self) -> OMatrix<T, R, DimMinimum<R, C>>
     where
-        DefaultAllocator: Allocator<R, DimMinimum<R, C>>,
+        DefaultAllocator: Allocator<R, DimMinimum<R, C>> + Allocator<DimMinimum<R, C>>,
     {
         let (nrows, ncols) = self.qr.shape_generic();
-
-        // NOTE: we could build the identity matrix and call q_mul on it.
-        // Instead we don't so that we take in account the matrix sparseness.
-        let mut res = Matrix::identity_generic(nrows, nrows.min(ncols));
-        let dim = self.diag.len();
-
-        for i in (0..dim).rev() {
-            let axis = self.qr.view_range(i.., i);
-            // TODO: sometimes, the axis might have a zero magnitude.
-            let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());
-
-            let mut res_rows = res.view_range_mut(i.., i..);
-            refl.reflect_with_sign(&mut res_rows, self.diag[i].clone().signum());
-        }
-
-        res
+        self.q_columns(nrows.min(ncols))
     }
 
     /// Unpacks this decomposition into its two matrix factors.
@@ -137,8 +228,9 @@ where
     )
     where
         DimMinimum<R, C>: DimMin<C, Output = DimMinimum<R, C>>,
-        DefaultAllocator:
-            Allocator<R, DimMinimum<R, C>> + Reallocator<T, R, C, DimMinimum<R, C>, C>,
+        DefaultAllocator: Allocator<R, DimMinimum<R, C>>
+            + Allocator<DimMinimum<R, C>>
+            + Reallocator<T, R, C, DimMinimum<R, C>, C>,
     {
         (self.q(), self.unpack_r())
     }
@@ -148,25 +240,33 @@ where
         &self.qr
     }
 
-    #[must_use]
-    pub(crate) const fn diag_internal(&self) -> &OVector<T, DimMinimum<R, C>> {
-        &self.diag
-    }
-
     /// Multiplies the provided matrix by the transpose of the `Q` matrix of this decomposition.
     pub fn q_tr_mul<R2: Dim, C2: Dim, S2>(&self, rhs: &mut Matrix<T, R2, C2, S2>)
-    // TODO: do we need a static constraint on the number of rows of rhs?
     where
         S2: StorageMut<T, R2, C2>,
+        ShapeConstraint: SameNumberOfRows<R2, R>,
     {
-        let dim = self.diag.len();
+        for i in 0..self.tau.len() {
+            let tau_i = unsafe { self.tau.vget_unchecked(i).clone() };
 
-        for i in 0..dim {
-            let axis = self.qr.view_range(i.., i);
-            let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());
+            if tau_i.is_zero() {
+                continue;
+            }
 
-            let mut rhs_rows = rhs.rows_range_mut(i..);
-            refl.reflect_with_sign(&mut rhs_rows, self.diag[i].clone().signum().conjugate());
+            // The first component of the Householder vector is `1` and is not stored.
+            let axis = self.qr.view_range(i + 1.., i);
+
+            for j in 0..rhs.ncols() {
+                let mut col = rhs.column_mut(j);
+                let dot =
+                    unsafe { col.vget_unchecked(i).clone() } + axis.dotc(&col.rows_range(i + 1..));
+                let factor = -(tau_i.clone().conjugate() * dot);
+
+                unsafe {
+                    *col.vget_unchecked_mut(i) += factor.clone();
+                }
+                col.rows_range_mut(i + 1..).axpy(factor, &axis, T::one());
+            }
         }
     }
 }
@@ -217,42 +317,7 @@ where
         );
 
         self.q_tr_mul(b);
-        self.solve_upper_triangular_mut(b)
-    }
-
-    // TODO: duplicate code from the `solve` module.
-    fn solve_upper_triangular_mut<R2: Dim, C2: Dim, S2>(
-        &self,
-        b: &mut Matrix<T, R2, C2, S2>,
-    ) -> bool
-    where
-        S2: StorageMut<T, R2, C2>,
-        ShapeConstraint: SameNumberOfRows<R2, D>,
-    {
-        let dim = self.qr.nrows();
-
-        for k in 0..b.ncols() {
-            let mut b = b.column_mut(k);
-            for i in (0..dim).rev() {
-                let coeff;
-
-                unsafe {
-                    let diag = self.diag.vget_unchecked(i).clone().modulus();
-
-                    if diag.is_zero() {
-                        return false;
-                    }
-
-                    coeff = b.vget_unchecked(i).clone().unscale(diag);
-                    *b.vget_unchecked_mut(i) = coeff.clone();
-                }
-
-                b.rows_range_mut(..i)
-                    .axpy(-coeff, &self.qr.view_range(..i, i), T::one());
-            }
-        }
-
-        true
+        self.qr.solve_upper_triangular_mut(b)
     }
 
     /// Computes the inverse of the decomposed matrix.
@@ -283,14 +348,7 @@ where
             self.qr.is_square(),
             "QR: unable to test the invertibility of a non-square matrix."
         );
-
-        for i in 0..self.diag.len() {
-            if self.diag[i].is_zero() {
-                return false;
-            }
-        }
-
-        true
+        (0..self.qr.ncols()).all(|i| unsafe { !self.qr.get_unchecked((i, i)).is_zero() })
     }
 
     // /// Computes the determinant of the decomposed matrix.

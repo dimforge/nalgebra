@@ -57,7 +57,8 @@ impl<T: ComplexField, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     pub fn qr(self) -> QR<T, R, C>
     where
         R: DimMin<C>,
-        DefaultAllocator: Allocator<R, C> + Allocator<R> + Allocator<DimMinimum<R, C>>,
+        DefaultAllocator:
+            Allocator<R, C> + Allocator<R> + Allocator<C> + Allocator<DimMinimum<R, C>>,
     {
         QR::new(self.into_owned())
     }
