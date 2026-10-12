@@ -17,8 +17,8 @@ use crate::base::{Vector2, Vector3};
 
 use crate::{
     AbstractRotation, Isometry, Isometry2, Isometry3, IsometryMatrix2, IsometryMatrix3, Point,
-    Point3, Rotation, Rotation3, Scalar, Translation, Translation2, Translation3, UnitComplex,
-    UnitQuaternion,
+    Point2, Point3, Rotation, Rotation3, Scalar, Translation, Translation2, Translation3,
+    UnitComplex, UnitQuaternion,
 };
 
 impl<T: SimdRealField, R: AbstractRotation<T, D>, const D: usize> Default for Isometry<T, R, D>
@@ -155,6 +155,44 @@ where
         Self::new(Vector2::zeros(), angle)
     }
 
+    /// Creates an isometry that corresponds to the local frame of an observer standing at the
+    /// point `eye` and looking toward `target`.
+    ///
+    /// It maps the `x` axis to the view direction `target - eye` and the origin to the `eye`.
+    ///
+    /// # Arguments
+    ///   * eye - The observer position.
+    ///   * target - The target position.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{IsometryMatrix2, Point2, Vector2};
+    /// let eye = Point2::new(1.0, 2.0);
+    /// let target = Point2::new(2.0, 2.0);
+    ///
+    /// let iso = IsometryMatrix2::face_towards(&eye, &target);
+    /// assert_eq!(iso * Point2::origin(), eye);
+    /// assert_relative_eq!(iso * Vector2::x(), Vector2::x());
+    /// ```
+    #[inline]
+    pub fn face_towards(eye: &Point2<T>, target: &Point2<T>) -> Self {
+        let dir = target - eye;
+        let angle = dir.y.clone().simd_atan2(dir.x.clone());
+
+        Self::from_parts(
+            Translation::from(eye.coords.clone()),
+            Rotation::<T, 2>::new(angle),
+        )
+    }
+
+    /// Deprecated: Use [`IsometryMatrix2::face_towards`] instead.
+    #[deprecated(note = "renamed to `face_towards`")]
+    pub fn new_observer_frame(eye: &Point2<T>, target: &Point2<T>) -> Self {
+        Self::face_towards(eye, target)
+    }
+
     /// Cast the components of `self` to another type.
     ///
     /// # Example
@@ -207,6 +245,44 @@ where
     #[inline]
     pub fn rotation(angle: T) -> Self {
         Self::new(Vector2::zeros(), angle)
+    }
+
+    /// Creates an isometry that corresponds to the local frame of an observer standing at the
+    /// point `eye` and looking toward `target`.
+    ///
+    /// It maps the `x` axis to the view direction `target - eye` and the origin to the `eye`.
+    ///
+    /// # Arguments
+    ///   * eye - The observer position.
+    ///   * target - The target position.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{Isometry2, Point2, Vector2};
+    /// let eye = Point2::new(1.0, 2.0);
+    /// let target = Point2::new(2.0, 2.0);
+    ///
+    /// let iso = Isometry2::face_towards(&eye, &target);
+    /// assert_eq!(iso * Point2::origin(), eye);
+    /// assert_relative_eq!(iso * Vector2::x(), Vector2::x());
+    /// ```
+    #[inline]
+    pub fn face_towards(eye: &Point2<T>, target: &Point2<T>) -> Self {
+        let dir = target - eye;
+        let angle = dir.y.clone().simd_atan2(dir.x.clone());
+
+        Self::from_parts(
+            Translation::from(eye.coords.clone()),
+            UnitComplex::from_angle(angle),
+        )
+    }
+
+    /// Deprecated: Use [`Isometry2::face_towards`] instead.
+    #[deprecated(note = "renamed to `face_towards`")]
+    pub fn new_observer_frame(eye: &Point2<T>, target: &Point2<T>) -> Self {
+        Self::face_towards(eye, target)
     }
 
     /// Cast the components of `self` to another type.

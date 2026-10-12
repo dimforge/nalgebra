@@ -1,10 +1,10 @@
 #![cfg(feature = "proptest-support")]
 #![allow(non_snake_case)]
 
-use na::{Isometry3, Point3, Vector3};
+use na::{Isometry2, Isometry3, IsometryMatrix2, Point2, Point3, Vector2, Vector3};
 
 use crate::proptest::*;
-use proptest::{prop_assert, prop_assert_eq, proptest};
+use proptest::{prop_assert, prop_assert_eq, prop_assume, proptest};
 
 proptest!(
     #[test]
@@ -44,6 +44,40 @@ proptest!(
             && relative_eq!(
                 observer * Vector3::z(),
                 (target - eye).normalize(),
+                epsilon = 1.0e-7
+            ))
+    }
+
+    #[test]
+    fn observer_frame_2(eye in point2(), target in point2()) {
+        let dir = target - eye;
+        prop_assume!(dir.norm_squared() > 1.0e-14);
+
+        let observer = Isometry2::face_towards(&eye, &target);
+        let matrix_observer = IsometryMatrix2::face_towards(&eye, &target);
+        let origin = Point2::origin();
+        let direction = dir.normalize();
+
+        #[allow(deprecated)]
+        {
+            prop_assert!(relative_eq!(
+                Isometry2::new_observer_frame(&eye, &target),
+                observer,
+                epsilon = 1.0e-7
+            ));
+            prop_assert!(relative_eq!(
+                IsometryMatrix2::new_observer_frame(&eye, &target),
+                matrix_observer,
+                epsilon = 1.0e-7
+            ));
+        }
+
+        prop_assert!(relative_eq!(observer * origin, eye, epsilon = 1.0e-7)
+            && relative_eq!(observer * Vector2::x(), direction, epsilon = 1.0e-7)
+            && relative_eq!(matrix_observer * origin, eye, epsilon = 1.0e-7)
+            && relative_eq!(
+                matrix_observer * Vector2::x(),
+                direction,
                 epsilon = 1.0e-7
             ))
     }
