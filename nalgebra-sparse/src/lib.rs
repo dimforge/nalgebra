@@ -77,6 +77,16 @@
 //!
 //! # Example: COO -> CSR -> matrix-vector product
 //!
+//! The example below uses the `matrixcompare` crate to compare sparse and dense matrices. Enable
+//! the `compare` feature for both `nalgebra-sparse` and `nalgebra`:
+//!
+//! ```toml
+//! [dependencies]
+//! nalgebra-sparse = { version = "0.12", features = ["compare"] }
+//! nalgebra = { version = "0.35", features = ["compare"] }
+//! matrixcompare = "0.3"
+//! ```
+//!
 //! ```
 //! use nalgebra_sparse::{coo::CooMatrix, csr::CsrMatrix};
 //! use nalgebra::{DMatrix, DVector};
