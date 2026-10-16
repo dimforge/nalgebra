@@ -85,6 +85,23 @@ fn quaternion_euler_angles_issue_494() {
     assert_eq!(angs.2, 0.0);
 }
 
+#[test]
+fn quaternion_euler_angles_issue_1624() {
+    for pitch in [f64::frac_pi_2(), -f64::frac_pi_2(), 0.3] {
+        for roll in [0.0, 0.4] {
+            let mut quat = UnitQuaternion::from_euler_angles(roll, pitch, 1.0);
+            quat.renormalize();
+            let (roll, pitch, yaw) = quat.euler_angles();
+
+            assert_relative_eq!(
+                UnitQuaternion::from_euler_angles(roll, pitch, yaw).to_rotation_matrix(),
+                quat.to_rotation_matrix(),
+                epsilon = 1.0e-10
+            );
+        }
+    }
+}
+
 #[cfg(feature = "proptest-support")]
 mod proptest_tests {
     use approx::AbsDiffEq;

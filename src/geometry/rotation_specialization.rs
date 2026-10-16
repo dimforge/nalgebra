@@ -965,7 +965,10 @@ impl<T: SimdRealField> Rotation3<T> {
         // Implementation informed by "Computing Euler angles from a rotation matrix", by Gregory G. Slabaugh
         //  https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.371.6578
         //  where roll, pitch, yaw angles are referred to as ψ, θ, ϕ,
-        if self[(2, 0)].clone().abs() < T::one() {
+        // Check cos(pitch) too: sin(pitch) may round to slightly less than one at gimbal lock.
+        if self[(2, 0)].clone().abs() < T::one()
+            && self[(2, 1)].clone().hypot(self[(2, 2)].clone()) > T::default_epsilon().sqrt()
+        {
             let pitch = -self[(2, 0)].clone().asin();
             let theta_cos = pitch.clone().cos();
             let roll = (self[(2, 1)].clone() / theta_cos.clone())
@@ -973,7 +976,7 @@ impl<T: SimdRealField> Rotation3<T> {
             let yaw =
                 (self[(1, 0)].clone() / theta_cos.clone()).atan2(self[(0, 0)].clone() / theta_cos);
             (roll, pitch, yaw)
-        } else if self[(2, 0)].clone() <= -T::one() {
+        } else if self[(2, 0)].clone() <= T::zero() {
             (
                 self[(0, 1)].clone().atan2(self[(0, 2)].clone()),
                 T::frac_pi_2(),
