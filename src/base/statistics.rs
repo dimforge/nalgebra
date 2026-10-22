@@ -520,3 +520,445 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::*;
+
+    #[test]
+    fn test_sum() {
+        let square_float = Matrix2::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(square_float.sum(), 10.0);
+        let rect41_float = Matrix4x1::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(rect41_float.sum(), 10.0);
+        let rect14_float = Matrix1x4::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(rect14_float.sum(), 10.0);
+
+        let square_int = Matrix2::new(1, 2, 3, 4);
+        assert_eq!(square_int.sum(), 10);
+        let rect41_int = Matrix4x1::new(1, 2, 3, 4);
+        assert_eq!(rect41_int.sum(), 10);
+        let rect14_int = Matrix1x4::new(1, 2, 3, 4);
+        assert_eq!(rect14_int.sum(), 10);
+    }
+    #[test]
+    fn test_sum_edge() {
+        let edge00_float = DMatrix::<f32>::zeros(0, 0);
+        assert_eq!(edge00_float.sum(), 0.0);
+        let edge40_float = DMatrix::<f32>::zeros(4, 0);
+        assert_eq!(edge40_float.sum(), 0.0);
+        let edge04_float = DMatrix::<f32>::zeros(0, 4);
+        assert_eq!(edge04_float.sum(), 0.0);
+
+        let edge00_int = DMatrix::<i32>::zeros(0, 0);
+        assert_eq!(edge00_int.sum(), 0);
+        let edge40_int = DMatrix::<i32>::zeros(4, 0);
+        assert_eq!(edge40_int.sum(), 0);
+        let edge04_int = DMatrix::<i32>::zeros(0, 4);
+        assert_eq!(edge04_int.sum(), 0);
+    }
+    #[test]
+    fn test_row_sum() {
+        let square_float = Matrix2::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(square_float.row_sum(), RowVector2::new(4.0, 6.0));
+        let rect41_float = Matrix4x1::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(rect41_float.row_sum(), RowVector1::new(10.0));
+        let rect14_float = Matrix1x4::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(rect14_float.row_sum(), RowVector4::new(1.0, 2.0, 3.0, 4.0));
+
+        let square_int = Matrix2::new(1, 2, 3, 4);
+        assert_eq!(square_int.row_sum(), RowVector2::new(4, 6));
+        let rect41_int = Matrix4x1::new(1, 2, 3, 4);
+        assert_eq!(rect41_int.row_sum(), RowVector1::new(10));
+        let rect14_int = Matrix1x4::new(1, 2, 3, 4);
+        assert_eq!(rect14_int.row_sum(), RowVector4::new(1, 2, 3, 4));
+    }
+    #[test]
+    fn test_row_sum_edge() {
+        let edge00_float = DMatrix::<f32>::zeros(0, 0);
+        assert_eq!(edge00_float.row_sum(), RowDVector::<f32>::zeros(0));
+        let edge40_float = DMatrix::<f32>::zeros(4, 0);
+        assert_eq!(edge40_float.row_sum(), RowDVector::<f32>::zeros(0));
+        let edge04_float = DMatrix::<f32>::zeros(0, 4);
+        assert_eq!(edge04_float.row_sum(), RowDVector::<f32>::zeros(4));
+
+        let edge00_int = DMatrix::<i32>::zeros(0, 0);
+        assert_eq!(edge00_int.row_sum(), RowDVector::<i32>::zeros(0));
+        let edge40_int = DMatrix::<i32>::zeros(4, 0);
+        assert_eq!(edge40_int.row_sum(), RowDVector::<i32>::zeros(0));
+        let edge04_int = DMatrix::<i32>::zeros(0, 4);
+        assert_eq!(edge04_int.row_sum(), RowDVector::<i32>::zeros(4));
+    }
+    #[test]
+    fn test_row_sum_tr() {
+        let square_float = Matrix2::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(square_float.row_sum_tr(), Vector2::new(4.0, 6.0));
+        let rect41_float = Matrix4x1::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(rect41_float.row_sum_tr(), Vector1::new(10.0));
+        let rect14_float = Matrix1x4::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(rect14_float.row_sum_tr(), Vector4::new(1.0, 2.0, 3.0, 4.0));
+
+        let square_int = Matrix2::new(1, 2, 3, 4);
+        assert_eq!(square_int.row_sum_tr(), Vector2::new(4, 6));
+        let rect41_int = Matrix4x1::new(1, 2, 3, 4);
+        assert_eq!(rect41_int.row_sum_tr(), Vector1::new(10));
+        let rect14_int = Matrix1x4::new(1, 2, 3, 4);
+        assert_eq!(rect14_int.row_sum_tr(), Vector4::new(1, 2, 3, 4));
+    }
+    #[test]
+    fn test_row_sum_tr_edge() {
+        let edge00_float = DMatrix::<f32>::zeros(0, 0);
+        assert_eq!(edge00_float.row_sum_tr(), DVector::<f32>::zeros(0));
+        let edge40_float = DMatrix::<f32>::zeros(4, 0);
+        assert_eq!(edge40_float.row_sum_tr(), DVector::<f32>::zeros(0));
+        let edge04_float = DMatrix::<f32>::zeros(0, 4);
+        assert_eq!(edge04_float.row_sum_tr(), DVector::<f32>::zeros(4));
+
+        let edge00_int = DMatrix::<i32>::zeros(0, 0);
+        assert_eq!(edge00_int.row_sum_tr(), DVector::<i32>::zeros(0));
+        let edge40_int = DMatrix::<i32>::zeros(4, 0);
+        assert_eq!(edge40_int.row_sum_tr(), DVector::<i32>::zeros(0));
+        let edge04_int = DMatrix::<i32>::zeros(0, 4);
+        assert_eq!(edge04_int.row_sum_tr(), DVector::<i32>::zeros(4));
+    }
+    #[test]
+    fn test_column_sum() {
+        let square_float = Matrix2::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(square_float.column_sum(), Vector2::new(3.0, 7.0));
+        let rect41_float = Matrix4x1::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(rect41_float.column_sum(), Vector4::new(1.0, 2.0, 3.0, 4.0));
+        let rect14_float = Matrix1x4::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(rect14_float.column_sum(), Vector1::new(10.0));
+
+        let square_int = Matrix2::new(1, 2, 3, 4);
+        assert_eq!(square_int.column_sum(), Vector2::new(3, 7));
+        let rect41_int = Matrix4x1::new(1, 2, 3, 4);
+        assert_eq!(rect41_int.column_sum(), Vector4::new(1, 2, 3, 4));
+        let rect14_int = Matrix1x4::new(1, 2, 3, 4);
+        assert_eq!(rect14_int.column_sum(), Vector1::new(10));
+    }
+    #[test]
+    fn test_column_sum_edge() {
+        let edge00_float = DMatrix::<f32>::zeros(0, 0);
+        assert_eq!(edge00_float.column_sum(), DVector::<f32>::zeros(0));
+        let edge40_float = DMatrix::<f32>::zeros(4, 0);
+        assert_eq!(edge40_float.column_sum(), DVector::<f32>::zeros(4));
+        let edge04_float = DMatrix::<f32>::zeros(0, 4);
+        assert_eq!(edge04_float.column_sum(), DVector::<f32>::zeros(0));
+
+        let edge00_int = DMatrix::<i32>::zeros(0, 0);
+        assert_eq!(edge00_int.column_sum(), DVector::<i32>::zeros(0));
+        let edge40_int = DMatrix::<i32>::zeros(4, 0);
+        assert_eq!(edge40_int.column_sum(), DVector::<i32>::zeros(4));
+        let edge04_int = DMatrix::<i32>::zeros(0, 4);
+        assert_eq!(edge04_int.column_sum(), DVector::<i32>::zeros(0));
+    }
+    #[test]
+    fn test_product() {
+        let square_float = Matrix2::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(square_float.product(), 24.0);
+        let rect41_float = Matrix4x1::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(rect41_float.product(), 24.0);
+        let rect14_float = Matrix1x4::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(rect14_float.product(), 24.0);
+
+        let square_int = Matrix2::new(1, 2, 3, 4);
+        assert_eq!(square_int.product(), 24);
+        let rect41_int = Matrix4x1::new(1, 2, 3, 4);
+        assert_eq!(rect41_int.product(), 24);
+        let rect14_int = Matrix1x4::new(1, 2, 3, 4);
+        assert_eq!(rect14_int.product(), 24);
+    }
+    #[test]
+    fn test_product_edge() {
+        let edge00_float = DMatrix::<f32>::zeros(0, 0);
+        assert_eq!(edge00_float.product(), 1.0);
+        let edge40_float = DMatrix::<f32>::zeros(4, 0);
+        assert_eq!(edge40_float.product(), 1.0);
+        let edge04_float = DMatrix::<f32>::zeros(0, 4);
+        assert_eq!(edge04_float.product(), 1.0);
+
+        let edge00_int = DMatrix::<i32>::zeros(0, 0);
+        assert_eq!(edge00_int.product(), 1);
+        let edge40_int = DMatrix::<i32>::zeros(4, 0);
+        assert_eq!(edge40_int.product(), 1);
+        let edge04_int = DMatrix::<i32>::zeros(0, 4);
+        assert_eq!(edge04_int.product(), 1);
+    }
+    #[test]
+    fn test_row_product() {
+        let square_float = Matrix2::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(square_float.row_product(), RowVector2::new(3.0, 8.0));
+        let rect41_float = Matrix4x1::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(rect41_float.row_product(), RowVector1::new(24.0));
+        let rect14_float = Matrix1x4::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(
+            rect14_float.row_product(),
+            RowVector4::new(1.0, 2.0, 3.0, 4.0)
+        );
+
+        let square_int = Matrix2::new(1, 2, 3, 4);
+        assert_eq!(square_int.row_product(), RowVector2::new(3, 8));
+        let rect41_int = Matrix4x1::new(1, 2, 3, 4);
+        assert_eq!(rect41_int.row_product(), RowVector1::new(24));
+        let rect14_int = Matrix1x4::new(1, 2, 3, 4);
+        assert_eq!(rect14_int.row_product(), RowVector4::new(1, 2, 3, 4));
+    }
+    #[test]
+    fn test_row_product_edge() {
+        let edge00_float = DMatrix::<f32>::zeros(0, 0);
+        assert_eq!(edge00_float.row_product(), RowDVector::<f32>::zeros(0));
+        let edge40_float = DMatrix::<f32>::zeros(4, 0);
+        assert_eq!(edge40_float.row_product(), RowDVector::<f32>::zeros(0));
+        let edge04_float = DMatrix::<f32>::zeros(0, 4);
+        assert_eq!(
+            edge04_float.row_product(),
+            RowDVector::from_row_slice(&[1.0, 1.0, 1.0, 1.0])
+        );
+
+        let edge00_int = DMatrix::<i32>::zeros(0, 0);
+        assert_eq!(edge00_int.row_product(), RowDVector::<i32>::zeros(0));
+        let edge40_int = DMatrix::<i32>::zeros(4, 0);
+        assert_eq!(edge40_int.row_product(), RowDVector::<i32>::zeros(0));
+        let edge04_int = DMatrix::<i32>::zeros(0, 4);
+        assert_eq!(
+            edge04_int.row_product(),
+            RowDVector::from_row_slice(&[1, 1, 1, 1])
+        );
+    }
+    #[test]
+    fn test_row_product_tr() {
+        let square_float = Matrix2::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(square_float.row_product_tr(), Vector2::new(3.0, 8.0));
+        let rect41_float = Matrix4x1::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(rect41_float.row_product_tr(), Vector1::new(24.0));
+        let rect14_float = Matrix1x4::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(
+            rect14_float.row_product_tr(),
+            Vector4::new(1.0, 2.0, 3.0, 4.0)
+        );
+
+        let square_int = Matrix2::new(1, 2, 3, 4);
+        assert_eq!(square_int.row_product_tr(), Vector2::new(3, 8));
+        let rect41_int = Matrix4x1::new(1, 2, 3, 4);
+        assert_eq!(rect41_int.row_product_tr(), Vector1::new(24));
+        let rect14_int = Matrix1x4::new(1, 2, 3, 4);
+        assert_eq!(rect14_int.row_product_tr(), Vector4::new(1, 2, 3, 4));
+    }
+    #[test]
+    fn test_row_product_tr_edge() {
+        let edge00_float = DMatrix::<f32>::zeros(0, 0);
+        assert_eq!(edge00_float.row_product_tr(), DVector::<f32>::zeros(0));
+        let edge40_float = DMatrix::<f32>::zeros(4, 0);
+        assert_eq!(edge40_float.row_product_tr(), DVector::<f32>::zeros(0));
+        let edge04_float = DMatrix::<f32>::zeros(0, 4);
+        assert_eq!(
+            edge04_float.row_product_tr(),
+            DVector::from_row_slice(&[1.0, 1.0, 1.0, 1.0])
+        );
+
+        let edge00_int = DMatrix::<i32>::zeros(0, 0);
+        assert_eq!(edge00_int.row_product_tr(), DVector::<i32>::zeros(0));
+        let edge40_int = DMatrix::<i32>::zeros(4, 0);
+        assert_eq!(edge40_int.row_product_tr(), DVector::<i32>::zeros(0));
+        let edge04_int = DMatrix::<i32>::zeros(0, 4);
+        assert_eq!(
+            edge04_int.row_product_tr(),
+            DVector::from_row_slice(&[1, 1, 1, 1])
+        );
+    }
+    #[test]
+    fn test_column_product() {
+        let square_float = Matrix2::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(square_float.column_product(), Vector2::new(2.0, 12.0));
+        let rect41_float = Matrix4x1::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(
+            rect41_float.column_product(),
+            Vector4::new(1.0, 2.0, 3.0, 4.0)
+        );
+        let rect14_float = Matrix1x4::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(rect14_float.column_product(), Vector1::new(24.0));
+
+        let square_int = Matrix2::new(1, 2, 3, 4);
+        assert_eq!(square_int.column_product(), Vector2::new(2, 12));
+        let rect41_int = Matrix4x1::new(1, 2, 3, 4);
+        assert_eq!(rect41_int.column_product(), Vector4::new(1, 2, 3, 4));
+        let rect14_int = Matrix1x4::new(1, 2, 3, 4);
+        assert_eq!(rect14_int.column_product(), Vector1::new(24));
+    }
+    #[test]
+    fn test_column_product_edge() {
+        let edge00_float = DMatrix::<f32>::zeros(0, 0);
+        assert_eq!(edge00_float.column_product(), DVector::<f32>::zeros(0));
+        let edge40_float = DMatrix::<f32>::zeros(4, 0);
+        assert_eq!(
+            edge40_float.column_product(),
+            DVector::from_row_slice(&[1.0, 1.0, 1.0, 1.0])
+        );
+        let edge04_float = DMatrix::<f32>::zeros(0, 4);
+        assert_eq!(edge04_float.column_product(), DVector::<f32>::zeros(0));
+
+        let edge00_int = DMatrix::<i32>::zeros(0, 0);
+        assert_eq!(edge00_int.column_product(), DVector::<i32>::zeros(0));
+        let edge40_int = DMatrix::<i32>::zeros(4, 0);
+        assert_eq!(
+            edge40_int.column_product(),
+            DVector::from_row_slice(&[1, 1, 1, 1])
+        );
+        let edge04_int = DMatrix::<i32>::zeros(0, 4);
+        assert_eq!(edge04_int.column_product(), DVector::<i32>::zeros(0));
+    }
+    #[test]
+    fn test_variance() {
+        let square_float = Matrix2::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(square_float.variance(), 1.25);
+        let rect41_float = Matrix4x1::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(rect41_float.variance(), 1.25);
+        let rect14_float = Matrix1x4::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(rect14_float.variance(), 1.25);
+    }
+    #[test]
+    fn test_variance_edge() {
+        let edge00_float = DMatrix::<f32>::zeros(0, 0);
+        assert_eq!(edge00_float.variance(), 0.0);
+        let edge40_float = DMatrix::<f32>::zeros(4, 0);
+        assert_eq!(edge40_float.variance(), 0.0);
+        let edge04_float = DMatrix::<f32>::zeros(0, 4);
+        assert_eq!(edge04_float.variance(), 0.0);
+    }
+    #[test]
+    fn test_row_variance() {
+        let square_float = Matrix2::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(square_float.row_variance(), RowVector2::new(1.0, 1.0));
+        let rect41_float = Matrix4x1::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(rect41_float.row_variance(), RowVector1::new(1.25));
+        let rect14_float = Matrix1x4::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(
+            rect14_float.row_variance(),
+            RowVector4::new(0.0, 0.0, 0.0, 0.0)
+        );
+    }
+    #[test]
+    fn test_row_variance_edge() {
+        let edge00_float = DMatrix::<f32>::zeros(0, 0);
+        assert_eq!(edge00_float.row_variance(), RowDVector::<f32>::zeros(0));
+        let edge40_float = DMatrix::<f32>::zeros(4, 0);
+        assert_eq!(edge40_float.row_variance(), RowDVector::<f32>::zeros(0));
+        let edge04_float = DMatrix::<f32>::zeros(0, 4);
+        assert_eq!(edge04_float.row_variance(), RowDVector::<f32>::zeros(4));
+    }
+    #[test]
+    fn test_row_variance_tr() {
+        let square_float = Matrix2::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(square_float.row_variance_tr(), Vector2::new(1.0, 1.0));
+        let rect41_float = Matrix4x1::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(rect41_float.row_variance_tr(), Vector1::new(1.25));
+        let rect14_float = Matrix1x4::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(
+            rect14_float.row_variance_tr(),
+            Vector4::new(0.0, 0.0, 0.0, 0.0)
+        );
+    }
+    #[test]
+    fn test_row_variance_tr_edge() {
+        let edge00_float = DMatrix::<f32>::zeros(0, 0);
+        assert_eq!(edge00_float.row_variance_tr(), DVector::<f32>::zeros(0));
+        let edge40_float = DMatrix::<f32>::zeros(4, 0);
+        assert_eq!(edge40_float.row_variance_tr(), DVector::<f32>::zeros(0));
+        let edge04_float = DMatrix::<f32>::zeros(0, 4);
+        assert_eq!(edge04_float.row_variance_tr(), DVector::<f32>::zeros(4));
+    }
+    #[test]
+    fn test_column_variance() {
+        let square_float = Matrix2::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(square_float.column_variance(), Vector2::new(0.25, 0.25));
+        let rect41_float = Matrix4x1::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(
+            rect41_float.column_variance(),
+            Vector4::new(0.0, 0.0, 0.0, 0.0)
+        );
+        let rect14_float = Matrix1x4::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(rect14_float.column_variance(), Vector1::new(1.25));
+    }
+    #[test]
+    fn test_column_variance_edge() {
+        let edge00_float = DMatrix::<f32>::zeros(0, 0);
+        assert_eq!(edge00_float.column_variance(), DVector::<f32>::zeros(0));
+        let edge40_float = DMatrix::<f32>::zeros(4, 0);
+        assert_eq!(edge40_float.column_variance(), DVector::<f32>::zeros(4));
+        let edge04_float = DMatrix::<f32>::zeros(0, 4);
+        assert_eq!(edge04_float.column_variance(), DVector::<f32>::zeros(0));
+    }
+    #[test]
+    fn test_mean() {
+        let square_float = Matrix2::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(square_float.mean(), 2.5);
+        let rect41_float = Matrix4x1::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(rect41_float.mean(), 2.5);
+        let rect14_float = Matrix1x4::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(rect14_float.mean(), 2.5);
+    }
+    #[test]
+    fn test_mean_edge() {
+        let edge00_float = DMatrix::<f32>::zeros(0, 0);
+        assert_eq!(edge00_float.mean(), 0.0);
+        let edge40_float = DMatrix::<f32>::zeros(4, 0);
+        assert_eq!(edge40_float.mean(), 0.0);
+        let edge04_float = DMatrix::<f32>::zeros(0, 4);
+        assert_eq!(edge04_float.mean(), 0.0);
+    }
+    #[test]
+    fn test_row_mean() {
+        let square_float = Matrix2::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(square_float.row_mean(), RowVector2::new(2.0, 3.0));
+        let rect41_float = Matrix4x1::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(rect41_float.row_mean(), RowVector1::new(2.5));
+        let rect14_float = Matrix1x4::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(rect14_float.row_mean(), RowVector4::new(1.0, 2.0, 3.0, 4.0));
+    }
+    #[test]
+    fn test_row_mean_edge() {
+        let edge00_float = DMatrix::<f32>::zeros(0, 0);
+        assert_eq!(edge00_float.row_mean(), RowDVector::<f32>::zeros(0));
+        let edge40_float = DMatrix::<f32>::zeros(4, 0);
+        assert_eq!(edge40_float.row_mean(), RowDVector::<f32>::zeros(0));
+        let edge04_float = DMatrix::<f32>::zeros(0, 4);
+        assert_eq!(edge04_float.row_mean(), RowDVector::<f32>::zeros(4));
+    }
+    #[test]
+    fn test_row_mean_tr() {
+        let square_float = Matrix2::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(square_float.row_mean_tr(), Vector2::new(2.0, 3.0));
+        let rect41_float = Matrix4x1::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(rect41_float.row_mean_tr(), Vector1::new(2.5));
+        let rect14_float = Matrix1x4::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(rect14_float.row_mean_tr(), Vector4::new(1.0, 2.0, 3.0, 4.0));
+    }
+    #[test]
+    fn test_row_mean_tr_edge() {
+        let edge00_float = DMatrix::<f32>::zeros(0, 0);
+        assert_eq!(edge00_float.row_mean_tr(), DVector::<f32>::zeros(0));
+        let edge40_float = DMatrix::<f32>::zeros(4, 0);
+        assert_eq!(edge40_float.row_mean_tr(), DVector::<f32>::zeros(0));
+        let edge04_float = DMatrix::<f32>::zeros(0, 4);
+        assert_eq!(edge04_float.row_mean_tr(), DVector::<f32>::zeros(4));
+    }
+    #[test]
+    fn test_column_mean() {
+        let square_float = Matrix2::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(square_float.column_mean(), Vector2::new(1.5, 3.5));
+        let rect41_float = Matrix4x1::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(rect41_float.column_mean(), Vector4::new(1.0, 2.0, 3.0, 4.0));
+        let rect14_float = Matrix1x4::new(1.0, 2.0, 3.0, 4.0);
+        assert_eq!(rect14_float.column_mean(), Vector1::new(2.5));
+    }
+    #[test]
+    fn test_column_mean_edge() {
+        let edge00_float = DMatrix::<f32>::zeros(0, 0);
+        assert_eq!(edge00_float.column_mean(), DVector::<f32>::zeros(0));
+        let edge40_float = DMatrix::<f32>::zeros(4, 0);
+        assert_eq!(edge40_float.column_mean(), DVector::<f32>::zeros(4));
+        let edge04_float = DMatrix::<f32>::zeros(0, 4);
+        assert_eq!(edge04_float.column_mean(), DVector::<f32>::zeros(0));
+    }
+}
