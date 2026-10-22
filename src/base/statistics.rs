@@ -407,19 +407,23 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         DefaultAllocator: Allocator<R>,
     {
         let (nrows, ncols) = self.shape_generic();
+        let mut sumsq = OVector::zeros_generic(nrows, Const::<1>);
+        let mean = self.column_mean();
 
-        let mut mean = self.column_mean();
-        mean.apply(|e| *e = -(e.clone() * e.clone()));
-
-        let denom = T::one() / crate::convert::<_, T>(ncols.value() as f64);
-        self.compress_columns(mean, |out, col| {
+        for j in 0..ncols.value() {
+            let col = self.column(j);
             for i in 0..nrows.value() {
                 unsafe {
-                    let val = col.vget_unchecked(i);
-                    *out.vget_unchecked_mut(i) += denom.clone() * val.clone() * val.clone()
+                    let x = col.vget_unchecked(i);
+                    let m = mean.vget_unchecked(i);
+                    let delta = x.clone() - m.clone();
+                    *sumsq.vget_unchecked_mut(i) += delta.clone() * delta.clone();
                 }
             }
-        })
+        }
+        let denom = T::one() / crate::convert::<_, T>(ncols.value() as f64);
+        sumsq.apply(move |e| *e *= denom.clone());
+        sumsq
     }
 
     /*
