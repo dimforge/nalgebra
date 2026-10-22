@@ -15,13 +15,15 @@ use simba::scalar::RealField;
 use simba::simd::{SimdBool, SimdRealField};
 use std::ops::Neg;
 
-use crate::base::dimension::{U1, U2, U3};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{Const, DimDiff, DimSub, U1, U2, U3};
 use crate::base::storage::Storage;
+use crate::base::{ArrayStorage, DefaultAllocator};
 use crate::base::{
     Matrix2, Matrix3, SMatrix, SVector, Unit, UnitVector3, Vector, Vector1, Vector2, Vector3,
 };
 
-use crate::geometry::{Rotation2, Rotation3, UnitComplex, UnitQuaternion};
+use crate::geometry::{Rotation, Rotation2, Rotation3, UnitComplex, UnitQuaternion};
 
 /*
  *
@@ -219,7 +221,7 @@ impl<T: SimdRealField> Rotation2<T> {
     /// ```
     #[inline]
     #[must_use]
-    pub fn powf(&self, n: T) -> Self {
+    fn powf_2d(&self, n: T) -> Self {
         Self::new(self.angle() * n)
     }
 }
@@ -681,7 +683,7 @@ where
     /// ```
     #[inline]
     #[must_use]
-    pub fn powf(&self, n: T) -> Self
+    fn powf_3d(&self, n: T) -> Self
     where
         T: RealField,
     {
@@ -1214,5 +1216,121 @@ where
     #[inline]
     fn arbitrary(g: &mut Gen) -> Self {
         Self::new(SVector::arbitrary(g))
+    }
+}
+
+impl<T: RealField, const D: usize> Rotation<T, D> {
+    ///
+    /// Raise the rotation to a given floating power, i.e., returns the rotation with the same
+    /// axis as `self` and an angle equal to `self.angle()` multiplied by `n`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{Rotation3, Vector3, Unit};
+    ///
+    /// let axis = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
+    /// let angle = 1.2;
+    /// let rot = Rotation3::from_axis_angle(&axis, angle);
+    /// let pow = rot.powf(2.0);
+    ///
+    /// assert_relative_eq!(pow.axis().unwrap(), axis, epsilon = 1.0e-6);
+    /// assert_eq!(pow.angle(), 2.4);
+    /// ```
+    //FIXME: merging powf for Rotation2 into this raises the trait bounds from SimdRealField to RealField
+    pub fn powf(&self, t: T) -> Self
+    where
+        Const<D>: DimSub<U1>,
+        ArrayStorage<T, D, D>: Storage<T, Const<D>, Const<D>>,
+        DefaultAllocator: Allocator<T, Const<D>, Const<D>, Buffer = ArrayStorage<T, D, D>>
+            + Allocator<T, Const<D>>
+            + Allocator<T, Const<D>, DimDiff<Const<D>, U1>>
+            + Allocator<T, DimDiff<Const<D>, U1>>,
+    {
+        use std::mem::*;
+
+        //The best option here would be to use #[feature(specialization)], but until
+        //that's stabilized, this is the best we can do. Theoretically, the compiler should
+        //pretty thoroughly optimize away all the excess checks and conversions
+        match D {
+            0 => self.clone(),
+            1 => self.clone(),
+
+            //NOTE: Not pretty, but without refactoring the API, this is the best we can do
+            //NOTE: This is safe because we directly check the dimension first
+            2 => unsafe {
+                let r2d = transmute::<&Self, &Rotation2<T>>(self).powf_2d(t);
+                transmute::<&Rotation2<T>, &Self>(&r2d).clone()
+            },
+            3 => unsafe {
+                let r3d = transmute::<&Self, &Rotation3<T>>(self).powf_3d(t);
+                transmute::<&Rotation3<T>, &Self>(&r3d).clone()
+            },
+
+            _ => self.clone().general_pow(t),
+        }
+    }
+
+    fn general_pow(self, t: T) -> Self
+    where
+        Const<D>: DimSub<U1>,
+        ArrayStorage<T, D, D>: Storage<T, Const<D>, Const<D>>,
+        DefaultAllocator: Allocator<T, Const<D>, Const<D>, Buffer = ArrayStorage<T, D, D>>
+            + Allocator<T, Const<D>>
+            + Allocator<T, Const<D>, DimDiff<Const<D>, U1>>
+            + Allocator<T, DimDiff<Const<D>, U1>>,
+    {
+        if D <= 1 {
+            return self;
+        }
+
+        // println!("r:{}", self);
+        // println!("{}", self.clone().into_inner().hessenberg().unpack_h());
+
+        //taking the (real) schur form is guaranteed to produce a block-diagonal matrix
+        //where each block is either a 1 (if there's no rotation in that axis) or a 2x2
+        //rotation matrix in a particular plane
+        let schur = self.into_inner().schur();
+        let (q, mut d) = schur.unpack();
+
+        // println!("q:{}d:{:.3}", q, d);
+
+        //go down the diagonal and pow every block
+        let mut i = 0;
+        while i < D - 1 {
+            if
+            //For most 2x2 blocks
+            //NOTE: we use strict equality since `nalgebra`'s schur decomp sets the infradiagonal to zero
+            !d[(i+1,i)].is_zero() ||
+
+                //for +-180 deg rotations
+                d[(i,i)]<T::zero() && d[(i+1,i+1)]<T::zero()
+            {
+                //convert to a complex num and find the arg()
+                let (c, s) = (d[(i, i)].clone(), d[(i + 1, i)].clone());
+                let angle = s.atan2(c); //for +-180deg rots, this implicitely takes the +180 branch
+
+                //scale the arg and exponentiate back
+                let angle2 = angle * t.clone();
+                let (s2, c2) = angle2.sin_cos();
+
+                //convert back into a rot block
+                d[(i, i)] = c2.clone();
+                d[(i, i + 1)] = -s2.clone();
+                d[(i + 1, i)] = s2;
+                d[(i + 1, i + 1)] = c2;
+
+                //increase by 2 so we don't accidentally misinterpret the
+                //next line as a 180deg rotation
+                i += 2;
+            } else {
+                i += 1;
+            }
+        }
+        // println!("d:{:.3}", d);
+
+        let qt = q.transpose(); //avoids an extra clone
+
+        Self::from_matrix_unchecked(q * d * qt)
     }
 }
