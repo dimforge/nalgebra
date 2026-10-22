@@ -8,6 +8,7 @@ use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, Matrix2, OMatrix, OVector, SquareMatrix, Vector2};
 use crate::dimension::{Dim, DimDiff, DimSub, U1};
 use crate::storage::Storage;
+use crate::RowOVector;
 use simba::scalar::ComplexField;
 
 use crate::linalg::SymmetricTridiagonal;
@@ -311,6 +312,71 @@ where
         }
         u_t.adjoint_mut();
         &self.eigenvectors * u_t
+    }
+
+    /// Computes the pseudo-inverse of this matrix.
+    ///
+    /// Calculate a generalized inverse of a complex Hermitian/real symmetric
+    /// matrix using its eigenvalue decomposition and including all eigenvalues
+    /// with 'large' absolute value.
+    ///
+    /// # Arguments
+    ///
+    /// * `atol` − absolute threshold term, if `None` provided value is 0.
+    /// * `rtol` − relative threshold term, if `None` provided value is `N * eps` where
+    /// `eps` is the machine precision value of the `T::RealField`.
+    #[must_use]
+    pub fn pseudo_inverse(
+        &self,
+        atol: Option<T::RealField>,
+        rtol: Option<T::RealField>,
+    ) -> OMatrix<T, D, D>
+    where
+        DefaultAllocator: Allocator<usize, D>,
+        DefaultAllocator: Allocator<T, U1, D>,
+    {
+        let u = &self.eigenvectors;
+        let s = &self.eigenvalues;
+        let max_s = s.camax();
+        let atol = atol.unwrap_or(T::RealField::zero());
+        let rtol =
+            rtol.unwrap_or(T::RealField::default_epsilon() * crate::convert(u.ncols() as f64));
+        assert!(
+            rtol >= T::RealField::zero() && atol >= T::RealField::zero(),
+            "atol and rtol values must be positive.",
+        );
+        let val = atol + max_s * rtol;
+        let mut above_cutoff = OVector::<usize, D>::zeros_generic(u.shape_generic().0, U1);
+        let mut r_take = 0;
+        for i in 0..s.len() {
+            if s[i].clone().abs() > val {
+                above_cutoff[r_take] = i;
+                r_take += 1;
+            }
+        }
+        let psigma_diag = RowOVector::<T, D>::from_fn_generic(U1, u.shape_generic().0, |_, j| {
+            if j < r_take {
+                T::from_real(s[above_cutoff[j]].clone().recip())
+            } else {
+                T::zero()
+            }
+        });
+        let u = OMatrix::<T, D, D>::from_fn_generic(
+            u.shape_generic().0,
+            u.shape_generic().1,
+            |i, j| {
+                if j < r_take {
+                    u[(i, above_cutoff[j])].clone()
+                } else {
+                    T::zero()
+                }
+            },
+        );
+        let mut up = u.clone();
+        for i in 0..u.nrows() {
+            up.row_mut(i).component_mul_assign(&psigma_diag);
+        }
+        up * u.conjugate().transpose()
     }
 }
 
