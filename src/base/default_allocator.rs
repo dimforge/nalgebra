@@ -11,6 +11,7 @@ use alloc::vec::Vec;
 
 use super::Const;
 use crate::base::Scalar;
+use crate::base::helper::matrix_len;
 use crate::base::allocator::{Allocator, Reallocator};
 use crate::base::array_storage::ArrayStorage;
 use crate::base::dimension::Dim;
@@ -76,7 +77,7 @@ impl<const R: usize, const C: usize> Allocator<Const<R>, Const<C>> for DefaultAl
         }
 
         assert!(
-            count == nrows.value() * ncols.value(),
+            count == matrix_len(nrows.value(), ncols.value()),
             "Matrix init. from iterator: iterator not long enough."
         );
 
@@ -96,7 +97,7 @@ impl<C: Dim> Allocator<Dyn, C> for DefaultAllocator {
     #[inline]
     fn allocate_uninit<T: Scalar>(nrows: Dyn, ncols: C) -> VecStorage<MaybeUninit<T>, Dyn, C> {
         let mut data = Vec::new();
-        let length = nrows.value() * ncols.value();
+        let length = matrix_len(nrows.value(), ncols.value());
         data.reserve_exact(length);
         data.resize_with(length, MaybeUninit::uninit);
         VecStorage::new(nrows, ncols, data)
@@ -130,7 +131,7 @@ impl<C: Dim> Allocator<Dyn, C> for DefaultAllocator {
         let it = iter.into_iter();
         let res: Vec<T> = it.collect();
         assert!(
-            res.len() == nrows.value() * ncols.value(),
+            res.len() == matrix_len(nrows.value(), ncols.value()),
             "Allocation from iterator error: the iterator did not yield the correct number of elements."
         );
 
@@ -147,7 +148,7 @@ impl<R: DimName> Allocator<R, Dyn> for DefaultAllocator {
     #[inline]
     fn allocate_uninit<T: Scalar>(nrows: R, ncols: Dyn) -> VecStorage<MaybeUninit<T>, R, Dyn> {
         let mut data = Vec::new();
-        let length = nrows.value() * ncols.value();
+        let length = matrix_len(nrows.value(), ncols.value());
         data.reserve_exact(length);
         data.resize_with(length, MaybeUninit::uninit);
 
@@ -182,7 +183,7 @@ impl<R: DimName> Allocator<R, Dyn> for DefaultAllocator {
         let it = iter.into_iter();
         let res: Vec<T> = it.collect();
         assert!(
-            res.len() == nrows.value() * ncols.value(),
+            res.len() == matrix_len(nrows.value(), ncols.value()),
             "Allocation from iterator error: the iterator did not yield the correct number of elements."
         );
 
@@ -214,8 +215,8 @@ where
 
             let (rfrom, cfrom) = buf.shape();
 
-            let len_from = rfrom.value() * cfrom.value();
-            let len_to = rto.value() * cto.value();
+            let len_from = matrix_len(rfrom.value(), cfrom.value());
+            let len_to = matrix_len(rto.value(), cto.value());
             let len_copied = cmp::min(len_from, len_to);
             ptr::copy_nonoverlapping(buf.ptr(), res.ptr_mut() as *mut T, len_copied);
 
@@ -247,8 +248,8 @@ where
 
             let (rfrom, cfrom) = buf.shape();
 
-            let len_from = rfrom.value() * cfrom.value();
-            let len_to = rto.value() * cto.value();
+            let len_from = matrix_len(rfrom.value(), cfrom.value());
+            let len_to = matrix_len(rto.value(), cto.value());
             let len_copied = cmp::min(len_from, len_to);
             ptr::copy_nonoverlapping(buf.ptr(), res.ptr_mut() as *mut T, len_copied);
 
@@ -280,8 +281,8 @@ where
 
             let (rfrom, cfrom) = buf.shape();
 
-            let len_from = rfrom.value() * cfrom.value();
-            let len_to = rto.value() * cto.value();
+            let len_from = matrix_len(rfrom.value(), cfrom.value());
+            let len_to = matrix_len(rto.value(), cto.value());
             let len_copied = cmp::min(len_from, len_to);
             ptr::copy_nonoverlapping(buf.ptr(), res.ptr_mut() as *mut T, len_copied);
 
@@ -305,7 +306,7 @@ impl<T: Scalar, CFrom: Dim, CTo: Dim> Reallocator<T, Dyn, CFrom, Dyn, CTo> for D
         buf: VecStorage<T, Dyn, CFrom>,
     ) -> VecStorage<MaybeUninit<T>, Dyn, CTo> {
         unsafe {
-            let new_buf = buf.resize(rto.value() * cto.value());
+            let new_buf = buf.resize(matrix_len(rto.value(), cto.value()));
             VecStorage::new(rto, cto, new_buf)
         }
     }
@@ -322,7 +323,7 @@ impl<T: Scalar, CFrom: Dim, RTo: DimName> Reallocator<T, Dyn, CFrom, RTo, Dyn>
         buf: VecStorage<T, Dyn, CFrom>,
     ) -> VecStorage<MaybeUninit<T>, RTo, Dyn> {
         unsafe {
-            let new_buf = buf.resize(rto.value() * cto.value());
+            let new_buf = buf.resize(matrix_len(rto.value(), cto.value()));
             VecStorage::new(rto, cto, new_buf)
         }
     }
@@ -339,7 +340,7 @@ impl<T: Scalar, RFrom: DimName, CTo: Dim> Reallocator<T, RFrom, Dyn, Dyn, CTo>
         buf: VecStorage<T, RFrom, Dyn>,
     ) -> VecStorage<MaybeUninit<T>, Dyn, CTo> {
         unsafe {
-            let new_buf = buf.resize(rto.value() * cto.value());
+            let new_buf = buf.resize(matrix_len(rto.value(), cto.value()));
             VecStorage::new(rto, cto, new_buf)
         }
     }
@@ -356,7 +357,7 @@ impl<T: Scalar, RFrom: DimName, RTo: DimName> Reallocator<T, RFrom, Dyn, RTo, Dy
         buf: VecStorage<T, RFrom, Dyn>,
     ) -> VecStorage<MaybeUninit<T>, RTo, Dyn> {
         unsafe {
-            let new_buf = buf.resize(rto.value() * cto.value());
+            let new_buf = buf.resize(matrix_len(rto.value(), cto.value()));
             VecStorage::new(rto, cto, new_buf)
         }
     }

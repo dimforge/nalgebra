@@ -2,6 +2,7 @@
 use alloc::vec::Vec;
 
 use crate::base::allocator::Allocator;
+use crate::base::helper::matrix_len;
 use crate::base::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::base::default_allocator::DefaultAllocator;
 use crate::base::dimension::{Dim, DimName, Dyn, U1};
@@ -66,7 +67,7 @@ impl<T: Default, R: DimName, C: DimName> Default for VecStorage<T, R, C> {
         let nrows = R::name();
         let ncols = C::name();
         let mut data = Vec::new();
-        data.resize_with(nrows.value() * ncols.value(), Default::default);
+        data.resize_with(matrix_len(nrows.value(), ncols.value()), Default::default);
         Self { data, nrows, ncols }
     }
 }
@@ -101,12 +102,20 @@ where
 
         // SAFETY: make sure the data we deserialize have the
         //         correct number of elements.
-        if nrows.value() * ncols.value() != data.len() {
-            return Err(Des::Error::custom(format!(
-                "Expected {} components, found {}",
-                nrows.value() * ncols.value(),
-                data.len()
-            )));
+        match nrows.value().checked_mul(ncols.value()) {
+            Some(expected) if expected == data.len() => {}
+            Some(expected) => {
+                return Err(Des::Error::custom(format!(
+                    "Expected {} components, found {}",
+                    expected,
+                    data.len()
+                )));
+            }
+            None => {
+                return Err(Des::Error::custom(
+                    "Matrix dimensions are too large: nrows * ncols overflows usize.",
+                ));
+            }
         }
 
         Ok(Self { data, nrows, ncols })
@@ -122,7 +131,7 @@ impl<T, R: Dim, C: Dim> VecStorage<T, R, C> {
     #[inline]
     pub fn new(nrows: R, ncols: C, data: Vec<T>) -> Self {
         assert!(
-            nrows.value() * ncols.value() == data.len(),
+            matrix_len(nrows.value(), ncols.value()) == data.len(),
             "Data storage buffer dimension mismatch."
         );
         Self { data, nrows, ncols }
@@ -386,7 +395,7 @@ where
     type Output = VecStorage<T, Dyn, C2>;
 
     fn reshape_generic(self, nrows: Dyn, ncols: C2) -> Self::Output {
-        assert_eq!(nrows.value() * ncols.value(), self.data.len());
+        assert_eq!(matrix_len(nrows.value(), ncols.value()), self.data.len());
         VecStorage {
             data: self.data,
             nrows,
@@ -404,7 +413,7 @@ where
     type Output = VecStorage<T, R2, Dyn>;
 
     fn reshape_generic(self, nrows: R2, ncols: Dyn) -> Self::Output {
-        assert_eq!(nrows.value() * ncols.value(), self.data.len());
+        assert_eq!(matrix_len(nrows.value(), ncols.value()), self.data.len());
         VecStorage {
             data: self.data,
             nrows,
@@ -434,7 +443,7 @@ where
     type Output = VecStorage<T, Dyn, C2>;
 
     fn reshape_generic(self, nrows: Dyn, ncols: C2) -> Self::Output {
-        assert_eq!(nrows.value() * ncols.value(), self.data.len());
+        assert_eq!(matrix_len(nrows.value(), ncols.value()), self.data.len());
         VecStorage {
             data: self.data,
             nrows,
@@ -452,7 +461,7 @@ where
     type Output = VecStorage<T, R2, Dyn>;
 
     fn reshape_generic(self, nrows: R2, ncols: Dyn) -> Self::Output {
-        assert_eq!(nrows.value() * ncols.value(), self.data.len());
+        assert_eq!(matrix_len(nrows.value(), ncols.value()), self.data.len());
         VecStorage {
             data: self.data,
             nrows,
