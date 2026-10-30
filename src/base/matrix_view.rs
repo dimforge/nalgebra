@@ -3,6 +3,7 @@ use std::ops::{Range, RangeFrom, RangeFull, RangeInclusive, RangeTo};
 use std::slice;
 
 use crate::ReshapableStorage;
+use crate::base::helper::matrix_len;
 use crate::base::allocator::Allocator;
 use crate::base::default_allocator::DefaultAllocator;
 use crate::base::dimension::{Const, Dim, DimName, Dyn, IsNotStaticOne, U1};
@@ -307,14 +308,30 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         //
         // Terms that would have been negative are moved to the other side of the inequality
         // instead.
-        assert!(
-            start.0 + (steps.0 + 1) * shape.0 <= my_shape.0 + steps.0,
-            "Matrix slicing out of bounds."
-        );
-        assert!(
-            start.1 + (steps.1 + 1) * shape.1 <= my_shape.1 + steps.1,
-            "Matrix slicing out of bounds."
-        );
+        // NOTE: all arithmetic is checked so that a wrapped product or sum
+        // cannot make an out-of-bounds slice look valid (issue #1620).
+        let end0 = steps
+            .0
+            .checked_add(1)
+            .and_then(|span| span.checked_mul(shape.0))
+            .and_then(|span| start.0.checked_add(span))
+            .expect("Matrix slicing out of bounds.");
+        let limit0 = my_shape
+            .0
+            .checked_add(steps.0)
+            .expect("Matrix slicing out of bounds.");
+        assert!(end0 <= limit0, "Matrix slicing out of bounds.");
+        let end1 = steps
+            .1
+            .checked_add(1)
+            .and_then(|span| span.checked_mul(shape.1))
+            .and_then(|span| start.1.checked_add(span))
+            .expect("Matrix slicing out of bounds.");
+        let limit1 = my_shape
+            .1
+            .checked_add(steps.1)
+            .expect("Matrix slicing out of bounds.");
+        assert!(end1 <= limit1, "Matrix slicing out of bounds.");
     }
 }
 
@@ -1234,7 +1251,7 @@ where
 
     fn reshape_generic(self, nrows: R2, ncols: C2) -> Self::Output {
         let (r1, c1) = self.shape();
-        assert_eq!(nrows.value() * ncols.value(), r1.value() * c1.value());
+        assert_eq!(matrix_len(nrows.value(), ncols.value()), matrix_len(r1.value(), c1.value()));
         let ptr = self.ptr();
         let new_shape = (nrows, ncols);
         let strides = (U1::name(), nrows);
@@ -1256,7 +1273,7 @@ where
 
     fn reshape_generic(mut self, nrows: R2, ncols: C2) -> Self::Output {
         let (r1, c1) = self.shape();
-        assert_eq!(nrows.value() * ncols.value(), r1.value() * c1.value());
+        assert_eq!(matrix_len(nrows.value(), ncols.value()), matrix_len(r1.value(), c1.value()));
         let ptr = self.ptr_mut();
         let new_shape = (nrows, ncols);
         let strides = (U1::name(), nrows);
