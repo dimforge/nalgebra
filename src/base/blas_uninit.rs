@@ -102,6 +102,9 @@ pub unsafe fn axcpy_uninit<Status, T, D1: Dim, D2: Dim, SA, SB>(
 
         let rstride1 = y.strides().0;
         let rstride2 = x.strides().0;
+        // The number of elements, not the length of the underlying slice: for a
+        // strided view the slice also covers the elements between the strides.
+        let len = x.nrows();
 
         // SAFETY: the conversion to slices is OK because we access the
         //         elements taking the strides into account.
@@ -109,9 +112,9 @@ pub unsafe fn axcpy_uninit<Status, T, D1: Dim, D2: Dim, SA, SB>(
         let x = x.data.as_slice_unchecked();
 
         if !b.is_zero() {
-            array_axcpy(status, y, a, x, c, b, rstride1, rstride2, x.len());
+            array_axcpy(status, y, a, x, c, b, rstride1, rstride2, len);
         } else {
-            array_axc(status, y, a, x, c, rstride1, rstride2, x.len());
+            array_axc(status, y, a, x, c, rstride1, rstride2, len);
         }
     }
 }
