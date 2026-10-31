@@ -118,3 +118,35 @@ mod blas_proptest {
         }
     }
 }
+
+#[test]
+fn axpy_strided_views() {
+    use na::DVector;
+    // every other element of a 5-vector: 3 elements, row stride 2
+    let x_data = DVector::from_vec(vec![1.0, -1.0, 2.0, -1.0, 3.0]);
+    let x = x_data.rows_with_step(0, 3, 1);
+    assert_eq!(x.strides().0, 2);
+
+    for b in [0.0, 1.0] {
+        let mut y_data = DVector::from_vec(vec![10.0, 7.0, 20.0, 7.0, 30.0, 7.0, 7.0]);
+        {
+            let mut y = y_data.rows_with_step_mut(0, 3, 1);
+            y.axpy(2.0, &x, b);
+        }
+        let expected = DVector::from_vec(vec![
+            2.0 + 10.0 * b,
+            7.0,
+            4.0 + 20.0 * b,
+            7.0,
+            6.0 + 30.0 * b,
+            7.0,
+            7.0,
+        ]);
+        assert_eq!(y_data, expected);
+    }
+
+    // strided x into a contiguous y
+    let mut y = DVector::from_vec(vec![1.0, 1.0, 1.0]);
+    y.axpy(1.0, &x, 1.0);
+    assert_eq!(y, DVector::from_vec(vec![2.0, 3.0, 4.0]));
+}
