@@ -190,7 +190,7 @@ impl<T: RealField, D: Dim, S: CsStorage<T, D, D>> CsMatrix<T, D, D, S> {
 
         // Copy the result into a sparse vector.
         let mut result =
-            CsVector::new_uninitialized_generic(b.data.shape().0, Const::<1>, reach.len());
+            CsVector::new_filled_generic(b.data.shape().0, Const::<1>, reach.len(), T::zero());
 
         for (i, val) in reach.iter().zip(result.data.vals.iter_mut()) {
             *val = workspace[*i].clone();

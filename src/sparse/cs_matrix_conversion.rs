@@ -35,7 +35,7 @@ where
         assert!(vals.len() == irows.len());
         assert!(vals.len() == icols.len());
 
-        let mut res = CsMatrix::new_uninitialized_generic(nrows, ncols, vals.len());
+        let mut res = CsMatrix::new_filled_generic(nrows, ncols, vals.len(), T::zero());
         let mut workspace = res.data.p.clone();
 
         // Column count.
@@ -92,7 +92,7 @@ where
     fn from(m: Matrix<T, R, C, S>) -> Self {
         let (nrows, ncols) = m.data.shape();
         let len = m.iter().filter(|e| !e.is_zero()).count();
-        let mut res = CsMatrix::new_uninitialized_generic(nrows, ncols, len);
+        let mut res = CsMatrix::new_filled_generic(nrows, ncols, len, T::zero());
         let mut nz = 0;
 
         for j in 0..ncols.value() {
