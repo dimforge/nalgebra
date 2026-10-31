@@ -296,11 +296,7 @@ where
             Self::reach(m, i, i, &etree, &mut marks, &mut rows);
         }
 
-        let mut vals = Vec::with_capacity(rows.len());
-        unsafe {
-            vals.set_len(rows.len());
-        }
-        vals.shrink_to_fit();
+        let vals = vec![T::zero(); rows.len()];
 
         let data = CsVecStorage {
             shape: (nrows, ncols),

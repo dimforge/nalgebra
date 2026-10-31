@@ -148,7 +148,8 @@ where
             "Mismatched dimensions for matrix multiplication."
         );
 
-        let mut res = CsMatrix::new_uninitialized_generic(nrows1, ncols2, self.len() + rhs.len());
+        let mut res =
+            CsMatrix::new_filled_generic(nrows1, ncols2, self.len() + rhs.len(), T::zero());
         let mut workspace = OVector::<T, R1>::zeros_generic(nrows1, Const::<1>);
         let mut nz = 0;
 
@@ -240,7 +241,8 @@ where
             "Mismatched dimensions for matrix sum."
         );
 
-        let mut res = CsMatrix::new_uninitialized_generic(nrows1, ncols2, self.len() + rhs.len());
+        let mut res =
+            CsMatrix::new_filled_generic(nrows1, ncols2, self.len() + rhs.len(), T::zero());
         let mut timestamps = OVector::zeros_generic(nrows1, Const::<1>);
         let mut workspace = Matrix::zeros_generic(nrows1, Const::<1>);
         let mut nz = 0;

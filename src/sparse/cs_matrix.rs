@@ -261,6 +261,13 @@ where
 {
     /// Creates a new compressed sparse column matrix with the specified dimension and
     /// `nvals` possible non-zero values.
+    ///
+    /// The values and row indices are left uninitialized, so any read, overwrite or drop of
+    /// them (including the drop of the returned matrix) is undefined behavior unless `T` is
+    /// `Copy`. Prefer building the matrix from initialized values instead.
+    #[deprecated(
+        note = "the returned matrix holds uninitialized values; dropping or assigning them is undefined behavior"
+    )]
     pub fn new_uninitialized_generic(nrows: R, ncols: C, nvals: usize) -> Self {
         let mut i = Vec::with_capacity(nvals);
         unsafe {
@@ -279,6 +286,29 @@ where
                 shape: (nrows, ncols),
                 p: OVector::zeros_generic(ncols, Const::<1>),
                 i,
+                vals,
+            },
+            _phantoms: PhantomData,
+        }
+    }
+
+    /// Creates a matrix with the specified dimension whose `nvals` values are all clones of
+    /// `fill` and whose row indices are all zero.
+    ///
+    /// Unlike `new_uninitialized_generic`, every slot holds a valid value, so overwriting or
+    /// dropping them is sound even if a user-provided `Clone` or `Drop` panics midway.
+    pub(crate) fn new_filled_generic(nrows: R, ncols: C, nvals: usize, fill: T) -> Self {
+        Self::from_vals_generic(nrows, ncols, vec![fill; nvals])
+    }
+
+    /// Creates a matrix with the specified dimension that takes ownership of `vals`; the row
+    /// indices are all zero and the column pointers are all zero.
+    pub(crate) fn from_vals_generic(nrows: R, ncols: C, vals: Vec<T>) -> Self {
+        CsMatrix {
+            data: CsVecStorage {
+                shape: (nrows, ncols),
+                p: OVector::zeros_generic(ncols, Const::<1>),
+                i: vec![0; vals.len()],
                 vals,
             },
             _phantoms: PhantomData,
@@ -426,7 +456,15 @@ impl<T: Scalar, R: Dim, C: Dim, S: CsStorage<T, R, C>> CsMatrix<T, R, C, S> {
         let (nrows, ncols) = self.data.shape();
 
         let nvals = self.len();
-        let mut res = CsMatrix::new_uninitialized_generic(ncols, nrows, nvals);
+        // Start from a copy of the values (in storage order) so every slot is initialized; they
+        // are all overwritten below.
+        let mut res = CsMatrix::from_vals_generic(
+            ncols,
+            nrows,
+            (0..ncols.value())
+                .flat_map(|j| self.data.column_entries(j).map(|(_, v)| v))
+                .collect(),
+        );
         let mut workspace = Vector::zeros_generic(nrows, Const::<1>);
 
         // Compute p.
