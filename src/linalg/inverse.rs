@@ -188,56 +188,63 @@ where
         return false;
     }
 
-    out[(0, 0)] = cofactor00;
-    out[(1, 0)] = b.clone() * (l.clone() * o.clone() - k.clone() * p.clone())
-        + j.clone() * (c.clone() * p.clone() - d.clone() * o.clone())
-        + n.clone() * (d.clone() * k.clone() - c.clone() * l.clone());
-    out[(2, 0)] = b.clone() * (g.clone() * p.clone() - h.clone() * o.clone())
-        + f.clone() * (d.clone() * o.clone() - c.clone() * p.clone())
-        + n.clone() * (c.clone() * h.clone() - d.clone() * g.clone());
-    out[(3, 0)] = b.clone() * (h.clone() * k.clone() - g.clone() * l.clone())
-        + f.clone() * (c.clone() * l.clone() - d.clone() * k.clone())
-        + j.clone() * (d.clone() * g.clone() - c.clone() * h.clone());
-
-    out[(0, 1)] = cofactor01;
-    out[(1, 1)] = a.clone() * (k.clone() * p.clone() - l.clone() * o.clone())
-        + i.clone() * (d.clone() * o.clone() - c.clone() * p.clone())
-        + m.clone() * (c.clone() * l.clone() - d.clone() * k.clone());
-    out[(2, 1)] = a.clone() * (h.clone() * o.clone() - g.clone() * p.clone())
-        + e.clone() * (c.clone() * p.clone() - d.clone() * o.clone())
-        + m.clone() * (d.clone() * g.clone() - c.clone() * h.clone());
-    out[(3, 1)] = a.clone() * (g.clone() * l.clone() - h.clone() * k.clone())
-        + e.clone() * (d.clone() * k.clone() - c.clone() * l.clone())
-        + i.clone() * (c.clone() * h.clone() - d.clone() * g.clone());
-
-    out[(0, 2)] = cofactor02;
-    out[(1, 2)] = a.clone() * (l.clone() * n.clone() - j.clone() * p.clone())
-        + i.clone() * (b.clone() * p.clone() - d.clone() * n.clone())
-        + m.clone() * (d.clone() * j.clone() - b.clone() * l.clone());
-    out[(2, 2)] = a.clone() * (f.clone() * p.clone() - h.clone() * n.clone())
-        + e.clone() * (d.clone() * n.clone() - b.clone() * p.clone())
-        + m.clone() * (b.clone() * h.clone() - d.clone() * f.clone());
-    out[(3, 2)] = a.clone() * (h.clone() * j.clone() - f.clone() * l.clone())
-        + e.clone() * (b.clone() * l.clone() - d.clone() * j.clone())
-        + i.clone() * (d.clone() * f.clone() - b.clone() * h.clone());
-
-    out[(0, 3)] = cofactor03;
-    out[(1, 3)] = a.clone() * (j.clone() * o.clone() - k.clone() * n.clone())
-        + i.clone() * (c.clone() * n.clone() - b.clone() * o.clone())
-        + m.clone() * (b.clone() * k.clone() - c.clone() * j.clone());
-    out[(2, 3)] = a.clone() * (g.clone() * n.clone() - f.clone() * o.clone())
-        + e.clone() * (b.clone() * o.clone() - c.clone() * n.clone())
-        + m.clone() * (c.clone() * f.clone() - b.clone() * g.clone());
-    out[(3, 3)] = a.clone() * (f.clone() * k.clone() - g.clone() * j.clone())
-        + e.clone() * (c.clone() * j.clone() - b.clone() * k.clone())
-        + i.clone() * (b.clone() * g.clone() - c.clone() * f.clone());
-
     let inv_det = T::one() / det;
 
-    for j in 0..4 {
-        for i in 0..4 {
-            out[(i, j)] *= inv_det.clone();
-        }
-    }
+    out[(0, 0)] = cofactor00 * inv_det.clone();
+    out[(1, 0)] = (b.clone() * (l.clone() * o.clone() - k.clone() * p.clone())
+        + j.clone() * (c.clone() * p.clone() - d.clone() * o.clone())
+        + n.clone() * (d.clone() * k.clone() - c.clone() * l.clone()))
+        * inv_det.clone();
+    out[(2, 0)] = (b.clone() * (g.clone() * p.clone() - h.clone() * o.clone())
+        + f.clone() * (d.clone() * o.clone() - c.clone() * p.clone())
+        + n.clone() * (c.clone() * h.clone() - d.clone() * g.clone()))
+        * inv_det.clone();
+    out[(3, 0)] = (b.clone() * (h.clone() * k.clone() - g.clone() * l.clone())
+        + f.clone() * (c.clone() * l.clone() - d.clone() * k.clone())
+        + j.clone() * (d.clone() * g.clone() - c.clone() * h.clone()))
+        * inv_det.clone();
+
+    out[(0, 1)] = cofactor01 * inv_det.clone();
+    out[(1, 1)] = (a.clone() * (k.clone() * p.clone() - l.clone() * o.clone())
+        + i.clone() * (d.clone() * o.clone() - c.clone() * p.clone())
+        + m.clone() * (c.clone() * l.clone() - d.clone() * k.clone()))
+        * inv_det.clone();
+    out[(2, 1)] = (a.clone() * (h.clone() * o.clone() - g.clone() * p.clone())
+        + e.clone() * (c.clone() * p.clone() - d.clone() * o.clone())
+        + m.clone() * (d.clone() * g.clone() - c.clone() * h.clone()))
+        * inv_det.clone();
+    out[(3, 1)] = (a.clone() * (g.clone() * l.clone() - h.clone() * k.clone())
+        + e.clone() * (d.clone() * k.clone() - c.clone() * l.clone())
+        + i.clone() * (c.clone() * h.clone() - d.clone() * g.clone()))
+        * inv_det.clone();
+
+    out[(0, 2)] = cofactor02 * inv_det.clone();
+    out[(1, 2)] = (a.clone() * (l.clone() * n.clone() - j.clone() * p.clone())
+        + i.clone() * (b.clone() * p.clone() - d.clone() * n.clone())
+        + m.clone() * (d.clone() * j.clone() - b.clone() * l.clone()))
+        * inv_det.clone();
+    out[(2, 2)] = (a.clone() * (f.clone() * p.clone() - h.clone() * n.clone())
+        + e.clone() * (d.clone() * n.clone() - b.clone() * p.clone())
+        + m.clone() * (b.clone() * h.clone() - d.clone() * f.clone()))
+        * inv_det.clone();
+    out[(3, 2)] = (a.clone() * (h.clone() * j.clone() - f.clone() * l.clone())
+        + e.clone() * (b.clone() * l.clone() - d.clone() * j.clone())
+        + i.clone() * (d.clone() * f.clone() - b.clone() * h.clone()))
+        * inv_det.clone();
+
+    out[(0, 3)] = cofactor03 * inv_det.clone();
+    out[(1, 3)] = (a.clone() * (j.clone() * o.clone() - k.clone() * n.clone())
+        + i.clone() * (c.clone() * n.clone() - b.clone() * o.clone())
+        + m.clone() * (b.clone() * k.clone() - c.clone() * j.clone()))
+        * inv_det.clone();
+    out[(2, 3)] = (a.clone() * (g.clone() * n.clone() - f.clone() * o.clone())
+        + e.clone() * (b.clone() * o.clone() - c.clone() * n.clone())
+        + m.clone() * (c.clone() * f.clone() - b.clone() * g.clone()))
+        * inv_det.clone();
+    out[(3, 3)] = (a.clone() * (f.clone() * k.clone() - g.clone() * j.clone())
+        + e.clone() * (c.clone() * j.clone() - b.clone() * k.clone())
+        + i.clone() * (b.clone() * g.clone() - c.clone() * f.clone()))
+        * inv_det.clone();
+
     true
 }
