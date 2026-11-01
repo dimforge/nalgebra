@@ -143,93 +143,94 @@ impl<T: ComplexField, D: Dim, S: StorageMut<T, D, D>> SquareMatrix<T, D, S> {
 
 // NOTE: this is an extremely efficient, loop-unrolled matrix inverse from MESA (MIT licensed).
 fn do_inverse4<T: ComplexField, D: Dim, S: StorageMut<T, D, D>>(
-    m: &OMatrix<T, D, D>,
+    mat: &OMatrix<T, D, D>,
     out: &mut SquareMatrix<T, D, S>,
 ) -> bool
 where
     DefaultAllocator: Allocator<D, D>,
 {
-    let m = m.as_slice();
+    let a = unsafe { mat.get_unchecked((0, 0)) };
+    let b = unsafe { mat.get_unchecked((0, 1)) };
+    let c = unsafe { mat.get_unchecked((0, 2)) };
+    let d = unsafe { mat.get_unchecked((0, 3)) };
+    let e = unsafe { mat.get_unchecked((1, 0)) };
+    let f = unsafe { mat.get_unchecked((1, 1)) };
+    let g = unsafe { mat.get_unchecked((1, 2)) };
+    let h = unsafe { mat.get_unchecked((1, 3)) };
+    let i = unsafe { mat.get_unchecked((2, 0)) };
+    let j = unsafe { mat.get_unchecked((2, 1)) };
+    let k = unsafe { mat.get_unchecked((2, 2)) };
+    let l = unsafe { mat.get_unchecked((2, 3)) };
+    let m = unsafe { mat.get_unchecked((3, 0)) };
+    let n = unsafe { mat.get_unchecked((3, 1)) };
+    let o = unsafe { mat.get_unchecked((3, 2)) };
+    let p = unsafe { mat.get_unchecked((3, 3)) };
 
-    let cofactor00 = m[5].clone() * (m[10].clone() * m[15].clone() - m[11].clone() * m[14].clone())
-        + m[9].clone() * (m[7].clone() * m[14].clone() - m[6].clone() * m[15].clone())
-        + m[13].clone() * (m[6].clone() * m[11].clone() - m[7].clone() * m[10].clone());
+    let cofactor00 = f.clone() * (k.clone() * p.clone() - l.clone() * o.clone())
+        + j.clone() * (h.clone() * o.clone() - g.clone() * p.clone())
+        + n.clone() * (g.clone() * l.clone() - h.clone() * k.clone());
+    let cofactor01 = e.clone() * (l.clone() * o.clone() - k.clone() * p.clone())
+        + i.clone() * (g.clone() * p.clone() - h.clone() * o.clone())
+        + m.clone() * (h.clone() * k.clone() - g.clone() * l.clone());
+    let cofactor02 = e.clone() * (j.clone() * p.clone() - l.clone() * n.clone())
+        + i.clone() * (h.clone() * n.clone() - f.clone() * p.clone())
+        + m.clone() * (f.clone() * l.clone() - h.clone() * j.clone());
+    let cofactor03 = e.clone() * (k.clone() * n.clone() - j.clone() * o.clone())
+        + i.clone() * (f.clone() * o.clone() - g.clone() * n.clone())
+        + m.clone() * (g.clone() * j.clone() - f.clone() * k.clone());
 
-    let cofactor01 = m[4].clone() * (m[11].clone() * m[14].clone() - m[10].clone() * m[15].clone())
-        + m[8].clone() * (m[6].clone() * m[15].clone() - m[7].clone() * m[14].clone())
-        + m[12].clone() * (m[7].clone() * m[10].clone() - m[6].clone() * m[11].clone());
-
-    let cofactor02 = m[4].clone() * (m[9].clone() * m[15].clone() - m[11].clone() * m[13].clone())
-        + m[8].clone() * (m[7].clone() * m[13].clone() - m[5].clone() * m[15].clone())
-        + m[12].clone() * (m[5].clone() * m[11].clone() - m[7].clone() * m[9].clone());
-
-    let cofactor03 = m[4].clone() * (m[10].clone() * m[13].clone() - m[9].clone() * m[14].clone())
-        + m[8].clone() * (m[5].clone() * m[14].clone() - m[6].clone() * m[13].clone())
-        + m[12].clone() * (m[6].clone() * m[9].clone() - m[5].clone() * m[10].clone());
-
-    let det = m[0].clone() * cofactor00.clone()
-        + m[1].clone() * cofactor01.clone()
-        + m[2].clone() * cofactor02.clone()
-        + m[3].clone() * cofactor03.clone();
+    let det = a.clone() * cofactor00.clone()
+        + b.clone() * cofactor01.clone()
+        + c.clone() * cofactor02.clone()
+        + d.clone() * cofactor03.clone();
 
     if det.is_zero() {
         return false;
     }
+
     out[(0, 0)] = cofactor00;
-
-    out[(1, 0)] = m[1].clone() * (m[11].clone() * m[14].clone() - m[10].clone() * m[15].clone())
-        + m[9].clone() * (m[2].clone() * m[15].clone() - m[3].clone() * m[14].clone())
-        + m[13].clone() * (m[3].clone() * m[10].clone() - m[2].clone() * m[11].clone());
-
-    out[(2, 0)] = m[1].clone() * (m[6].clone() * m[15].clone() - m[7].clone() * m[14].clone())
-        + m[5].clone() * (m[3].clone() * m[14].clone() - m[2].clone() * m[15].clone())
-        + m[13].clone() * (m[2].clone() * m[7].clone() - m[3].clone() * m[6].clone());
-
-    out[(3, 0)] = m[1].clone() * (m[7].clone() * m[10].clone() - m[6].clone() * m[11].clone())
-        + m[5].clone() * (m[2].clone() * m[11].clone() - m[3].clone() * m[10].clone())
-        + m[9].clone() * (m[3].clone() * m[6].clone() - m[2].clone() * m[7].clone());
+    out[(1, 0)] = b.clone() * (l.clone() * o.clone() - k.clone() * p.clone())
+        + j.clone() * (c.clone() * p.clone() - d.clone() * o.clone())
+        + n.clone() * (d.clone() * k.clone() - c.clone() * l.clone());
+    out[(2, 0)] = b.clone() * (g.clone() * p.clone() - h.clone() * o.clone())
+        + f.clone() * (d.clone() * o.clone() - c.clone() * p.clone())
+        + n.clone() * (c.clone() * h.clone() - d.clone() * g.clone());
+    out[(3, 0)] = b.clone() * (h.clone() * k.clone() - g.clone() * l.clone())
+        + f.clone() * (c.clone() * l.clone() - d.clone() * k.clone())
+        + j.clone() * (d.clone() * g.clone() - c.clone() * h.clone());
 
     out[(0, 1)] = cofactor01;
-
-    out[(1, 1)] = m[0].clone() * (m[10].clone() * m[15].clone() - m[11].clone() * m[14].clone())
-        + m[8].clone() * (m[3].clone() * m[14].clone() - m[2].clone() * m[15].clone())
-        + m[12].clone() * (m[2].clone() * m[11].clone() - m[3].clone() * m[10].clone());
-
-    out[(2, 1)] = m[0].clone() * (m[7].clone() * m[14].clone() - m[6].clone() * m[15].clone())
-        + m[4].clone() * (m[2].clone() * m[15].clone() - m[3].clone() * m[14].clone())
-        + m[12].clone() * (m[3].clone() * m[6].clone() - m[2].clone() * m[7].clone());
-
-    out[(3, 1)] = m[0].clone() * (m[6].clone() * m[11].clone() - m[7].clone() * m[10].clone())
-        + m[4].clone() * (m[3].clone() * m[10].clone() - m[2].clone() * m[11].clone())
-        + m[8].clone() * (m[2].clone() * m[7].clone() - m[3].clone() * m[6].clone());
+    out[(1, 1)] = a.clone() * (k.clone() * p.clone() - l.clone() * o.clone())
+        + i.clone() * (d.clone() * o.clone() - c.clone() * p.clone())
+        + m.clone() * (c.clone() * l.clone() - d.clone() * k.clone());
+    out[(2, 1)] = a.clone() * (h.clone() * o.clone() - g.clone() * p.clone())
+        + e.clone() * (c.clone() * p.clone() - d.clone() * o.clone())
+        + m.clone() * (d.clone() * g.clone() - c.clone() * h.clone());
+    out[(3, 1)] = a.clone() * (g.clone() * l.clone() - h.clone() * k.clone())
+        + e.clone() * (d.clone() * k.clone() - c.clone() * l.clone())
+        + i.clone() * (c.clone() * h.clone() - d.clone() * g.clone());
 
     out[(0, 2)] = cofactor02;
-
-    out[(1, 2)] = m[0].clone() * (m[11].clone() * m[13].clone() - m[9].clone() * m[15].clone())
-        + m[8].clone() * (m[1].clone() * m[15].clone() - m[3].clone() * m[13].clone())
-        + m[12].clone() * (m[3].clone() * m[9].clone() - m[1].clone() * m[11].clone());
-
-    out[(2, 2)] = m[0].clone() * (m[5].clone() * m[15].clone() - m[7].clone() * m[13].clone())
-        + m[4].clone() * (m[3].clone() * m[13].clone() - m[1].clone() * m[15].clone())
-        + m[12].clone() * (m[1].clone() * m[7].clone() - m[3].clone() * m[5].clone());
+    out[(1, 2)] = a.clone() * (l.clone() * n.clone() - j.clone() * p.clone())
+        + i.clone() * (b.clone() * p.clone() - d.clone() * n.clone())
+        + m.clone() * (d.clone() * j.clone() - b.clone() * l.clone());
+    out[(2, 2)] = a.clone() * (f.clone() * p.clone() - h.clone() * n.clone())
+        + e.clone() * (d.clone() * n.clone() - b.clone() * p.clone())
+        + m.clone() * (b.clone() * h.clone() - d.clone() * f.clone());
+    out[(3, 2)] = a.clone() * (h.clone() * j.clone() - f.clone() * l.clone())
+        + e.clone() * (b.clone() * l.clone() - d.clone() * j.clone())
+        + i.clone() * (d.clone() * f.clone() - b.clone() * h.clone());
 
     out[(0, 3)] = cofactor03;
-
-    out[(3, 2)] = m[0].clone() * (m[7].clone() * m[9].clone() - m[5].clone() * m[11].clone())
-        + m[4].clone() * (m[1].clone() * m[11].clone() - m[3].clone() * m[9].clone())
-        + m[8].clone() * (m[3].clone() * m[5].clone() - m[1].clone() * m[7].clone());
-
-    out[(1, 3)] = m[0].clone() * (m[9].clone() * m[14].clone() - m[10].clone() * m[13].clone())
-        + m[8].clone() * (m[2].clone() * m[13].clone() - m[1].clone() * m[14].clone())
-        + m[12].clone() * (m[1].clone() * m[10].clone() - m[2].clone() * m[9].clone());
-
-    out[(2, 3)] = m[0].clone() * (m[6].clone() * m[13].clone() - m[5].clone() * m[14].clone())
-        + m[4].clone() * (m[1].clone() * m[14].clone() - m[2].clone() * m[13].clone())
-        + m[12].clone() * (m[2].clone() * m[5].clone() - m[1].clone() * m[6].clone());
-
-    out[(3, 3)] = m[0].clone() * (m[5].clone() * m[10].clone() - m[6].clone() * m[9].clone())
-        + m[4].clone() * (m[2].clone() * m[9].clone() - m[1].clone() * m[10].clone())
-        + m[8].clone() * (m[1].clone() * m[6].clone() - m[2].clone() * m[5].clone());
+    out[(1, 3)] = a.clone() * (j.clone() * o.clone() - k.clone() * n.clone())
+        + i.clone() * (c.clone() * n.clone() - b.clone() * o.clone())
+        + m.clone() * (b.clone() * k.clone() - c.clone() * j.clone());
+    out[(2, 3)] = a.clone() * (g.clone() * n.clone() - f.clone() * o.clone())
+        + e.clone() * (b.clone() * o.clone() - c.clone() * n.clone())
+        + m.clone() * (c.clone() * f.clone() - b.clone() * g.clone());
+    out[(3, 3)] = a.clone() * (f.clone() * k.clone() - g.clone() * j.clone())
+        + e.clone() * (c.clone() * j.clone() - b.clone() * k.clone())
+        + i.clone() * (b.clone() * g.clone() - c.clone() * f.clone());
 
     let inv_det = T::one() / det;
 
