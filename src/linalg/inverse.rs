@@ -141,7 +141,7 @@ impl<T: ComplexField, D: Dim, S: StorageMut<T, D, D>> SquareMatrix<T, D, S> {
     }
 }
 
-// NOTE: this is an extremely efficient, loop-unrolled matrix inverse from MESA (MIT licensed).
+// NOTE: this is an efficient, loop-unrolled matrix inverse from MESA (MIT licensed) and further factorized.
 fn do_inverse4<T: ComplexField, D: Dim, S: StorageMut<T, D, D>>(
     mat: &OMatrix<T, D, D>,
     out: &mut SquareMatrix<T, D, S>,
