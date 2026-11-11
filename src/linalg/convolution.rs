@@ -133,13 +133,14 @@ impl<T: RealField, D1: Dim, S1: Storage<T, D1>> Vector<T, D1, S1> {
         }
 
         let mut conv = OVector::zeros_generic(self.shape_generic().0, Const::<1>);
+        let padding = ker / 2;
 
         for i in 0..vec {
             for j in 0..ker {
-                let val = if i + j < 1 || i + j >= vec + 1 {
+                let val = if i + j < padding || i + j >= vec + padding {
                     zero::<T>()
                 } else {
-                    self[i + j - 1].clone()
+                    self[i + j - padding].clone()
                 };
                 conv[i] += val * kernel[ker - j - 1].clone();
             }
