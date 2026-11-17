@@ -711,14 +711,41 @@ where
 
     /// Builds a rotation matrix by extracting the rotation part of the given transformation `m`.
     ///
-    /// This is an iterative method. See `.from_matrix_eps` to provide mover
-    /// convergence parameters and starting solution.
-    /// This implements "A Robust Method to Extract the Rotational Part of Deformations" by Müller et al.
+    /// The result is the rotation closest to `m` in the Frobenius norm, computed from the singular
+    /// value decomposition of `m`.
+    /// This is the rotation `R` from the polar decomposition `m = R * P` when `m` has a positive determinant.
+    /// If `m` has a negative determinant, e.g., because it is a reflection, the result is still the closest
+    /// rotation to `m`.
+    /// If `m` contains NaN or infinite values, so may the result.
+    ///
+    /// See `.from_matrix_eps` for an iterative method that can start from a guess of the solution.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{Matrix3, Rotation3, Vector3};
+    /// let rot = Rotation3::from_axis_angle(&Vector3::z_axis(), 1.0);
+    /// let scaled = rot.matrix() * Matrix3::from_diagonal(&Vector3::new(2.0, 3.0, 4.0));
+    /// assert_relative_eq!(Rotation3::from_matrix(&scaled), rot, epsilon = 1.0e-7);
+    ///
+    /// // A mirror image along `z` has no rotational part, so the closest rotation is the identity.
+    /// let mirror = Matrix3::from_diagonal(&Vector3::new(1.0, 1.0, -1.0));
+    /// assert_relative_eq!(Rotation3::from_matrix(&mirror), Rotation3::identity(), epsilon = 1.0e-7);
+    /// ```
     pub fn from_matrix(m: &Matrix3<T>) -> Self
     where
         T: RealField,
     {
-        Self::from_matrix_eps(m, T::default_epsilon(), 0, Self::identity())
+        let svd = m.clone().svd(true, true);
+        let mut u = svd.u.unwrap();
+        let v_t = svd.v_t.unwrap();
+
+        // Flip the direction with the smallest singular value if `u * v_t` is a reflection.
+        if (&u * &v_t).determinant() < T::zero() {
+            u.column_mut(2).neg_mut();
+        }
+
+        Self::from_matrix_unchecked(u * v_t)
     }
 
     /// Builds a rotation matrix by extracting the rotation part of the given transformation `m`.
@@ -746,7 +773,7 @@ where
         let mut perturbation_axes = Vector3::x_axis();
         let mut rot = guess.into_inner();
 
-        for _ in 0..max_iter {
+        'outer: for _ in 0..max_iter {
             let axis = rot.column(0).cross(&m.column(0))
                 + rot.column(1).cross(&m.column(1))
                 + rot.column(2).cross(&m.column(2));
@@ -765,11 +792,25 @@ where
                     let mut perturbed = rot.clone();
                     let norm_squared = (m - &rot).norm_squared();
                     let mut new_norm_squared: T;
+                    let mut disturbance = eps_disturbance.clone();
+                    let mut n_axes_tried = 0;
 
-                    // Perturb until the new norm is significantly different
+                    // Perturb until the new norm is significantly different.
+                    // Double the perturbation each time so this is fast.
                     loop {
+                        if disturbance > T::pi() {
+                            // Rotation about this axis yields no change in norm, so try the next one.
+                            // If the norm is unchanged on all axes, give up.
+                            n_axes_tried += 1;
+                            if n_axes_tried == 3 {
+                                break 'outer;
+                            }
+                            perturbation_axes = UnitVector3::new_unchecked(perturbation_axes.yzx());
+                            disturbance = eps_disturbance.clone();
+                        }
+
                         perturbed *=
-                            Rotation3::from_axis_angle(&perturbation_axes, eps_disturbance.clone());
+                            Rotation3::from_axis_angle(&perturbation_axes, disturbance.clone());
                         new_norm_squared = (m - &perturbed).norm_squared();
                         if abs_diff_ne!(
                             norm_squared,
@@ -778,6 +819,7 @@ where
                         ) {
                             break;
                         }
+                        disturbance *= crate::convert(2.0);
                     }
 
                     // If new norm is larger, it's a minimum
