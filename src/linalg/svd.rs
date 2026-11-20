@@ -584,7 +584,7 @@ where
     ///
     /// Any singular value smaller than `eps` is assumed to be zero.
     /// Returns `Err` if the right- and left- singular vectors have not
-    /// been computed at construction-time.
+    /// been computed at construction-time, or if `eps` is less than zero.
     pub fn pseudo_inverse(mut self, eps: T::RealField) -> Result<OMatrix<T, C, R>, &'static str>
     where
         DefaultAllocator: Allocator<C, R>,
@@ -818,6 +818,8 @@ where
     /// Computes the pseudo-inverse of this matrix.
     ///
     /// All singular values below `eps` are considered equal to 0.
+    ///
+    /// Returns `Err` if `eps` is less than zero.
     pub fn pseudo_inverse(self, eps: T::RealField) -> Result<OMatrix<T, C, R>, &'static str>
     where
         DefaultAllocator: Allocator<C, R>,
