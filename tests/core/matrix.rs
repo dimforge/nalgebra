@@ -1365,3 +1365,53 @@ fn abs_diff_eq_nonmatching_shapes() {
 
     a.abs_diff_eq(&b, 1e-6);
 }
+
+// Issue #1620: 1<<32 by 1<<32 wraps the element count to 0 on 64-bit,
+// so an undersized buffer passed validation and indexing wrote out of
+// bounds from safe code.
+
+#[test]
+#[should_panic(expected = "overflows usize")]
+fn wrapped_dimensions_from_vec() {
+    let dimension = 1usize << 32;
+    let _ = DMatrix::<u8>::from_vec(dimension, dimension, Vec::new());
+}
+
+#[test]
+#[should_panic(expected = "overflows usize")]
+fn wrapped_dimensions_from_fn() {
+    let dimension = 1usize << 32;
+    let _ = DMatrix::<u8>::from_fn(dimension, dimension, |_, _| 0);
+}
+
+#[test]
+#[should_panic(expected = "overflows usize")]
+fn wrapped_dimensions_resize() {
+    let mut matrix = DMatrix::<u8>::zeros(2, 2);
+    let dimension = 1usize << 32;
+    matrix.resize_mut(dimension, dimension, 0);
+}
+
+#[test]
+#[should_panic(expected = "overflows usize")]
+fn wrapped_dimensions_reshape() {
+    let matrix = DMatrix::<u8>::zeros(2, 2);
+    let dimension = 1usize << 32;
+    let _ = matrix.reshape_generic(na::Dyn(dimension), na::Dyn(dimension));
+}
+
+#[test]
+#[should_panic(expected = "input data buffer too small")]
+fn wrapped_dimensions_from_slice_with_strides() {
+    let data = [0u8; 4];
+    let dimension = 1usize << 32;
+    let _ = na::DMatrixView::from_slice_with_strides(&data, dimension, dimension, usize::MAX, usize::MAX);
+}
+
+#[test]
+#[should_panic(expected = "Matrix slicing out of bounds")]
+fn wrapped_dimensions_view_with_steps() {
+    let matrix = DMatrix::<u8>::zeros(2, 2);
+    let dimension = 1usize << 32;
+    let _ = matrix.view_with_steps((0, 0), (dimension, dimension), (usize::MAX, usize::MAX));
+}

@@ -29,3 +29,15 @@ where
     use std::iter;
     iter::repeat(()).map(|_| g.random()).find(f).unwrap()
 }
+
+/// Computes the number of elements of a matrix with shape `(nrows, ncols)`.
+///
+/// Panics if `nrows * ncols` overflows `usize`. All dimension validations
+/// must go through this so that wrapped products cannot make an undersized
+/// buffer look valid (issue #1620).
+#[inline]
+pub(crate) fn matrix_len(nrows: usize, ncols: usize) -> usize {
+    nrows.checked_mul(ncols).expect(
+        "Matrix dimensions are too large: nrows * ncols overflows usize.",
+    )
+}

@@ -3,6 +3,7 @@
 use std::any::Any;
 
 use crate::StorageMut;
+use crate::base::helper::matrix_len;
 use crate::base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 use crate::base::dimension::{Dim, U1};
 use crate::base::{DefaultAllocator, Scalar};
@@ -58,7 +59,7 @@ pub trait Allocator<R: Dim, C: Dim = U1>: Any + Sized {
 
             for (k, e) in iter
                 .into_iter()
-                .take(ncols.value() * nrows.value())
+                .take(matrix_len(ncols.value(), nrows.value()))
                 .enumerate()
             {
                 let i = k / ncols.value();
@@ -69,7 +70,7 @@ pub trait Allocator<R: Dim, C: Dim = U1>: Any + Sized {
             }
 
             assert!(
-                count == nrows.value() * ncols.value(),
+                count == matrix_len(nrows.value(), ncols.value()),
                 "Matrix init. from row iterator: iterator not long enough."
             );
 

@@ -47,9 +47,17 @@ impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
         // NOTE: The assertion implements the following formula, but without subtractions to avoid
         // underflow panics:
         //      len >= (ncols - 1) * cstride + (nrows - 1) * rstride + 1
+        // NOTE: all arithmetic is checked so that a wrapped product cannot
+        // make an undersized buffer look valid (issue #1620). An overflow of
+        // the required span means no real buffer can be large enough.
+        let required = ncols
+            .value()
+            .checked_mul(cstride.value())
+            .and_then(|cs| nrows.value().checked_mul(rstride.value()).and_then(|rs| cs.checked_add(rs)))
+            .and_then(|span| span.checked_add(1));
         assert!(
-            data.len() + cstride.value() + rstride.value()
-                >= ncols.value() * cstride.value() + nrows.value() * rstride.value() + 1,
+            required.is_some()
+                && data.len() + cstride.value() + rstride.value() >= required.unwrap(),
             "Matrix view: input data buffer too small."
         );
 
@@ -196,9 +204,17 @@ impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
         // NOTE: The assertion implements the following formula, but without subtractions to avoid
         // underflow panics:
         //      len >= (ncols - 1) * cstride + (nrows - 1) * rstride + 1
+        // NOTE: all arithmetic is checked so that a wrapped product cannot
+        // make an undersized buffer look valid (issue #1620). An overflow of
+        // the required span means no real buffer can be large enough.
+        let required = ncols
+            .value()
+            .checked_mul(cstride.value())
+            .and_then(|cs| nrows.value().checked_mul(rstride.value()).and_then(|rs| cs.checked_add(rs)))
+            .and_then(|span| span.checked_add(1));
         assert!(
-            data.len() + cstride.value() + rstride.value()
-                >= ncols.value() * cstride.value() + nrows.value() * rstride.value() + 1,
+            required.is_some()
+                && data.len() + cstride.value() + rstride.value() >= required.unwrap(),
             "Matrix view: input data buffer too small."
         );
 
