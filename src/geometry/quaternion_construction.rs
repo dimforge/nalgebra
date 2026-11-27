@@ -423,9 +423,14 @@ where
 
     /// Builds an unit quaternion by extracting the rotation part of the given transformation `m`.
     ///
-    /// This is an iterative method. See `.from_matrix_eps` to provide mover
-    /// convergence parameters and starting solution.
-    /// This implements "A Robust Method to Extract the Rotational Part of Deformations" by Müller et al.
+    /// The result is the rotation closest to `m` in the Frobenius norm, computed from the singular
+    /// value decomposition of `m`.
+    /// This is the rotation `R` from the polar decomposition `m = R * P` when `m` has a positive determinant.
+    /// If `m` has a negative determinant, e.g., because it is a reflection, the result is still the closest
+    /// rotation to `m`.
+    /// If `m` contains NaN or infinite values, so may the result.
+    ///
+    /// See `.from_matrix_eps` for an iterative method that can start from a guess of the solution.
     pub fn from_matrix(m: &Matrix3<T>) -> Self
     where
         T: RealField,

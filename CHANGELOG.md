@@ -8,6 +8,18 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 **nalgebra-lapack change log** is found [here](https://github.com/dimforge/nalgebra/blob/main/nalgebra-lapack/CHANGELOG.md)
 starting with `nalgebra-lapack` version `0.27.0`.
 
+## Unreleased
+
+### Changed
+
+- `Rotation3::from_matrix` and `UnitQuaternion::from_matrix` now compute the closest rotation from a singular value decomposition instead of iterating. The results for matrices with a positive determinant are unchanged up to rounding, except for the fixes below. Matrices with a negative determinant now map to the closest rotation.
+
+### Fixed
+
+- Fix `Rotation3::from_matrix` and `UnitQuaternion::from_matrix` looping forever on reflections, some uniformly scaled matrices, the zero matrix, and non-finite input.
+- Fix `Rotation3::from_matrix` and `UnitQuaternion::from_matrix` returning the identity for some half turns.
+- Fix `Rotation3::from_matrix_eps` and `UnitQuaternion::from_matrix_eps` looping forever on the zero matrix, even with a nonzero `max_iter`.
+
 ## [0.35.0] (24 May 2026)
 
 ### Added

@@ -72,6 +72,93 @@ fn from_rotation_matrix() {
 }
 
 #[test]
+fn from_matrix_half_turns() {
+    // Issues 1187 and 1512: half turns used to come back as the identity.
+    let m_1187 = Matrix3::new(1.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, -1.0);
+    let m_1512 = Matrix3::new(
+        -1.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.9849588871002197,
+        -0.17278870940208435,
+        0.0,
+        -0.17278870940208435,
+        0.9849588871002197,
+    );
+    let half_turn_y = Matrix3::new(-1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, -1.0);
+    for m in [m_1187, m_1512, half_turn_y] {
+        assert_relative_eq!(
+            Rotation3::from_matrix(&m),
+            Rotation3::from_matrix_unchecked(m),
+            epsilon = 1.0e-7
+        );
+    }
+}
+
+#[test]
+fn from_matrix_reflections() {
+    // Issue 1583: a left-handed basis has no rotational part.
+    let m_1583 = Matrix3::new(
+        0.7071067811865477,
+        0.7071067811865475,
+        0.0,
+        -0.7071067811865475,
+        0.7071067811865475,
+        0.0,
+        0.0,
+        0.0,
+        -1.0,
+    );
+    let (c, s) = (-0.47927418f32, -0.8776652f32);
+    let mirrored_yaw = Matrix3::new(c, s, 0.0, s, -c, 0.0, 0.0, 0.0, 1.0f32).transpose();
+
+    let rot = Rotation3::from_matrix(&m_1583);
+    assert_relative_eq!(rot.matrix().determinant(), 1.0, epsilon = 1.0e-12);
+    assert_relative_eq!(
+        (m_1583 - rot.matrix()).norm_squared(),
+        4.0,
+        epsilon = 1.0e-12
+    );
+
+    let rot = Rotation3::from_matrix(&mirrored_yaw);
+    assert_relative_eq!(rot.matrix().determinant(), 1.0, epsilon = 1.0e-5);
+    assert_relative_eq!(
+        (mirrored_yaw - rot.matrix()).norm_squared(),
+        4.0,
+        epsilon = 1.0e-5
+    );
+
+    let quat = UnitQuaternion::from_matrix(&mirrored_yaw);
+    assert_relative_eq!(quat.norm(), 1.0, epsilon = 1.0e-6);
+}
+
+#[test]
+fn from_matrix_terminates_uniform() {
+    // Issue 1529: for some scales in `f32`, the old iteration kept stepping away from the identity
+    // and back.
+    for s in [0.0645f32, 0.11823407] {
+        let m = Matrix3::identity() * s;
+        assert_relative_eq!(
+            Rotation3::from_matrix(&m),
+            Rotation3::identity(),
+            epsilon = 1.0e-3
+        );
+    }
+}
+
+#[test]
+fn from_matrix_terminates_degenerate() {
+    // Issues 1509 and 1529: non-finite input used to loop forever.
+    let _ = Rotation3::from_matrix(&Matrix3::from_element(f64::NAN));
+    let _ = UnitQuaternion::from_matrix(&Matrix3::from_element(f32::NAN));
+
+    let zero = Matrix3::<f64>::zeros();
+    let _ = Rotation3::from_matrix(&zero);
+    let _ = Rotation3::from_matrix_eps(&zero, f64::EPSILON, 10, Rotation3::identity());
+}
+
+#[test]
 fn quaternion_euler_angles_issue_494() {
     let quat = UnitQuaternion::from_quaternion(Quaternion::new(
         -0.10405792,
